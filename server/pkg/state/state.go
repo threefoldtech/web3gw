@@ -74,7 +74,7 @@ func NewStateManager[S State]() *StateManager[S] {
 				fmt.Println("Checking keys")
 				//cleanse keys
 				sm.conStates.Range(func(key any, value any) bool {
-					meta, ok := value.(*stateMeta[S])
+					meta, ok := value.(stateMeta[S])
 					if !ok {
 						fmt.Println("invalid state meta conversion in cleanup loop")
 						return true
