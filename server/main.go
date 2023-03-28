@@ -8,8 +8,11 @@ import (
 )
 
 func main() {
+	// Register custom error codes
+	errors := jsonrpc.NewErrors()
+	errors.Register(-1001, &eth.ErrClientNotConnected{})
 
-	rpcServer := jsonrpc.NewServer()
+	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(errors))
 	rpcServer.Register("eth", eth.NewClient())
 
 	http.HandleFunc("/", rpcServer.ServeHTTP)
