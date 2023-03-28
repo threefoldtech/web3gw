@@ -29,6 +29,23 @@ type Client struct {
 	state *state.StateManager[ethState]
 }
 
+// Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given secret
+func (c *Client) Load(ctx context.Context, url string, secret string) error {
+	cl, err := goethclient.NewClient(url, secret)
+	if err != nil {
+		return err
+	}
+
+	es := ethState{
+		client: cl,
+	}
+
+	c.state.Set(state.IDFromContext(ctx), es)
+
+	return nil
+}
+
+// Balance of an address
 func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
@@ -43,17 +60,12 @@ func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
 	return balance.Int64(), nil
 }
 
-func (c *Client) Load(ctx context.Context, url string, secret string) error {
-	cl, err := goethclient.NewClient(url, secret)
-	if err != nil {
-		return err
+// Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
+func (c *Client) Transfer(ctx context.Context, amount int64, destination string) (string, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return "", ClientNotConnected
 	}
 
-	es := ethState{
-		client: cl,
-	}
-
-	c.state.Set(state.IDFromContext(ctx), es)
-
-	return nil
+	return state.client.TransferEth(amount, destination)
 }
