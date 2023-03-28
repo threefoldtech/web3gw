@@ -10,6 +10,6 @@ func GenerateKeypair() (*ecdsa.PrivateKey, error) {
 	return crypto.GenerateKey()
 }
 
-func KeyfromSecret(secret string) (*ecdsa.PrivateKey, error) {
+func KeyFromSecret(secret string) (*ecdsa.PrivateKey, error) {
 	return crypto.HexToECDSA(secret)
 }

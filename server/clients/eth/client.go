@@ -32,7 +32,7 @@ func NewClient(url, secret string) (*Client, error) {
 		}
 		cl.Key = kp
 	} else {
-		kp, err := KeyfromSecret(secret)
+		kp, err := KeyFromSecret(secret)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to import key")
 		}
