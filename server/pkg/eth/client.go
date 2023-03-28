@@ -63,6 +63,16 @@ func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
 	return balance.Int64(), nil
 }
 
+// Height of the chain for the connected rpc remote
+func (c *Client) Height(ctx context.Context) (uint64, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return 0, ErrClientNotConnected{}
+	}
+
+	return state.client.GetCurrentHeight()
+}
+
 // Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
 func (c *Client) Transfer(ctx context.Context, amount int64, destination string) (string, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))

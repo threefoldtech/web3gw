@@ -63,12 +63,15 @@ func NewStateManager[S State]() *StateManager[S] {
 	}
 
 	go func() {
-		for {
+		alive := true
+		for alive {
 			select {
-			case _, closed := <-sm.cleanseTicker.C:
-				if closed {
+			case _, open := <-sm.cleanseTicker.C:
+				alive = open
+				if !open {
 					break
 				}
+				fmt.Println("Checking keys")
 				//cleanse keys
 				sm.conStates.Range(func(key any, value any) bool {
 					meta, ok := value.(*stateMeta[S])
@@ -77,14 +80,17 @@ func NewStateManager[S State]() *StateManager[S] {
 						return true
 					}
 					if meta.accessed < time.Now().Unix()-int64(keyStaleMark.Seconds()) {
+						fmt.Println("Removing stale key", key)
 						sm.conStates.Delete(key)
 					}
 					return true
 				})
 			case <-sm.closeChan:
+				alive = false
 				break
 			}
 		}
+		fmt.Println("State manager background task closed")
 	}()
 
 	return sm
