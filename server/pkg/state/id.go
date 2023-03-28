@@ -1,9 +1,13 @@
 package state
 
-import "golang.org/x/net/context"
+import (
+	"golang.org/x/net/context"
+)
 
-const jrpcID = "jrpc-uuid"
+const conUUID = "conUUID"
+
+type labelContextKey struct{}
 
 func IDFromContext(ctx context.Context) string {
-	return ctx.Value(jrpcID).(string)
+	return ctx.Value(conUUID).(string)
 }

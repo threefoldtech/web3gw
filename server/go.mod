@@ -4,18 +4,19 @@ go 1.20
 
 require (
 	github.com/ethereum/go-ethereum v1.11.5
-	github.com/filecoin-project/go-jsonrpc v0.2.3
 	github.com/pkg/errors v0.9.1
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
 	golang.org/x/net v0.4.0
 )
 
 require (
+	github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7 // indirect
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deckarep/golang-set/v2 v2.1.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
+	github.com/filecoin-project/go-jsonrpc v0.2.3 // indirect
 	github.com/go-chi/chi v4.0.3+incompatible // indirect
 	github.com/go-errors/errors v0.0.0-20150906023321-a41850380601 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect

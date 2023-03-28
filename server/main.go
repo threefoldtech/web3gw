@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/filecoin-project/go-jsonrpc"
+	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	rpcServer := jsonrpc.NewServer()
 	serverHandler := &Client{}
 	rpcServer.Register("test", serverHandler)
-	rpcServer.Register("eth", &eth.Client{})
+	rpcServer.Register("eth", eth.NewClient())
 
 	http.HandleFunc("/", rpcServer.ServeHTTP)
 	http.ListenAndServe(":8080", nil)
