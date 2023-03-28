@@ -5,6 +5,7 @@
 *.so
 *.dylib
 web3_proxy
+server
 
 # Test binary, built with `go test -c`
 *.test
