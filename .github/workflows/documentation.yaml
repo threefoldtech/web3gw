@@ -21,15 +21,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Install mdbook dependencies
-        run: |
-          pwd
-          ls
-          cd web3_proxy && bash install.sh
-          cd ../
-
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install mdbook dependencies
+        run: bash manual/install.sh
 
       - name: Generate documentation
         run: |
