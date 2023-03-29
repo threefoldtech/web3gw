@@ -58,7 +58,7 @@ func (c *Client) Load(ctx context.Context, network string, secret string) error 
 	return nil
 }
 
-// Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
+// Transer an amount of TFT from the loaded account to the destination.
 func (c *Client) Transfer(ctx context.Context, amount string, destination string, memo string) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
@@ -66,4 +66,19 @@ func (c *Client) Transfer(ctx context.Context, amount string, destination string
 	}
 
 	return state.client.Transfer(destination, memo, amount)
+}
+
+// Balance of an account for TFT on stellar.
+func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return 0, pkg.ErrClientNotConnected{}
+	}
+
+	balance, err := state.client.GetBalance(address)
+	if err != nil {
+		return 0, err
+	}
+
+	return balance.Int64(), nil
 }
