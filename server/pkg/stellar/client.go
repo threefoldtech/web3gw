@@ -13,6 +13,8 @@ const (
 )
 
 type (
+	// ErrClientNotConnected indicates stellar client is not yet connected to an ethereum node and or the client does not have a private key loaded yet.
+	ErrClientNotConnected struct{}
 	// ErrUnknownNetwork indicates a client was requested for an unknown network
 	ErrUnknownNetwork struct{}
 	// Client exposing stellar methods
@@ -28,6 +30,11 @@ type (
 // Error implements the error interface
 func (e ErrUnknownNetwork) Error() string {
 	return "only 'public' and 'testnet' networks are supported"
+}
+
+// Error implements Error interface
+func (e ErrClientNotConnected) Error() string {
+	return "client not connected yet"
 }
 
 // NewClient creates a new Client ready for use
@@ -55,4 +62,14 @@ func (c *Client) Load(ctx context.Context, network string, secret string) error 
 	c.state.Set(state.IDFromContext(ctx), ss)
 
 	return nil
+}
+
+// Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
+func (c *Client) Transfer(ctx context.Context, amount string, destination string, memo string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return ErrClientNotConnected{}
+	}
+
+	return state.client.Transfer(destination, memo, amount)
 }
