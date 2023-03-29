@@ -23,8 +23,8 @@ jobs:
     steps:
       - name: Install mdbook dependencies
         run: |
-        cd manual && bash install.sh
-        cd ../
+          cd manual && bash install.sh
+          cd ../
 
       - name: Checkout
         uses: actions/checkout@v3
