@@ -1,0 +1,8 @@
+[book]
+authors = ["Threefold Community"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+create-missing = false
