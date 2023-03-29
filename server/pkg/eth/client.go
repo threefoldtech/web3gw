@@ -4,12 +4,11 @@ import (
 	"context"
 
 	goethclient "github.com/threefoldtech/web3_proxy/server/clients/eth"
+	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
 
 type (
-	// ErrClientNotConnected indicates an ethereum client is not yet connected to an ethereum node and or the client does not have a private key loaded yet.
-	ErrClientNotConnected struct{}
 	// Client exposes ethereum related functionality
 	Client struct {
 		state *state.StateManager[ethState]
@@ -19,11 +18,6 @@ type (
 		client *goethclient.Client
 	}
 )
-
-// Error implements Error interface
-func (e ErrClientNotConnected) Error() string {
-	return "client not connected yet"
-}
 
 // NewClient creates a new Client ready for use
 func NewClient() *Client {
@@ -52,7 +46,7 @@ func (c *Client) Load(ctx context.Context, url string, secret string) error {
 func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
-		return 0, ErrClientNotConnected{}
+		return 0, pkg.ErrClientNotConnected{}
 	}
 
 	balance, err := state.client.GetBalance(address)
@@ -67,7 +61,7 @@ func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
 func (c *Client) Height(ctx context.Context) (uint64, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
-		return 0, ErrClientNotConnected{}
+		return 0, pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.GetCurrentHeight()
@@ -77,7 +71,7 @@ func (c *Client) Height(ctx context.Context) (uint64, error) {
 func (c *Client) Transfer(ctx context.Context, amount int64, destination string) (string, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
-		return "", ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.TransferEth(amount, destination)
