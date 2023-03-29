@@ -56,6 +56,17 @@ func (c *Client) GetTftAsset() txnbuild.CreditAsset {
 	}
 }
 
+// GetTftAsset returns the tft asset for the stellar network
+func (c *Client) GetTftBaseAsset() base.Asset {
+	if c.stellarNetwork == "testnet" {
+		return TestnetTftAsset
+	} else if c.stellarNetwork == "public" {
+		return MainnetTftAsset
+	} else {
+		return TestnetTftAsset
+	}
+}
+
 // GetStellarNetworkPassphrase returns the passphrase for the stellar network
 func (c *Client) GetStellarNetworkPassphrase() string {
 	if c.stellarNetwork == "testnet" {
