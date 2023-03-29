@@ -8,4 +8,4 @@ Project setup:
 
 ## Documentation
 
-To create documentation for the project, run `bash doc.sh`. This builds mdbook documentation from content in manual folder in /docs. Overwrites prebuilt content in docs if any. See [manual]() for more info on using mdbooks for documentation.
+To create documentation for the project, run `bash doc.sh`. This builds mdbook documentation from content in manual folder in /docs. Overwrites prebuilt content in docs if any. See [manual](/manual/readmd.md) for more info on using mdbooks for documentation.
