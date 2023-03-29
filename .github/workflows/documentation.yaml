@@ -24,7 +24,8 @@ jobs:
       - name: Install mdbook dependencies
         run: |
           pwd
-          cd manual && bash install.sh
+          ls
+          cd web3_proxy && bash install.sh
           cd ../
 
       - name: Checkout
