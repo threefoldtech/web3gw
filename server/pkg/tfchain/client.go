@@ -71,18 +71,20 @@ func (c *Client) Load(ctx context.Context, network string, passphrase string) er
 	return nil
 }
 
-// TODO: merge: https://github.com/threefoldtech/substrate-client/pull/84
+// Transer an amount of TFT from the loaded account to the destination.
+func (c *Client) Transfer(ctx context.Context, amount uint64, destination string, memo string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
 
-// // Transer an amount of TFT from the loaded account to the destination.
-// func (c *Client) Transfer(ctx context.Context, amount string, destination string, memo string) error {
-// 	state, ok := c.state.Get(state.IDFromContext(ctx))
-// 	if !ok || state.client == nil {
-// 		return pkg.ErrClientNotConnected{}
-// 	}
+	dest, err := substrate.FromAddress(destination)
+	if err != nil {
+		return err
+	}
 
-// 	// return state.client.Transfer(destination, memo, amount)
-// 	return nil
-// }
+	return state.client.Transfer(*state.identity, amount, dest)
+}
 
 // Balance of an account for TFT on stellar.
 func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
