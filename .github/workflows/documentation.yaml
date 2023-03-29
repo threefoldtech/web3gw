@@ -23,7 +23,8 @@ jobs:
     steps:
       - name: Install mdbook dependencies
         run: |
-          cd web3_proxy/manual && bash install.sh
+          pwd
+          cd manual && bash install.sh
           cd ../
 
       - name: Checkout
