@@ -22,7 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install mdbook dependencies
-        run: bash manual/install.sh
+        run: pushd manual
+        bash install.sh
+        popd
 
       - name: Checkout
         uses: actions/checkout@v3
