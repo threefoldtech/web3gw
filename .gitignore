@@ -1,0 +1,6 @@
+_docs
+docs
+manual/book
+.vmodules/
+.vscode
+*dSYM/
