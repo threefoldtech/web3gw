@@ -72,7 +72,7 @@ func (c *Client) Load(ctx context.Context, network string, passphrase string) er
 }
 
 // Transer an amount of TFT from the loaded account to the destination.
-func (c *Client) Transfer(ctx context.Context, amount uint64, destination string, memo string) error {
+func (c *Client) Transfer(ctx context.Context, amount uint64, destination string) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return pkg.ErrClientNotConnected{}
