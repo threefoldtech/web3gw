@@ -7,7 +7,6 @@ pushd manual
 bash run.sh
 popd
 
-# ? create also v docs?
 # v fmt -w .
 # v doc -m -f html . -readme -comments -no-timestamp
 

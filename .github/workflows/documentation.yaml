@@ -2,7 +2,7 @@ name: Deploy static documentation to Pages
 
 on:
   push:
-    branches: ["development", "7-add-ci-and-mdbook-documentation"]
+    branches: ["development"]
   workflow_dispatch:
 
 permissions:
