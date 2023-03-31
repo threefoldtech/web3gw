@@ -10,7 +10,7 @@ In this section you'll find the json rpc requests and responses of all the remot
 ```
 {
     "jsonrpc": "2.0",
-    "method": "eth.login",
+    "method": "eth.Load",
     "params": {
         "url": string,
         "secret": string
@@ -33,7 +33,7 @@ In this section you'll find the json rpc requests and responses of all the remot
 ```
 {
     "jsonrpc": "2.0",
-    "method": "eth.balance.get",
+    "method": "eth.Balance",
     "params": "<address>",
     "id": "<GUID>"
 }
@@ -53,7 +53,7 @@ In this section you'll find the json rpc requests and responses of all the remot
 ```
 {
     "jsonrpc": "2.0",
-    "method": "eth.height.get",
+    "method": "eth.Height",
     "params": "",
     "id": "<GUID>"
 }

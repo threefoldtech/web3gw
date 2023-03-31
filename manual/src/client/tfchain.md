@@ -10,7 +10,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfchain.login",
+    "method": "tfchain.Load",
     "params": {
         "passphrase": string,
         "network": string
@@ -33,7 +33,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfchain.login",
+    "method": "tfchain.Transfer",
     "params": {
         "destination": string,
         "memo": string,
@@ -57,7 +57,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfchain.balance.get",
+    "method": "tfchain.Balance",
     "params": "<address>",
     "id": "<GUID>"
 }
@@ -77,7 +77,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfchain.twin.get",
+    "method": "tfchain.TwinGet",
     "params": <id>,
     "id": "<GUID>"
 }
@@ -97,7 +97,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfchain.node.get",
+    "method": "tfchain.NodeGet",
     "params": <id>,
     "id": "<GUID>"
 }
@@ -117,7 +117,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfchain.farm.get",
+    "method": "tfchain.FarmGet",
     "params": <id>,
     "id": "<GUID>"
 }

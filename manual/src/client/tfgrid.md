@@ -12,8 +12,11 @@ This rpc is used to login. It requires you to pass your menmonic and the network
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.login",
-    "params": <MODEL_CREDENTIALS>,
+    "method": "tfgrid.Load",
+    "params": [
+        "<menomonic>",
+        "<network>"
+    ],
     "id": "<GUID>"
 }
 ```
@@ -34,7 +37,7 @@ This rpc allows you to deploy a gateway name. It requires you to pass the inform
 {
     "jsonrpc": "2.0",
     "method": "tfgrid.gateway.name.deploy",
-    "params": <MODEL_GATEWAYNAME>,
+    "params": [<MODEL_GATEWAYNAME>],
     "id": "<GUID>"
 }
 ```
@@ -54,8 +57,8 @@ This rpc allows you to delete a deployed gateway name. You should send the name 
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.gateway.name.delete",
-    "params": "<name>",
+    "method": "tfgrid.GatewayNameDelete",
+    "params": ["<name>"],
     "id": "<GUID>"
 }
 ```
@@ -75,7 +78,7 @@ You can always ask for information on a gateway name via the rpc shown below. Ju
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.gateway.name.get",
+    "method": "tfgrid.GatewayNameGet",
     "params": "<name>",
     "id": "<GUID>"
 }
@@ -96,7 +99,7 @@ If you wish for a fully qualified domain name you should use the rpc shown below
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.gateway.fqdn.deploy",
+    "method": "tfgrid.GatewayFQDNDeploy",
     "params": <MODEL_GATEWAYFQDN>,
     "id": "<GUID>"
 }
@@ -117,7 +120,7 @@ You can delete your requested fully qualified domain name with the rpc shown bel
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.gateway.fqdn.delete",
+    "method": "tfgrid.GatewayFQDNDelete",
     "params": "<name>",
     "id": "<GUID>"
 }
@@ -132,13 +135,13 @@ You can delete your requested fully qualified domain name with the rpc shown bel
 ```
 
 ### GatewayFQDNGet
-Once created you can always retrieve the [data](#model_gatewayfqdnresult) related to your fully qualified domain name via the rpc method *tfgrid.gateway.fqdn.get*. 
+Once created you can always retrieve the [data](#model_gatewayfqdnresult) related to your fully qualified domain name via the rpc method *tfgrid.GatewayFQDNget*. 
 
 **Request**
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.gateway.fqdn.get",
+    "method": "tfgrid.GatewayFQDNGet",
     "params": "<name>",
     "id": "<GUID>"
 }
@@ -159,7 +162,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.k8s.deploy",
+    "method": "tfgrid.K8sDeploy",
     "params": <MODEL_K8SCLUSTER>,
     "id": "<GUID>"
 }
@@ -178,7 +181,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.k8s.delete",
+    "method": "tfgrid.K8sDelete",
     "params": string,
     "id": "<GUID>"
 }
@@ -197,7 +200,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.k8s.get",
+    "method": "tfgrid.K8sGet",
     "params": string,
     "id": "<GUID>"
 }
@@ -216,7 +219,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.k8s.addnode",
+    "method": "tfgrid.K8sAddnode",
     "params": {
         "name": string,
         "node": <MODEL_K8SNODE>
@@ -239,7 +242,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.k8s.removenode",
+    "method": "tfgrid.K8sRemovenode",
     "params": {
         "name": string,
         "nodename": string
@@ -261,7 +264,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.machines.deploy",
+    "method": "tfgrid.MachinesDeploy",
     "params": <MODEL_MACHINES>,
     "id": "<GUID>"
 }
@@ -280,7 +283,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.machines.delete",
+    "method": "tfgrid.MachinesDelete",
     "params": string,
     "id": "<GUID>"
 }
@@ -299,7 +302,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.machines.get",
+    "method": "tfgrid.MachinesGet",
     "params": string,
     "id": "<GUID>"
 }
@@ -318,7 +321,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.machine.add",
+    "method": "tfgrid.MachinesAdd",
     "params": {
         "project_name": string,
         "machine": <MODEL_MACHINE>
@@ -340,7 +343,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.machine.remove",
+    "method": "tfgrid.MachinesRemove",
     "params": {
         "machine_name": string,
         "project_name": string
@@ -362,7 +365,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.deployment.create",
+    "method": "tfgrid.DeploymentCreate",
     "params": <MODEL_DEPLOYMENT>,
     "id": "<GUID>"
 }
@@ -381,7 +384,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.deployment.update",
+    "method": "tfgrid.DeploymentUpdate",
     "params": <MODEL_DEPLOYMENT>,
     "id": "<GUID>"
 }
@@ -400,7 +403,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.deployment.cancel",
+    "method": "tfgrid.DeploymentCancel",
     "params": i64,
     "id": "<GUID>"
 }
@@ -419,7 +422,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.deployment.get",
+    "method": "tfgrid.DeploymentGet",
     "params": i64,
     "id": "<GUID>"
 }
@@ -438,7 +441,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.zdb.deploy",
+    "method": "tfgrid.ZdbDeploy",
     "params": <MODEL_ZDB>,
     "id": "<GUID>"
 }
@@ -457,7 +460,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.zdb.delete",
+    "method": "tfgrid.ZdbDelete",
     "params": string,
     "id": "<GUID>"
 }
@@ -476,7 +479,7 @@ Once created you can always retrieve the [data](#model_gatewayfqdnresult) relate
 ```
 {
     "jsonrpc": "2.0",
-    "method": "tfgrid.zdb.get",
+    "method": "tfgrid.ZdbGet",
     "params": string,
     "id": "<GUID>"
 }

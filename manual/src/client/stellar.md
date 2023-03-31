@@ -13,7 +13,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "stellar.load",
+    "method": "stellar.Load",
     "params": {
         "secret": string,
         "network": string
@@ -36,7 +36,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "stellar.transfer",
+    "method": "stellar.Transfer",
     "params": {
         "destination": string,
         "memo": string,
@@ -60,7 +60,7 @@ TODO: intro
 ```
 {
     "jsonrpc": "2.0",
-    "method": "stellar.balance.get",
+    "method": "stellar.Balance",
     "params": "<address>",
     "id": "<GUID>"
 }
