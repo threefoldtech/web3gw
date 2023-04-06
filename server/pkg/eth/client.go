@@ -2,7 +2,6 @@ package eth
 
 import (
 	"context"
-	"math/big"
 
 	goethclient "github.com/threefoldtech/web3_proxy/server/clients/eth"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -76,24 +75,4 @@ func (c *Client) Transfer(ctx context.Context, amount int64, destination string)
 	}
 
 	return state.client.TransferEth(amount, destination)
-}
-
-// GetMultisigOwners fetches the owner addresses for a multisig contract
-func (c *Client) GetMultisigOwners(ctx context.Context, address string) ([]string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.GetOwners(address)
-}
-
-// GetMultisigThreshold fetches the treshold for a multisig contract
-func (c *Client) GetMultisigThreshold(ctx context.Context, address string) (*big.Int, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.GetThreshold(address)
 }

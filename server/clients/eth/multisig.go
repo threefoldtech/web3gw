@@ -101,3 +101,17 @@ func (c *Client) RemoveOwner(contractAddress, target string, treshold int64) (st
 
 	return c.sendTransaction(tx)
 }
+
+func (c *Client) ApproveHash(contractAddress, hex string) (string, error) {
+	ms, err := gnosis.NewGnosis(common.HexToAddress(contractAddress), c.Eth)
+	if err != nil {
+		return "", err
+	}
+
+	tx, err := ms.ApproveHash(&bind.TransactOpts{}, common.HexToHash(hex))
+	if err != nil {
+		return "", err
+	}
+
+	return c.sendTransaction(tx)
+}
