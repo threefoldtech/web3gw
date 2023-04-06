@@ -3,7 +3,6 @@ package goethclient
 import (
 	"context"
 	"crypto/ecdsa"
-	"fmt"
 	"log"
 	"math/big"
 
@@ -38,21 +37,5 @@ func (c *Client) TransferEth(amount int64, destination string) (string, error) {
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, nil)
 
-	chainID, err := c.Eth.NetworkID(context.Background())
-	if err != nil {
-		return "", errors.Wrap(err, "failed to get chainID")
-	}
-
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), c.Key)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to sign tx")
-	}
-
-	err = c.Eth.SendTransaction(context.Background(), signedTx)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to send transaction")
-	}
-
-	fmt.Printf("tx sent: %s", signedTx.Hash().Hex())
-	return signedTx.Hash().Hex(), nil
+	return c.sendTransaction(tx)
 }
