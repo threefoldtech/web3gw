@@ -1,5 +1,0 @@
-module tfchain
-
-pub struct {
-	
-}
