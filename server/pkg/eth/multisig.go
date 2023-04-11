@@ -48,12 +48,12 @@ func (c *Client) RemoveMultisigOwner(ctx context.Context, contractAddress, targe
 	return state.client.RemoveOwner(contractAddress, target, threshold)
 }
 
-// ApproveHash approves a transaction hash
-func (c *Client) ApproveHash(ctx context.Context, contractAddress, hash string) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return "", pkg.ErrClientNotConnected{}
-	}
+// // ApproveHash approves a transaction hash
+// func (c *Client) ApproveHash(ctx context.Context, contractAddress, hash string) (string, error) {
+// 	state, ok := c.state.Get(state.IDFromContext(ctx))
+// 	if !ok || state.client == nil {
+// 		return "", pkg.ErrClientNotConnected{}
+// 	}
 
-	return state.client.ApproveHash(contractAddress, hash)
-}
+// 	return state.client.ApproveHash(contractAddress, hash)
+// }

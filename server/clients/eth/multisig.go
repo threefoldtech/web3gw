@@ -1,12 +1,14 @@
 package goethclient
 
 import (
-	"errors"
 	"math/big"
+
+	"github.com/pkg/errors"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/threefoldtech/web3_proxy/server/clients/eth/erc20"
 	"github.com/threefoldtech/web3_proxy/server/clients/eth/gnosis"
 )
 
@@ -102,16 +104,125 @@ func (c *Client) RemoveOwner(contractAddress, target string, treshold int64) (st
 	return c.sendTransaction(tx)
 }
 
-func (c *Client) ApproveHash(contractAddress, hex string) (string, error) {
+// func (c *Client) ConfirmPendingTransaction(contractAddress string) (string, error) {
+// 	ms, err := gnosis.NewGnosis(common.HexToAddress(contractAddress), c.Eth)
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	// fetch pending transactions
+// 	x, err := ms.ApprovedHashes(&bind.CallOpts{}, common.HexToAddress(c.AddressFromKey()), [32]byte{})
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	tx, err := ms.ApproveHash(&bind.TransactOpts{}, common.HexToHash(hex))
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	return c.sendTransaction(tx)
+// }
+
+func (c *Client) IsApproved(contractAddress string, hash string) (bool, error) {
 	ms, err := gnosis.NewGnosis(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 
-	tx, err := ms.ApproveHash(&bind.TransactOpts{}, common.HexToHash(hex))
+	x, err := ms.ApprovedHashes(&bind.CallOpts{}, c.AddressFromKey(), [32]byte{})
+	if err != nil {
+		return false, err
+	}
+
+	return x.Int64() == 1, nil
+}
+
+func (c *Client) InitiateMultisigEthTransfer(safeContractAddress, destination string, amount int64) (string, error) {
+	ms, err := gnosis.NewGnosis(common.HexToAddress(safeContractAddress), c.Eth)
 	if err != nil {
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	tx, err := c.createTransferTransaction(amount, destination)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create transfer transaction")
+	}
+
+	msTx, err := ms.ExecTransaction(
+		&bind.TransactOpts{},
+		// toAddress,
+		*tx.To(),
+		// value
+		tx.Value(),
+		// data
+		tx.Data(),
+		// operation (optional)
+		0,
+		// safeTxGas (optional)
+		nil,
+		// baseGas (optional)
+		tx.GasPrice(),
+		// gasPrice (optional)
+		tx.GasPrice(),
+		// gasToken (optional)
+		common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		// refundReceiver (optional)
+		c.AddressFromKey(),
+		// signatures
+		[]byte{},
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return c.sendTransaction(msTx)
+}
+
+func (c *Client) InitiateMultisigTokenTransfer(safeContractAddress, tokenAddress, destination string, amount int64) (string, error) {
+	ms, err := gnosis.NewGnosis(common.HexToAddress(safeContractAddress), c.Eth)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := erc20.NewErc20(common.HexToAddress(tokenAddress), c.Eth)
+	if err != nil {
+		return "", err
+	}
+
+	tx, err := token.Transfer(&bind.TransactOpts{}, common.HexToAddress(destination), big.NewInt(amount))
+	if err != nil {
+		return "", err
+	}
+
+	msTx, err := ms.ExecTransaction(
+		&bind.TransactOpts{},
+		// toAddress,
+		*tx.To(),
+		// value
+		tx.Value(),
+		// data
+		tx.Data(),
+		// operation (optional)
+		0,
+		// safeTxGas (optional)
+		nil,
+		// baseGas (optional)
+		tx.GasPrice(),
+		// gasPrice (optional)
+		tx.GasPrice(),
+		// gasToken (optional)
+		common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		// refundReceiver (optional)
+		c.AddressFromKey(),
+		// signatures
+		[]byte{},
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return c.sendTransaction(msTx)
 }

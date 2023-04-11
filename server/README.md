@@ -20,8 +20,8 @@ Server will now listen on `ws://localhost:8080`
 
 2. Get eth balance: `{"jsonrpc":"2.0", "id": 1, "method": "eth.Balance", "params":["0x49E02993791d762EbD2E4ac2FcA80CbAD6029be0"]}`
 
-3. Get eth gnosis multisig contract owners: `{"jsonrpc":"2.0", "id": 1, "method": "eth.GetMultisigOwners", "params":["0x575862299B321053469f4941619393349E98E760"]}`
+3. Get eth gnosis multisig contract owners: `{"jsonrpc":"2.0", "id": 1, "method": "eth.GetMultisigOwners", "params":["0xa1c47964b774A977CAda6EFC80a14d833630ac38"]}`
 
-4. Get eth gnosis multisig threshold: `{"jsonrpc":"2.0", "id": 1, "method": "eth.GetMultisigThreshold", "params":["0x575862299B321053469f4941619393349E98E760"]}`
+4. Get eth gnosis multisig threshold: `{"jsonrpc":"2.0", "id": 1, "method": "eth.GetMultisigThreshold", "params":["0xa1c47964b774A977CAda6EFC80a14d833630ac38"]}`
 
 5. Get eth token balance for custom token: `{"jsonrpc":"2.0", "id": 1, "method": "eth.GetTokenBalance", "params":["0x403351d9a97b48B290bCE1bF1d8797812Ae527DF", "0xbD330A6F55518b5dc6B984c01dd7f023775fbe7d"]}`
