@@ -14,7 +14,7 @@ pub:
 }
 
 [params]
-struct CreateTwin struct {
+struct CreateTwin {
 pub:
 	relay string
 	pk    []byte
@@ -28,8 +28,8 @@ struct AcceptTermsAndConditions {
 
 [params]
 struct GetContractWithHash {
-	node_id uint32
-	hash    substrate.HexHash
+	node_id u32
+	hash    []byte
 }
 
 [params]
@@ -38,19 +38,19 @@ struct CreateNodeContract {
 	body                 string
 	hash                 string
 	public_ips           u32
-	solution_provider_id *u64
+	solution_provider_id &u64
 }
 
 [params]
 struct CreateRentContract {
 	node_id	u32
-	solution_provider_id *u64
+	solution_provider_id &u64
 }
 
 [params]
 struct ServiceContractCreate {
-	service  substrate.AccountID
-	consumer substrate.AccountID
+	service  []byte
+	consumer []byte
 }
 
 [params]
@@ -68,15 +68,20 @@ struct SetServiceContractFees {
 }
 
 [params]
-struct ServiceContractSetMetadata struct {
+struct ServiceContractSetMetadata {
 	contract_id u64
 	metadata    string
+}
+
+struct PublicIPInput {
+	ip      string
+	gateway string
 }
 
 [params]
 struct CreateFarm {
 	name       string
-	public_ips []substrate.PublicIPInput
+	public_ips []PublicIPInput
 }
 
 pub fn load(mut client RpcWsClient, network string, passphrase string) ! {
@@ -84,7 +89,7 @@ pub fn load(mut client RpcWsClient, network string, passphrase string) ! {
 }
 
 pub fn transer(mut client RpcWsClient, args Transfer) ! {
-	_ := client.send_json_rpc[[]string, string]('tfchain.Transfer', [args.amount, args.destination],
+	_ := client.send_json_rpc[[]Transfer, string]('tfchain.Transfer', [args],
 		tfchain.default_timeout)!
 }
 
@@ -101,14 +106,14 @@ pub fn get_twin(mut client RpcWsClient, id u32) !Twin {
 }
 
 pub fn get_twin_by_pubkey(mut client RpcWsClient, pk []byte) !u32 {
-	return client.send_json_rpc[[][]byte, Twin]('tfchain.GetTwinByPubKey', [pk], tfchain.default_timeout)!
+	return client.send_json_rpc[[][]byte, u32]('tfchain.GetTwinByPubKey', [pk], tfchain.default_timeout)!
 }
 
 pub fn create_twin(mut client RpcWsClient, args CreateTwin) !u32 {
 	return client.send_json_rpc[[]CreateTwin, u32]('tfchain.GetTwinByPubKey', [args], tfchain.default_timeout)!
 }
 
-pub fn accept_terms_and_conditions(ctx context.Context, args AcceptTermsAndConditions) ! {
+pub fn accept_terms_and_conditions(mut client RpcWsClient, args AcceptTermsAndConditions) ! {
 	_ := client.send_json_rpc[[]AcceptTermsAndConditions, string]('tfchain.AcceptTermsAndConditions', [args], tfchain.default_timeout)!
 }
 
@@ -116,12 +121,12 @@ pub fn get_node(mut client RpcWsClient, id u32) !Node {
 	return client.send_json_rpc[[]u32, Node]('tfchain.GetNode', [id], tfchain.default_timeout)!
 }
 
-pub fn create_node(mut client RpcWsClient, node Node) !u32, error) {
+pub fn create_node(mut client RpcWsClient, node Node) !u32 {
 	return client.send_json_rpc[[]Node, u32]('tfchain.CreateNode', [node], tfchain.default_timeout)!
 }
 
-pub fn get_nodes(mut client RpcWsClient, farm_id u32) ![]uint32 {
-	return client.send_json_rpc[[]u32, []u32]('tfchain.GetNodes', [id], tfchain.default_timeout)!
+pub fn get_nodes(mut client RpcWsClient, farm_id u32) ![]u32 {
+	return client.send_json_rpc[[]u32, []u32]('tfchain.GetNodes', [farm_id], tfchain.default_timeout)!
 }
 
 pub fn get_farm(mut client RpcWsClient, id u32) !Farm {
@@ -129,16 +134,8 @@ pub fn get_farm(mut client RpcWsClient, id u32) !Farm {
 }
 
 
-func (c *Client) GetFarm(ctx context.Context, id uint32) (*substrate.Farm, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.GetFarm(id)
-}
-
-func (c *Client) GetFarmByName(ctx context.Context, name string) (uint32, error) {
+/*
+func (c *Client) GetFarmByName(ctx context.Context, name string) u32, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return 0, pkg.ErrClientNotConnected{}
@@ -248,3 +245,4 @@ func (c *Client) GetZosVersion(ctx context.Context) (string, error) {
 
 	return state.client.GetZosVersion()
 }
+*/
