@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/grid3-go/graphql"
 	"github.com/threefoldtech/grid3-go/workloads"
+	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
@@ -25,6 +26,7 @@ type K8sCluster struct {
 type K8sNode struct {
 	Name      string `json:"name"`
 	NodeID    uint32 `json:"node_id"`
+	FarmID    uint32 `json:"farm_id"`
 	DiskSize  int    `json:"disk_size"`
 	PublicIP  bool   `json:"public_ip"`
 	PublicIP6 bool   `json:"public_ip6"`
@@ -44,6 +46,10 @@ func (r *Runner) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName 
 	// validate project name is unique
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return K8sCluster{}, err
+	}
+
+	if err := r.assignNodesIDsForCluster(ctx, &cluster); err != nil {
+		return K8sCluster{}, errors.Wrapf(err, "Couldn't find node for all cluster nodes")
 	}
 
 	// deploy network
@@ -253,4 +259,59 @@ func newK8sNodeFromModel(model K8sNode) workloads.K8sNode {
 		CPU:         model.CPU,
 		Memory:      model.Memory,
 	}
+}
+
+// Assign chosen NodeIds to cluster node. with both way conversions to/from Reservations array.
+func (r *Runner) assignNodesIDsForCluster(ctx context.Context, cluster *K8sCluster) error {
+	// all units unified in bytes
+
+	workloads := []*PlannedReservation{}
+
+	ms := PlannedReservation{
+		WorkloadName: cluster.Master.Name,
+		FarmID:       cluster.Master.FarmID,
+		MRU:          uint64(cluster.Master.Memory * int(gridtypes.Megabyte)),
+		SRU:          uint64(cluster.Master.DiskSize * int(gridtypes.Gigabyte)),
+		PublicIps:    cluster.Master.PublicIP,
+	}
+
+	workloads = append(workloads, &ms)
+
+	for idx := range cluster.Workers {
+
+		wr := PlannedReservation{
+			WorkloadName: cluster.Workers[idx].Name,
+			FarmID:       cluster.Workers[idx].FarmID,
+			MRU:          uint64(cluster.Workers[idx].Memory * int(gridtypes.Megabyte)),
+			SRU:          uint64(cluster.Workers[idx].DiskSize * int(gridtypes.Gigabyte)),
+			PublicIps:    cluster.Workers[idx].PublicIP,
+		}
+
+		workloads = append(workloads, &wr)
+	}
+
+	err := r.AssignNodes(ctx, workloads)
+	if err != nil {
+		return err
+	}
+
+	if cluster.Master.NodeID == 0 {
+		for _, workload := range workloads {
+			if workload.WorkloadName == cluster.Master.Name {
+				cluster.Master.NodeID = uint32(workload.NodeID)
+			}
+		}
+	}
+
+	for idx := range cluster.Workers {
+		if cluster.Workers[idx].NodeID == 0 {
+			for _, workload := range workloads {
+				if workload.WorkloadName == cluster.Workers[idx].Name {
+					cluster.Workers[idx].NodeID = uint32(workload.NodeID)
+				}
+			}
+		}
+	}
+
+	return nil
 }

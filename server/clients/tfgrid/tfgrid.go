@@ -8,6 +8,7 @@ import (
 	"github.com/threefoldtech/grid3-go/graphql"
 	client "github.com/threefoldtech/grid3-go/node"
 	"github.com/threefoldtech/grid3-go/workloads"
+	"github.com/threefoldtech/grid_proxy_server/pkg/types"
 )
 
 type TFGridClient interface {
@@ -19,6 +20,10 @@ type TFGridClient interface {
 	CancelProject(ctx context.Context, projectName string) error
 	GetProjectContracts(ctx context.Context, projectName string) (graphql.Contracts, error)
 	GetNodeClient(nodeID uint32) (*client.NodeClient, error)
+	RMBCall(ctx context.Context, twin uint32, fn string, data interface{}, result interface{}) error
+	FilterNodes(filter types.NodeFilter, pagination types.Limit) (res []types.Node, totalCount int, err error)
+	FilterFarms(filter types.FarmFilter, pagination types.Limit) (res []types.Farm, totalCount int, err error)
+	GetNode(nodeID uint32) (res types.NodeWithNestedCapacity, err error)
 }
 
 type tfgridClient struct {
@@ -92,4 +97,17 @@ func (c *tfgridClient) GetProjectContracts(ctx context.Context, projectName stri
 	}
 
 	return contracts, nil
+}
+
+func (c *tfgridClient) RMBCall(ctx context.Context, twin uint32, fn string, data interface{}, result interface{}) error {
+	return c.client.RMB.Call(ctx, twin, fn, data, result)
+}
+func (c *tfgridClient) FilterNodes(filter types.NodeFilter, pagination types.Limit) (res []types.Node, totalCount int, err error) {
+	return c.client.GridProxyClient.Nodes(filter, pagination)
+}
+func (c *tfgridClient) FilterFarms(filter types.FarmFilter, pagination types.Limit) (res []types.Farm, totalCount int, err error) {
+	return c.client.GridProxyClient.Farms(filter, pagination)
+}
+func (c *tfgridClient) GetNode(nodeID uint32) (res types.NodeWithNestedCapacity, err error) {
+	return c.client.GridProxyClient.Node(nodeID)
 }

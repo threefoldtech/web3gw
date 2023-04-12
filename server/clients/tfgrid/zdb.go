@@ -3,11 +3,13 @@ package tfgrid
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/grid3-go/workloads"
+	proxyTypes "github.com/threefoldtech/grid_proxy_server/pkg/types"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
@@ -29,6 +31,10 @@ type ZDB struct {
 func (r *Runner) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZDB, error) {
 	// validate no workloads with the same name
 	if err := r.validateProjectName(ctx, projectName); err != nil {
+		return ZDB{}, err
+	}
+
+	if err := r.ensureZDBNodeIDExist(zdb); err != nil {
 		return ZDB{}, err
 	}
 
@@ -149,4 +155,31 @@ func newZDBFromClientZDB(wl workloads.ZDB) ZDB {
 		Namespace:   wl.Namespace,
 		IPs:         wl.IPs,
 	}
+}
+
+func (r *Runner) ensureZDBNodeIDExist(zdb ZDB) error {
+	// capacity filter
+	if zdb.NodeID == 0 {
+		nodeId, err := r.getNodeForZdb(uint64(zdb.Size))
+		if err != nil {
+			return errors.Wrapf(err, "Couldn't find a gateway node")
+		}
+
+		zdb.NodeID = nodeId
+	}
+	return nil
+}
+
+func (r *Runner) getNodeForZdb(size uint64) (uint32, error) {
+	options := proxyTypes.NodeFilter{
+		Status:  &Status,
+		FreeHRU: &size,
+	}
+
+	nodes, count, err := r.client.FilterNodes(options, proxyTypes.Limit{})
+	if err != nil || count == 0 {
+		return 0, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
+	}
+
+	return uint32(nodes[rand.Intn(count)].NodeID), nil
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/grid3-go/workloads"
+	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
@@ -31,6 +32,7 @@ type Network struct {
 
 type Machine struct {
 	NodeID      uint32            `json:"node_id"`
+	FarmID      uint32            `json:"farm_id"`
 	Name        string            `json:"name"`
 	Flist       string            `json:"flist"`
 	PublicIP    bool              `json:"public_ip"`
@@ -131,7 +133,9 @@ func (r *Runner) MachinesDeploy(ctx context.Context, model MachinesModel, projec
 		return MachinesModel{}, err
 	}
 
-	// TODO: if machines don't have nodes assigned, should be assigned here
+	if err := r.assignNodesIDsForMachines(ctx, &model); err != nil {
+		return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
+	}
 
 	// deploy network
 	nodes := []uint32{}
@@ -535,4 +539,48 @@ func generateDiskName(machineName string, id int) string {
 
 func generateQSFSName(machineName string, id int) string {
 	return fmt.Sprintf("%s_qsfs_%d", machineName, id)
+}
+
+// Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
+func (r *Runner) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
+	// all units unified in bytes
+
+	workloads := []*PlannedReservation{}
+
+	for idx := range machines.Machines {
+		neededSRU := 0
+		neededHRU := 0
+		for _, disk := range machines.Machines[idx].Disks {
+			neededSRU += disk.SizeGB * int(gridtypes.Gigabyte)
+		}
+		for _, qsfs := range machines.Machines[idx].QSFSs {
+			neededHRU += int(qsfs.Cache) * int(gridtypes.Gigabyte)
+		}
+		neededSRU += machines.Machines[idx].RootfsSize * int(gridtypes.Megabyte)
+
+		workloads = append(workloads, &PlannedReservation{
+			WorkloadName: machines.Machines[idx].Name,
+			MRU:          uint64(machines.Machines[idx].Memory * int(gridtypes.Megabyte)),
+			SRU:          uint64(neededSRU),
+			HRU:          uint64(neededHRU),
+			FarmID:       machines.Machines[idx].FarmID,
+		})
+	}
+
+	err := r.AssignNodes(ctx, workloads)
+	if err != nil {
+		return err
+	}
+
+	for idx := range machines.Machines {
+		if machines.Machines[idx].NodeID == 0 {
+			for _, workload := range workloads {
+				if workload.WorkloadName == machines.Machines[idx].Name {
+					machines.Machines[idx].NodeID = uint32(workload.NodeID)
+				}
+			}
+		}
+	}
+
+	return nil
 }

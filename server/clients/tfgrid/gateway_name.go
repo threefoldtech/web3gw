@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/grid3-go/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
+
+	proxyTypes "github.com/threefoldtech/grid_proxy_server/pkg/types"
 )
 
 // GatewayNameModel struct for gateway name proxy
@@ -36,6 +39,10 @@ type GatewayNameModel struct {
 func (r *Runner) GatewayNameDeploy(ctx context.Context, gatewayNameModel GatewayNameModel, projectName string) (GatewayNameModel, error) {
 	// validate that no other project is deployed with this name
 	if err := r.validateProjectName(ctx, projectName); err != nil {
+		return GatewayNameModel{}, err
+	}
+
+	if err := r.ensureGatewayNodeIDExist(&gatewayNameModel); err != nil {
 		return GatewayNameModel{}, err
 	}
 
@@ -153,4 +160,31 @@ func (r *Runner) GatewayNameGet(ctx context.Context, projectName string) (Gatewa
 		NameContractID: nameContractID,
 		ContractID:     nodeContractID,
 	}, nil
+}
+
+func (r *Runner) ensureGatewayNodeIDExist(gatewayNameModel *GatewayNameModel) error {
+	if gatewayNameModel.NodeID == 0 {
+		nodeId, err := r.getGatewayNode()
+		if err != nil {
+			return errors.Wrapf(err, "Couldn't find a gateway node")
+		}
+
+		gatewayNameModel.NodeID = nodeId
+	}
+	return nil
+}
+
+func (r *Runner) getGatewayNode() (uint32, error) {
+	options := proxyTypes.NodeFilter{
+		Status: &Status,
+		IPv4:   &TrueVal,
+		Domain: &TrueVal,
+	}
+
+	nodes, count, err := r.client.FilterNodes(options, proxyTypes.Limit{})
+	if err != nil || count == 0 {
+		return 0, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
+	}
+
+	return uint32(nodes[rand.Intn(count)].NodeID), nil
 }
