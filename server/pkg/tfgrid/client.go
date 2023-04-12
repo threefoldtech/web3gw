@@ -36,13 +36,13 @@ type (
 	}
 
 	MachinesDeploy struct {
-		model       tfgridBase.MachinesModel
-		projectName string
+		Model       tfgridBase.MachinesModel `json:"model"`
+		ProjectName string                   `json:"project_name"`
 	}
 
 	MachinesGet struct {
-		modelName   string
-		projectName string
+		ModelName   string `json:"model_name"`
+		ProjectName string `json:"project_name"`
 	}
 )
 
@@ -77,7 +77,7 @@ func (c *Client) MachinesDeploy(ctx context.Context, args MachinesDeploy) (tfgri
 	if !ok || state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesDeploy(ctx, args.model, args.projectName)
+	return state.cl.MachinesDeploy(ctx, args.Model, args.ProjectName)
 }
 
 func (c *Client) MachinesGet(ctx context.Context, args MachinesGet) (tfgridBase.MachinesModel, error) {
@@ -85,7 +85,7 @@ func (c *Client) MachinesGet(ctx context.Context, args MachinesGet) (tfgridBase.
 	if !ok || state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesGet(ctx, args.modelName, args.projectName)
+	return state.cl.MachinesGet(ctx, args.ModelName, args.ProjectName)
 }
 
 func (c *Client) MachinesDelete(ctx context.Context, name string) error {

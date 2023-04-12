@@ -564,6 +564,7 @@ func (r *Runner) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 			SRU:          uint64(neededSRU),
 			HRU:          uint64(neededHRU),
 			FarmID:       machines.Machines[idx].FarmID,
+			NodeID:       machines.Machines[idx].NodeID,
 		})
 	}
 
