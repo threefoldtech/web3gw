@@ -5,17 +5,24 @@ go 1.20
 require (
 	github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7
 	github.com/ethereum/go-ethereum v1.11.5
+	github.com/golang/mock v1.6.0
 	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.29.0
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
-	github.com/threefoldtech/grid3-go v1.0.1
-	github.com/threefoldtech/substrate-client v0.1.4
-	golang.org/x/net v0.8.0
+	github.com/stretchr/testify v1.8.2
+	github.com/threefoldtech/grid3-go v1.0.3-0.20230411174212-250d06eeb331
+	github.com/threefoldtech/rmb-sdk-go v1.0.1-0.20230316162347-255e7faa0006
+	github.com/threefoldtech/substrate-client v0.1.5
+	github.com/threefoldtech/tf-grid-cli v1.1.3-0.20230330203613-f63826e9258e
+	github.com/threefoldtech/zos v0.5.6-0.20230321103809-44426c1a69c7
+	golang.org/x/net v0.9.0
+	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
 )
 
 require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
-	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5 // indirect
@@ -41,32 +48,23 @@ require (
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/holiman/uint256 v1.2.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/ipfs/go-log/v2 v2.0.8 // indirect
 	github.com/jbenet/go-base58 v0.0.0-20150317085156-6237cf65f3a6 // indirect
-	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 // indirect
+	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect
-	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/segmentio/go-loggly v0.5.1-0.20171222203950-eb91657e62b2 // indirect
-	github.com/sevlyar/go-daemon v0.1.6 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/spf13/cobra v1.6.1 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stellar/go-xdr v0.0.0-20211103144802-8017fc4bdfee // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
-	github.com/threefoldtech/grid_proxy_server v1.6.12 // indirect
-	github.com/threefoldtech/rmb-sdk-go v1.0.1-0.20230316162347-255e7faa0006 // indirect
-	github.com/threefoldtech/tf-grid-cli v1.1.3-0.20230330203613-f63826e9258e // indirect
-	github.com/threefoldtech/zos v0.5.6-0.20230224113017-e887a6ca3fc5 // indirect
+	github.com/threefoldtech/grid_proxy_server v1.7.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
@@ -76,10 +74,9 @@ require (
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.14.1 // indirect
-	golang.org/x/crypto v0.7.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/crypto v0.8.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
-	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
