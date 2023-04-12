@@ -77,11 +77,14 @@ fn main() {
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }	
 	})
+
+
+
 	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
 		logger.error("Failed creating rpc websocket client: $err")
 		exit(1)
 	}
-	_ := spawn myclient.run()
+	_ := spawn myclient.run() //QUESTION: why is that in thread?
 	execute_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)

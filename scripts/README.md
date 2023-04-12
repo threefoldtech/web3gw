@@ -7,3 +7,6 @@ Steps to run client:
 ```
 v run main.v
 ```
+
+
+>> TODO: remove the tfgrid client from crystallib (kristof)
