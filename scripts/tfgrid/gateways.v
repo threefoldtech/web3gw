@@ -13,7 +13,7 @@ pub fn gateways_deploy_fqdn(mut client RpcWsClient, params GatewayFQDN) !Gateway
 
 // Get fqdn info using deployment name.
 pub fn gateways_get_fqdn(mut client RpcWsClient, params string) !GatewayFQDNResult {
-	return client.send_json_rpc[[]string, GatewayFQDNResult]('tfgrid.GatewayFQDN.Get', [params], default_timeout)!
+	return client.send_json_rpc[[]string, GatewayFQDNResult]('tfgrid.GatewayFQDNGet', [params], default_timeout)!
 }
 
 // Deploy name domain on gateway ex: name.gateway.com

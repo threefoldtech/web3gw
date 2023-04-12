@@ -23,7 +23,8 @@ pub:
 pub struct Machine {
 pub:
 	name        string            [required]
-	node_id     u32	[required]
+	node_id     u32
+	farm_id     u32	
 	flist       string = 'https://hub.grid.tf/tf-official-apps/base:latest.flist'
 	entrypoint  string = '/sbin/zinit init'
 	public_ip   bool
@@ -43,6 +44,7 @@ struct MachineResult {
 pub:
 	name        string
 	node_id     u32
+	farm_id     u32
 	flist       string
 	entrypoint  string
 	public_ip   bool
@@ -166,13 +168,23 @@ pub:
 }
 
 
-struct AddMachine {
-	machine Machine
+// struct AddMachine {
+// 	machine Machine
+// 	project_name string
+// }
+
+
+// struct RemoveMachine {
+// 	machine_name string
+// 	project_name string
+// }
+
+pub struct MachinesGet {
+	model_name string
 	project_name string
 }
 
-
-struct RemoveMachine {
-	machine_name string
+pub struct MachinesDeploy {
+	model MachinesModel
 	project_name string
 }

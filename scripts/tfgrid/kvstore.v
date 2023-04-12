@@ -2,6 +2,8 @@ module tfgrid
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
+// NOTE: this is related to tfchain not tfgrid + not implemented
+
 // Set a new record in my kvstore as key and value, if success return account_id
 pub fn kvstore_set(mut client RpcWsClient, key string, value string) !string {
 	return client.send_json_rpc[[]string, string]('tfgrid.KvstoreSet', [key, value], default_timeout)!

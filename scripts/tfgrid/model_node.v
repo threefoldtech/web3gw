@@ -1,5 +1,7 @@
 module tfgrid
 
+// NOTE: no need for this one
+
 pub struct Node {
 pub:
 	version            u32

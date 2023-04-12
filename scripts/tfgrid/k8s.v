@@ -15,10 +15,11 @@ pub fn k8s_get(mut client RpcWsClient, params string) !K8sClusterResult {
 	return client.send_json_rpc[[]string, K8sClusterResult]('tfgrid.K8sGet', [params], default_timeout)!
 }
 
-pub fn k8s_add_node(mut client RpcWsClient, params AddK8sNode) !K8sClusterResult {
-	return client.send_json_rpc[[]AddK8sNode, K8sClusterResult]('tfgrid.K8sNodeAdd', [params], default_timeout)!
-}
+// NOTE: not implemented
+// pub fn k8s_add_node(mut client RpcWsClient, params AddK8sNode) !K8sClusterResult {
+// 	return client.send_json_rpc[[]AddK8sNode, K8sClusterResult]('tfgrid.K8sNodeAdd', [params], default_timeout)!
+// }
 
-pub fn k8s_remove_node(mut client RpcWsClient, params RemoveK8sNode) !K8sClusterResult {
-	return client.send_json_rpc[[]RemoveK8sNode, K8sClusterResult]('tfgrid.K8sNodeRemove', [params], default_timeout)!
-}
+// pub fn k8s_remove_node(mut client RpcWsClient, params RemoveK8sNode) !K8sClusterResult {
+// 	return client.send_json_rpc[[]RemoveK8sNode, K8sClusterResult]('tfgrid.K8sNodeRemove', [params], default_timeout)!
+// }

@@ -12,13 +12,15 @@ const (
 	default_server_address = "http://127.0.0.1:8080"
 )
 
-fn mymachines() tfgrid.MachinesModel {
+fn test_machines_ops(mut client RpcWsClient, mut logger log.Logger) ! {
+	project_name := "testMachinesOps"
+
+	// deploy 
 	mut disks := []tfgrid.Disk{}
 	disks << tfgrid.Disk{
 		size: 10
 		mountpoint: '/mnt/disk1'
 	}
-
 	mut machines := []tfgrid.Machine{}
 	machines << tfgrid.Machine{
 		name: 'vm1'
@@ -31,8 +33,8 @@ fn mymachines() tfgrid.MachinesModel {
 		}
 		disks: disks
 	}
-	return tfgrid.MachinesModel{
-		name: 'project1'
+	machines_model := tfgrid.MachinesModel{
+		name: project_name
 		network: tfgrid.Network{
 			add_wireguard_access: true
 		}
@@ -40,23 +42,38 @@ fn mymachines() tfgrid.MachinesModel {
 		metadata: 'metadata1'
 		description: 'description'
 	}
-}
 
+	dep := tfgrid.MachinesDeploy{
+		project_name: project_name
+		model: machines_model
+	}
+
+	res := tfgrid.machines_deploy(mut client, dep)!
+	logger.info("${res}")
+
+	// get
+	get := tfgrid.MachinesGet{
+		model_name: project_name
+	}
+
+	res_2 := tfgrid.machines_get(mut client, get)!
+	logger.info("${res_2}")
+
+	// delete
+	tfgrid.machines_delete(mut client, project_name)!
+}
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// ADD YOUR CALLS HERE
 	tfgrid.load(mut client, tfgrid.Credentials{
-		mnemonic: "" // FILL IN YOUR MNEMONIC HERE 
+		mnemonic: "mom picnic deliver again rug night rabbit music motion hole lion where" // FILL IN YOUR MNEMONIC HERE 
 		network: "dev"
 	})!
 
-	machines_model := tfgrid.machines_deploy(mut client, mymachines())!
-	logger.info("${machines_model}")
-
-	machines_model_2 := tfgrid.machines_get(mut client, "project1")!
-	logger.info("${machines_model_2}")
-
-	tfgrid.machines_delete(mut client, "project1")!
+	test_machines_ops(mut client, mut logger) or {
+		logger.error("Failed executing machines ops: $err")
+		exit(1)
+	}
 }
 
 
@@ -77,8 +94,6 @@ fn main() {
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }	
 	})
-
-
 
 	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
 		logger.error("Failed creating rpc websocket client: $err")
