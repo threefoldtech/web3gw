@@ -34,6 +34,16 @@ type (
 	tfgridState struct {
 		cl *tfgridBase.Runner
 	}
+
+	MachinesDeploy struct {
+		model       tfgridBase.MachinesModel
+		projectName string
+	}
+
+	MachinesGet struct {
+		modelName   string
+		projectName string
+	}
 )
 
 // NewClient creates a new Client ready for use
@@ -62,20 +72,20 @@ func (c *Client) Load(ctx context.Context, mnemonic string, network string) erro
 	return nil
 }
 
-func (c *Client) MachinesDeploy(ctx context.Context, model tfgridBase.MachinesModel, projectName string) (tfgridBase.MachinesModel, error) {
+func (c *Client) MachinesDeploy(ctx context.Context, args MachinesDeploy) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesDeploy(ctx, model, projectName)
+	return state.cl.MachinesDeploy(ctx, args.model, args.projectName)
 }
 
-func (c *Client) MachinesGet(ctx context.Context, modelName string, projectName string) (tfgridBase.MachinesModel, error) {
+func (c *Client) MachinesGet(ctx context.Context, args MachinesGet) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesGet(ctx, modelName, projectName)
+	return state.cl.MachinesGet(ctx, args.modelName, args.projectName)
 }
 
 func (c *Client) MachinesDelete(ctx context.Context, name string) error {
