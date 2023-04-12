@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/grid3-go/graphql"
 	"github.com/threefoldtech/grid3-go/workloads"
-	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
@@ -48,37 +47,17 @@ func (r *Runner) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName 
 	}
 
 	// deploy network
-	cluster.NetworkName = generateNetworkName(cluster.Name)
-
-	nodeList := []uint32{}
-	nodeSet := map[uint32]struct{}{}
-	for _, node := range cluster.Workers {
-		if _, ok := nodeSet[node.NodeID]; !ok {
-			nodeList = append(nodeList, node.NodeID)
-			nodeSet[node.NodeID] = struct{}{}
-		}
+	nodes := []uint32{cluster.Master.NodeID}
+	for _, worker := range cluster.Workers {
+		nodes = append(nodes, worker.NodeID)
 	}
 
-	if _, ok := nodeSet[cluster.Master.NodeID]; !ok {
-		nodeList = append(nodeList, cluster.Master.NodeID)
-		nodeSet[cluster.Master.NodeID] = struct{}{}
-	}
-
-	ipRange, err := gridtypes.ParseIPNet("10.1.0.0/16")
+	znet, err := r.deployNetwork(ctx, cluster.Name, nodes, "10.1.0.0/16", false, projectName)
 	if err != nil {
-		return K8sCluster{}, errors.Wrapf(err, "network ip range (%s) is invalid", "10.1.0.0/16")
-	}
-
-	znet := workloads.ZNet{
-		Name:         cluster.NetworkName,
-		Nodes:        nodeList,
-		IPRange:      ipRange,
-		SolutionType: projectName,
-	}
-
-	if err := r.client.DeployNetwork(ctx, &znet); err != nil {
 		return K8sCluster{}, errors.Wrap(err, "failed to deploy network")
 	}
+
+	cluster.NetworkName = znet.Name
 
 	// map to workloads.k8sCluster
 	k8s := newK8sClusterFromModel(cluster, projectName)

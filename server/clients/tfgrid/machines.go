@@ -8,9 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/grid3-go/workloads"
-	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 // Machines model ensures that each node has one deployment that includes all workloads
@@ -136,7 +134,12 @@ func (r *Runner) MachinesDeploy(ctx context.Context, model MachinesModel, projec
 	// TODO: if machines don't have nodes assigned, should be assigned here
 
 	// deploy network
-	znet, err := r.deployMahchinesNetwork(ctx, &model, projectName)
+	nodes := []uint32{}
+	for _, machine := range model.Machines {
+		nodes = append(nodes, machine.NodeID)
+	}
+
+	znet, err := r.deployNetwork(ctx, model.Name, nodes, model.Network.IPRange, model.Network.AddWireguardAccess, projectName)
 	if err != nil {
 		return MachinesModel{}, err
 	}
@@ -206,45 +209,6 @@ func (r *Runner) deployMachinesWorkloads(ctx context.Context, model *MachinesMod
 	}
 
 	return nodeDeploymentID, nil
-}
-
-func (r *Runner) deployMahchinesNetwork(ctx context.Context, model *MachinesModel, projectName string) (*workloads.ZNet, error) {
-	nodeList := []uint32{}
-	nodeSet := map[uint32]struct{}{}
-	for _, machine := range model.Machines {
-		if _, ok := nodeSet[machine.NodeID]; !ok {
-			nodeList = append(nodeList, machine.NodeID)
-			nodeSet[machine.NodeID] = struct{}{}
-		}
-	}
-
-	ipRange, err := gridtypes.ParseIPNet(model.Network.IPRange)
-	if err != nil {
-		return nil, errors.Wrapf(err, "network ip range (%s) is invalid", model.Network.IPRange)
-	}
-
-	znet := workloads.ZNet{
-		Name:         generateNetworkName(model.Name),
-		Nodes:        nodeList,
-		IPRange:      ipRange,
-		AddWGAccess:  model.Network.AddWireguardAccess,
-		SolutionType: projectName,
-	}
-
-	if znet.AddWGAccess {
-		privateKey, err := wgtypes.GeneratePrivateKey()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to generate wireguard private key")
-		}
-		znet.ExternalSK = privateKey
-	}
-
-	err = r.client.DeployNetwork(ctx, &znet)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to deploy network")
-	}
-
-	return &znet, nil
 }
 
 func (r *Runner) extractWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {

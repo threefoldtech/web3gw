@@ -108,7 +108,7 @@ func TestK8s(t *testing.T) {
 
 		znet := workloads.ZNet{
 			Name:         generateNetworkName(model.Name),
-			Nodes:        []uint32{2, 1},
+			Nodes:        []uint32{1, 2},
 			IPRange:      ipRange,
 			SolutionType: projectName,
 		}
