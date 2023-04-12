@@ -106,12 +106,13 @@ func TestMachines(t *testing.T) {
 			SolutionType: projectName,
 		}
 
-		cl.EXPECT().DeployNetwork(gomock.Any(), &znet).Return(&znet, nil)
+		cl.EXPECT().DeployNetwork(gomock.Any(), &znet).Return(nil)
 
 		model.Network.Name = generateNetworkName(model.Name)
 
 		// TODO: deployment should not be any
-		cl.EXPECT().DeployDeployment(gomock.Any(), gomock.Any()).Return(nil)
+		contractID := uint64(1)
+		cl.EXPECT().DeployDeployment(gomock.Any(), gomock.Any()).Return(contractID, nil)
 
 		nodeClient := client.NewNodeClient(1, rmbClient, 10)
 		cl.EXPECT().GetNodeClient(uint32(1)).Return(nodeClient, nil)
