@@ -19,7 +19,7 @@ func (c *Client) GetTokenBalance(ctx context.Context, contractAddress, target st
 }
 
 // TransferToken transfer an erc20 compatible token to a destination
-func (c *Client) TransferToken(ctx context.Context, contractAddress, destination string, amount int64) (string, error) {
+func (c *Client) TransferTokens(ctx context.Context, contractAddress, destination string, amount int64) (string, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return "", pkg.ErrClientNotConnected{}
