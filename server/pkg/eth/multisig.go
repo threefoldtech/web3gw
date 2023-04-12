@@ -48,12 +48,42 @@ func (c *Client) RemoveMultisigOwner(ctx context.Context, contractAddress, targe
 	return state.client.RemoveOwner(contractAddress, target, threshold)
 }
 
-// // ApproveHash approves a transaction hash
-// func (c *Client) ApproveHash(ctx context.Context, contractAddress, hash string) (string, error) {
-// 	state, ok := c.state.Get(state.IDFromContext(ctx))
-// 	if !ok || state.client == nil {
-// 		return "", pkg.ErrClientNotConnected{}
-// 	}
+// ApproveHash approves a transaction hash
+func (c *Client) ApproveHash(ctx context.Context, contractAddress, hash string) (string, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
 
-// 	return state.client.ApproveHash(contractAddress, hash)
-// }
+	return state.client.ApproveHash(contractAddress, hash)
+}
+
+// IsApproved approves a transaction hash
+func (c *Client) IsApproved(ctx context.Context, contractAddress, hash string) (bool, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return false, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.IsApproved(contractAddress, hash)
+}
+
+// InitiateMultisigEthTransfer initiates a multisig eth transfer operation
+func (c *Client) InitiateMultisigEthTransfer(ctx context.Context, contractAddress, destination string, amount int64) (string, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.InitiateMultisigEthTransfer(contractAddress, destination, amount)
+}
+
+// InitiateMultisigTokenTransfer initiates a multisig eth transfer operation
+func (c *Client) InitiateMultisigTokenTransfer(ctx context.Context, contractAddress, tokenAddress, destination string, amount int64) (string, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.InitiateMultisigTokenTransfer(contractAddress, tokenAddress, destination, amount)
+}

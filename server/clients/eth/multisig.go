@@ -104,25 +104,19 @@ func (c *Client) RemoveOwner(contractAddress, target string, treshold int64) (st
 	return c.sendTransaction(tx)
 }
 
-// func (c *Client) ConfirmPendingTransaction(contractAddress string) (string, error) {
-// 	ms, err := gnosis.NewGnosis(common.HexToAddress(contractAddress), c.Eth)
-// 	if err != nil {
-// 		return "", err
-// 	}
+func (c *Client) ApproveHash(contractAddress, hash string) (string, error) {
+	ms, err := gnosis.NewGnosis(common.HexToAddress(contractAddress), c.Eth)
+	if err != nil {
+		return "", err
+	}
 
-// 	// fetch pending transactions
-// 	x, err := ms.ApprovedHashes(&bind.CallOpts{}, common.HexToAddress(c.AddressFromKey()), [32]byte{})
-// 	if err != nil {
-// 		return "", err
-// 	}
+	tx, err := ms.ApproveHash(&bind.TransactOpts{}, common.HexToHash(hash))
+	if err != nil {
+		return "", err
+	}
 
-// 	tx, err := ms.ApproveHash(&bind.TransactOpts{}, common.HexToHash(hex))
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return c.sendTransaction(tx)
-// }
+	return c.sendTransaction(tx)
+}
 
 func (c *Client) IsApproved(contractAddress string, hash string) (bool, error) {
 	ms, err := gnosis.NewGnosis(common.HexToAddress(contractAddress), c.Eth)
@@ -130,12 +124,12 @@ func (c *Client) IsApproved(contractAddress string, hash string) (bool, error) {
 		return false, err
 	}
 
-	x, err := ms.ApprovedHashes(&bind.CallOpts{}, c.AddressFromKey(), [32]byte{})
+	h, err := ms.ApprovedHashes(&bind.CallOpts{}, c.AddressFromKey(), common.HexToHash(hash))
 	if err != nil {
 		return false, err
 	}
 
-	return x.Int64() == 1, nil
+	return h.Int64() == 1, nil
 }
 
 func (c *Client) InitiateMultisigEthTransfer(safeContractAddress, destination string, amount int64) (string, error) {
