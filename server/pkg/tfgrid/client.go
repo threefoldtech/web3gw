@@ -3,9 +3,7 @@ package tfgrid
 import (
 	"context"
 
-	"github.com/threefoldtech/grid3-go/deployer"
-	procedure "github.com/threefoldtech/tf-grid-cli/pkg/server/procedures"
-	"github.com/threefoldtech/tf-grid-cli/pkg/server/types"
+	tfgridBase "github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
@@ -34,8 +32,7 @@ type (
 	}
 
 	tfgridState struct {
-		//cl *tfgrid.Client
-		cl *deployer.TFPluginClient
+		cl *tfgridBase.Runner
 	}
 )
 
@@ -48,13 +45,16 @@ func NewClient() *Client {
 
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, mnemonic string, network string) error {
-	cl, err := deployer.NewTFPluginClient(mnemonic, keyType, network, deployer.SubstrateURLs[network], deployer.RelayURLS[network], deployer.RMBProxyURLs[network], DeployerTimeoutSeconds, true, false)
+	tfgrid_client := tfgridBase.Runner{}
+	err := tfgrid_client.Login(ctx, tfgridBase.Credentials{
+		Mnemonics: mnemonic,
+		Network:   network,
+	})
 	if err != nil {
 		return err
 	}
-
 	gs := tfgridState{
-		cl: &cl,
+		cl: &tfgrid_client,
 	}
 
 	c.state.Set(state.IDFromContext(ctx), gs)
@@ -62,20 +62,20 @@ func (c *Client) Load(ctx context.Context, mnemonic string, network string) erro
 	return nil
 }
 
-func (c *Client) MachinesDeploy(ctx context.Context, model types.MachinesModel) (types.MachinesModel, error) {
+func (c *Client) MachinesDeploy(ctx context.Context, model tfgridBase.MachinesModel, projectName string) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return types.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return procedure.MachinesDeploy(ctx, model, state.cl)
+	return state.cl.MachinesDeploy(ctx, model, projectName)
 }
 
-func (c *Client) MachinesGet(ctx context.Context, name string) (types.MachinesModel, error) {
+func (c *Client) MachinesGet(ctx context.Context, modelName string, projectName string) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return types.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return procedure.MachinesGet(ctx, name, state.cl)
+	return state.cl.MachinesGet(ctx, modelName, projectName)
 }
 
 func (c *Client) MachinesDelete(ctx context.Context, name string) error {
@@ -83,5 +83,5 @@ func (c *Client) MachinesDelete(ctx context.Context, name string) error {
 	if !ok || state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
-	return procedure.MachinesDelete(ctx, name, state.cl)
+	return state.cl.MachinesDelete(ctx, name)
 }

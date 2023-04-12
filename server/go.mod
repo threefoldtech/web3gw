@@ -13,7 +13,6 @@ require (
 	github.com/threefoldtech/grid3-go v1.0.3-0.20230411174212-250d06eeb331
 	github.com/threefoldtech/rmb-sdk-go v1.0.1-0.20230316162347-255e7faa0006
 	github.com/threefoldtech/substrate-client v0.1.5
-	github.com/threefoldtech/tf-grid-cli v1.1.3-0.20230330203613-f63826e9258e
 	github.com/threefoldtech/zos v0.5.6-0.20230321103809-44426c1a69c7
 	golang.org/x/net v0.9.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
