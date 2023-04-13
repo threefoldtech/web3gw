@@ -2,6 +2,7 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import stellar
+import tfchain
 import tfgrid
 import flag
 import log
@@ -379,7 +380,11 @@ fn main() {
 
 	_ := spawn myclient.run() // QUESTION: why is that in thread?
 	execute_rpcs(mut myclient, mut logger) or {
-		logger.error('Failed executing calls: ${err}')
+		logger.error("Failed executing calls: $err")
+		exit(1)
+	}
+	execute_rpcs_tfchain(mut myclient, mut logger) or {
+		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
 }
