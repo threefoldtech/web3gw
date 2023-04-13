@@ -23,6 +23,8 @@ type (
 		mutex sync.RWMutex
 	}
 
+	NostrEvent = *nostr.Event
+
 	// Client for nostr protocol
 	Client struct {
 		// Reference to the server we are using
@@ -31,11 +33,13 @@ type (
 		sk string
 		// Public key
 		pk string
+
+		events []*NostrEvent
 	}
 
 	// Subscription for events on a relay
 	Subscription struct {
-		Events <-chan nostr.Event
+		Events chan *nostr.Event
 	}
 )
 
@@ -183,4 +187,57 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 	}
 
 	return nil
+}
+
+// Subscribe to events on a relay
+func (c *Client) SubscribeRelays(ctx context.Context) error {
+	c.server.mutex.RLock()
+	defer c.server.mutex.RUnlock()
+
+	relays := c.server.connectedRelays[c.Id()]
+	if len(relays) == 0 {
+		return errors.New("No relays connected")
+	}
+
+	var filters nostr.Filters
+	if _, v, err := nip19.Decode(c.Id()); err == nil {
+		pub := v.(string)
+		filters = []nostr.Filter{{
+			Kinds:   []int{1},
+			Authors: []string{pub},
+			Limit:   1000,
+		}}
+	} else {
+		errors.New("could not create client filters")
+	}
+
+	for _, relay := range relays {
+		ctx, cancel := context.WithCancel(context.Background())
+		sub, err := relay.Subscribe(ctx, filters)
+		if err != nil {
+			cancel()
+			return errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+		}
+
+		// c.server.clientSubscriptions[c.Id()].Events = sub.Events
+
+		for ev := range sub.Events {
+			fmt.Println(ev)
+			x := NostrEvent(ev)
+			c.events = append(c.events, &x)
+
+			// c.server.clientSubscriptions[c.Id()].Events <- ev
+		}
+		go func() {
+			<-sub.EndOfStoredEvents
+			fmt.Println("end of stored events")
+			cancel()
+			// handle end of stored events (EOSE, see NIP-15)
+		}()
+	}
+	return nil
+}
+
+func (c *Client) GetEvents() []*NostrEvent {
+	return c.events
 }

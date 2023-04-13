@@ -8,6 +8,7 @@ import nostr
 import flag
 import log
 import os
+import time
 
 const (
 	default_server_address = "http://127.0.0.1:8080"
@@ -69,6 +70,19 @@ fn execute_nostr_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	nostr.connect_to_relay(mut client, "ws://localhost:8008")!
 
 	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+
+	nostr.subscribe_to_relays(mut client)!
+
+	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+
+	time.sleep(10 * time.second)
+
+	events := nostr.get_events(mut client)!
+	println(events)
 }
 
 fn main() {
@@ -89,13 +103,12 @@ fn main() {
 		level: if debug_log { .debug } else { .info }	
 	})
 
-
-
 	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
 		logger.error("Failed creating rpc websocket client: $err")
 		exit(1)
 	}
 	_ := spawn myclient.run() //QUESTION: why is that in thread?
+	
 	execute_nostr_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)

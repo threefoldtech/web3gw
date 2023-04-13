@@ -86,3 +86,21 @@ func (c *Client) PublishEventToRelays(ctx context.Context, input Input) error {
 
 	return state.client.PublishEventToRelays(ctx, input.tags, input.content)
 }
+
+func (c *Client) SubscribeRelays(ctx context.Context) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.SubscribeRelays(ctx)
+}
+
+func (c *Client) GetEvents(ctx context.Context) ([]*nostr.NostrEvent, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetEvents(), nil
+}
