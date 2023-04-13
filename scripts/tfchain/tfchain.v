@@ -38,13 +38,13 @@ struct CreateNodeContract {
 	body                 string
 	hash                 string
 	public_ips           u32
-	solution_provider_id &u64
+	solution_provider_id ?u64
 }
 
 [params]
 struct CreateRentContract {
 	node_id	u32
-	solution_provider_id &u64
+	solution_provider_id ?u64
 }
 
 [params]
@@ -129,120 +129,76 @@ pub fn get_nodes(mut client RpcWsClient, farm_id u32) ![]u32 {
 	return client.send_json_rpc[[]u32, []u32]('tfchain.GetNodes', [farm_id], tfchain.default_timeout)!
 }
 
+
 pub fn get_farm(mut client RpcWsClient, id u32) !Farm {
 	return client.send_json_rpc[[]u32, Farm]('tfchain.GetFarm', [id], tfchain.default_timeout)!
 }
 
-
-/*
-func (c *Client) GetFarmByName(ctx context.Context, name string) u32, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return 0, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.GetFarmByName(name)
+pub fn get_farm_by_name(mut client RpcWsClient, name string) !u32 {
+	return client.send_json_rpc[[]string, u32]('tfchain.GetFarmByName', [name], tfchain.default_timeout)!
 }
 
-func (c *Client) CreatetFarm(ctx context.Context, args CreateFarm) error {
-
-func (c *Client) GetContract(ctx context.Context, contract_id u64) (*substrate.Contract, error) {
-
-func (c *Client) GetContractIDByNameRegistration(ctx context.Context, name string) (u64, error) {
-
-func (c *Client) GetContractWithHash(ctx context.Context, args GetContractWithHash) (u64, error) {
-
-func (c *Client) CreateNameContract(ctx context.Context, name string) (u64, error) {
-
-func (c *Client) CreateNodeContract(ctx context.Context, args CreateNodeContract) (u64, error) {
-
-func (c *Client) CreateRentContract(ctx context.Context, args CreateRentContract) (u64, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return 0, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.CreateRentContract(*state.identity, args.node_id, args.solution_provider_id)
+pub fn create_farm(mut client RpcWsClient, args CreateFarm) ! {
+	_ := client.send_json_rpc[[]CreateFarm, string]('tfchain.CreateFarm', [args], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractCreate(ctx context.Context, args ServiceContractCreate) (u64, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return 0, pkg.ErrClientNotConnected{}
-	}
 
-	return state.client.ServiceContractCreate(*state.identity, args.service, args.consumer)
+pub fn get_contract(mut client RpcWsClient, contract_id u64) !Contract {
+	return client.send_json_rpc[[]u64, Contract]('tfchain.GetContract', [contract_id], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractApprove(ctx context.Context, contract_id u64) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ServiceContractApprove(*state.identity, contract_id)
+pub fn get_contract_id_by_name_registration(mut client RpcWsClient, name string) !u64 {
+	return client.send_json_rpc[[]string, u64]('tfchain.GetContractIDByNameRegistration', [name], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractBill(ctx context.Context, args ServiceContractBill) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ServiceContractBill(*state.identity, args.contract_id, args.variable_amount, args.metadata)
+pub fn get_contract_with_hash(mut client RpcWsClient, args GetContractWithHash) !u64 {
+	return client.send_json_rpc[[]GetContractWithHash, u64]('tfchain.GetContractWithHash', [args], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractCancel(ctx context.Context, contract_id u64) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ServiceContractCancel(*state.identity, contract_id)
+pub fn create_name_contract(mut client RpcWsClient, name string) !u64 {
+	return client.send_json_rpc[[]string, u64]('tfchain.CreateNameContract', [name], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractReject(ctx context.Context, contract_id u64) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ServiceContractReject(*state.identity, contract_id)
+pub fn create_node_contract(mut client RpcWsClient, args CreateNodeContract) !u64 {
+	return client.send_json_rpc[[]CreateNodeContract, u64]('tfchain.CreateNodeContract', [args], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractSetFees(ctx context.Context, args SetServiceContractFees) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ServiceContractSetFees(*state.identity, args.contract_id, args.base_fee, args.variable_fee)
+pub fn create_rent_contract(mut client RpcWsClient, args CreateRentContract) !u64 {
+	return client.send_json_rpc[[]CreateRentContract, u64]('tfchain.CreateRentContract', [args], tfchain.default_timeout)!
 }
 
-func (c *Client) ServiceContractSetMetadata(ctx context.Context, args ServiceContractSetMetadata) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ServiceContractSetMetadata(*state.identity, args.contract_id, args.metadata)
+pub fn service_contract_create(mut client RpcWsClient, args ServiceContractCreate) !u64 {
+	return client.send_json_rpc[[]ServiceContractCreate, u64]('tfchain.ServiceContractCreate', [args], tfchain.default_timeout)!
 }
 
-func (c *Client) CancelContract(ctx context.Context, contract_id u64) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.CancelContract(*state.identity, contract_id)
+pub fn service_contract_approve(mut client RpcWsClient, contract_id u64) !u64 {
+	return client.send_json_rpc[[]u64, u64]('tfchain.ServiceContractApprove', [contract_id], tfchain.default_timeout)!
 }
 
-func (c *Client) GetZosVersion(ctx context.Context) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return "", pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.GetZosVersion()
+pub fn service_contract_bill(mut client RpcWsClient, args ServiceContractBill) ! {
+	_ := client.send_json_rpc[[]ServiceContractBill, string]('tfchain.ServiceContractBill', [args], tfchain.default_timeout)!
 }
-*/
+
+pub fn service_contract_cancel(mut client RpcWsClient, contract_id u64) ! {
+	_ := client.send_json_rpc[[]u64, string]('tfchain.ServiceContractCancel', [contract_id], tfchain.default_timeout)!
+}
+
+pub fn service_contract_reject(mut client RpcWsClient, contract_id u64) ! {
+	_ := client.send_json_rpc[[]u64, string]('tfchain.ServiceContractReject', [contract_id], tfchain.default_timeout)!
+}
+
+pub fn service_contract_set_fees(mut client RpcWsClient, args SetServiceContractFees) ! {
+	_ := client.send_json_rpc[[]SetServiceContractFees, string]('tfchain.ServiceContractSetFees', [args], tfchain.default_timeout)!
+}
+
+pub fn service_contract_set_metadata(mut client RpcWsClient, args ServiceContractSetMetadata) ! {
+	_ := client.send_json_rpc[[]ServiceContractSetMetadata, string]('tfchain.ServiceContractSetMetadata', [args], tfchain.default_timeout)!
+}
+
+pub fn cancel_contract(mut client RpcWsClient, contract_id u64) ! {
+	_ := client.send_json_rpc[[]u64, string]('tfchain.CancelContract', [contract_id], tfchain.default_timeout)!
+}
+
+pub fn get_zos_version(mut client RpcWsClient) !string {
+	return client.send_json_rpc[[]string, string]('tfchain.CancelContract', []string{}, tfchain.default_timeout)!
+}
