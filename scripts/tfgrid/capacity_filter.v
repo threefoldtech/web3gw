@@ -18,6 +18,6 @@ pub struct FilterResult {
 	available_nodes []u32
 }
 
-pub fn filter_nodes(mut client RpcWsClient, params FilterOptions) !FilterResult {
-	return client.send_json_rpc[[]FilterOptions, FilterResult]('tfgrid.FilterNodes', [params], default_timeout)
+pub fn filter_nodes(mut client RpcWsClient, filters FilterOptions) !FilterResult {
+	return client.send_json_rpc[[]FilterOptions, FilterResult]('tfgrid.FilterNodes', [filters], default_timeout)
 }
