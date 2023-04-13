@@ -7,33 +7,33 @@ const (
 )
 
 [params]
-struct Transfer{
+pub struct Transfer{
 pub:
 	amount u64
 	destination string
 }
 
 [params]
-struct CreateTwin {
+pub struct CreateTwin {
 pub:
 	relay string
 	pk    []byte
 }
 
 [params]
-struct AcceptTermsAndConditions {
+pub struct AcceptTermsAndConditions {
 	link string
 	hash string
 }
 
 [params]
-struct GetContractWithHash {
+pub struct GetContractWithHash {
 	node_id u32
 	hash    []byte
 }
 
 [params]
-struct CreateNodeContract {
+pub struct CreateNodeContract {
 	node_id              u32
 	body                 string
 	hash                 string
@@ -42,44 +42,44 @@ struct CreateNodeContract {
 }
 
 [params]
-struct CreateRentContract {
+pub struct CreateRentContract {
 	node_id	u32
 	solution_provider_id ?u64
 }
 
 [params]
-struct ServiceContractCreate {
+pub struct ServiceContractCreate {
 	service  []byte
 	consumer []byte
 }
 
 [params]
-struct ServiceContractBill {
+pub struct ServiceContractBill {
 	contract_id     u64
 	variable_amount u64
 	metadata        string
 }
 
 [params]
-struct SetServiceContractFees {
+pub struct SetServiceContractFees {
 	contract_id  u64
 	base_fee     u64
 	variable_fee u64
 }
 
 [params]
-struct ServiceContractSetMetadata {
+pub struct ServiceContractSetMetadata {
 	contract_id u64
 	metadata    string
 }
 
-struct PublicIPInput {
+pub struct PublicIPInput {
 	ip      string
 	gateway string
 }
 
 [params]
-struct CreateFarm {
+pub struct CreateFarm {
 	name       string
 	public_ips []PublicIPInput
 }
@@ -88,7 +88,7 @@ pub fn load(mut client RpcWsClient, network string, passphrase string) ! {
 	_ := client.send_json_rpc[[]string, string]('tfchain.Load', [network, passphrase], tfchain.default_timeout)!
 }
 
-pub fn transer(mut client RpcWsClient, args Transfer) ! {
+pub fn transfer(mut client RpcWsClient, args Transfer) ! {
 	_ := client.send_json_rpc[[]Transfer, string]('tfchain.Transfer', [args],
 		tfchain.default_timeout)!
 }

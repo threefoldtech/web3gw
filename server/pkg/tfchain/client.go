@@ -145,6 +145,15 @@ func (c *Client) Load(ctx context.Context, network string, passphrase string) er
 	return nil
 }
 
+func (c *Client) Height(ctx context.Context) (uint32, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return 0, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetCurrentHeight()
+}
+
 // Transer an amount of TFT from the loaded account to the destination.
 func (c *Client) Transfer(ctx context.Context, args Transfer) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
