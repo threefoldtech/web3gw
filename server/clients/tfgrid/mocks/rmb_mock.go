@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	rmb "github.com/threefoldtech/rmb-sdk-go"
+	rmb "github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go"
 )
 
 // MockRouter is a mock of Router interface.

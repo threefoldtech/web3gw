@@ -8,10 +8,10 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/threefoldtech/grid3-go/workloads"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 
-	proxyTypes "github.com/threefoldtech/grid_proxy_server/pkg/types"
+	proxyTypes "github.com/threefoldtech/tfgrid-sdk-go/grid-proxy/pkg/types"
 )
 
 // GatewayNameModel struct for gateway name proxy

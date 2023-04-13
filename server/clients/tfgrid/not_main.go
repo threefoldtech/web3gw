@@ -3,7 +3,7 @@ package tfgrid
 // import (
 // 	"errors"
 
-// 	"github.com/threefoldtech/grid3-go/deployer"
+// 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/deployer"
 // )
 
 // type (

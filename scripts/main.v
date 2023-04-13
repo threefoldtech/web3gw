@@ -7,6 +7,7 @@ import tfgrid
 import flag
 import log
 import os
+import time
 
 const (
 	default_server_address = "http://127.0.0.1:8080"
@@ -43,20 +44,22 @@ fn test_machines_ops(mut client RpcWsClient, mut logger log.Logger) ! {
 		description: 'description'
 	}
 
-	dep := tfgrid.MachinesDeploy{
-		project_name: project_name
-		model: machines_model
-	}
+	// dep := tfgrid.MachinesDeploy{
+	// 	project_name: project_name
+	// 	model: machines_model
+	// }
 
-	res := tfgrid.machines_deploy(mut client, dep)!
+	res := tfgrid.machines_deploy(mut client, machines_model)!
 	logger.info("${res}")
 
-	// get
-	get := tfgrid.MachinesGet{
-		model_name: project_name
-	}
+	time.sleep(20 * time.second)
 
-	res_2 := tfgrid.machines_get(mut client, get)!
+	// get
+	// get := tfgrid.MachinesGet{
+	// 	model_name: project_name
+	// }
+
+	res_2 := tfgrid.machines_get(mut client, project_name)!
 	logger.info("${res_2}")
 
 	// delete

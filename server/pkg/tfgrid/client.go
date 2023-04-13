@@ -2,6 +2,7 @@ package tfgrid
 
 import (
 	"context"
+	"fmt"
 
 	tfgridBase "github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -35,15 +36,15 @@ type (
 		cl *tfgridBase.Runner
 	}
 
-	MachinesDeploy struct {
-		Model       tfgridBase.MachinesModel `json:"model"`
-		ProjectName string                   `json:"project_name"`
-	}
+	// MachinesDeploy struct {
+	// 	Model       tfgridBase.MachinesModel `json:"model"`
+	// 	ProjectName string                   `json:"project_name"`
+	// }
 
-	MachinesGet struct {
-		ModelName   string `json:"model_name"`
-		ProjectName string `json:"project_name"`
-	}
+	// MachinesGet struct {
+	// 	ModelName   string `json:"model_name"`
+	// 	ProjectName string `json:"project_name"`
+	// }
 )
 
 // NewClient creates a new Client ready for use
@@ -72,26 +73,39 @@ func (c *Client) Load(ctx context.Context, mnemonic string, network string) erro
 	return nil
 }
 
-func (c *Client) MachinesDeploy(ctx context.Context, args MachinesDeploy) (tfgridBase.MachinesModel, error) {
+func (c *Client) MachinesDeploy(ctx context.Context, model tfgridBase.MachinesModel) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesDeploy(ctx, args.Model, args.ProjectName)
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.MachinesDeploy(ctx, model, projectName)
 }
 
-func (c *Client) MachinesGet(ctx context.Context, args MachinesGet) (tfgridBase.MachinesModel, error) {
+func (c *Client) MachinesGet(ctx context.Context, modelName string) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesGet(ctx, args.ModelName, args.ProjectName)
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.MachinesGet(ctx, modelName, projectName)
 }
 
-func (c *Client) MachinesDelete(ctx context.Context, name string) error {
+func (c *Client) MachinesDelete(ctx context.Context, modelName string) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
-	return state.cl.MachinesDelete(ctx, name)
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.MachinesDelete(ctx, projectName)
+}
+
+func generateProjectName(modelName string) (projectName string) {
+	return fmt.Sprintf("%s.web3proxy", modelName)
 }

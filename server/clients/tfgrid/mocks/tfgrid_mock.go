@@ -9,10 +9,10 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	graphql "github.com/threefoldtech/grid3-go/graphql"
-	node "github.com/threefoldtech/grid3-go/node"
-	workloads "github.com/threefoldtech/grid3-go/workloads"
-	types "github.com/threefoldtech/grid_proxy_server/pkg/types"
+	graphql "github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
+	node "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
+	workloads "github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
+	types "github.com/threefoldtech/tfgrid-sdk-go/grid-proxy/pkg/types"
 )
 
 // MockTFGridClient is a mock of TFGridClient interface.
