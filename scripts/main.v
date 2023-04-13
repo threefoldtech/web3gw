@@ -2,6 +2,7 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import stellar
+import tfchain
 import tfgrid
 
 import flag
@@ -59,6 +60,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	tfgrid.machines_delete(mut client, "project1")!
 }
 
+fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger) ! {
+	tfchain.load(mut client, "devnet", "")! // FILL IN YOUR MNEMONIC HERE
+}
+
 
 fn main() {
 	mut fp := flag.new_flag_parser(os.args)
@@ -86,6 +91,10 @@ fn main() {
 	}
 	_ := spawn myclient.run() //QUESTION: why is that in thread?
 	execute_rpcs(mut myclient, mut logger) or {
+		logger.error("Failed executing calls: $err")
+		exit(1)
+	}
+	execute_rpcs_tfchain(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
