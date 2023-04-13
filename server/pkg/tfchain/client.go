@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/threefoldtech/substrate-client"
+	substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
@@ -260,7 +260,7 @@ func (c *Client) GetFarmByName(ctx context.Context, name string) (uint32, error)
 	return state.client.GetFarmByName(name)
 }
 
-func (c *Client) CreatetFarm(ctx context.Context, args CreateFarm) error {
+func (c *Client) CreateFarm(ctx context.Context, args CreateFarm) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return pkg.ErrClientNotConnected{}
