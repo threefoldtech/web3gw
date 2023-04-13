@@ -69,7 +69,7 @@ fn test_machines_ops(mut client RpcWsClient, mut logger log.Logger) ! {
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// ADD YOUR CALLS HERE
 	tfgrid.load(mut client, tfgrid.Credentials{
-		mnemonic: "mom picnic deliver again rug night rabbit music motion hole lion where" // FILL IN YOUR MNEMONIC HERE 
+		mnemonic: "" // FILL IN YOUR MNEMONIC HERE 
 		network: "dev"
 	})!
 
