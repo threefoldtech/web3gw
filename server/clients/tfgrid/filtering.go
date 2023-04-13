@@ -88,9 +88,7 @@ type FarmerBotAction struct {
 	Dependencies []string      `json:"dependencies"`
 }
 
-func BuildGridProxyFilters(options FilterOptions) proxyTypes.NodeFilter {
-	// TODO:
-	twinId := uint64(220)
+func BuildGridProxyFilters(options FilterOptions, twinId uint64) proxyTypes.NodeFilter {
 	proxyFilters := proxyTypes.NodeFilter{
 		Status:       &Status,
 		AvailableFor: &twinId,
@@ -221,8 +219,7 @@ func (r *Runner) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 		return FilterResult{}, errors.Wrapf(err, "Failed to get TwinID for FarmID %+v", options.FarmID)
 	}
 
-	// TODO: Fix this by upgrade go-client
-	sourceTwinID := uint32(220)
+	sourceTwinID := r.TwinID
 
 	data := BuildFarmerBotAction(farmerTwinID, sourceTwinID, []Args{}, params, FarmerBotFindNodeAction)
 
@@ -253,7 +250,7 @@ func (r *Runner) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 }
 
 func (r *Runner) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) (FilterResult, error) {
-	proxyFilters := BuildGridProxyFilters(options)
+	proxyFilters := BuildGridProxyFilters(options, uint64(r.TwinID))
 
 	nodes, _, err := r.client.FilterNodes(proxyFilters, proxyTypes.Limit{})
 	if err != nil || len(nodes) == 0 {
@@ -286,8 +283,7 @@ func (r *Runner) HasFarmerBot(ctx context.Context, farmID uint32) bool {
 
 	farmerTwinID, err := r.GetFarmerTwinIDByFarmID(farmID)
 
-	// TODO: Fix this by upgrade go-client
-	sourceTwinID := uint32(220)
+	sourceTwinID := r.TwinID
 
 	data := BuildFarmerBotAction(farmerTwinID, sourceTwinID, args, params, FarmerBotVersionAction)
 

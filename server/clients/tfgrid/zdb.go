@@ -73,12 +73,10 @@ func (r *Runner) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZD
 	result := newZDBFromClientZDB(loadedZDB)
 	result.NodeID = zdb.NodeID
 
-	// NOTE: clean the state after deploying
 	return result, nil
 }
 
 func (r *Runner) ZDBDelete(ctx context.Context, projectName string) error {
-	// TODO: fix canceling
 	if err := r.client.CancelProject(ctx, projectName); err != nil {
 		return errors.Wrapf(err, "Failed to cancel cluster with name: %s", projectName)
 	}

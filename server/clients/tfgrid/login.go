@@ -12,13 +12,14 @@ type Credentials struct {
 	Network   string `json:"network"`
 }
 
-func (c *Runner) Login(ctx context.Context, credentials Credentials) error {
+func (r *Runner) Login(ctx context.Context, credentials Credentials) error {
 	newClient, err := deployer.NewTFPluginClient(credentials.Mnemonics, "sr25519", credentials.Network, "", "", "", 10, true, false)
 	if err != nil {
 		return errors.Wrap(err, "failed to get tf plugin client")
 	}
 
-	c.client = NewTFGridClient(&newClient)
+	r.client = NewTFGridClient(&newClient)
+	r.TwinID = newClient.TwinID
 
 	return nil
 }

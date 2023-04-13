@@ -4,4 +4,5 @@ package tfgrid
 // TODO: rename Runner to something more meaningful
 type Runner struct {
 	client TFGridClient
+	TwinID uint32
 }
