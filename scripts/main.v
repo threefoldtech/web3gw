@@ -182,7 +182,7 @@ fn test_zos_node_calls(mut client RpcWsClient, mut logger log.Logger) !{
 	mut request := tfgrid.ZOSNodeRequest{
 		node_id: 11,
 	}
-	
+
 	statistics := tfgrid.zos_node_statistics(mut client, request)!
 	logger.info('node statistics: ${statistics}')
 
@@ -306,7 +306,7 @@ fn test_zos_node_calls(mut client RpcWsClient, mut logger log.Logger) !{
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// ADD YOUR CALLS HERE
 	tfgrid.load(mut client, tfgrid.Credentials{
-		mnemonic: "route visual hundred rabbit wet crunch ice castle milk model inherit outside" // FILL IN YOUR MNEMONIC HERE 
+		mnemonic: "" // FILL IN YOUR MNEMONIC HERE 
 		network: "dev"
 	})!
 
