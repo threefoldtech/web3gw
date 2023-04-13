@@ -355,6 +355,20 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	}
 }
 
+fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger) ! {
+	tfchain.load(mut client, "devnet", "")! // FILL IN YOUR MNEMONIC HERE
+	tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: ""})! // FILL IN SOME DESTINATION
+	height := tfchain.height(mut client)!
+	println("Height is ${height}")
+
+	my_balance := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
+	println("My balance: ${my_balance}")
+
+	twin_32 := tfchain.get_twin(mut client, 32)! // decoding to json is not yet working but add --debug and you will see the received message from server
+	println("Twin with id 32: ${twin_32}")
+
+}
+
 fn main() {
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
@@ -379,10 +393,12 @@ fn main() {
 	}
 
 	_ := spawn myclient.run() // QUESTION: why is that in thread?
+	/*
 	execute_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
+	*/
 	execute_rpcs_tfchain(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
