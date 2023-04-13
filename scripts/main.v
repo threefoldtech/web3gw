@@ -8,6 +8,7 @@ import flag
 import log
 import os
 import time
+import json
 
 const (
 	default_server_address = "http://127.0.0.1:8080"
@@ -176,10 +177,136 @@ fn test_capacity_filter(mut client RpcWsClient, mut logger log.Logger) ! {
 	res := tfgrid.filter_nodes(mut client, filters)!
 	logger.info("${res}")
 }
+
+fn test_zos_node_calls(mut client RpcWsClient, mut logger log.Logger) !{
+	mut request := tfgrid.ZOSNodeRequest{
+		node_id: 11,
+	}
+	
+	statistics := tfgrid.zos_node_statistics(mut client, request)!
+	logger.info('node statistics: ${statistics}')
+
+	wg_ports := tfgrid.zos_network_list_wg_ports(mut client, request)!
+	logger.info('wg ports: ${wg_ports}')
+
+	network_interfaces := tfgrid.zos_network_interfaces(mut client, request)!
+	logger.info('network interfaces: ${network_interfaces}')
+
+	public_config := tfgrid.zos_network_public_config(mut client, request)!
+	logger.info('public config: ${public_config}')
+
+	dmi := tfgrid.zos_system_dmi(mut client, request)!
+	logger.info('dmi: ${dmi}')
+
+	hypervisor := tfgrid.zos_system_hypervisor(mut client, request)!
+	logger.info('hypervisor: ${hypervisor}')
+
+	version := tfgrid.zos_system_version(mut client, request)!
+	logger.info('version: ${version}')
+
+	// deploy deployment
+
+	// deploy_deployment := tfgrid.Deployment{
+	// 	version: 0
+	// 	twin_id: 1
+	// 	metadata: 'hamada_meta'
+	// 	description: 'hamada_desc'
+	// 	expiration: 1234
+	// 	signature_requirement: tfgrid.SignatureRequirement{
+	// 		weight_required: 1
+	// 		requests: [tfgrid.SignatureRequest{
+	// 			twin_id: 49
+	// 			required: true
+	// 			weight: 1
+	// 		}]
+	// 	}
+	// 	workloads: [tfgrid.Workload{
+	// 		version: 0
+	// 		name: 'wl1'
+	// 		workload_type: 'invalid_type1'
+	// 		data: 'hamada_data'
+	// 		metadata: 'hamada_meta'
+	// 		description: 'hamada_res'
+	// 	}]
+	// }
+	// request = tfgrid.ZOSNodeRequest{
+	// 	node_id: 11
+	// 	data: json.encode(deploy_deployment)
+	// }
+	// tfgrid.zos_deployment_deploy(mut client, request)!
+
+	// delete deployment
+
+	// request = tfgrid.ZOSNodeRequest{
+	// 	node_id: 11
+	// 	data: "12345"
+	// }
+	// tfgrid.zos_deployment_delete(mut client, request)!
+
+	// update deployment
+
+	// update_deployment := tfgrid.Deployment{
+	// 	version: 0
+	// 	contract_id: 22226
+	// 	twin_id: 49
+	// 	metadata: 'hamada_meta'
+	// 	description: 'hamada_desc'
+	// 	expiration: 1234
+	// 	signature_requirement: tfgrid.SignatureRequirement{
+	// 		weight_required: 1
+	// 		requests: [tfgrid.SignatureRequest{
+	// 			twin_id: 1
+	// 			required: true
+	// 			weight: 1
+	// 		}]
+	// 	}
+	// 	workloads: [tfgrid.Workload{
+	// 		version: 0
+	// 		name: 'wl1'
+	// 		workload_type: 'typ1'
+	// 		data: 'hamada_data'
+	// 		metadata: 'hamada_meta'
+	// 		description: 'hamada_res'
+	// 		result: tfgrid.Result{
+	// 			created: 123345
+	// 			state: 'ok'
+	// 			error: 'err1'
+	// 			data: 'datadatadata'
+	// 		}
+	// 	}]
+	// }
+	// request = tfgrid.ZOSNodeRequest{
+	// 	node_id: 11
+	// 	data: json.encode(update_deployment)
+	// }
+	// tfgrid.zos_deployment_update(mut client, request)!
+
+
+	// get deployment
+
+	// request = tfgrid.ZOSNodeRequest{
+	// 	node_id: 33
+	// 	data: "123456"
+	// }
+	// deployment_get := tfgrid.zos_deployment_get(mut client, request)!
+	// logger.info('got deployment: ${deployment_get}')
+
+	
+	// get deployment changes
+
+	// request = tfgrid.ZOSNodeRequest{
+	// 	node_id: 11
+	// 	data: "54132"
+	// }
+	// deployment_changes := tfgrid.zos_deployment_changes(mut client, request)!
+	// logger.info('deployment changes: ${deployment_changes}')
+
+}
+
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// ADD YOUR CALLS HERE
 	tfgrid.load(mut client, tfgrid.Credentials{
-		mnemonic: "" // FILL IN YOUR MNEMONIC HERE 
+		mnemonic: "route visual hundred rabbit wet crunch ice castle milk model inherit outside" // FILL IN YOUR MNEMONIC HERE 
 		network: "dev"
 	})!
 
@@ -208,8 +335,13 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// 	exit(1)
 	// }
 
-	test_capacity_filter(mut client, mut logger) or {
-		logger.error("Failed executing capacity filter: $err")
+	// test_capacity_filter(mut client, mut logger) or {
+	// 	logger.error("Failed executing capacity filter: $err")
+	// 	exit(1)
+	// }
+
+	test_zos_node_calls(mut client, mut logger) or {
+		logger.error("Failed executing zos node calls: $err")
 		exit(1)
 	}
 }

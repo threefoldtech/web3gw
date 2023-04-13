@@ -222,8 +222,8 @@ github.com/threefoldtech/go-substrate-rpc-client/v4 v4.0.6-0.20230102154731-7c63
 github.com/threefoldtech/go-substrate-rpc-client/v4 v4.0.6-0.20230102154731-7c633b7d3c71/go.mod h1:5g1oM4Zu3BOaLpsKQ+O8PAv2kNuq+kPcA1VzFbsSqxE=
 github.com/threefoldtech/substrate-client v0.1.5 h1:yYmWaJCMoJO0ieaO6eu3vIK0agehSw4OhSXlGydmv/E=
 github.com/threefoldtech/substrate-client v0.1.5/go.mod h1:ys/GJLeLmNX8E36UFMeR0yZC5Lo4PufYtfwsVX8H/AM=
-github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.0.0-20230413122927-238e88d57822 h1:Fj28EP9uwMih17pocwzcbk6DFNAS+vf5Ef6Amz+YUe4=
-github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.0.0-20230413122927-238e88d57822/go.mod h1:HkvH7GqrKPLCAIPXUhcuwKVMCbgRX0HiCnfICf08MHE=
+github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.1.0 h1:xPGEFsh5n1eHy4gvRxTUmSurBntNLvEaW1rAsv5N5M8=
+github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.1.0/go.mod h1:HkvH7GqrKPLCAIPXUhcuwKVMCbgRX0HiCnfICf08MHE=
 github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.0.0-20230413122927-238e88d57822 h1:Y39+YKRb/9EQulkvw2vsMynpdruKf9Ze50PuNN270Lw=
 github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.0.0-20230413122927-238e88d57822/go.mod h1:fNse7PMQGKF6fWY7E58zjlHyqeNgNE4XX2dLdVAneCk=
 github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.0.0-20230413122927-238e88d57822 h1:6l/TAT/o7YgiQNQ93Gfo9ytI0QLHVuSRgFA2sF1TJi4=

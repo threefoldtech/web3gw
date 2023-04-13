@@ -54,7 +54,6 @@ pub struct K8sNodeResult {
 // 	cluster_name string
 // }
 
-
 // pub struct RemoveK8sNode {
 // 	cluster_name string
 // 	node_name string

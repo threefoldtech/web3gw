@@ -16,7 +16,7 @@ pub fn kvstore_get(mut client RpcWsClient, params string) !string {
 
 // List all keys in my kvstore
 pub fn kvstore_list(mut client RpcWsClient) ![]string {
-	return client.send_json_rpc[string, []string]('tfgrid.KvstoreList', "", default_timeout)!
+	return client.send_json_rpc[string, []string]('tfgrid.KvstoreList', '', default_timeout)!
 }
 
 // Remove a record from my kvstore using key, if success return account_id
@@ -26,5 +26,5 @@ pub fn kvstore_remove(mut client RpcWsClient, params string) !string {
 
 // Remove all my records in my kvstore, if success return deleted Keys
 pub fn kvstore_remove_all(mut client RpcWsClient) ![]string {
-	return client.send_json_rpc[string, []string]('tfgrid.KvstoreRemoveall', "", default_timeout)!
+	return client.send_json_rpc[string, []string]('tfgrid.KvstoreRemoveall', '', default_timeout)!
 }
