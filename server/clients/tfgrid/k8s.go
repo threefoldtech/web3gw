@@ -273,6 +273,7 @@ func (r *Runner) assignNodesIDsForCluster(ctx context.Context, cluster *K8sClust
 		MRU:          uint64(cluster.Master.Memory * int(gridtypes.Megabyte)),
 		SRU:          uint64(cluster.Master.DiskSize * int(gridtypes.Gigabyte)),
 		PublicIps:    cluster.Master.PublicIP,
+		NodeID:       cluster.Master.NodeID,
 	}
 
 	workloads = append(workloads, &ms)
@@ -285,6 +286,7 @@ func (r *Runner) assignNodesIDsForCluster(ctx context.Context, cluster *K8sClust
 			MRU:          uint64(cluster.Workers[idx].Memory * int(gridtypes.Megabyte)),
 			SRU:          uint64(cluster.Workers[idx].DiskSize * int(gridtypes.Gigabyte)),
 			PublicIps:    cluster.Workers[idx].PublicIP,
+			NodeID:       cluster.Workers[idx].NodeID,
 		}
 
 		workloads = append(workloads, &wr)

@@ -44,26 +44,79 @@ fn test_machines_ops(mut client RpcWsClient, mut logger log.Logger) ! {
 		description: 'description'
 	}
 
-	// dep := tfgrid.MachinesDeploy{
-	// 	project_name: project_name
-	// 	model: machines_model
-	// }
-
 	res := tfgrid.machines_deploy(mut client, machines_model)!
 	logger.info("${res}")
 
-	time.sleep(20 * time.second)
 
 	// get
-	// get := tfgrid.MachinesGet{
-	// 	model_name: project_name
-	// }
-
+	time.sleep(20 * time.second)
 	res_2 := tfgrid.machines_get(mut client, project_name)!
 	logger.info("${res_2}")
 
 	// delete
 	tfgrid.machines_delete(mut client, project_name)!
+}
+
+fn test_k8s_ops(mut client RpcWsClient, mut logger log.Logger) ! {
+	project_name := "testK8sOps2"
+
+	// deploy 
+	master := tfgrid.K8sNode{
+		name: 'master'
+		node_id: 33
+		cpu: 1
+		memory: 1024
+	}
+
+	mut workers := []tfgrid.K8sNode{}
+	workers << tfgrid.K8sNode{
+		name: 'w1'
+		node_id: 33
+		cpu: 1
+		memory: 1024
+	}
+
+	cluster := tfgrid.K8sCluster{
+		name: project_name
+		token: 'token6'
+		ssh_key: 'SSH-Key'
+		master: master
+		workers: workers
+	}
+
+	res := tfgrid.k8s_deploy(mut client, cluster)!
+	logger.info("${res}")
+
+	// get
+	time.sleep(20 * time.second)
+	res_2 := tfgrid.k8s_get(mut client, project_name)!
+	logger.info("${res_2}")
+
+	// delete
+	tfgrid.k8s_delete(mut client, project_name)!
+}
+
+fn test_zdb_ops(mut client RpcWsClient, mut logger log.Logger) ! {
+	project_name := "testZdbOps"
+
+	// deploy 
+	zdb_model := tfgrid.ZDB{
+		name: project_name
+		node_id: 33
+		password: 'strongPass'
+		size: 10
+	}
+
+	res := tfgrid.zdb_deploy(mut client, zdb_model)!
+	logger.info("${res}")
+
+	// get
+	time.sleep(10 * time.second)
+	res_2 := tfgrid.zdb_get(mut client, project_name)!
+	logger.info("${res_2}")
+
+	// delete
+	tfgrid.zdb_delete(mut client, project_name)!
 }
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
@@ -73,10 +126,20 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 		network: "dev"
 	})!
 
-	test_machines_ops(mut client, mut logger) or {
-		logger.error("Failed executing machines ops: $err")
-		exit(1)
-	}
+	// test_machines_ops(mut client, mut logger) or {
+	// 	logger.error("Failed executing machines ops: $err")
+	// 	exit(1)
+	// }
+
+	// test_k8s_ops(mut client, mut logger) or {
+	// 	logger.error("Failed executing k8s ops: $err")
+	// 	exit(1)
+	// }
+
+	// test_zdb_ops(mut client, mut logger) or {
+	// 	logger.error("Failed executing zdb ops: $err")
+	// 	exit(1)
+	// }
 }
 
 

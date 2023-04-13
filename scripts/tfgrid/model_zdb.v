@@ -8,7 +8,7 @@ pub:
 	public      bool
 	size        u32    [required] // in GB
 	description string
-	mode        string // user, seq
+	mode        string = 'user' // user, seq
 }
 
 pub struct ZDBResult {

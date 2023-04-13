@@ -106,6 +106,72 @@ func (c *Client) MachinesDelete(ctx context.Context, modelName string) error {
 	return state.cl.MachinesDelete(ctx, projectName)
 }
 
+func (c *Client) K8sDeploy(ctx context.Context, model tfgridBase.K8sCluster) (tfgridBase.K8sCluster, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.K8sDeploy(ctx, model, projectName)
+}
+
+func (c *Client) K8sGet(ctx context.Context, modelName string) (tfgridBase.K8sCluster, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.K8sGet(ctx, modelName, projectName)
+}
+
+func (c *Client) K8sDelete(ctx context.Context, modelName string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.K8sDelete(ctx, projectName)
+}
+
+func (c *Client) ZDBDeploy(ctx context.Context, model tfgridBase.ZDB) (tfgridBase.ZDB, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.ZDB{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.ZDBDeploy(ctx, model, projectName)
+}
+
+func (c *Client) ZDBGet(ctx context.Context, modelName string) (tfgridBase.ZDB, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.ZDB{}, pkg.ErrClientNotConnected{}
+	}
+
+	modelName = generateProjectName(modelName)
+
+	return state.cl.ZDBGet(ctx, modelName)
+}
+
+func (c *Client) ZDBDelete(ctx context.Context, modelName string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.ZDBDelete(ctx, projectName)
+}
+
 func generateProjectName(modelName string) (projectName string) {
 	return fmt.Sprintf("%s.web3proxy", modelName)
 }

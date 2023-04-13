@@ -7,12 +7,12 @@ pub fn k8s_deploy(mut client RpcWsClient, params K8sCluster) !K8sClusterResult {
 	return client.send_json_rpc[[]K8sCluster, K8sClusterResult]('tfgrid.K8sDeploy', [params], default_timeout)!
 }
 
-pub fn k8s_delete(mut client RpcWsClient, params string) ! {
-	_ := client.send_json_rpc[[]string, string]('tfgrid.K8sDelete', [params], default_timeout)!
-}
-
 pub fn k8s_get(mut client RpcWsClient, params string) !K8sClusterResult {
 	return client.send_json_rpc[[]string, K8sClusterResult]('tfgrid.K8sGet', [params], default_timeout)!
+}
+
+pub fn k8s_delete(mut client RpcWsClient, params string) ! {
+	_ := client.send_json_rpc[[]string, string]('tfgrid.K8sDelete', [params], default_timeout)!
 }
 
 // NOTE: not implemented
