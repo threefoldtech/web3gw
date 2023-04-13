@@ -49,6 +49,8 @@ var (
 	ErrRelayAuthFailed = errors.New("Failed to authenticate to the relay")
 	// ErrRelayAuthTimeout indicates the authentication on a relay did not complete in time
 	ErrRelayAuthTimeout = errors.New("Timeout authenticating to the relay")
+	// ErrFailedToPublishEvent indicates the event could not be published to the relay
+	ErrFailedToPublishEvent = errors.New("Failed to publish event to relay")
 )
 
 // NewServer managing relay connections and subscriptions for possibly different peers
@@ -77,7 +79,11 @@ func (s *Server) manageRelay(id string, relay *nostr.Relay) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	// TODO: check if we already manage such a relay?
+	for _, r := range s.connectedRelays[id] {
+		if r == relay {
+			return
+		}
+	}
 	s.connectedRelays[id] = append(s.connectedRelays[id], relay)
 }
 
@@ -115,22 +121,47 @@ func (c *Client) ConnectAuthRelay(ctx context.Context, relayURL string) error {
 		return errors.Wrap(err, "could not authenticate to relay")
 	}
 
-	// Either we succeeded and all is good, or we did not and should tear down the connection properly
-	switch auth_status {
-	case nostr.PublishStatusFailed:
-		// Best effort cleanup
-		relay.Close()
+	if auth_status != nostr.PublishStatusSucceeded {
 		return ErrRelayAuthFailed
-	case nostr.PublishStatusSent:
-		// Best effort cleanup
-		relay.Close()
-		return ErrRelayAuthTimeout
-	case nostr.PublishStatusSucceeded:
-		c.server.manageRelay(c.Id(), relay)
-		return nil
 	}
 
-	// Go doesn't understand we checked all cases above (and that's why you have proper enums), we could just return nil
-	// here but this panic is a nice sanity check.
-	panic("Unreachable")
+	// Add relay to the list of managed relays
+	c.server.manageRelay(c.Id(), relay)
+
+	return nil
+}
+
+// Add function to publish events to a set of relays
+func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, content string) error {
+	c.server.mutex.RLock()
+	defer c.server.mutex.RUnlock()
+
+	relays := c.server.connectedRelays[c.Id()]
+	if len(relays) == 0 {
+		return errors.New("No relays connected")
+	}
+
+	ev := nostr.Event{
+		PubKey:    c.pk,
+		CreatedAt: time.Now(),
+		Kind:      1,
+		Tags:      make(nostr.Tags, len(tags)),
+		Content:   content,
+	}
+
+	// calling Sign sets the event ID field and the event Sig field
+	ev.Sign(c.sk)
+
+	for _, relay := range c.server.connectedRelays[c.Id()] {
+		status, err := relay.Publish(ctx, ev)
+		if err != nil {
+			return errors.Wrap(err, ErrFailedToPublishEvent.Error())
+		}
+
+		if status != nostr.PublishStatusSucceeded {
+			return ErrFailedToPublishEvent
+		}
+	}
+
+	return nil
 }
