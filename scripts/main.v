@@ -119,6 +119,63 @@ fn test_zdb_ops(mut client RpcWsClient, mut logger log.Logger) ! {
 	tfgrid.zdb_delete(mut client, project_name)!
 }
 
+fn test_name_gw_ops(mut client RpcWsClient, mut logger log.Logger) ! {
+	project_name := "testGWNameOps"
+
+	// deploy 
+	mut backends := []string{}
+	backends << 'http://1.1.1.1:9000'
+	gw_model := tfgrid.GatewayName{
+		name: project_name
+		backends: backends
+	}
+
+	res := tfgrid.gateways_deploy_name(mut client, gw_model)!
+	logger.info("${res}")
+
+	// get
+	time.sleep(10 * time.second)
+	res_2 := tfgrid.gateways_get_name(mut client, project_name)!
+	logger.info("${res_2}")
+
+	// delete
+	tfgrid.gateways_delete_name(mut client, project_name)!
+}
+
+fn test_fqdn_gw_ops(mut client RpcWsClient, mut logger log.Logger) ! {
+	project_name := "testGWFQDNOps"
+
+	// deploy 
+	mut backends := []string{}
+	backends << 'http://1.1.1.1:9000'
+	gw_model := tfgrid.GatewayFQDN{
+		name: project_name
+		node_id: 11
+		backends: backends
+		fqdn: 'gw.test.io'
+	}
+
+	res := tfgrid.gateways_deploy_fqdn(mut client, gw_model)!
+	logger.info("${res}")
+
+	// get
+	time.sleep(10 * time.second)
+	res_2 := tfgrid.gateways_get_fqdn(mut client, project_name)!
+	logger.info("${res_2}")
+
+	// delete
+	tfgrid.gateways_delete_fqdn(mut client, project_name)!
+}
+
+fn test_capacity_filter(mut client RpcWsClient, mut logger log.Logger) ! {
+	filters := tfgrid.FilterOptions {
+		farm_id: 1 
+		mru: 1024*4
+	}
+
+	res := tfgrid.filter_nodes(mut client, filters)!
+	logger.info("${res}")
+}
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// ADD YOUR CALLS HERE
 	tfgrid.load(mut client, tfgrid.Credentials{
@@ -140,6 +197,21 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	// 	logger.error("Failed executing zdb ops: $err")
 	// 	exit(1)
 	// }
+
+	// test_name_gw_ops(mut client, mut logger) or {
+	// 	logger.error("Failed executing name gw ops: $err")
+	// 	exit(1)
+	// }
+
+	// test_fqdn_gw_ops(mut client, mut logger) or {
+	// 	logger.error("Failed executing fqdn gw ops: $err")
+	// 	exit(1)
+	// }
+
+	test_capacity_filter(mut client, mut logger) or {
+		logger.error("Failed executing capacity filter: $err")
+		exit(1)
+	}
 }
 
 

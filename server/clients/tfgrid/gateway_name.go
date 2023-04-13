@@ -181,10 +181,10 @@ func (r *Runner) getGatewayNode() (uint32, error) {
 		Domain: &TrueVal,
 	}
 
-	nodes, count, err := r.client.FilterNodes(options, proxyTypes.Limit{})
-	if err != nil || count == 0 {
+	nodes, _, err := r.client.FilterNodes(options, proxyTypes.Limit{})
+	if err != nil || len(nodes) == 0 {
 		return 0, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
 	}
 
-	return uint32(nodes[rand.Intn(count)].NodeID), nil
+	return uint32(nodes[rand.Intn(len(nodes))].NodeID), nil
 }

@@ -255,8 +255,8 @@ func (r *Runner) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 func (r *Runner) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) (FilterResult, error) {
 	proxyFilters := BuildGridProxyFilters(options)
 
-	nodes, count, err := r.client.FilterNodes(proxyFilters, proxyTypes.Limit{})
-	if err != nil || count == 0 {
+	nodes, _, err := r.client.FilterNodes(proxyFilters, proxyTypes.Limit{})
+	if err != nil || len(nodes) == 0 {
 		return FilterResult{}, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
 	}
 
