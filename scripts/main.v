@@ -3,6 +3,7 @@ module main
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import stellar
 import tfgrid
+import nostr
 
 import flag
 import log
@@ -59,6 +60,16 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	tfgrid.machines_delete(mut client, "project1")!
 }
 
+fn execute_nostr_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
+	key := nostr.generate_keypair(mut client)!
+	println(key)
+
+	nostr.load(mut client, key)!
+
+	nostr.connect_to_relay(mut client, "ws://localhost:8008")!
+
+	nostr.publish_to_relays(mut client, ["test-topic"], "hello world!")!
+}
 
 fn main() {
 	mut fp := flag.new_flag_parser(os.args)
@@ -85,7 +96,7 @@ fn main() {
 		exit(1)
 	}
 	_ := spawn myclient.run() //QUESTION: why is that in thread?
-	execute_rpcs(mut myclient, mut logger) or {
+	execute_nostr_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

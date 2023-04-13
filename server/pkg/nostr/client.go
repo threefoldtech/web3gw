@@ -25,15 +25,10 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) Load(ctx context.Context, secret string, relayUrl string) error {
+func (c *Client) Load(ctx context.Context, secret string) error {
 	srv := nostr.NewServer()
 
 	cl, err := srv.NewClient(secret)
-	if err != nil {
-		return err
-	}
-
-	err = cl.ConnectAuthRelay(ctx, relayUrl)
 	if err != nil {
 		return err
 	}
@@ -47,6 +42,28 @@ func (c *Client) Load(ctx context.Context, secret string, relayUrl string) error
 	return nil
 }
 
+func (c *Client) ConnectAuthRelay(ctx context.Context, url string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ConnectAuthRelay(ctx, url)
+}
+
+func (c *Client) ConnectRelay(ctx context.Context, url string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ConnectRelay(ctx, url)
+}
+
+func (c *Client) GenerateKeyPair(ctx context.Context) (string, error) {
+	return nostr.GenerateKeyPair(), nil
+}
+
 func (c *Client) ConnectToRelay(ctx context.Context, url string) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
@@ -56,11 +73,16 @@ func (c *Client) ConnectToRelay(ctx context.Context, url string) error {
 	return state.client.ConnectAuthRelay(ctx, url)
 }
 
-func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, content string) error {
+type Input struct {
+	tags    []string
+	content string
+}
+
+func (c *Client) PublishEventToRelays(ctx context.Context, input Input) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.PublishEventToRelays(ctx, tags, content)
+	return state.client.PublishEventToRelays(ctx, input.tags, input.content)
 }

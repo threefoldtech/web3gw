@@ -75,6 +75,10 @@ func (s *Server) NewClient(sk string) (*Client, error) {
 	}, nil
 }
 
+func GenerateKeyPair() string {
+	return nostr.GeneratePrivateKey()
+}
+
 func (s *Server) manageRelay(id string, relay *nostr.Relay) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -95,6 +99,21 @@ func (c *Client) Id() string {
 	}
 
 	return id
+}
+
+func (c *Client) ConnectRelay(ctx context.Context, relayURL string) error {
+	ctxConnect, cancelFuncConnect := context.WithTimeout(ctx, relayConnectTimeout)
+	defer cancelFuncConnect()
+
+	relay, err := nostr.RelayConnect(ctxConnect, relayURL)
+	if err != nil {
+		return errors.Wrap(err, "failed to connect to the provided relay")
+	}
+
+	// Add relay to the list of managed relays
+	c.server.manageRelay(c.Id(), relay)
+
+	return nil
 }
 
 // ConnectAuthRelay connect and authenticates to a NIP42 authenticated relay
@@ -158,7 +177,7 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 			return errors.Wrap(err, ErrFailedToPublishEvent.Error())
 		}
 
-		if status != nostr.PublishStatusSucceeded {
+		if status == nostr.PublishStatusFailed {
 			return ErrFailedToPublishEvent
 		}
 	}
