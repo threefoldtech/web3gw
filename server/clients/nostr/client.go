@@ -3,8 +3,10 @@ package nostr
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/nbd-wtf/go-nostr/nip19"
@@ -18,7 +20,7 @@ type (
 	// Server is a persistent client keeping open connections to relays.
 	Server struct {
 		connectedRelays     map[string][]*nostr.Relay
-		clientSubscriptions map[string]*Subscription
+		clientSubscriptions map[string][]*Subscription
 
 		mutex sync.RWMutex
 	}
@@ -33,14 +35,20 @@ type (
 		sk string
 		// Public key
 		pk string
-
-		events []*NostrEvent
 	}
 
 	// Subscription for events on a relay
 	Subscription struct {
-		Events chan *nostr.Event
+		id     string
+		events chan *nostr.Event
+		buffer *eventBuffer
+		cancel context.CancelFunc
 	}
+)
+
+const (
+	// size of a subscription id
+	SUB_ID_LENGTH = 10
 )
 
 var (
@@ -55,13 +63,15 @@ var (
 	ErrRelayAuthTimeout = errors.New("Timeout authenticating to the relay")
 	// ErrFailedToPublishEvent indicates the event could not be published to the relay
 	ErrFailedToPublishEvent = errors.New("Failed to publish event to relay")
+	/// ErrNoRelayConnected inidcates that we try to perform an action on a realay, but we aren't connected to any.
+	ErrNoRelayConnected = errors.New("No relay connected currently")
 )
 
 // NewServer managing relay connections and subscriptions for possibly different peers
 func NewServer() *Server {
 	return &Server{
 		connectedRelays:     make(map[string][]*nostr.Relay),
-		clientSubscriptions: make(map[string]*Subscription),
+		clientSubscriptions: make(map[string][]*Subscription),
 	}
 }
 
@@ -83,6 +93,7 @@ func GenerateKeyPair() string {
 	return nostr.GeneratePrivateKey()
 }
 
+// Manage an active relay connection for a client
 func (s *Server) manageRelay(id string, relay *nostr.Relay) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -93,6 +104,52 @@ func (s *Server) manageRelay(id string, relay *nostr.Relay) {
 		}
 	}
 	s.connectedRelays[id] = append(s.connectedRelays[id], relay)
+}
+
+// Get the list of all relays managed for the given client. These relays must have been
+// added first through the manageRelay method
+func (s *Server) clientRelays(id string) []*nostr.Relay {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	return s.connectedRelays[id]
+}
+
+// Manage an active subscription for a client
+func (s *Server) manageSubscription(id string, sub *Subscription) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	for _, oldSub := range s.clientSubscriptions[id] {
+		if oldSub.id == sub.id {
+			return
+		}
+	}
+
+	s.clientSubscriptions[id] = append(s.clientSubscriptions[id], sub)
+}
+
+// Get a list of all the subscriptions being managed for a client
+func (s *Server) subscriptions(id string) []*Subscription {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	return s.clientSubscriptions[id]
+}
+
+// Remove an active subscription for a client by its ID
+func (s *Server) removeSubscription(id string, subID string) *Subscription {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	for i, sub := range s.clientSubscriptions[id] {
+		if sub.id == subID {
+			s.clientSubscriptions[id] = append(s.clientSubscriptions[id][:i], s.clientSubscriptions[id][i+1:]...)
+			return sub
+		}
+	}
+
+	return nil
 }
 
 // Id of the client, this is the enocded public key in NIP19 format
@@ -190,13 +247,10 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 }
 
 // Subscribe to events on a relay
-func (c *Client) SubscribeRelays(ctx context.Context) error {
-	c.server.mutex.RLock()
-	defer c.server.mutex.RUnlock()
-
-	relays := c.server.connectedRelays[c.Id()]
+func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {
+	relays := c.server.clientRelays(c.Id())
 	if len(relays) == 0 {
-		return errors.New("No relays connected")
+		return "", ErrNoRelayConnected
 	}
 
 	var filters nostr.Filters
@@ -211,33 +265,106 @@ func (c *Client) SubscribeRelays(ctx context.Context) error {
 		errors.New("could not create client filters")
 	}
 
+	eventChan := make(chan *nostr.Event)
+	ctx, cancel := context.WithCancel(context.Background())
+
 	for _, relay := range relays {
-		ctx, cancel := context.WithCancel(context.Background())
 		sub, err := relay.Subscribe(ctx, filters)
 		if err != nil {
 			cancel()
-			return errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
 		}
 
-		// c.server.clientSubscriptions[c.Id()].Events = sub.Events
-
-		for ev := range sub.Events {
-			fmt.Println(ev)
-			x := NostrEvent(ev)
-			c.events = append(c.events, &x)
-
-			// c.server.clientSubscriptions[c.Id()].Events <- ev
-		}
 		go func() {
-			<-sub.EndOfStoredEvents
-			fmt.Println("end of stored events")
-			cancel()
-			// handle end of stored events (EOSE, see NIP-15)
+			for ev := range sub.Events {
+				eventChan <- ev
+			}
 		}()
 	}
-	return nil
+
+	buf := newEventBuffer()
+	go func() {
+		select {
+		case ev := <-eventChan:
+			buf.push(ev)
+		case <-ctx.Done():
+			return
+		}
+	}()
+
+	sub := &Subscription{
+		id:     randString(SUB_ID_LENGTH),
+		events: eventChan,
+		buffer: buf,
+		cancel: cancel,
+	}
+
+	c.server.manageSubscription(c.Id(), sub)
+
+	return sub.id, nil
 }
 
-func (c *Client) GetEvents() []*NostrEvent {
-	return c.events
+// Get all historic events on active subscriptions for the client.
+// Note that only a limited amount of events are kept. If the actual client waits
+// too long to call this, events might be dropped.
+func (c *Client) GetEvents() []nostr.Event {
+	subs := c.server.subscriptions(c.Id())
+	var events []nostr.Event
+	for _, sub := range subs {
+		events = append(events, sub.buffer.take()...)
+	}
+	return events
 }
+
+// Get the ID's of all active subscriptions
+func (c *Client) SubscriptionIds() []string {
+	subs := c.server.subscriptions(c.Id())
+	var ids []string
+	for _, sub := range subs {
+		ids = append(ids, sub.id)
+	}
+	return ids
+}
+
+// CloseSubscription managed by the server for this client, based on its ID.
+func (c *Client) CloseSubscription(id string) {
+	sub := c.server.removeSubscription(c.Id(), id)
+	if sub != nil {
+		sub.Close()
+	}
+}
+
+// Close an open subscription
+func (s *Subscription) Close() {
+	s.cancel()
+	close(s.events)
+}
+
+// go random string, source: https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+func randString(n int) string {
+	var src = rand.NewSource(time.Now().UnixNano())
+	b := make([]byte, n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return *(*string)(unsafe.Pointer(&b))
+}
+
+// end random string code copy
