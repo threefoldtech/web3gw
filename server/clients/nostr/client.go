@@ -41,7 +41,7 @@ type (
 	Subscription struct {
 		id     string
 		buffer *eventBuffer
-		cancel context.CancelFunc
+		subs   []*nostr.Subscription
 	}
 )
 
@@ -269,7 +269,9 @@ func (c *Client) SubscribeRelays() (string, error) {
 		return "", errors.New("could not create client filters")
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	subs := []*nostr.Subscription{}
+
+	ctx := context.Background()
 	buf := newEventBuffer()
 
 	for _, relay := range relays {
@@ -277,9 +279,10 @@ func (c *Client) SubscribeRelays() (string, error) {
 		sub, err := relay.Subscribe(ctx, filters)
 		if err != nil {
 			fmt.Println("error subscribing to relay")
-			cancel()
 			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
 		}
+
+		subs = append(subs, sub)
 
 		go func() {
 			<-sub.EndOfStoredEvents
@@ -298,7 +301,7 @@ func (c *Client) SubscribeRelays() (string, error) {
 	sub := &Subscription{
 		id:     randString(SUB_ID_LENGTH),
 		buffer: buf,
-		cancel: cancel,
+		subs:   subs,
 	}
 
 	c.server.manageSubscription(c.Id(), sub)
@@ -338,7 +341,9 @@ func (c *Client) CloseSubscription(id string) {
 
 // Close an open subscription
 func (s *Subscription) Close() {
-	s.cancel()
+	for _, sub := range s.subs {
+		sub.Unsub()
+	}
 }
 
 // go random string, source: https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
