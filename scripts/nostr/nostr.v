@@ -50,3 +50,11 @@ pub fn subscribe_to_relays(mut client RpcWsClient) ! {
 pub fn get_events(mut client RpcWsClient) ![]Event {
 	return client.send_json_rpc[[]string, []Event]('nostr.GetEvents', []string{}, default_timeout)!
 }
+
+pub fn close_subscription(mut client RpcWsClient, id string) ! {
+	_ := client.send_json_rpc[[]string, string]('nostr.CloseSubscription', [id], default_timeout)!
+}
+
+pub fn get_subscription_ids(mut client RpcWsClient) ![]string {
+	return client.send_json_rpc[[]string, []string]('nostr.GetSubscriptionIds', []string{}, default_timeout)!
+}

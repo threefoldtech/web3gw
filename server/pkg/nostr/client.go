@@ -2,6 +2,7 @@ package nostr
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/threefoldtech/web3_proxy/server/clients/nostr"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -73,34 +74,56 @@ func (c *Client) ConnectToRelay(ctx context.Context, url string) error {
 	return state.client.ConnectAuthRelay(ctx, url)
 }
 
-type Input struct {
-	tags    []string
-	content string
+type EventInput struct {
+	Tags    []string `json:"tags"`
+	Content string   `json:"content"`
 }
 
-func (c *Client) PublishEventToRelays(ctx context.Context, input Input) error {
+func (c *Client) PublishEventToRelays(ctx context.Context, input EventInput) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.PublishEventToRelays(ctx, input.tags, input.content)
+	return state.client.PublishEventToRelays(ctx, input.Tags, input.Content)
 }
 
-func (c *Client) SubscribeRelays(ctx context.Context) error {
+func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.SubscribeRelays()
+}
+
+func (c *Client) CloseSubscription(ctx context.Context, id string) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.SubscribeRelays(ctx)
+	state.client.CloseSubscription(id)
+
+	return nil
 }
 
-func (c *Client) GetEvents(ctx context.Context) ([]*nostr.NostrEvent, error) {
+func (c *Client) GetSubscriptionIds(ctx context.Context) ([]string, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
+
+	return state.client.SubscriptionIds(), nil
+}
+
+func (c *Client) GetEvents(ctx context.Context) ([]nostr.NostrEvent, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	fmt.Println(state.client.GetEvents())
 
 	return state.client.GetEvents(), nil
 }

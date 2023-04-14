@@ -25,7 +25,7 @@ type (
 		mutex sync.RWMutex
 	}
 
-	NostrEvent = *nostr.Event
+	NostrEvent = nostr.Event
 
 	// Client for nostr protocol
 	Client struct {
@@ -40,7 +40,6 @@ type (
 	// Subscription for events on a relay
 	Subscription struct {
 		id     string
-		events chan *nostr.Event
 		buffer *eventBuffer
 		cancel context.CancelFunc
 	}
@@ -225,8 +224,8 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 		PubKey:    c.pk,
 		CreatedAt: time.Now(),
 		Kind:      1,
-		Tags:      make(nostr.Tags, len(tags)),
-		Content:   content,
+		// Tags:      make(nostr.Tags, len(tags)),
+		Content: content,
 	}
 
 	// calling Sign sets the event ID field and the event Sig field
@@ -238,6 +237,8 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 			return errors.Wrap(err, ErrFailedToPublishEvent.Error())
 		}
 
+		fmt.Printf("published event to relay: %+v\n", ev)
+
 		if status == nostr.PublishStatusFailed {
 			return ErrFailedToPublishEvent
 		}
@@ -247,7 +248,7 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 }
 
 // Subscribe to events on a relay
-func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {
+func (c *Client) SubscribeRelays() (string, error) {
 	relays := c.server.clientRelays(c.Id())
 	if len(relays) == 0 {
 		return "", ErrNoRelayConnected
@@ -255,46 +256,47 @@ func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {
 
 	var filters nostr.Filters
 	if _, v, err := nip19.Decode(c.Id()); err == nil {
-		pub := v.(string)
+		// pub := v.(string)
+		t := make(map[string][]string)
+		t["p"] = []string{v.(string)}
+
 		filters = []nostr.Filter{{
-			Kinds:   []int{1},
-			Authors: []string{pub},
-			Limit:   1000,
+			Kinds: []int{1},
+			Tags:  t,
+			Limit: 50,
 		}}
 	} else {
-		errors.New("could not create client filters")
+		return "", errors.New("could not create client filters")
 	}
 
-	eventChan := make(chan *nostr.Event)
 	ctx, cancel := context.WithCancel(context.Background())
+	buf := newEventBuffer()
 
 	for _, relay := range relays {
+		fmt.Printf("Connected to relay %s\n", relay.URL)
 		sub, err := relay.Subscribe(ctx, filters)
 		if err != nil {
+			fmt.Println("error subscribing to relay")
 			cancel()
 			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
 		}
 
 		go func() {
+			<-sub.EndOfStoredEvents
+			fmt.Println("End of stored events")
+			fmt.Println(sub.Events)
+		}()
+
+		go func() {
 			for ev := range sub.Events {
-				eventChan <- ev
+				fmt.Printf("Received event from relay %+v", ev)
+				buf.push(ev)
 			}
 		}()
 	}
 
-	buf := newEventBuffer()
-	go func() {
-		select {
-		case ev := <-eventChan:
-			buf.push(ev)
-		case <-ctx.Done():
-			return
-		}
-	}()
-
 	sub := &Subscription{
 		id:     randString(SUB_ID_LENGTH),
-		events: eventChan,
 		buffer: buf,
 		cancel: cancel,
 	}
@@ -307,9 +309,9 @@ func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {
 // Get all historic events on active subscriptions for the client.
 // Note that only a limited amount of events are kept. If the actual client waits
 // too long to call this, events might be dropped.
-func (c *Client) GetEvents() []nostr.Event {
+func (c *Client) GetEvents() []NostrEvent {
 	subs := c.server.subscriptions(c.Id())
-	var events []nostr.Event
+	var events []NostrEvent
 	for _, sub := range subs {
 		events = append(events, sub.buffer.take()...)
 	}
@@ -337,7 +339,6 @@ func (c *Client) CloseSubscription(id string) {
 // Close an open subscription
 func (s *Subscription) Close() {
 	s.cancel()
-	close(s.events)
 }
 
 // go random string, source: https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
