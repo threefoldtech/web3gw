@@ -40,7 +40,7 @@ func (eb *eventBuffer) push(event *nostr.Event) {
 		score++
 	}
 	eb.buf[eb.idx] = event
-	eb.idx %= BUFFER_SIZE
+	eb.idx = (eb.idx + 1) % BUFFER_SIZE
 	eb.msgCount += score
 }
 
@@ -66,12 +66,13 @@ func (eb *eventBuffer) take() []nostr.Event {
 	defer eb.mutex.Unlock()
 
 	s := make([]nostr.Event, eb.msgCount)
-	var i uint
+	var i, j uint
 	for i < uint(eb.msgCount) {
-		if eb.buf[i+eb.idx] != nil {
-			s[i] = *eb.buf[i+eb.idx]
-			i++
+		if eb.buf[(i+eb.idx)%BUFFER_SIZE] != nil {
+			s[j] = *eb.buf[i+eb.idx]
+			j++
 		}
+		i++
 	}
 
 	eb.idx = 0

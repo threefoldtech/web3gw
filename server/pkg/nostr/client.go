@@ -123,7 +123,9 @@ func (c *Client) GetEvents(ctx context.Context) ([]nostr.NostrEvent, error) {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
-	fmt.Println(state.client.GetEvents())
+	evs := state.client.GetEvents()
 
-	return state.client.GetEvents(), nil
+	fmt.Printf("events: %v", evs)
+
+	return evs, nil
 }

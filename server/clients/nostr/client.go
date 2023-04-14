@@ -162,8 +162,9 @@ func (c *Client) Id() string {
 }
 
 func (c *Client) ConnectRelay(ctx context.Context, relayURL string) error {
-	ctxConnect, cancelFuncConnect := context.WithTimeout(ctx, relayConnectTimeout)
-	defer cancelFuncConnect()
+	// ctxConnect, cancelFuncConnect := context.WithTimeout(ctx, relayConnectTimeout)
+	// defer cancelFuncConnect()
+	ctxConnect := context.Background()
 
 	relay, err := nostr.RelayConnect(ctxConnect, relayURL)
 	if err != nil {
@@ -237,7 +238,7 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 			return errors.Wrap(err, ErrFailedToPublishEvent.Error())
 		}
 
-		fmt.Printf("published event to relay: %+v\n", ev)
+		fmt.Printf("published event to relay: %+v\nSTATUS:%s\n", ev, status)
 
 		if status == nostr.PublishStatusFailed {
 			return ErrFailedToPublishEvent
@@ -262,8 +263,8 @@ func (c *Client) SubscribeRelays() (string, error) {
 
 		filters = []nostr.Filter{{
 			Kinds: []int{1},
-			Tags:  t,
-			Limit: 50,
+			// Tags:  t,
+			Limit: 1000,
 		}}
 	} else {
 		return "", errors.New("could not create client filters")
@@ -287,7 +288,6 @@ func (c *Client) SubscribeRelays() (string, error) {
 		go func() {
 			<-sub.EndOfStoredEvents
 			fmt.Println("End of stored events")
-			fmt.Println(sub.Events)
 		}()
 
 		go func() {
@@ -333,6 +333,7 @@ func (c *Client) SubscriptionIds() []string {
 
 // CloseSubscription managed by the server for this client, based on its ID.
 func (c *Client) CloseSubscription(id string) {
+	fmt.Println("calling close subscription")
 	sub := c.server.removeSubscription(c.Id(), id)
 	if sub != nil {
 		sub.Close()

@@ -68,24 +68,15 @@ fn execute_nostr_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	nostr.load(mut client, key)!
 
 	nostr.connect_to_relay(mut client, "ws://localhost:8081")!
-	
-	
-	nostr.publish_to_relays(mut client, [""], "hello world 1!")!
-	
-	time.sleep(5 * time.second)
-	
 	nostr.subscribe_to_relays(mut client)!
 
-
+	nostr.publish_to_relays(mut client, [""], "hello world 1!")!
 	nostr.publish_to_relays(mut client, [""], "hello world 2!")!
-	// nostr.publish_to_relays(mut client, [""], "hello world 3!")!
-	// nostr.publish_to_relays(mut client, [""], "hello world 4!")!
-	// nostr.publish_to_relays(mut client, [""], "hello world 5!")!
-	// nostr.publish_to_relays(mut client, [""], "hello world 6!")!
 
-	time.sleep(10 * time.second)
+	time.sleep(5 * time.second)
 
 	events := nostr.get_events(mut client)!
+	println("events")
 	println(events)
 
 	// Close subscriptions
