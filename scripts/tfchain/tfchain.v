@@ -105,12 +105,12 @@ pub fn get_twin(mut client RpcWsClient, id u32) !Twin {
 	return client.send_json_rpc[[]u32, Twin]('tfchain.GetTwin', [id], tfchain.default_timeout)!
 }
 
-pub fn get_twin_by_pubkey(mut client RpcWsClient, pk []byte) !u32 {
-	return client.send_json_rpc[[][]byte, u32]('tfchain.GetTwinByPubKey', [pk], tfchain.default_timeout)!
+pub fn get_twin_by_pubkey(mut client RpcWsClient, address string) !u32 {
+	return client.send_json_rpc[[]string, u32]('tfchain.GetTwinByPubKey', [address], tfchain.default_timeout)!
 }
 
 pub fn create_twin(mut client RpcWsClient, args CreateTwin) !u32 {
-	return client.send_json_rpc[[]CreateTwin, u32]('tfchain.GetTwinByPubKey', [args], tfchain.default_timeout)!
+	return client.send_json_rpc[[]CreateTwin, u32]('tfchain.CreateTwin', [args], tfchain.default_timeout)!
 }
 
 pub fn accept_terms_and_conditions(mut client RpcWsClient, args AcceptTermsAndConditions) ! {
@@ -129,7 +129,6 @@ pub fn get_nodes(mut client RpcWsClient, farm_id u32) ![]u32 {
 	return client.send_json_rpc[[]u32, []u32]('tfchain.GetNodes', [farm_id], tfchain.default_timeout)!
 }
 
-
 pub fn get_farm(mut client RpcWsClient, id u32) !Farm {
 	return client.send_json_rpc[[]u32, Farm]('tfchain.GetFarm', [id], tfchain.default_timeout)!
 }
@@ -142,7 +141,6 @@ pub fn create_farm(mut client RpcWsClient, args CreateFarm) ! {
 	_ := client.send_json_rpc[[]CreateFarm, string]('tfchain.CreateFarm', [args], tfchain.default_timeout)!
 }
 
-
 pub fn get_contract(mut client RpcWsClient, contract_id u64) !Contract {
 	return client.send_json_rpc[[]u64, Contract]('tfchain.GetContract', [contract_id], tfchain.default_timeout)!
 }
@@ -153,6 +151,10 @@ pub fn get_contract_id_by_name_registration(mut client RpcWsClient, name string)
 
 pub fn get_contract_with_hash(mut client RpcWsClient, args GetContractWithHash) !u64 {
 	return client.send_json_rpc[[]GetContractWithHash, u64]('tfchain.GetContractWithHash', [args], tfchain.default_timeout)!
+}
+
+pub fn get_node_contracts(mut client RpcWsClient, node_id u32) ![]u64 {
+	return client.send_json_rpc[[]u32, []u64]('tfchain.GetNodeContracts', [node_id], tfchain.default_timeout)!
 }
 
 pub fn create_name_contract(mut client RpcWsClient, name string) !u64 {
@@ -200,5 +202,5 @@ pub fn cancel_contract(mut client RpcWsClient, contract_id u64) ! {
 }
 
 pub fn get_zos_version(mut client RpcWsClient) !string {
-	return client.send_json_rpc[[]string, string]('tfchain.CancelContract', []string{}, tfchain.default_timeout)!
+	return client.send_json_rpc[[]string, string]('tfchain.GetZosVersion', []string{}, tfchain.default_timeout)!
 }

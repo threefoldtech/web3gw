@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
@@ -30,63 +31,63 @@ type (
 	}
 
 	Transfer struct {
-		amount      uint64
-		destination string
+		Amount      uint64 `json:"amount"`
+		Destination string `json:"destination"`
 	}
 
 	CreateTwin struct {
-		relay string
-		pk    []byte
+		Relay string `json:"relay"`
+		Pk    []byte `json:"pk"`
 	}
 
 	AcceptTermsAndConditions struct {
-		link string
-		hash string
+		Link string `json:"link"`
+		Hash string `json:"hash"`
 	}
 
 	GetContractWithHash struct {
-		nodeID uint32
-		hash   substrate.HexHash
+		NodeID uint32            `json:"node_id"`
+		Hash   substrate.HexHash `json:"hash"`
 	}
 
 	CreateNodeContract struct {
-		nodeID             uint32
-		body               string
-		hash               string
-		publicIPs          uint32
-		solutionProviderID *uint64
+		NodeID             uint32  `json:"node_id"`
+		Body               string  `json:"body"`
+		Hash               string  `json:"hash"`
+		PublicIPs          uint32  `json:"public_ips"`
+		SolutionProviderID *uint64 `json:"solution_provider_id"`
 	}
 
 	CreateRentContract struct {
-		nodeID             uint32
-		solutionProviderID *uint64
+		NodeID             uint32  `json:"node_id"`
+		SolutionProviderID *uint64 `json:"solution_provider_id"`
 	}
 
 	ServiceContractCreate struct {
-		service  substrate.AccountID
-		consumer substrate.AccountID
+		Service  substrate.AccountID `json:"service"`
+		Consumer substrate.AccountID `json:"consumer"`
 	}
 
 	ServiceContractBill struct {
-		contractID     uint64
-		variableAmount uint64
-		metadata       string
+		ContractID     uint64 `json:"contract_id"`
+		VariableAmount uint64 `json:"variable_amount"`
+		Metadata       string `json:"metadata"`
 	}
 
 	SetServiceContractFees struct {
-		contractID  uint64
-		baseFee     uint64
-		variableFee uint64
+		ContractID  uint64 `json:"contract_id"`
+		BaseFee     uint64 `json:"base_fee"`
+		VariableFee uint64 `json:"variable_fee"`
 	}
 
 	ServiceContractSetMetadata struct {
-		contractID uint64
-		metadata   string
+		ContractID uint64 `json:"contract_id"`
+		Metadata   string `json:"metadata"`
 	}
 
 	CreateFarm struct {
-		name      string
-		publicIPs []substrate.PublicIPInput
+		Name      string                    `json:"name"`
+		PublicIPs []substrate.PublicIPInput `json:"public_ips"`
 	}
 )
 
@@ -161,12 +162,12 @@ func (c *Client) Transfer(ctx context.Context, args Transfer) error {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	dest, err := substrate.FromAddress(args.destination)
+	dest, err := substrate.FromAddress(args.Destination)
 	if err != nil {
 		return err
 	}
 
-	return state.client.Transfer(*state.identity, args.amount, dest)
+	return state.client.Transfer(*state.identity, args.Amount, dest)
 }
 
 // Balance of an account for TFT on stellar.
@@ -198,13 +199,18 @@ func (c *Client) GetTwin(ctx context.Context, id uint32) (*substrate.Twin, error
 	return state.client.GetTwin(id)
 }
 
-func (c *Client) GetTwinByPubKey(ctx context.Context, pk []byte) (uint32, error) {
+func (c *Client) GetTwinByPubKey(ctx context.Context, address string) (uint32, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.GetTwinByPubKey(pk)
+	account, err := substrate.FromAddress(address)
+	if err != nil {
+		return 0, err
+	}
+
+	return state.client.GetTwinByPubKey(account.PublicKey())
 }
 
 func (c *Client) CreateTwin(ctx context.Context, args CreateTwin) (uint32, error) {
@@ -213,7 +219,7 @@ func (c *Client) CreateTwin(ctx context.Context, args CreateTwin) (uint32, error
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateTwin(*state.identity, args.relay, args.pk)
+	return state.client.CreateTwin(*state.identity, args.Relay, args.Pk)
 }
 
 func (c *Client) AcceptTermsAndConditions(ctx context.Context, args AcceptTermsAndConditions) error {
@@ -222,7 +228,7 @@ func (c *Client) AcceptTermsAndConditions(ctx context.Context, args AcceptTermsA
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.AcceptTermsAndConditions(*state.identity, args.link, args.hash)
+	return state.client.AcceptTermsAndConditions(*state.identity, args.Link, args.Hash)
 }
 
 func (c *Client) GetNode(ctx context.Context, id uint32) (*substrate.Node, error) {
@@ -275,7 +281,7 @@ func (c *Client) CreateFarm(ctx context.Context, args CreateFarm) error {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateFarm(*state.identity, args.name, args.publicIPs)
+	return state.client.CreateFarm(*state.identity, args.Name, args.PublicIPs)
 }
 
 func (c *Client) GetContract(ctx context.Context, contract_id uint64) (*substrate.Contract, error) {
@@ -285,6 +291,15 @@ func (c *Client) GetContract(ctx context.Context, contract_id uint64) (*substrat
 	}
 
 	return state.client.GetContract(contract_id)
+}
+
+func (c *Client) GetNodeContracts(ctx context.Context, node_id uint32) ([]types.U64, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return []types.U64{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetNodeContracts(node_id)
 }
 
 func (c *Client) GetContractIDByNameRegistration(ctx context.Context, name string) (uint64, error) {
@@ -302,7 +317,7 @@ func (c *Client) GetContractWithHash(ctx context.Context, args GetContractWithHa
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.GetContractWithHash(args.nodeID, args.hash)
+	return state.client.GetContractWithHash(args.NodeID, args.Hash)
 }
 
 func (c *Client) CreateNameContract(ctx context.Context, name string) (uint64, error) {
@@ -320,7 +335,7 @@ func (c *Client) CreateNodeContract(ctx context.Context, args CreateNodeContract
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateNodeContract(*state.identity, args.nodeID, args.body, args.hash, args.publicIPs, args.solutionProviderID)
+	return state.client.CreateNodeContract(*state.identity, args.NodeID, args.Body, args.Hash, args.PublicIPs, args.SolutionProviderID)
 }
 
 func (c *Client) CreateRentContract(ctx context.Context, args CreateRentContract) (uint64, error) {
@@ -329,7 +344,7 @@ func (c *Client) CreateRentContract(ctx context.Context, args CreateRentContract
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateRentContract(*state.identity, args.nodeID, args.solutionProviderID)
+	return state.client.CreateRentContract(*state.identity, args.NodeID, args.SolutionProviderID)
 }
 
 func (c *Client) ServiceContractCreate(ctx context.Context, args ServiceContractCreate) (uint64, error) {
@@ -338,7 +353,7 @@ func (c *Client) ServiceContractCreate(ctx context.Context, args ServiceContract
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractCreate(*state.identity, args.service, args.consumer)
+	return state.client.ServiceContractCreate(*state.identity, args.Service, args.Consumer)
 }
 
 func (c *Client) ServiceContractApprove(ctx context.Context, contract_id uint64) error {
@@ -356,7 +371,7 @@ func (c *Client) ServiceContractBill(ctx context.Context, args ServiceContractBi
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractBill(*state.identity, args.contractID, args.variableAmount, args.metadata)
+	return state.client.ServiceContractBill(*state.identity, args.ContractID, args.VariableAmount, args.Metadata)
 }
 
 func (c *Client) ServiceContractCancel(ctx context.Context, contract_id uint64) error {
@@ -383,7 +398,7 @@ func (c *Client) ServiceContractSetFees(ctx context.Context, args SetServiceCont
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractSetFees(*state.identity, args.contractID, args.baseFee, args.variableFee)
+	return state.client.ServiceContractSetFees(*state.identity, args.ContractID, args.BaseFee, args.VariableFee)
 }
 
 func (c *Client) ServiceContractSetMetadata(ctx context.Context, args ServiceContractSetMetadata) error {
@@ -392,7 +407,7 @@ func (c *Client) ServiceContractSetMetadata(ctx context.Context, args ServiceCon
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractSetMetadata(*state.identity, args.contractID, args.metadata)
+	return state.client.ServiceContractSetMetadata(*state.identity, args.ContractID, args.Metadata)
 }
 
 func (c *Client) CancelContract(ctx context.Context, contract_id uint64) error {
