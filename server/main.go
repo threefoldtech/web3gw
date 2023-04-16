@@ -6,6 +6,7 @@ import (
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
+	"github.com/threefoldtech/web3_proxy/server/pkg/explorer"
 	"github.com/threefoldtech/web3_proxy/server/pkg/stellar"
 	"github.com/threefoldtech/web3_proxy/server/pkg/tfchain"
 	"github.com/threefoldtech/web3_proxy/server/pkg/tfgrid"
@@ -22,6 +23,7 @@ func main() {
 	rpcServer.Register("stellar", stellar.NewClient())
 	rpcServer.Register("tfchain", tfchain.NewClient())
 	rpcServer.Register("tfgrid", tfgrid.NewClient())
+	rpcServer.Register("explorer", explorer.NewClient())
 
 	http.HandleFunc("/", rpcServer.ServeHTTP)
 	http.ListenAndServe(":8080", nil)
