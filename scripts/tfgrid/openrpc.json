@@ -1,1 +1,1593 @@
-{"openrpc":"1.0.0","info":{"title":"test","version":"1.0.0"},"methods":[{"name":"filter_nodes","params":[{"name":"filters","schema":{"$ref":"#\/components\/schemas\/FilterOptions"}}],"result":{"name":"FilterResult","schema":{"$ref":"#\/components\/schemas\/FilterResult"}}},{"name":"gateways_deploy_fqdn","params":[{"name":"model","schema":{"$ref":"#\/components\/schemas\/GatewayFQDN"}}],"result":{"name":"GatewayFQDNResult","schema":{"$ref":"#\/components\/schemas\/GatewayFQDNResult"}}},{"name":"gateways_get_fqdn","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"GatewayFQDNResult","schema":{"$ref":"#\/components\/schemas\/GatewayFQDNResult"}}},{"name":"gateways_delete_fqdn","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"gateways_deploy_name","params":[{"name":"model","schema":{"$ref":"#\/components\/schemas\/GatewayName"}}],"result":{"name":"GatewayNameResult","schema":{"$ref":"#\/components\/schemas\/GatewayNameResult"}}},{"name":"gateways_get_name","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"GatewayNameResult","schema":{"$ref":"#\/components\/schemas\/GatewayNameResult"}}},{"name":"gateways_delete_name","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"k8s_deploy","params":[{"name":"cluster","schema":{"$ref":"#\/components\/schemas\/K8sCluster"}}],"result":{"name":"K8sClusterResult","schema":{"$ref":"#\/components\/schemas\/K8sClusterResult"}}},{"name":"k8s_get","params":[{"name":"cluster_name","schema":{"type":"string"}}],"result":{"name":"K8sClusterResult","schema":{"$ref":"#\/components\/schemas\/K8sClusterResult"}}},{"name":"k8s_delete","params":[{"name":"cluster_name","schema":{"type":"string"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"load","params":[{"name":"credentials","schema":{"$ref":"#\/components\/schemas\/Credentials"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"machines_deploy","params":[{"name":"model","schema":{"$ref":"#\/components\/schemas\/MachinesModel"}}],"result":{"name":"MachinesResult","schema":{"$ref":"#\/components\/schemas\/MachinesResult"}}},{"name":"machines_get","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"MachinesResult","schema":{"$ref":"#\/components\/schemas\/MachinesResult"}}},{"name":"machines_delete","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"zdb_deploy","params":[{"name":"model","schema":{"$ref":"#\/components\/schemas\/ZDB"}}],"result":{"name":"ZDBResult","schema":{"$ref":"#\/components\/schemas\/ZDBResult"}}},{"name":"zdb_delete","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"zdb_get","params":[{"name":"model_name","schema":{"type":"string"}}],"result":{"name":"ZDBResult","schema":{"$ref":"#\/components\/schemas\/ZDBResult"}}},{"name":"zos_deployment_deploy","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"zos_system_version","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"SystemVersion","schema":{"$ref":"#\/components\/schemas\/SystemVersion"}}},{"name":"zos_system_hypervisor","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"!string","schema":{"type":"string"}}},{"name":"zos_system_dmi","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"DMI","schema":{"$ref":"#\/components\/schemas\/DMI"}}},{"name":"zos_network_public_config","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"PublicConfig","schema":{"$ref":"#\/components\/schemas\/PublicConfig"}}},{"name":"zos_network_interfaces","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"!map[string][]string","schema":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}}},{"name":"zos_network_list_wg_ports","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"![]u16","schema":{"type":"array","items":{"type":"integer"}}}},{"name":"zos_node_statistics","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"Statistics","schema":{"$ref":"#\/components\/schemas\/Statistics"}}},{"name":"zos_deployment_changes","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"Workload","schema":{"$ref":"#\/components\/schemas\/Workload"}}},{"name":"zos_deployment_update","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"zos_deployment_delete","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"!","schema":{"type":"null"}}},{"name":"zos_deployment_get","params":[{"name":"request","schema":{"$ref":"#\/components\/schemas\/ZOSNodeRequest"}}],"result":{"name":"Deployment","schema":{"$ref":"#\/components\/schemas\/Deployment"}}}],"components":{"schemas":{"FilterOptions":{"title":"FilterOptions","properties":{"farm_id":{"type":"string"},"public_config":{"type":"boolean"},"public_ips_count":{"type":"integer"},"dedicated":{"type":"boolean"},"mru":{"type":"string"},"hru":{"type":"string"},"sru":{"type":"string"}}},"FilterResult":{"title":"FilterResult","properties":{"filter_options":{"$ref":"#\/components\/schemas\/FilterOptions"},"available_nodes":{"type":"array","items":{"type":"integer"}}}},"Filter":{"title":"Filter"},"GatewayClient":{"title":"GatewayClient"},"K8sClient":{"title":"K8sClient"},"Credentials":{"title":"Credentials","properties":{"mnemonic":{"type":"string"},"network":{"type":"string"}}},"Login":{"title":"Login"},"MachiensClient":{"title":"MachiensClient"},"GatewayFQDN":{"title":"GatewayFQDN","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"tls_passthrough":{"type":"boolean"},"backends":{"type":"array","items":{"type":"string"}},"fqdn":{"type":"string"}}},"GatewayFQDNResult":{"title":"GatewayFQDNResult","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"tls_passthrough":{"type":"boolean"},"backends":{"type":"array","items":{"type":"string"}},"fqdn":{"type":"string"},"contract_id":{"type":"integer"}}},"GatewayName":{"title":"GatewayName","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"tls_passthrough":{"type":"boolean"},"backends":{"type":"array","items":{"type":"string"}}}},"GatewayNameResult":{"title":"GatewayNameResult","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"tls_passthrough":{"type":"boolean"},"backends":{"type":"array","items":{"type":"string"}},"fqdn":{"type":"string"},"name_contract_id":{"type":"integer"},"contract_id":{"type":"integer"}}},"K8sCluster":{"title":"K8sCluster","properties":{"name":{"type":"string"},"token":{"type":"string"},"ssh_key":{"type":"string"},"master":{"$ref":"#\/components\/schemas\/K8sNode"},"workers":{"$ref":"#\/components\/schemas\/K8sNode"}}},"K8sClusterResult":{"title":"K8sClusterResult","properties":{"name":{"type":"string"},"token":{"type":"string"},"ssh_key":{"type":"string"},"master":{"$ref":"#\/components\/schemas\/K8sNode"},"workers":{"$ref":"#\/components\/schemas\/K8sNode"}}},"K8sNode":{"title":"K8sNode","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"farm_id":{"type":"integer"},"public_ip":{"type":"boolean"},"public_ip6":{"type":"boolean"},"planetary":{"type":"boolean"},"flist":{"type":"string"},"cpu":{"type":"integer"},"memory":{"type":"integer"},"disk_size":{"type":"integer"}}},"K8sNodeResult":{"title":"K8sNodeResult","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"farm_id":{"type":"integer"},"public_ip":{"type":"boolean"},"public_ip6":{"type":"boolean"},"planetary":{"type":"boolean"},"flist":{"type":"string"},"cpu":{"type":"integer"},"memory":{"type":"integer"},"disk_size":{"type":"integer"},"computed_ip4":{"type":"string"},"computed_ip6":{"type":"string"},"wg_ip":{"type":"string"},"ygg_ip":{"type":"string"}}},"KeyValue":{"title":"KeyValue","properties":{"key":{"type":"string"},"value":{"type":"string"}}},"MachinesModel":{"title":"MachinesModel","properties":{"name":{"type":"string"},"network":{"$ref":"#\/components\/schemas\/Network"},"machines":{"$ref":"#\/components\/schemas\/Machine"},"metadata":{"type":"string"},"description":{"type":"string"}}},"MachinesResult":{"title":"MachinesResult","properties":{"name":{"type":"string"},"metadata":{"type":"string"},"description":{"type":"string"},"network":{"$ref":"#\/components\/schemas\/NetworkResult"},"machines":{"$ref":"#\/components\/schemas\/MachineResult"}}},"Machine":{"title":"Machine","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"farm_id":{"type":"integer"},"flist":{"type":"string"},"entrypoint":{"type":"string"},"public_ip":{"type":"boolean"},"public_ip6":{"type":"boolean"},"planetary":{"type":"boolean"},"cpu":{"type":"integer"},"memory":{"type":"string"},"rootfs_size":{"type":"string"},"zlogs":{"$ref":"#\/components\/schemas\/Zlog"},"disks":{"$ref":"#\/components\/schemas\/Disk"},"qsfs":{"$ref":"#\/components\/schemas\/QSFS"},"env_vars":{"type":"object","additionalProperties":{"type":"string"}},"description":{"type":"string"}}},"MachineResult":{"title":"MachineResult","properties":{"name":{"type":"string"},"node_id":{"type":"integer"},"farm_id":{"type":"integer"},"flist":{"type":"string"},"entrypoint":{"type":"string"},"public_ip":{"type":"boolean"},"public_ip6":{"type":"boolean"},"planetary":{"type":"boolean"},"cpu":{"type":"integer"},"memory":{"type":"string"},"rootfs_size":{"type":"string"},"zlogs":{"$ref":"#\/components\/schemas\/Zlog"},"disks":{"$ref":"#\/components\/schemas\/DiskResult"},"qsfs":{"$ref":"#\/components\/schemas\/QSFSResult"},"env_vars":{"type":"object","additionalProperties":{"type":"string"}},"description":{"type":"string"},"computed_ip4":{"type":"string"},"computed_ip6":{"type":"string"},"wireguard_ip":{"type":"string"},"ygg_ip":{"type":"string"}}},"Disk":{"title":"Disk","properties":{"size":{"type":"integer"},"mountpoint":{"type":"string"},"description":{"type":"string"}}},"DiskResult":{"title":"DiskResult","properties":{"size":{"type":"integer"},"mountpoint":{"type":"string"},"description":{"type":"string"},"name":{"type":"string"}}},"QSFS":{"title":"QSFS","properties":{"name":{"type":"string"},"mountpoint":{"type":"string"},"qsfs_zdbs_name":{"type":"string"},"encryption_key":{"type":"string"},"cache":{"type":"integer"},"minimal_shards":{"type":"integer"},"expected_shards":{"type":"integer"},"redundant_groups":{"type":"integer"},"redundant_nodes":{"type":"integer"},"encryption_algorithm":{"type":"string"},"compression_algorithm":{"type":"string"},"metadata":{"$ref":"#\/components\/schemas\/Metadata"},"description":{"type":"string"},"max_zdb_data_dir_size":{"type":"integer"},"groups":{"$ref":"#\/components\/schemas\/Group"}}},"QSFSResult":{"title":"QSFSResult","properties":{"name":{"type":"string"},"mountpoint":{"type":"string"},"qsfs_zdbs_name":{"type":"string"},"encryption_key":{"type":"string"},"cache":{"type":"integer"},"minimal_shards":{"type":"integer"},"expected_shards":{"type":"integer"},"redundant_groups":{"type":"integer"},"redundant_nodes":{"type":"integer"},"encryption_algorithm":{"type":"string"},"compression_algorithm":{"type":"string"},"metadata":{"$ref":"#\/components\/schemas\/Metadata"},"description":{"type":"string"},"max_zdb_data_dir_size":{"type":"integer"},"groups":{"$ref":"#\/components\/schemas\/Group"},"metrics_endpoint":{"type":"string"}}},"Zlog":{"title":"Zlog","properties":{"output":{"type":"string"}}},"Metadata":{"title":"Metadata","properties":{"type_":{"type":"string"},"prefix":{"type":"string"},"encryption_algorithm":{"type":"string"},"encryption_key":{"type":"string"},"backends":{"$ref":"#\/components\/schemas\/Backend"}}},"Group":{"title":"Group","properties":{"backends":{"$ref":"#\/components\/schemas\/Backend"}}},"Backend":{"title":"Backend","properties":{"address":{"type":"string"},"namespace":{"type":"string"},"password":{"type":"string"}}},"Network":{"title":"Network","properties":{"ip_range":{"type":"string"},"add_wireguard_access":{"type":"boolean"}}},"NetworkResult":{"title":"NetworkResult","properties":{"name":{"type":"string"},"ip_range":{"type":"string"},"wireguard_config":{"type":"string"}}},"MachinesGet":{"title":"MachinesGet","properties":{"model_name":{"type":"string"},"project_name":{"type":"string"}}},"MachinesDeploy":{"title":"MachinesDeploy","properties":{"model":{"$ref":"#\/components\/schemas\/MachinesModel"},"project_name":{"type":"string"}}},"Node":{"title":"Node","properties":{"version":{"type":"integer"},"id":{"type":"string"},"node_id":{"type":"integer"},"farm_id":{"type":"integer"},"twin_id":{"type":"integer"},"country":{"type":"string"},"city":{"type":"string"},"grid_version":{"type":"integer"},"uptime":{"type":"string"},"created":{"type":"string"},"farming_policy_id":{"type":"integer"},"updated_at":{"type":"string"},"cru":{"type":"string"},"mru":{"type":"string"},"sru":{"type":"string"},"hru":{"type":"string"},"status":{"type":"string"},"certification_type":{"type":"string"}}},"ZDB":{"title":"ZDB","properties":{"node_id":{"type":"integer"},"name":{"type":"string"},"password":{"type":"string"},"public":{"type":"boolean"},"size":{"type":"integer"},"description":{"type":"string"},"mode":{"type":"string"}}},"ZDBResult":{"title":"ZDBResult","properties":{"node_id":{"type":"integer"},"name":{"type":"string"},"password":{"type":"string"},"public":{"type":"boolean"},"size":{"type":"integer"},"description":{"type":"string"},"mode":{"type":"string"},"namespace":{"type":"string"},"port":{"type":"integer"},"ips":{"type":"array","items":{"type":"string"}}}},"ZOSNodeRequest":{"title":"ZOSNodeRequest","properties":{"node_id":{"type":"integer"},"data":{"type":"string"}}},"Deployment":{"title":"Deployment","properties":{"version":{"type":"integer"},"twin_id":{"type":"integer"},"contract_id":{"type":"string"},"metadata":{"type":"string"},"description":{"type":"string"},"expiration":{"type":"string"},"signature_requirement":{"$ref":"#\/components\/schemas\/SignatureRequirement"},"workloads":{"$ref":"#\/components\/schemas\/Workload"}}},"SignatureRequirement":{"title":"SignatureRequirement","properties":{"requests":{"$ref":"#\/components\/schemas\/SignatureRequest"},"weight_required":{"type":"integer"},"signatures":{"$ref":"#\/components\/schemas\/Signature"},"signature_style":{"type":"string"}}},"SignatureRequest":{"title":"SignatureRequest","properties":{"twin_id":{"type":"integer"},"required":{"type":"boolean"},"weight":{"type":"integer"}}},"Signature":{"title":"Signature","properties":{"twin_id":{"type":"integer"},"signature":{"type":"string"},"signature_type":{"type":"string"}}},"Workload":{"title":"Workload","properties":{"version":{"type":"integer"},"name":{"type":"string"},"workload_type":{"type":"string"},"data":{"type":"string"},"metadata":{"type":"string"},"description":{"type":"string"},"result":{"$ref":"#\/components\/schemas\/Result"}}},"Result":{"title":"Result","properties":{"created":{"type":"string"},"state":{"type":"string"},"error":{"type":"string"},"data":{"type":"string"}}},"SystemVersion":{"title":"SystemVersion","properties":{"zos":{"type":"string"},"zinit":{"type":"string"}}},"DMI":{"title":"DMI","properties":{"tooling":{"$ref":"#\/components\/schemas\/Tooling"},"sections":{"$ref":"#\/components\/schemas\/Section"}}},"Tooling":{"title":"Tooling","properties":{"aggregator":{"type":"string"},"decoder":{"type":"string"}}},"Section":{"title":"Section","properties":{"handleline":{"type":"string"},"typestr":{"type":"string"},"type_":{"type":"integer"},"subsections":{"$ref":"#\/components\/schemas\/Subsection"}}},"Subsection":{"title":"Subsection","properties":{"title":{"type":"string"},"properties":{"$ref":"#\/components\/schemas\/PropertyData"}}},"PropertyData":{"title":"PropertyData","properties":{"value":{"type":"string"},"items":{"type":"array","items":{"type":"string"}}}},"PublicConfig":{"title":"PublicConfig","properties":{"type_":{"type":"string"},"ipv4":{"type":"string"},"ipv6":{"type":"string"},"gw4":{"type":"string"},"gw6":{"type":"string"},"domain":{"type":"string"}}},"Statistics":{"title":"Statistics","properties":{"total":{"$ref":"#\/components\/schemas\/Capacity"},"used":{"$ref":"#\/components\/schemas\/Capacity"}}},"Capacity":{"title":"Capacity","properties":{"cru":{"type":"string"},"hru":{"type":"string"},"sru":{"type":"string"},"mru":{"type":"string"},"ipv4u":{"type":"string"}}},"ZDBClient":{"title":"ZDBClient"},"ZOSCallsClient":{"title":"ZOSCallsClient"}}}}
+{
+    "openrpc": "1.0.0",
+    "info": {
+      "title": "test",
+      "version": "1.0.0"
+    },
+    "methods": [
+      {
+        "name": "filter_nodes",
+        "params": [
+          {
+            "name": "filters",
+            "schema": {
+              "$ref": "#/components/schemas/FilterOptions"
+            }
+          }
+        ],
+        "result": {
+          "name": "FilterResult",
+          "schema": {
+            "$ref": "#/components/schemas/FilterResult"
+          }
+        }
+      },
+      {
+        "name": "gateways_deploy_fqdn",
+        "params": [
+          {
+            "name": "model",
+            "schema": {
+              "$ref": "#/components/schemas/GatewayFQDN"
+            }
+          }
+        ],
+        "result": {
+          "name": "GatewayFQDNResult",
+          "schema": {
+            "$ref": "#/components/schemas/GatewayFQDNResult"
+          }
+        }
+      },
+      {
+        "name": "gateways_get_fqdn",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "GatewayFQDNResult",
+          "schema": {
+            "$ref": "#/components/schemas/GatewayFQDNResult"
+          }
+        }
+      },
+      {
+        "name": "gateways_delete_fqdn",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "gateways_deploy_name",
+        "params": [
+          {
+            "name": "model",
+            "schema": {
+              "$ref": "#/components/schemas/GatewayName"
+            }
+          }
+        ],
+        "result": {
+          "name": "GatewayNameResult",
+          "schema": {
+            "$ref": "#/components/schemas/GatewayNameResult"
+          }
+        }
+      },
+      {
+        "name": "gateways_get_name",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "GatewayNameResult",
+          "schema": {
+            "$ref": "#/components/schemas/GatewayNameResult"
+          }
+        }
+      },
+      {
+        "name": "gateways_delete_name",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "k8s_deploy",
+        "params": [
+          {
+            "name": "cluster",
+            "schema": {
+              "$ref": "#/components/schemas/K8sCluster"
+            }
+          }
+        ],
+        "result": {
+          "name": "K8sClusterResult",
+          "schema": {
+            "$ref": "#/components/schemas/K8sClusterResult"
+          }
+        }
+      },
+      {
+        "name": "k8s_get",
+        "params": [
+          {
+            "name": "cluster_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "K8sClusterResult",
+          "schema": {
+            "$ref": "#/components/schemas/K8sClusterResult"
+          }
+        }
+      },
+      {
+        "name": "k8s_delete",
+        "params": [
+          {
+            "name": "cluster_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "credentials",
+            "schema": {
+              "$ref": "#/components/schemas/Credentials"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "machines_deploy",
+        "params": [
+          {
+            "name": "model",
+            "schema": {
+              "$ref": "#/components/schemas/MachinesModel"
+            }
+          }
+        ],
+        "result": {
+          "name": "MachinesResult",
+          "schema": {
+            "$ref": "#/components/schemas/MachinesResult"
+          }
+        }
+      },
+      {
+        "name": "machines_get",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "MachinesResult",
+          "schema": {
+            "$ref": "#/components/schemas/MachinesResult"
+          }
+        }
+      },
+      {
+        "name": "machines_delete",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "zdb_deploy",
+        "params": [
+          {
+            "name": "model",
+            "schema": {
+              "$ref": "#/components/schemas/ZDB"
+            }
+          }
+        ],
+        "result": {
+          "name": "ZDBResult",
+          "schema": {
+            "$ref": "#/components/schemas/ZDBResult"
+          }
+        }
+      },
+      {
+        "name": "zdb_delete",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "zdb_get",
+        "params": [
+          {
+            "name": "model_name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "result": {
+          "name": "ZDBResult",
+          "schema": {
+            "$ref": "#/components/schemas/ZDBResult"
+          }
+        }
+      },
+      {
+        "name": "zos_deployment_deploy",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "zos_system_version",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "SystemVersion",
+          "schema": {
+            "$ref": "#/components/schemas/SystemVersion"
+          }
+        }
+      },
+      {
+        "name": "zos_system_hypervisor",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "!string",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "zos_system_dmi",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "DMI",
+          "schema": {
+            "$ref": "#/components/schemas/DMI"
+          }
+        }
+      },
+      {
+        "name": "zos_network_public_config",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "PublicConfig",
+          "schema": {
+            "$ref": "#/components/schemas/PublicConfig"
+          }
+        }
+      },
+      {
+        "name": "zos_network_interfaces",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "!map[string][]string",
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "zos_network_list_wg_ports",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "![]u16",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      {
+        "name": "zos_node_statistics",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "Statistics",
+          "schema": {
+            "$ref": "#/components/schemas/Statistics"
+          }
+        }
+      },
+      {
+        "name": "zos_deployment_changes",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "Workload",
+          "schema": {
+            "$ref": "#/components/schemas/Workload"
+          }
+        }
+      },
+      {
+        "name": "zos_deployment_update",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "zos_deployment_delete",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "!",
+          "schema": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "name": "zos_deployment_get",
+        "params": [
+          {
+            "name": "request",
+            "schema": {
+              "$ref": "#/components/schemas/ZOSNodeRequest"
+            }
+          }
+        ],
+        "result": {
+          "name": "Deployment",
+          "schema": {
+            "$ref": "#/components/schemas/Deployment"
+          }
+        }
+      }
+    ],
+    "components": {
+      "schemas": {
+        "FilterOptions": {
+          "title": "FilterOptions",
+          "properties": {
+            "farm_id": {
+              "type": "string"
+            },
+            "public_config": {
+              "type": "boolean"
+            },
+            "public_ips_count": {
+              "type": "integer"
+            },
+            "dedicated": {
+              "type": "boolean"
+            },
+            "mru": {
+              "type": "string"
+            },
+            "hru": {
+              "type": "string"
+            },
+            "sru": {
+              "type": "string"
+            }
+          }
+        },
+        "FilterResult": {
+          "title": "FilterResult",
+          "properties": {
+            "filter_options": {
+              "$ref": "#/components/schemas/FilterOptions"
+            },
+            "available_nodes": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "Filter": {
+          "title": "Filter"
+        },
+        "GatewayClient": {
+          "title": "GatewayClient"
+        },
+        "K8sClient": {
+          "title": "K8sClient"
+        },
+        "Credentials": {
+          "title": "Credentials",
+          "properties": {
+            "mnemonic": {
+              "type": "string"
+            },
+            "network": {
+              "type": "string"
+            }
+          }
+        },
+        "Login": {
+          "title": "Login"
+        },
+        "MachiensClient": {
+          "title": "MachiensClient"
+        },
+        "GatewayFQDN": {
+          "title": "GatewayFQDN",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "tls_passthrough": {
+              "type": "boolean"
+            },
+            "backends": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "fqdn": {
+              "type": "string"
+            }
+          }
+        },
+        "GatewayFQDNResult": {
+          "title": "GatewayFQDNResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "tls_passthrough": {
+              "type": "boolean"
+            },
+            "backends": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "fqdn": {
+              "type": "string"
+            },
+            "contract_id": {
+              "type": "integer"
+            }
+          }
+        },
+        "GatewayName": {
+          "title": "GatewayName",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "tls_passthrough": {
+              "type": "boolean"
+            },
+            "backends": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "GatewayNameResult": {
+          "title": "GatewayNameResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "tls_passthrough": {
+              "type": "boolean"
+            },
+            "backends": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "fqdn": {
+              "type": "string"
+            },
+            "name_contract_id": {
+              "type": "integer"
+            },
+            "contract_id": {
+              "type": "integer"
+            }
+          }
+        },
+        "K8sCluster": {
+          "title": "K8sCluster",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "ssh_key": {
+              "type": "string"
+            },
+            "master": {
+              "$ref": "#/components/schemas/K8sNode"
+            },
+            "workers": {
+              "$ref": "#/components/schemas/K8sNode"
+            }
+          }
+        },
+        "K8sClusterResult": {
+          "title": "K8sClusterResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "token": {
+              "type": "string"
+            },
+            "ssh_key": {
+              "type": "string"
+            },
+            "master": {
+              "$ref": "#/components/schemas/K8sNode"
+            },
+            "workers": {
+              "$ref": "#/components/schemas/K8sNode"
+            }
+          }
+        },
+        "K8sNode": {
+          "title": "K8sNode",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "farm_id": {
+              "type": "integer"
+            },
+            "public_ip": {
+              "type": "boolean"
+            },
+            "public_ip6": {
+              "type": "boolean"
+            },
+            "planetary": {
+              "type": "boolean"
+            },
+            "flist": {
+              "type": "string"
+            },
+            "cpu": {
+              "type": "integer"
+            },
+            "memory": {
+              "type": "integer"
+            },
+            "disk_size": {
+              "type": "integer"
+            }
+          }
+        },
+        "K8sNodeResult": {
+          "title": "K8sNodeResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "farm_id": {
+              "type": "integer"
+            },
+            "public_ip": {
+              "type": "boolean"
+            },
+            "public_ip6": {
+              "type": "boolean"
+            },
+            "planetary": {
+              "type": "boolean"
+            },
+            "flist": {
+              "type": "string"
+            },
+            "cpu": {
+              "type": "integer"
+            },
+            "memory": {
+              "type": "integer"
+            },
+            "disk_size": {
+              "type": "integer"
+            },
+            "computed_ip4": {
+              "type": "string"
+            },
+            "computed_ip6": {
+              "type": "string"
+            },
+            "wg_ip": {
+              "type": "string"
+            },
+            "ygg_ip": {
+              "type": "string"
+            }
+          }
+        },
+        "KeyValue": {
+          "title": "KeyValue",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        "MachinesModel": {
+          "title": "MachinesModel",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "network": {
+              "$ref": "#/components/schemas/Network"
+            },
+            "machines": {
+              "$ref": "#/components/schemas/Machine"
+            },
+            "metadata": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "MachinesResult": {
+          "title": "MachinesResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "network": {
+              "$ref": "#/components/schemas/NetworkResult"
+            },
+            "machines": {
+              "$ref": "#/components/schemas/MachineResult"
+            }
+          }
+        },
+        "Machine": {
+          "title": "Machine",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "farm_id": {
+              "type": "integer"
+            },
+            "flist": {
+              "type": "string"
+            },
+            "entrypoint": {
+              "type": "string"
+            },
+            "public_ip": {
+              "type": "boolean"
+            },
+            "public_ip6": {
+              "type": "boolean"
+            },
+            "planetary": {
+              "type": "boolean"
+            },
+            "cpu": {
+              "type": "integer"
+            },
+            "memory": {
+              "type": "string"
+            },
+            "rootfs_size": {
+              "type": "string"
+            },
+            "zlogs": {
+              "$ref": "#/components/schemas/Zlog"
+            },
+            "disks": {
+              "$ref": "#/components/schemas/Disk"
+            },
+            "qsfs": {
+              "$ref": "#/components/schemas/QSFS"
+            },
+            "env_vars": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "MachineResult": {
+          "title": "MachineResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "farm_id": {
+              "type": "integer"
+            },
+            "flist": {
+              "type": "string"
+            },
+            "entrypoint": {
+              "type": "string"
+            },
+            "public_ip": {
+              "type": "boolean"
+            },
+            "public_ip6": {
+              "type": "boolean"
+            },
+            "planetary": {
+              "type": "boolean"
+            },
+            "cpu": {
+              "type": "integer"
+            },
+            "memory": {
+              "type": "string"
+            },
+            "rootfs_size": {
+              "type": "string"
+            },
+            "zlogs": {
+              "$ref": "#/components/schemas/Zlog"
+            },
+            "disks": {
+              "$ref": "#/components/schemas/DiskResult"
+            },
+            "qsfs": {
+              "$ref": "#/components/schemas/QSFSResult"
+            },
+            "env_vars": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "computed_ip4": {
+              "type": "string"
+            },
+            "computed_ip6": {
+              "type": "string"
+            },
+            "wireguard_ip": {
+              "type": "string"
+            },
+            "ygg_ip": {
+              "type": "string"
+            }
+          }
+        },
+        "Disk": {
+          "title": "Disk",
+          "properties": {
+            "size": {
+              "type": "integer"
+            },
+            "mountpoint": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "DiskResult": {
+          "title": "DiskResult",
+          "properties": {
+            "size": {
+              "type": "integer"
+            },
+            "mountpoint": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "QSFS": {
+          "title": "QSFS",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "mountpoint": {
+              "type": "string"
+            },
+            "qsfs_zdbs_name": {
+              "type": "string"
+            },
+            "encryption_key": {
+              "type": "string"
+            },
+            "cache": {
+              "type": "integer"
+            },
+            "minimal_shards": {
+              "type": "integer"
+            },
+            "expected_shards": {
+              "type": "integer"
+            },
+            "redundant_groups": {
+              "type": "integer"
+            },
+            "redundant_nodes": {
+              "type": "integer"
+            },
+            "encryption_algorithm": {
+              "type": "string"
+            },
+            "compression_algorithm": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "description": {
+              "type": "string"
+            },
+            "max_zdb_data_dir_size": {
+              "type": "integer"
+            },
+            "groups": {
+              "$ref": "#/components/schemas/Group"
+            }
+          }
+        },
+        "QSFSResult": {
+          "title": "QSFSResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "mountpoint": {
+              "type": "string"
+            },
+            "qsfs_zdbs_name": {
+              "type": "string"
+            },
+            "encryption_key": {
+              "type": "string"
+            },
+            "cache": {
+              "type": "integer"
+            },
+            "minimal_shards": {
+              "type": "integer"
+            },
+            "expected_shards": {
+              "type": "integer"
+            },
+            "redundant_groups": {
+              "type": "integer"
+            },
+            "redundant_nodes": {
+              "type": "integer"
+            },
+            "encryption_algorithm": {
+              "type": "string"
+            },
+            "compression_algorithm": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "description": {
+              "type": "string"
+            },
+            "max_zdb_data_dir_size": {
+              "type": "integer"
+            },
+            "groups": {
+              "$ref": "#/components/schemas/Group"
+            },
+            "metrics_endpoint": {
+              "type": "string"
+            }
+          }
+        },
+        "Zlog": {
+          "title": "Zlog",
+          "properties": {
+            "output": {
+              "type": "string"
+            }
+          }
+        },
+        "Metadata": {
+          "title": "Metadata",
+          "properties": {
+            "type_": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "encryption_algorithm": {
+              "type": "string"
+            },
+            "encryption_key": {
+              "type": "string"
+            },
+            "backends": {
+              "$ref": "#/components/schemas/Backend"
+            }
+          }
+        },
+        "Group": {
+          "title": "Group",
+          "properties": {
+            "backends": {
+              "$ref": "#/components/schemas/Backend"
+            }
+          }
+        },
+        "Backend": {
+          "title": "Backend",
+          "properties": {
+            "address": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          }
+        },
+        "Network": {
+          "title": "Network",
+          "properties": {
+            "ip_range": {
+              "type": "string"
+            },
+            "add_wireguard_access": {
+              "type": "boolean"
+            }
+          }
+        },
+        "NetworkResult": {
+          "title": "NetworkResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "ip_range": {
+              "type": "string"
+            },
+            "wireguard_config": {
+              "type": "string"
+            }
+          }
+        },
+        "MachinesGet": {
+          "title": "MachinesGet",
+          "properties": {
+            "model_name": {
+              "type": "string"
+            },
+            "project_name": {
+              "type": "string"
+            }
+          }
+        },
+        "MachinesDeploy": {
+          "title": "MachinesDeploy",
+          "properties": {
+            "model": {
+              "$ref": "#/components/schemas/MachinesModel"
+            },
+            "project_name": {
+              "type": "string"
+            }
+          }
+        },
+        "Node": {
+          "title": "Node",
+          "properties": {
+            "version": {
+              "type": "integer"
+            },
+            "id": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "farm_id": {
+              "type": "integer"
+            },
+            "twin_id": {
+              "type": "integer"
+            },
+            "country": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "grid_version": {
+              "type": "integer"
+            },
+            "uptime": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "farming_policy_id": {
+              "type": "integer"
+            },
+            "updated_at": {
+              "type": "string"
+            },
+            "cru": {
+              "type": "string"
+            },
+            "mru": {
+              "type": "string"
+            },
+            "sru": {
+              "type": "string"
+            },
+            "hru": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "certification_type": {
+              "type": "string"
+            }
+          }
+        },
+        "ZDB": {
+          "title": "ZDB",
+          "properties": {
+            "node_id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "public": {
+              "type": "boolean"
+            },
+            "size": {
+              "type": "integer"
+            },
+            "description": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string"
+            }
+          }
+        },
+        "ZDBResult": {
+          "title": "ZDBResult",
+          "properties": {
+            "node_id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "public": {
+              "type": "boolean"
+            },
+            "size": {
+              "type": "integer"
+            },
+            "description": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            },
+            "ips": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ZOSNodeRequest": {
+          "title": "ZOSNodeRequest",
+          "properties": {
+            "node_id": {
+              "type": "integer"
+            },
+            "data": {
+              "type": "string"
+            }
+          }
+        },
+        "Deployment": {
+          "title": "Deployment",
+          "properties": {
+            "version": {
+              "type": "integer"
+            },
+            "twin_id": {
+              "type": "integer"
+            },
+            "contract_id": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "expiration": {
+              "type": "string"
+            },
+            "signature_requirement": {
+              "$ref": "#/components/schemas/SignatureRequirement"
+            },
+            "workloads": {
+              "$ref": "#/components/schemas/Workload"
+            }
+          }
+        },
+        "SignatureRequirement": {
+          "title": "SignatureRequirement",
+          "properties": {
+            "requests": {
+              "$ref": "#/components/schemas/SignatureRequest"
+            },
+            "weight_required": {
+              "type": "integer"
+            },
+            "signatures": {
+              "$ref": "#/components/schemas/Signature"
+            },
+            "signature_style": {
+              "type": "string"
+            }
+          }
+        },
+        "SignatureRequest": {
+          "title": "SignatureRequest",
+          "properties": {
+            "twin_id": {
+              "type": "integer"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "weight": {
+              "type": "integer"
+            }
+          }
+        },
+        "Signature": {
+          "title": "Signature",
+          "properties": {
+            "twin_id": {
+              "type": "integer"
+            },
+            "signature": {
+              "type": "string"
+            },
+            "signature_type": {
+              "type": "string"
+            }
+          }
+        },
+        "Workload": {
+          "title": "Workload",
+          "properties": {
+            "version": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "workload_type": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "result": {
+              "$ref": "#/components/schemas/Result"
+            }
+          }
+        },
+        "Result": {
+          "title": "Result",
+          "properties": {
+            "created": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          }
+        },
+        "SystemVersion": {
+          "title": "SystemVersion",
+          "properties": {
+            "zos": {
+              "type": "string"
+            },
+            "zinit": {
+              "type": "string"
+            }
+          }
+        },
+        "DMI": {
+          "title": "DMI",
+          "properties": {
+            "tooling": {
+              "$ref": "#/components/schemas/Tooling"
+            },
+            "sections": {
+              "$ref": "#/components/schemas/Section"
+            }
+          }
+        },
+        "Tooling": {
+          "title": "Tooling",
+          "properties": {
+            "aggregator": {
+              "type": "string"
+            },
+            "decoder": {
+              "type": "string"
+            }
+          }
+        },
+        "Section": {
+          "title": "Section",
+          "properties": {
+            "handleline": {
+              "type": "string"
+            },
+            "typestr": {
+              "type": "string"
+            },
+            "type_": {
+              "type": "integer"
+            },
+            "subsections": {
+              "$ref": "#/components/schemas/Subsection"
+            }
+          }
+        },
+        "Subsection": {
+          "title": "Subsection",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "properties": {
+              "$ref": "#/components/schemas/PropertyData"
+            }
+          }
+        },
+        "PropertyData": {
+          "title": "PropertyData",
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "PublicConfig": {
+          "title": "PublicConfig",
+          "properties": {
+            "type_": {
+              "type": "string"
+            },
+            "ipv4": {
+              "type": "string"
+            },
+            "ipv6": {
+              "type": "string"
+            },
+            "gw4": {
+              "type": "string"
+            },
+            "gw6": {
+              "type": "string"
+            },
+            "domain": {
+              "type": "string"
+            }
+          }
+        },
+        "Statistics": {
+          "title": "Statistics",
+          "properties": {
+            "total": {
+              "$ref": "#/components/schemas/Capacity"
+            },
+            "used": {
+              "$ref": "#/components/schemas/Capacity"
+            }
+          }
+        },
+        "Capacity": {
+          "title": "Capacity",
+          "properties": {
+            "cru": {
+              "type": "string"
+            },
+            "hru": {
+              "type": "string"
+            },
+            "sru": {
+              "type": "string"
+            },
+            "mru": {
+              "type": "string"
+            },
+            "ipv4u": {
+              "type": "string"
+            }
+          }
+        },
+        "ZDBClient": {
+          "title": "ZDBClient"
+        },
+        "ZOSCallsClient": {
+          "title": "ZOSCallsClient"
+        }
+      }
+    }
+  }
