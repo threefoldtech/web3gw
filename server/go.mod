@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230413134953-d138b7c6f313
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230417082655-b84b33e61859
 	golang.org/x/net v0.9.0
 	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.0.0-20230413122927-238e88d57822
 	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.0.0-20230413122927-238e88d57822
