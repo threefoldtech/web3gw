@@ -7,7 +7,11 @@ pub struct Credentials {
 	network  string
 }
 
-pub fn load(mut client RpcWsClient, credentials Credentials) ! {
+struct Login {
+	RpcWsClient
+}
+
+pub fn (mut client Login) load(credentials Credentials) ! {
 	_ := client.send_json_rpc[[]string, string]('tfgrid.Load', [credentials.mnemonic, credentials.network],
 		default_timeout)!
 }
