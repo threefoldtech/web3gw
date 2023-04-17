@@ -3,10 +3,16 @@ module tfchain
 pub struct Twin{
 pub:
 	id u32
-	account string
-	relay ?string
+	account_id string
+	relay struct {
+		has_value bool
+		as_value string
+	}
 	entities []EntityProof
-	pk ?string
+	pk struct {
+		has_value bool
+		as_value string
+	}
 }
 
 pub struct EntityProof{

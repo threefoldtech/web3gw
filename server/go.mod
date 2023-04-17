@@ -7,7 +7,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/pkg/errors v0.9.1
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230413134953-d138b7c6f313
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230417082655-b84b33e61859
 	golang.org/x/net v0.9.0
 )
 

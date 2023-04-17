@@ -7,7 +7,7 @@ pub mut:
 	contract_id 	u64
 	twin_id     	u32
 	contract_type   ContractType
-	solution_provider_id ?u64
+	solution_provider_id OptionU64
 }
 
 
