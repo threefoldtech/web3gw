@@ -419,6 +419,15 @@ func (c *Client) CancelContract(ctx context.Context, contract_id uint64) error {
 	return state.client.CancelContract(*state.identity, contract_id)
 }
 
+func (c *Client) BatchCancelContract(ctx context.Context, contract_ids []uint64) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.BatchCancelContract(*state.identity, contract_ids)
+}
+
 func (c *Client) GetZosVersion(ctx context.Context) (string, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
