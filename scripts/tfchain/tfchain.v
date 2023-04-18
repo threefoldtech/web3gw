@@ -201,6 +201,10 @@ pub fn cancel_contract(mut client RpcWsClient, contract_id u64) ! {
 	_ := client.send_json_rpc[[]u64, string]('tfchain.CancelContract', [contract_id], tfchain.default_timeout)!
 }
 
+pub fn batch_cancel_contract(mut client RpcWsClient, contract_ids []u64) ! {
+	_ := client.send_json_rpc[[][]u64, string]('tfchain.BatchCancelContract', [contract_ids], tfchain.default_timeout)!
+}
+
 pub fn get_zos_version(mut client RpcWsClient) !string {
 	return client.send_json_rpc[[]string, string]('tfchain.GetZosVersion', []string{}, tfchain.default_timeout)!
 }
