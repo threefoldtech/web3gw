@@ -2,13 +2,13 @@ module tfgrid
 
 [params]
 pub struct FilterOptions {
-	farm_id          u64 // will try to use farmerbot if found on this farm.
+	farm_id          u64  // will try to use farmerbot if found on this farm.
 	public_config    bool // useful with filtering gateway nodes.
-	public_ips_count u32 // free ips for the node.
+	public_ips_count u32  // free ips for the node.
 	dedicated        bool // if the node is dedicated or not.
-	mru              u64 // free memory on node in MB.
-	hru              u64 // free hdd storage on node in GB.
-	sru              u64 // free ssd storage on node in GB.
+	mru              u64  // free memory on node in MB.
+	hru              u64  // free hdd storage on node in GB.
+	sru              u64  // free ssd storage on node in GB.
 }
 
 // the output result for filter_nodes

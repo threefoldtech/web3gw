@@ -57,7 +57,7 @@ struct Result {
 pub:
 	created i64    [json: 'created']
 	state   string [json: 'state']
-	error   string [json: 'error']
+	message string [json: 'message']
 	data    string [json: 'data'; raw]
 }
 

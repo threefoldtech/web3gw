@@ -2,7 +2,7 @@ module tfgrid
 
 // the needed configurations for twin login
 pub struct Credentials {
-	mnemonic string // secret mnemonics 
+	mnemonic string // secret mnemonics
 	network  string // grid network [dev, qa, test, main]
 }
 

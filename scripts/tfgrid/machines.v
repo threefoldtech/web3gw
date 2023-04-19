@@ -1,6 +1,5 @@
 module tfgrid
 
-
 // machiens_deploy Deploy machines workload
 // - model: the machines model
 // returns machines model with the computed fileds from the grid
