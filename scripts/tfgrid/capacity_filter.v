@@ -1,8 +1,5 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
-// the available nodes filters
 [params]
 pub struct FilterOptions {
 	farm_id          u64 // will try to use farmerbot if found on this farm.
@@ -20,14 +17,10 @@ pub struct FilterResult {
 	available_nodes []u32 // list of available nodes ids.
 }
 
-struct Filter {
-	RpcWsClient
-}
-
 // filter_nodes is filters the grid nodes with farmerbot or gridproxy
 // - filters: instance of FilterOptions
 // returns list of available nodes ids and the filters
-pub fn (mut client Filter) filter_nodes(filters FilterOptions) !FilterResult {
+pub fn (mut client TFGridClient) filter_nodes(filters FilterOptions) !FilterResult {
 	return client.send_json_rpc[[]FilterOptions, FilterResult]('tfgrid.FilterNodes', [
 		filters,
 	], default_timeout)

@@ -1,26 +1,20 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
-struct MachiensClient {
-	RpcWsClient
-}
-
 // Deploy machines workload
-pub fn (mut client MachiensClient) machines_deploy(model MachinesModel) !MachinesResult {
+pub fn (mut client TFGridClient) machines_deploy(model MachinesModel) !MachinesResult {
 	return client.send_json_rpc[[]MachinesModel, MachinesResult]('tfgrid.MachinesDeploy',
 		[model], default_timeout)!
 }
 
 // Get machines deployment info using deployment name
-pub fn (mut client MachiensClient) machines_get(model_name string) !MachinesResult {
+pub fn (mut client TFGridClient) machines_get(model_name string) !MachinesResult {
 	return client.send_json_rpc[[]string, MachinesResult]('tfgrid.MachinesGet', [
 		model_name,
 	], default_timeout)!
 }
 
 // Delete a deployed machines using project name
-pub fn (mut client MachiensClient) machines_delete(model_name string) ! {
+pub fn (mut client TFGridClient) machines_delete(model_name string) ! {
 	_ := client.send_json_rpc[[]string, string]('tfgrid.MachinesDelete', [model_name],
 		default_timeout)!
 }

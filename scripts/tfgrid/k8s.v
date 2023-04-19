@@ -1,24 +1,18 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
-struct K8sClient {
-	RpcWsClient
-}
-
-pub fn (mut client K8sClient) k8s_deploy(cluster K8sCluster) !K8sClusterResult {
+pub fn (mut client TFGridClient) k8s_deploy(cluster K8sCluster) !K8sClusterResult {
 	return client.send_json_rpc[[]K8sCluster, K8sClusterResult]('tfgrid.K8sDeploy', [
 		cluster,
 	], default_timeout)!
 }
 
-pub fn (mut client K8sClient) k8s_get(cluster_name string) !K8sClusterResult {
+pub fn (mut client TFGridClient) k8s_get(cluster_name string) !K8sClusterResult {
 	return client.send_json_rpc[[]string, K8sClusterResult]('tfgrid.K8sGet', [
 		cluster_name,
 	], default_timeout)!
 }
 
-pub fn (mut client K8sClient) k8s_delete(cluster_name string) ! {
+pub fn (mut client TFGridClient) k8s_delete(cluster_name string) ! {
 	_ := client.send_json_rpc[[]string, string]('tfgrid.K8sDelete', [cluster_name], default_timeout)!
 }
 

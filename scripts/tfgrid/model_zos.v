@@ -40,6 +40,15 @@ pub:
 	signature_type string [json: 'signature_type']
 }
 
+type WorkloadData = GatewayFQDNProxyWorkload
+	| GatewayNameProxyWorkload
+	| NetworkWorkload
+	| PublicIP
+	| ZDBWorkload
+	| ZMachine
+	| ZMount
+	| Zlogs
+
 pub struct Workload {
 pub:
 	version       u32    [json: 'version']
@@ -51,7 +60,9 @@ pub:
 	result        Result [json: 'result']
 }
 
-pub struct Result {
+type ResultData = GatewayNameProxyResult | PublicIPResult | ZDBResultData | ZMachineResult
+
+struct Result {
 pub:
 	created i64    [json: 'created']
 	state   string [json: 'state']
