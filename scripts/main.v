@@ -357,16 +357,46 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 
 fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger) ! {
 	tfchain.load(mut client, "devnet", "")! // FILL IN YOUR MNEMONIC HERE
-	tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: ""})! // FILL IN SOME DESTINATION
-	height := tfchain.height(mut client)!
-	println("Height is ${height}")
+
+	my_balance_before := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
+	logger.info("My balance before: ${my_balance_before}")
+
+	//tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
 
 	my_balance := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
-	println("My balance: ${my_balance}")
+	logger.info("My balance: ${my_balance}")
 
-	twin_32 := tfchain.get_twin(mut client, 32)! // decoding to json is not yet working but add --debug and you will see the received message from server
-	println("Twin with id 32: ${twin_32}")
+	height := tfchain.height(mut client)!
+	logger.info("Height is ${height}")
 
+	twin_164 := tfchain.get_twin(mut client, 164)! // decoding to json is not yet working but add --debug and you will see the received message from server
+	logger.info("Twin with id 164: ${twin_164}")
+
+	twin_id := tfchain.get_twin_by_pubkey(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")!
+	logger.info("Twin id is ${twin_id}")
+
+	node := tfchain.get_node(mut client, 15)!
+	logger.info("Node with id 15: ${node}")
+
+	node_contracts_for_node_1 := tfchain.get_node_contracts(mut client, 15)!
+	logger.info("Node contracts for node 1: ${node_contracts_for_node_1}")
+	
+	for contract_id in node_contracts_for_node_1 {
+		contract := tfchain.get_contract(mut client, contract_id)!
+		logger.info("Contract ${contract_id}: ${contract}")
+	}
+
+	nodes := tfchain.get_nodes(mut client, 1)!
+	logger.info("Nodes of farm 1: ${nodes}")
+
+	farm := tfchain.get_farm(mut client, 1)!
+	logger.info("Farm with id 1: ${farm}")
+
+	farm_2 := tfchain.get_farm_by_name(mut client, "Freefarm")!
+	logger.info("Farm with name Freefarm: ${farm}")
+
+	zos_version := tfchain.get_zos_version(mut client)!
+	logger.info("Zos version is: ${zos_version}")
 }
 
 fn main() {
