@@ -141,7 +141,7 @@ fn main() {
 		logger.error("Failed creating rpc websocket client: $err")
 		exit(1)
 	}
-	_ := spawn myclient.run() //QUESTION: why is that in thread?
+	_ := spawn myclient.run()
 	/*
 	execute_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
