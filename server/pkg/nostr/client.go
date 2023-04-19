@@ -85,7 +85,7 @@ func (c *Client) PublishEventToRelays(ctx context.Context, input EventInput) err
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.PublishEventToRelays(ctx, input.Tags, input.Content)
+	return state.client.PublishTextNote(ctx, input.Tags, input.Content)
 }
 
 func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {

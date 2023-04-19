@@ -2,6 +2,7 @@ package nostr
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"unsafe"
 
 	"github.com/nbd-wtf/go-nostr"
+	"github.com/nbd-wtf/go-nostr/nip04"
 	"github.com/nbd-wtf/go-nostr/nip19"
 	"github.com/nbd-wtf/go-nostr/nip42"
 	"github.com/pkg/errors"
@@ -43,11 +45,23 @@ type (
 		buffer *eventBuffer
 		subs   []*nostr.Subscription
 	}
+
+	// Metadata used when setting metadata, see [nip01](https://github.com/nostr-protocol/nips/blob/master/01.md)
+	Metadata struct {
+		Name    string `json:"name"`
+		About   string `json:"about"`
+		Picture string `json:"picture"`
+	}
 )
 
 const (
 	// size of a subscription id
 	SUB_ID_LENGTH = 10
+
+	kindSetMetadata     = 0
+	kindTextNote        = 1
+	kindRecommendServer = 2
+	kindDirectMessage   = 4
 )
 
 var (
@@ -212,7 +226,7 @@ func (c *Client) ConnectAuthRelay(ctx context.Context, relayURL string) error {
 }
 
 // Add function to publish events to a set of relays
-func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, content string) error {
+func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]string, content string) error {
 	c.server.mutex.RLock()
 	defer c.server.mutex.RUnlock()
 
@@ -221,12 +235,18 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 		return errors.New("No relays connected")
 	}
 
+	// FIXME: A tag is itself a list of strings
+	parsedTags := make(nostr.Tags, len(tags))
+	for _, rawTag := range tags {
+		parsedTags = append(parsedTags, nostr.Tag(rawTag))
+	}
+
 	ev := nostr.Event{
 		PubKey:    c.pk,
 		CreatedAt: time.Now(),
-		Kind:      1,
-		// Tags:      make(nostr.Tags, len(tags)),
-		Content: content,
+		Kind:      kind,
+		Tags:      parsedTags,
+		Content:   content,
 	}
 
 	// calling Sign sets the event ID field and the event Sig field
@@ -235,7 +255,7 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 	for _, relay := range c.server.connectedRelays[c.Id()] {
 		status, err := relay.Publish(ctx, ev)
 		if err != nil {
-			return errors.Wrap(err, ErrFailedToPublishEvent.Error())
+			return errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
 		}
 
 		fmt.Printf("published event to relay: %+v\nSTATUS:%s\n", ev, status)
@@ -246,6 +266,39 @@ func (c *Client) PublishEventToRelays(ctx context.Context, tags []string, conten
 	}
 
 	return nil
+}
+
+// PublishMetadata to connected relays. If metadata was published previously, the old metadata should be overwritten conforming relays
+func (c *Client) PublishMetadata(ctx context.Context, tags []string, content Metadata) error {
+	marshalledContent, err := json.Marshal(content)
+	if err != nil {
+		return errors.Wrap(err, "could not encode metadata")
+	}
+	return c.publishEventToRelays(ctx, kindSetMetadata, [][]string{tags}, string(marshalledContent))
+}
+
+// PublishTextNote to connected relays
+func (c *Client) PublishTextNote(ctx context.Context, tags []string, content string) error {
+	return c.publishEventToRelays(ctx, kindTextNote, [][]string{tags}, content)
+}
+
+// PublishRecommendServer to connected relays. The content is supposed to be the URL of the relay being recommended
+func (c *Client) PublishRecommendServer(ctx context.Context, tags []string, content string) error {
+	return c.publishEventToRelays(ctx, kindRecommendServer, [][]string{tags}, content)
+}
+
+// / PublishDirectMessage publishes a direct message for a given peer identified by the given pubkey on the connected relays
+func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags []string, content string) error {
+	ss, err := nip04.ComputeSharedSecret(receiver, c.sk)
+	if err != nil {
+		return errors.Wrap(err, "could not compute shared secret for receiver")
+	}
+	msg, err := nip04.Encrypt(content, ss)
+	if err != nil {
+		return errors.Wrap(err, "could not encrypt message")
+	}
+	return c.publishEventToRelays(ctx, kindDirectMessage, [][]string{{"p", receiver}, tags}, msg)
+
 }
 
 // Subscribe to events on a relay
