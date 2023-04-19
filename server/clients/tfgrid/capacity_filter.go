@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (r *Runner) FilterNodes(ctx context.Context, options FilterOptions) (FilterResult, error) {
+func (r *Client) FilterNodes(ctx context.Context, options FilterOptions) (FilterResult, error) {
 	var res FilterResult
 	var err error
 

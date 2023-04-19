@@ -203,86 +203,90 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 
 	// deploy deployment
 
-	// deploy_deployment := tfgrid.Deployment{
-	// 	version: 0
-	// 	twin_id: 49
-	// 	contract_id: 23559
-	// 	metadata: 'hamada_meta'
-	// 	description: 'hamada_desc'
-	// 	expiration: 1234
-	// 	signature_requirement: tfgrid.SignatureRequirement{
-	// 		weight_required: 1
-	// 		requests: [tfgrid.SignatureRequest{
-	// 			twin_id: 49
-	// 			required: true
-	// 			weight: 1
-	// 		}]
-	// 	}
-	// 	workloads: [tfgrid.Workload{
-	// 		version: 0
-	// 		name: 'wl1'
-	// 		workload_type: zos.zdb_type
-	// 		data: json.encode(zos.ZDB{
-	// 			password: ""
-	// 			mode: "seq"
-	// 			size: 1
-	// 			public: false
-	// 		})
-	// 		metadata: 'hamada_meta'
-	// 		description: 'hamada_res'
-	// 	}]
-	// }
-	// request = tfgrid.ZOSNodeRequest{
-	// 	node_id: 11
-	// 	data: json.encode(deploy_deployment)
-	// }
-	// client.zos_deployment_deploy( request)!
+	deploy_deployment := tfgrid.Deployment{
+		version: 0
+		twin_id: 49
+		contract_id: 235593
+		metadata: 'hamada_meta'
+		description: 'hamada_desc'
+		expiration: 1234
+		signature_requirement: tfgrid.SignatureRequirement{
+			weight_required: 1
+			requests: [
+				tfgrid.SignatureRequest{
+					twin_id: 49
+					required: true
+					weight: 1
+				},
+			]
+		}
+		workloads: [
+			tfgrid.Workload{
+				version: 0
+				name: 'wl12'
+				workload_type: tfgrid.zdb_workload_type
+				data: json.encode(tfgrid.ZDBWorkload{
+					password: ''
+					mode: 'seq'
+					size: 1
+					public: false
+				})
+				metadata: 'hamada_meta'
+				description: 'hamada_res'
+			},
+		]
+	}
+	request = tfgrid.ZOSNodeRequest{
+		node_id: 11
+		data: deploy_deployment
+	}
+	client.zos_deployment_deploy(request)!
 
 	// update deployment
-	// update_deployment := tfgrid.Deployment{
-	// 	version: 2
-	// 	contract_id: 23559
-	// 	twin_id: 49
-	// 	metadata: 'hamada_meta'
-	// 	description: 'hamada_desc'
-	// 	expiration: 1234
-	// 	signature_requirement: tfgrid.SignatureRequirement{
-	// 		weight_required: 1
-	// 		requests: [
-	// 			tfgrid.SignatureRequest{
-	// 				twin_id: 49
-	// 				weight: 1
-	// 			},
-	// 		]
-	// 	}
-	// 	workloads: [
-	// 		tfgrid.Workload{
-	// 			version: 1
-	// 			name: 'wl1234'
-	// 			workload_type: tfgrid.zdb_workload_type
-	// 			data: tfgrid.ZDBWorkload{
-	// 				password: ''
-	// 				mode: 'seq'
-	// 				size: 1
-	// 				public: false
-	// 			}
-	// 			metadata: 'hamada_meta'
-	// 			description: 'hamada_res'
-	// 		},
-	// 	]
-	// }
-	// request = tfgrid.ZOSNodeRequest{
-	// 	node_id: 28
-	// 	data: json.encode(update_deployment)
-	// }
-	// println('request: ${request}')
-	// client.zos_deployment_update(request)!
+	update_deployment := tfgrid.Deployment{
+		version: 2
+		contract_id: 23559
+		twin_id: 49
+		metadata: 'hamada_meta'
+		description: 'hamada_desc'
+		expiration: 1234
+		signature_requirement: tfgrid.SignatureRequirement{
+			weight_required: 1
+			requests: [
+				tfgrid.SignatureRequest{
+					twin_id: 49
+					weight: 1
+				},
+			]
+		}
+		workloads: [
+			tfgrid.Workload{
+				version: 2
+				name: 'wl1234'
+				workload_type: tfgrid.zdb_workload_type
+				data: json.encode(tfgrid.ZDBWorkload{
+					password: ''
+					mode: 'seq'
+					size: 1
+					public: false
+				})
+				metadata: 'hamada_meta'
+				description: 'hamada_res'
+			},
+		]
+	}
+	request = tfgrid.ZOSNodeRequest{
+		node_id: 28
+		data: update_deployment
+	}
+	println('request: ${request}')
+	client.zos_deployment_update(request)!
 
 	// get deployment changes
 
 	request = tfgrid.ZOSNodeRequest{
 		node_id: 28
-		data: '23559'
+		data: u64(23559)
 	}
 	deployment_changes := client.zos_deployment_changes(request)!
 	logger.info('deployment changes: ${deployment_changes}')
@@ -291,18 +295,18 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 
 	request = tfgrid.ZOSNodeRequest{
 		node_id: 28
-		data: '23559'
+		data: u64(23559)
 	}
 	deployment_get := client.zos_deployment_get(request)!
 	logger.info('got deployment: ${deployment_get}')
 
 	// delete deployment
 
-	// request = tfgrid.ZOSNodeRequest{
-	// 	node_id: 11
-	// 	data: "12345"
-	// }
-	// client.zos_deployment_delete( request)!
+	request = tfgrid.ZOSNodeRequest{
+		node_id: 11
+		data: u64(23559)
+	}
+	client.zos_deployment_delete(request)!
 }
 
 fn execute_rpcs(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {

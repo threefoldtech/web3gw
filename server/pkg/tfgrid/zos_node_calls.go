@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net"
+	"strconv"
 
 	"github.com/pkg/errors"
 	client "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
@@ -15,8 +16,8 @@ import (
 )
 
 type ZOSNodeRequest struct {
-	NodeID uint32 `json:"node_id"`
-	Data   string `json:"data"`
+	NodeID uint32          `json:"node_id"`
+	Data   json.RawMessage `json:"data"`
 }
 
 func (c *Client) ZOSDeploymentDeploy(ctx context.Context, request ZOSNodeRequest) error {
@@ -26,8 +27,12 @@ func (c *Client) ZOSDeploymentDeploy(ctx context.Context, request ZOSNodeRequest
 	}
 
 	dl := gridtypes.Deployment{}
-	if err := json.Unmarshal([]byte(request.Data), &dl); err != nil {
+	if err := json.Unmarshal(request.Data, &dl); err != nil {
 		return errors.Wrap(err, "failed to parse deployment data")
+	}
+
+	if err := unquoteWorkloadsData(&dl); err != nil {
+		return err
 	}
 
 	return state.cl.ZOSDeploymentDeploy(ctx, request.NodeID, dl)
@@ -40,7 +45,7 @@ func (c *Client) ZOSDeploymentGet(ctx context.Context, request ZOSNodeRequest) (
 	}
 
 	contractID := uint64(0)
-	if err := json.Unmarshal([]byte(request.Data), &contractID); err != nil {
+	if err := json.Unmarshal(request.Data, &contractID); err != nil {
 		return gridtypes.Deployment{}, errors.Wrap(err, "failed to parse deployment data")
 	}
 
@@ -54,7 +59,7 @@ func (c *Client) ZOSDeploymentDelete(ctx context.Context, request ZOSNodeRequest
 	}
 
 	contractID := uint64(0)
-	if err := json.Unmarshal([]byte(request.Data), &contractID); err != nil {
+	if err := json.Unmarshal(request.Data, &contractID); err != nil {
 		return errors.Wrap(err, "failed to parse deployment data")
 	}
 
@@ -68,8 +73,12 @@ func (c *Client) ZOSDeploymentUpdate(ctx context.Context, request ZOSNodeRequest
 	}
 
 	dl := gridtypes.Deployment{}
-	if err := json.Unmarshal([]byte(request.Data), &dl); err != nil {
+	if err := json.Unmarshal(request.Data, &dl); err != nil {
 		return errors.Wrap(err, "failed to parse deployment data")
+	}
+
+	if err := unquoteWorkloadsData(&dl); err != nil {
+		return err
 	}
 
 	return state.cl.ZOSDeploymentUpdate(ctx, request.NodeID, dl)
@@ -82,7 +91,7 @@ func (c *Client) ZOSDeploymentChanges(ctx context.Context, request ZOSNodeReques
 	}
 
 	contractID := uint64(0)
-	if err := json.Unmarshal([]byte(request.Data), &contractID); err != nil {
+	if err := json.Unmarshal(request.Data, &contractID); err != nil {
 		return nil, errors.Wrap(err, "failed to parse deployment data")
 	}
 
@@ -186,7 +195,7 @@ func (c *Client) ZOSNetworkSetPublicExitDevice(ctx context.Context, request ZOSN
 	}
 
 	iface := ""
-	if err := json.Unmarshal([]byte(request.Data), &iface); err != nil {
+	if err := json.Unmarshal(request.Data, &iface); err != nil {
 		return errors.Wrap(err, "failed to parse deployment data")
 	}
 
@@ -200,9 +209,21 @@ func (c *Client) ZOSNetworkGetPublicExitDevice(ctx context.Context, request ZOSN
 	}
 
 	iface := ""
-	if err := json.Unmarshal([]byte(request.Data), &iface); err != nil {
+	if err := json.Unmarshal(request.Data, &iface); err != nil {
 		return client.ExitDevice{}, errors.Wrap(err, "failed to parse deployment data")
 	}
 
 	return state.cl.ZOSNetworkGetPublicExitDevice(ctx, request.NodeID)
+}
+
+func unquoteWorkloadsData(dl *gridtypes.Deployment) error {
+	for idx := range dl.Workloads {
+		s, err := strconv.Unquote(string(dl.Workloads[idx].Data))
+		if err != nil {
+			return errors.Wrapf(err, "failed to unqouted workload %s data", dl.Workloads[idx].Name.String())
+		}
+		dl.Workloads[idx].Data = []byte(s)
+	}
+
+	return nil
 }

@@ -33,7 +33,7 @@ type (
 	}
 
 	tfgridState struct {
-		cl *tfgridBase.Runner
+		cl *tfgridBase.Client
 	}
 )
 
@@ -50,7 +50,7 @@ func generateProjectName(modelName string) (projectName string) {
 
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, mnemonic string, network string) error {
-	tfgrid_client := tfgridBase.Runner{}
+	tfgrid_client := tfgridBase.Client{}
 	err := tfgrid_client.Login(ctx, tfgridBase.Credentials{
 		Mnemonics: mnemonic,
 		Network:   network,

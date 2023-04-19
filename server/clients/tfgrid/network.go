@@ -9,7 +9,7 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-func (r *Runner) deployNetwork(ctx context.Context, modelName string, nodes []uint32, IPRange string, WGAccess bool, projectName string) (*workloads.ZNet, error) {
+func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []uint32, IPRange string, WGAccess bool, projectName string) (*workloads.ZNet, error) {
 	nodeList := []uint32{}
 	nodeSet := map[uint32]struct{}{}
 	for _, node := range nodes {

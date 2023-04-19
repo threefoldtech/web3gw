@@ -36,7 +36,7 @@ type GatewayNameModel struct {
 	ContractID     uint64 `json:"contract_id"`
 }
 
-func (r *Runner) GatewayNameDeploy(ctx context.Context, gatewayNameModel GatewayNameModel, projectName string) (GatewayNameModel, error) {
+func (r *Client) GatewayNameDeploy(ctx context.Context, gatewayNameModel GatewayNameModel, projectName string) (GatewayNameModel, error) {
 	// validate that no other project is deployed with this name
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return GatewayNameModel{}, err
@@ -81,7 +81,7 @@ func newGWNameProxyFromModel(model GatewayNameModel, projectName string) workloa
 	}
 }
 
-func (r *Runner) GatewayNameDelete(ctx context.Context, projectName string) error {
+func (r *Client) GatewayNameDelete(ctx context.Context, projectName string) error {
 	if err := r.client.CancelProject(ctx, projectName); err != nil {
 		return errors.Wrapf(err, "failed to cancel project %s", projectName)
 	}
@@ -89,7 +89,7 @@ func (r *Runner) GatewayNameDelete(ctx context.Context, projectName string) erro
 	return nil
 }
 
-func (r *Runner) GatewayNameGet(ctx context.Context, projectName string) (GatewayNameModel, error) {
+func (r *Client) GatewayNameGet(ctx context.Context, projectName string) (GatewayNameModel, error) {
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return GatewayNameModel{}, errors.Wrapf(err, "failed to get project %s contracts", projectName)
@@ -162,7 +162,7 @@ func (r *Runner) GatewayNameGet(ctx context.Context, projectName string) (Gatewa
 	}, nil
 }
 
-func (r *Runner) ensureGatewayNodeIDExist(gatewayNameModel *GatewayNameModel) error {
+func (r *Client) ensureGatewayNodeIDExist(gatewayNameModel *GatewayNameModel) error {
 	if gatewayNameModel.NodeID == 0 {
 		nodeId, err := r.getGatewayNode()
 		if err != nil {
@@ -174,7 +174,7 @@ func (r *Runner) ensureGatewayNodeIDExist(gatewayNameModel *GatewayNameModel) er
 	return nil
 }
 
-func (r *Runner) getGatewayNode() (uint32, error) {
+func (r *Client) getGatewayNode() (uint32, error) {
 	options := proxyTypes.NodeFilter{
 		Status: &Status,
 		IPv4:   &TrueVal,

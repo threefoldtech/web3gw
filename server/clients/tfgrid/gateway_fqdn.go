@@ -30,7 +30,7 @@ type GatewayFQDNModel struct {
 	ContractID uint64 `json:"contract_id"`
 }
 
-func (r *Runner) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel GatewayFQDNModel, projectName string) (GatewayFQDNModel, error) {
+func (r *Client) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel GatewayFQDNModel, projectName string) (GatewayFQDNModel, error) {
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return GatewayFQDNModel{}, err
 	}
@@ -54,7 +54,7 @@ func (r *Runner) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel Gateway
 	return gatewayFQDNModel, nil
 }
 
-func (r *Runner) GatewayFQDNDelete(ctx context.Context, projectName string) error {
+func (r *Client) GatewayFQDNDelete(ctx context.Context, projectName string) error {
 	if err := r.client.CancelProject(ctx, projectName); err != nil {
 		return errors.Wrapf(err, "failed to delete gateway fqdn model contracts")
 	}
@@ -62,7 +62,7 @@ func (r *Runner) GatewayFQDNDelete(ctx context.Context, projectName string) erro
 	return nil
 }
 
-func (r *Runner) GatewayFQDNGet(ctx context.Context, projectName string) (GatewayFQDNModel, error) {
+func (r *Client) GatewayFQDNGet(ctx context.Context, projectName string) (GatewayFQDNModel, error) {
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to get project %s contracts", projectName)

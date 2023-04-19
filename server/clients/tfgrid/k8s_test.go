@@ -23,7 +23,7 @@ func TestK8s(t *testing.T) {
 
 	cl := mocks.NewMockTFGridClient(ctrl)
 
-	r := Runner{
+	r := Client{
 		client: cl,
 	}
 

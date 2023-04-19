@@ -2,9 +2,11 @@ module tfgrid
 
 pub struct ZOSNodeRequest {
 pub:
-	node_id u32    [json: 'node_id']
-	data    string [json: 'data'; raw]
+	node_id u32                [json: 'node_id']
+	data    ZOSNodeRequestData [json: 'data']
 }
+
+type ZOSNodeRequestData = Deployment | u64
 
 pub struct Deployment {
 pub:
@@ -40,15 +42,6 @@ pub:
 	signature_type string [json: 'signature_type']
 }
 
-type WorkloadData = GatewayFQDNProxyWorkload
-	| GatewayNameProxyWorkload
-	| NetworkWorkload
-	| PublicIP
-	| ZDBWorkload
-	| ZMachine
-	| ZMount
-	| Zlogs
-
 pub struct Workload {
 pub:
 	version       u32    [json: 'version']
@@ -59,8 +52,6 @@ pub:
 	description   string [json: 'description']
 	result        Result [json: 'result']
 }
-
-type ResultData = GatewayNameProxyResult | PublicIPResult | ZDBResultData | ZMachineResult
 
 struct Result {
 pub:

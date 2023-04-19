@@ -28,7 +28,7 @@ type ZDB struct {
 	IPs       []string `json:"ips"`
 }
 
-func (r *Runner) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZDB, error) {
+func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZDB, error) {
 	// validate no workloads with the same name
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return ZDB{}, err
@@ -76,7 +76,7 @@ func (r *Runner) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZD
 	return result, nil
 }
 
-func (r *Runner) ZDBDelete(ctx context.Context, projectName string) error {
+func (r *Client) ZDBDelete(ctx context.Context, projectName string) error {
 	if err := r.client.CancelProject(ctx, projectName); err != nil {
 		return errors.Wrapf(err, "Failed to cancel cluster with name: %s", projectName)
 	}
@@ -84,7 +84,7 @@ func (r *Runner) ZDBDelete(ctx context.Context, projectName string) error {
 	return nil
 }
 
-func (r *Runner) ZDBGet(ctx context.Context, projectName string) (ZDB, error) {
+func (r *Client) ZDBGet(ctx context.Context, projectName string) (ZDB, error) {
 	// get the contract
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
@@ -155,7 +155,7 @@ func newZDBFromClientZDB(wl workloads.ZDB) ZDB {
 	}
 }
 
-func (r *Runner) ensureZDBNodeIDExist(zdb ZDB) error {
+func (r *Client) ensureZDBNodeIDExist(zdb ZDB) error {
 	// capacity filter
 	if zdb.NodeID == 0 {
 		nodeId, err := r.getNodeForZdb(uint64(zdb.Size))
@@ -168,7 +168,7 @@ func (r *Runner) ensureZDBNodeIDExist(zdb ZDB) error {
 	return nil
 }
 
-func (r *Runner) getNodeForZdb(size uint64) (uint32, error) {
+func (r *Client) getNodeForZdb(size uint64) (uint32, error) {
 	options := proxyTypes.NodeFilter{
 		Status:  &Status,
 		FreeHRU: &size,

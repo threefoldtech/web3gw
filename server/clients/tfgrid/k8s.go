@@ -42,7 +42,7 @@ type K8sNode struct {
 	YggIP       string `json:"ygg_ip"`
 }
 
-func (r *Runner) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName string) (K8sCluster, error) {
+func (r *Client) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName string) (K8sCluster, error) {
 	// validate project name is unique
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return K8sCluster{}, err
@@ -81,7 +81,7 @@ func (r *Runner) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName 
 	return cluster, nil
 }
 
-func (r *Runner) K8sDelete(ctx context.Context, projectName string) error {
+func (r *Client) K8sDelete(ctx context.Context, projectName string) error {
 	err := r.client.CancelProject(ctx, projectName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to cancel project: %s", projectName)
@@ -90,7 +90,7 @@ func (r *Runner) K8sDelete(ctx context.Context, projectName string) error {
 	return nil
 }
 
-func (r *Runner) K8sGet(ctx context.Context, clusterName string, projectName string) (K8sCluster, error) {
+func (r *Client) K8sGet(ctx context.Context, clusterName string, projectName string) (K8sCluster, error) {
 	// get all contracts by project name
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
@@ -123,7 +123,7 @@ func NewClientK8sNodeFromK8sNode(k8sNode K8sNode) workloads.K8sNode {
 	}
 }
 
-func (r *Runner) reconstructClusterFromContractIDs(ctx context.Context, clusterName string, contracts graphql.Contracts) (K8sCluster, error) {
+func (r *Client) reconstructClusterFromContractIDs(ctx context.Context, clusterName string, contracts graphql.Contracts) (K8sCluster, error) {
 	result := K8sCluster{
 		Name:        clusterName,
 		Master:      &K8sNode{},
@@ -262,7 +262,7 @@ func newK8sNodeFromModel(model K8sNode) workloads.K8sNode {
 }
 
 // Assign chosen NodeIds to cluster node. with both way conversions to/from Reservations array.
-func (r *Runner) assignNodesIDsForCluster(ctx context.Context, cluster *K8sCluster) error {
+func (r *Client) assignNodesIDsForCluster(ctx context.Context, cluster *K8sCluster) error {
 	// all units unified in bytes
 
 	workloads := []*PlannedReservation{}

@@ -115,7 +115,7 @@ type Groups []Group
 type Backends []Backend
 
 // nodes should always be provided
-func (r *Runner) MachinesDeploy(ctx context.Context, model MachinesModel, projectName string) (MachinesModel, error) {
+func (r *Client) MachinesDeploy(ctx context.Context, model MachinesModel, projectName string) (MachinesModel, error) {
 	/*
 		- validate incoming deployment
 			- project name has to be unique
@@ -179,7 +179,7 @@ func (m *MachinesModel) generateDiskNames() {
 	}
 }
 
-func (r *Runner) deployMachinesWorkloads(ctx context.Context, model *MachinesModel, projectName string) (map[uint32]uint64, error) {
+func (r *Client) deployMachinesWorkloads(ctx context.Context, model *MachinesModel, projectName string) (map[uint32]uint64, error) {
 	model.generateDiskNames()
 
 	nodeMachineMap := map[uint32][]*Machine{}
@@ -215,7 +215,7 @@ func (r *Runner) deployMachinesWorkloads(ctx context.Context, model *MachinesMod
 	return nodeDeploymentID, nil
 }
 
-func (r *Runner) extractWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
+func (r *Client) extractWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
 	disks := []workloads.Disk{}
 	qsfss := []workloads.QSFS{}
 	mounts := []workloads.Mount{}
@@ -307,7 +307,7 @@ func (r *Runner) extractWorkloads(machine *Machine, networkName string) (workloa
 	return vm, disks, qsfss
 }
 
-func (r *Runner) MachinesDelete(ctx context.Context, projectName string) error {
+func (r *Client) MachinesDelete(ctx context.Context, projectName string) error {
 	if err := r.client.CancelProject(ctx, projectName); err != nil {
 		return errors.Wrapf(err, "failed to cancel contracts")
 	}
@@ -315,7 +315,7 @@ func (r *Runner) MachinesDelete(ctx context.Context, projectName string) error {
 	return nil
 }
 
-func (r *Runner) MachinesGet(ctx context.Context, modelName string, projectName string) (MachinesModel, error) {
+func (r *Client) MachinesGet(ctx context.Context, modelName string, projectName string) (MachinesModel, error) {
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return MachinesModel{}, errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
@@ -345,7 +345,7 @@ func (r *Runner) MachinesGet(ctx context.Context, modelName string, projectName 
 	return model, nil
 }
 
-func (r *Runner) constructMachinesModelFromContracts(ctx context.Context, nodeDeploymentID map[uint32]uint64, modelName string, net Network) (MachinesModel, error) {
+func (r *Client) constructMachinesModelFromContracts(ctx context.Context, nodeDeploymentID map[uint32]uint64, modelName string, net Network) (MachinesModel, error) {
 	model := MachinesModel{
 		Name:    modelName,
 		Network: net,
@@ -542,7 +542,7 @@ func generateQSFSName(machineName string, id int) string {
 }
 
 // Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
-func (r *Runner) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
+func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
 	// all units unified in bytes
 
 	workloads := []*PlannedReservation{}

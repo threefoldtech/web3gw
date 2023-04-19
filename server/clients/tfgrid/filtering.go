@@ -179,7 +179,7 @@ func BuildFarmerBotAction(farmerTwinID uint32, sourceTwinID uint32, args []Args,
 	}
 }
 
-func (r *Runner) GetFarmerTwinIDByFarmID(farmID uint32) (uint32, error) {
+func (r *Client) GetFarmerTwinIDByFarmID(farmID uint32) (uint32, error) {
 	farmid := uint64(farmID)
 	farms, _, err := r.client.FilterFarms(proxyTypes.FarmFilter{
 		FarmID: &farmid,
@@ -208,7 +208,7 @@ func GetFarmerBotResult(action FarmerBotAction, key string) (string, error) {
 	return "", fmt.Errorf("Couldn't found a result for the same key: %s", key)
 }
 
-func (r *Runner) FilterNodesWithFarmerBot(ctx context.Context, options FilterOptions) (FilterResult, error) {
+func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOptions) (FilterResult, error) {
 
 	// construct farmerbot request
 	params := BuildFarmerBotParams(options)
@@ -249,7 +249,7 @@ func (r *Runner) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 	return result, nil
 }
 
-func (r *Runner) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) (FilterResult, error) {
+func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) (FilterResult, error) {
 	proxyFilters := BuildGridProxyFilters(options, uint64(r.TwinID))
 
 	nodes, _, err := r.client.FilterNodes(proxyFilters, proxyTypes.Limit{})
@@ -277,7 +277,7 @@ func GetNodesIDs(nodes []proxyTypes.Node) []uint32 {
 	return ids
 }
 
-func (r *Runner) HasFarmerBot(ctx context.Context, farmID uint32) bool {
+func (r *Client) HasFarmerBot(ctx context.Context, farmID uint32) bool {
 	args := []Args{}
 	params := []Params{}
 
@@ -294,7 +294,7 @@ func (r *Runner) HasFarmerBot(ctx context.Context, farmID uint32) bool {
 	return err == nil
 }
 
-func (r *Runner) checkNodeAvailability(nodeId uint32, workload PlannedReservation, reservedCapacity map[uint32]PlannedReservation) bool {
+func (r *Client) checkNodeAvailability(nodeId uint32, workload PlannedReservation, reservedCapacity map[uint32]PlannedReservation) bool {
 	// get node info
 	node, err := r.client.GetNode(nodeId)
 	if err != nil {
@@ -317,7 +317,7 @@ func (r *Runner) checkNodeAvailability(nodeId uint32, workload PlannedReservatio
 	return false
 }
 
-func (r *Runner) checkFarmAvailability(farmId uint64, workload PlannedReservation, reservedIps map[uint32]int) bool {
+func (r *Client) checkFarmAvailability(farmId uint64, workload PlannedReservation, reservedIps map[uint32]int) bool {
 	// get farm info
 	farms, _, err := r.client.FilterFarms(proxyTypes.FarmFilter{
 		FarmID: &farmId,
@@ -339,7 +339,7 @@ func (r *Runner) checkFarmAvailability(farmId uint64, workload PlannedReservatio
 
 // Searching for node for each workload considering the reserved capacity by workloads in the same deployment.
 // Assign the NodeID if found one or return it with NodeID: 0
-func (r *Runner) AssignNodes(ctx context.Context, workloads []*PlannedReservation) error {
+func (r *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservation) error {
 	reservedCapacity := make(map[uint32]PlannedReservation)
 	reservedIps := make(map[uint32]int) // farmID -> numberOfPublicIps
 

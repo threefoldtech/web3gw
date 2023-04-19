@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (r *Runner) validateProjectName(ctx context.Context, projectName string) error {
+func (r *Client) validateProjectName(ctx context.Context, projectName string) error {
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
