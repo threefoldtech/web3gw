@@ -23,6 +23,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
+      - name: Build scripts
+        run: |
+          v scripts/main.v
+
       - name: Run tests
         env:
           VJOBS: 1
