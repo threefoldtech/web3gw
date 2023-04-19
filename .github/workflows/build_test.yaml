@@ -30,4 +30,4 @@ jobs:
       - name: Run Server
         run: |
           cd server
-          go run main.go --debug
+          go build
