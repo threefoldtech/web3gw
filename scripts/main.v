@@ -66,7 +66,7 @@ fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger) ! {
 	my_balance_before := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
 	logger.info("My balance before: ${my_balance_before}")
 
-	//tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
+	tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
 
 	my_balance := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
 	logger.info("My balance: ${my_balance}")
@@ -83,12 +83,22 @@ fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger) ! {
 	node := tfchain.get_node(mut client, 15)!
 	logger.info("Node with id 15: ${node}")
 
-	node_contracts_for_node_1 := tfchain.get_node_contracts(mut client, 15)!
-	logger.info("Node contracts for node 1: ${node_contracts_for_node_1}")
+	node_contracts_for_node_15 := tfchain.get_node_contracts(mut client, 15)!
+	logger.info("Node contracts for node 15: ${node_contracts_for_node_15}")
 	
-	for contract_id in node_contracts_for_node_1 {
+	for contract_id in node_contracts_for_node_15[..5] {
+		logger.info("Getting contract ${contract_id}")
 		contract := tfchain.get_contract(mut client, contract_id)!
 		logger.info("Contract ${contract_id}: ${contract}")
+	}
+	if node_contracts_for_node_15.len > 0 {
+		tfchain.cancel_contract(mut client, node_contracts_for_node_15[0]) or {
+			if "$err".contains('TwinNotAuthorizedToCancelContract') {
+				logger.info("Can't cancel contract ${node_contracts_for_node_15[0]}. That's normal, it's not mine: $err")
+			} else{
+				return error("$err")
+			}
+		}
 	}
 
 	nodes := tfchain.get_nodes(mut client, 1)!
