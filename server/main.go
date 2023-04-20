@@ -16,7 +16,6 @@ func main() {
 	errors := jsonrpc.NewErrors()
 	errors.Register(-1001, &pkg.ErrClientNotConnected{})
 	errors.Register(-2001, &stellar.ErrUnknownNetwork{})
-	//errors.Register(-4001, &tfgridBase.ErrUnknownNetwork{})
 
 	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(errors))
 	rpcServer.Register("eth", eth.NewClient())

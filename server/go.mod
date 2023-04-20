@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -12,6 +13,7 @@ require (
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
 	github.com/stretchr/testify v1.8.2
 	github.com/threefoldtech/substrate-client v0.1.5
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230417082655-b84b33e61859
 	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.1.0
 	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.0.0-20230413122927-238e88d57822
 	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.0.0-20230413122927-238e88d57822
@@ -26,7 +28,6 @@ require (
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
