@@ -1,110 +1,68 @@
 package explorer
 
 import (
-	"context"
-	"errors"
-
-	"github.com/threefoldtech/grid_proxy_server/pkg/types"
-	proxyTypes "github.com/threefoldtech/grid_proxy_server/pkg/types"
-	"github.com/threefoldtech/web3_proxy/server/clients/explorer"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
-	"github.com/threefoldtech/web3_proxy/server/pkg/state"
+	proxy "github.com/threefoldtech/tfgrid-sdk-go/grid-proxy/pkg/client"
+	proxyTypes "github.com/threefoldtech/tfgrid-sdk-go/grid-proxy/pkg/types"
 )
 
-type (
-	Client struct {
-		state *state.StateManager[explorerState]
-	}
-
-	explorerState struct {
-		cl *explorer.ExplorerClient
+var (
+	endpoints = map[string]string{
+		"main": "https://gridproxy.grid.tf",
+		"test": "https://gridproxy.test.grid.tf",
+		"qa":   "https://gridproxy.qa.grid.tf",
+		"dev":  "https://gridproxy.dev.grid.tf",
 	}
 )
 
-func NewClient() *Client {
-	return &Client{
-		state: state.NewStateManager[explorerState](),
-	}
+type ExplorerClient struct {
+	proxyClient proxy.Client
 }
 
-func (c *Client) Load(ctx context.Context, net string) error {
-	gpc := explorer.ExplorerClient{}
-	gpc.Load(net)
+func NewClient() *ExplorerClient {
+	return &ExplorerClient{}
+}
 
-	gs := explorerState{
-		cl: &gpc,
+func (c *ExplorerClient) Load(net string) error {
+	endpoint := endpoints["dev"]
+	if res, ok := endpoints[net]; ok {
+		endpoint = res
 	}
-
-	c.state.Set(state.IDFromContext(ctx), gs)
-
+	c.proxyClient = proxy.NewClient(endpoint)
 	return nil
 }
 
-func (c *Client) Ping(ctx context.Context) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return errors.New("Error pinging")
-	}
-
-	return state.cl.Ping()
+func (c *ExplorerClient) Ping() error {
+	return c.proxyClient.Ping()
 }
 
-func (c *Client) Nodes(ctx context.Context, filter proxyTypes.NodeFilter, pagination proxyTypes.Limit) ([]types.Node, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return []types.Node{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.Nodes(ctx, filter, pagination)
+func (c *ExplorerClient) Nodes(params NodesRequestParams) ([]proxyTypes.Node, error) {
+	nodes, _, err := c.proxyClient.Nodes(params.Filters, params.Pagination)
+	return nodes, err
 }
 
-func (c *Client) Farms(ctx context.Context, filter proxyTypes.FarmFilter, pagination proxyTypes.Limit) ([]types.Farm, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return []types.Farm{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.Farms(ctx, filter, pagination)
-}
-func (c *Client) Contracts(ctx context.Context, filter proxyTypes.ContractFilter, pagination proxyTypes.Limit) ([]types.Contract, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return []types.Contract{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.Contracts(ctx, filter, pagination)
-}
-func (c *Client) Twins(ctx context.Context, filter proxyTypes.TwinFilter, pagination proxyTypes.Limit) ([]types.Twin, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return []types.Twin{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.Twins(ctx, filter, pagination)
+func (c *ExplorerClient) Farms(params FarmsRequestParams) ([]proxyTypes.Farm, error) {
+	farms, _, err := c.proxyClient.Farms(params.Filters, params.Pagination)
+	return farms, err
 }
 
-func (c *Client) Node(ctx context.Context, nodeID uint32) (res proxyTypes.NodeWithNestedCapacity, err error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return types.NodeWithNestedCapacity{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.Node(nodeID)
+func (c *ExplorerClient) Contracts(params ContractsRequestParams) ([]proxyTypes.Contract, error) {
+	contracts, _, err := c.proxyClient.Contracts(params.Filters, params.Pagination)
+	return contracts, err
 }
 
-func (c *Client) NodeStatus(ctx context.Context, nodeID uint32) (res proxyTypes.NodeStatus, err error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return proxyTypes.NodeStatus{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.NodeStatus(nodeID)
+func (c *ExplorerClient) Twins(params TwinsRequestParams) ([]proxyTypes.Twin, error) {
+	twins, _, err := c.proxyClient.Twins(params.Filters, params.Pagination)
+	return twins, err
 }
 
-func (c *Client) Counters(ctx context.Context, filter proxyTypes.StatsFilter) (res proxyTypes.Counters, err error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.cl == nil {
-		return proxyTypes.Counters{}, pkg.ErrClientNotConnected{}
-	}
-	return state.cl.Counters(filter)
+func (c *ExplorerClient) Node(nodeID uint32) (proxyTypes.NodeWithNestedCapacity, error) {
+	return c.proxyClient.Node(nodeID)
+}
+
+func (c *ExplorerClient) NodeStatus(nodeID uint32) (proxyTypes.NodeStatus, error) {
+	return c.proxyClient.NodeStatus(nodeID)
+}
+
+func (c *ExplorerClient) Counters(filters proxyTypes.StatsFilter) (proxyTypes.Counters, error) {
+	return c.proxyClient.Counters(filters)
 }

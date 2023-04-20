@@ -6,38 +6,38 @@ const (
 	default_timeout = 500000
 )
 
-pub fn load(mut client RpcWsClient, network string) ! {
+pub fn (mut client Explorer) load(network string) ! {
 	_ := client.send_json_rpc[[]string, string]('explorer.Load', [network], default_timeout)!
 }
 
-pub fn ping(mut client RpcWsClient) !string {
+pub fn (mut client Explorer) ping() !string {
 	return client.send_json_rpc[[]string, string]('explorer.Ping', []string{}, default_timeout)!
 }
 
-pub fn nodes(mut client RpcWsClient, filters NodeFilter, pagination) ![]Node {
-	return client.send_json_rpc[[]NodeFilter, []Node]('explorer.Nodes', [filters], default_timeout)!
+pub fn (mut client Explorer) nodes(params NodesRequestParams) ![]Node {
+	return client.send_json_rpc[[]NodesRequestParams, []Node]('explorer.Nodes', [params], default_timeout)!
 }
 
-pub fn farms(mut client RpcWsClient) ![]Farm {
-	return client.send_json_rpc[[]string, []Farm]('explorer.Farm', []string{}, default_timeout)!
+pub fn (mut client Explorer) farms(params FarmsRequestParams) ![]Farm {
+	return client.send_json_rpc[[]FarmsRequestParams, []Farm]('explorer.Farms', [params], default_timeout)!
 }
 
-pub fn contracts(mut client RpcWsClient) ![]Contract {
-	return client.send_json_rpc[[]string, []Contract]('explorer.Contracts', []string{}, default_timeout)!
+pub fn (mut client Explorer) contracts(params ContractsRequestParams) ![]Contract {
+	return client.send_json_rpc[[]ContractsRequestParams, []Contract]('explorer.Contracts', [params], default_timeout)!
 }
 
-pub fn twins(mut client RpcWsClient) ![]Twin {
-	return client.send_json_rpc[[]string, []Twin]('explorer.Twins', []string{}, default_timeout)!
+pub fn (mut client Explorer) twins(params TwinsRequestParams) ![]Twin {
+	return client.send_json_rpc[[]TwinsRequestParams, []Twin]('explorer.Twins', [params], default_timeout)!
 }
 
-pub fn node(mut client RpcWsClient) ![]NodeWithNestedCapacity {
-	return client.send_json_rpc[[]string, []NodeWithNestedCapacity]('explorer.Node', []string{}, default_timeout)!
+pub fn (mut client Explorer) node(node_id u32) ![]NodeWithNestedCapacity {
+	return client.send_json_rpc[[]u32, []NodeWithNestedCapacity]('explorer.Node', [node_id], default_timeout)!
 }
 
-pub fn node_status(mut client RpcWsClient) !NodeStatus {
-	return client.send_json_rpc[[]string, NodeStatus]('explorer.NodeStatus', []string{}, default_timeout)!
+pub fn (mut client Explorer) node_status(node_id u32) !NodeStatus {
+	return client.send_json_rpc[[]u32, NodeStatus]('explorer.NodeStatus', [node_id], default_timeout)!
 }
 
-pub fn counters(mut client RpcWsClient) !Counters {
-	return client.send_json_rpc[[]string, Counters]('explorer.Counters', []string{}, default_timeout)!
+pub fn (mut client Explorer) counters(filters StatsFilter) !Counters {
+	return client.send_json_rpc[[]StatsFilter, Counters]('explorer.Counters', [filters], default_timeout)!
 }
