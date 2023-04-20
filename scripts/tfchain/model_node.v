@@ -16,7 +16,6 @@ pub:
 		is_diy       bool
 		is_certified bool
 	}
-
 	secure_boot      bool
 	vertualized      bool
 	board_serial     OptionBoardSerial

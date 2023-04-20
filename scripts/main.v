@@ -62,7 +62,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 
 fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut tfchain_client := tfchain.new(mut client)
-	tfchain_client.load("devnet", mnemonic)! // FILL IN YOUR MNEMONIC HERE
+	tfchain_client.load(network:.devnet, mnemonic:mnemonic)!
 
 	my_balance_before := tfchain_client.balance("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
 	logger.info("My balance before: ${my_balance_before}")
@@ -71,6 +71,9 @@ fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger, mnemonic 
 
 	my_balance := tfchain_client.balance("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
 	logger.info("My balance: ${my_balance}")
+
+	alice_balance := tfchain_client.balance("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY")!
+	logger.info("Alice's balance: ${alice_balance}")
 
 	height := tfchain_client.height()!
 	logger.info("Height is ${height}")
