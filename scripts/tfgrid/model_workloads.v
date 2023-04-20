@@ -71,11 +71,13 @@ pub:
 	public   bool   [json: 'public']
 }
 
+
+// TODO: change json representation snake case after resolving #1952 in zos
 pub struct ZDBResultData {
 pub:
-	namespace string   [json: 'namespace']
-	ips       []string [json: 'ips']
-	port      u32      [json: 'port']
+	namespace string   [json: 'Namespace']
+	ips       []string [json: 'IPs']
+	port      u32      [json: 'Port']
 }
 
 pub struct NetworkWorkload {

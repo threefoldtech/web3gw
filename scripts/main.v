@@ -313,7 +313,7 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 fn execute_rpcs(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	// ADD YOUR CALLS HERE
 	client.load(tfgrid.Credentials{
-		mnemonic: 'route visual hundred rabbit wet crunch ice castle milk model inherit outside' // FILL IN YOUR MNEMONIC HERE
+		mnemonic: '' // FILL IN YOUR MNEMONIC HERE
 		network: 'dev'
 	})!
 
