@@ -254,15 +254,6 @@ func (c *Client) GetNodes(ctx context.Context, farm_id uint32) ([]uint32, error)
 	return state.client.GetNodes(farm_id)
 }
 
-func (c *Client) CreateNode(ctx context.Context, node *substrate.Node) (uint32, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
-		return 0, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.CreateNode(*state.identity, *node)
-}
-
 func (c *Client) GetFarm(ctx context.Context, id uint32) (*substrate.Farm, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
