@@ -357,17 +357,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 
 fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut tfchain_client := tfchain.new(mut client)
+
 	tfchain_client.load(network:.devnet, mnemonic:mnemonic)!
-	tfchain.load(mut client, "devnet", "")! // FILL IN YOUR MNEMONIC HERE
-	tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: ""})! // FILL IN SOME DESTINATION
-	height := tfchain.height(mut client)!
-	println("Height is ${height}")
-
-	my_balance := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
-	println("My balance: ${my_balance}")
-
-	twin_32 := tfchain.get_twin(mut client, 32)! // decoding to json is not yet working but add --debug and you will see the received message from server
-	println("Twin with id 32: ${twin_32}")
+	
+	//tfchain_client.transfer(tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
 	
 	my_balance := tfchain_client.balance("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
 	logger.info("My balance: ${my_balance}")
@@ -397,11 +390,7 @@ fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger, mnemonic 
 	}
 	if node_contracts_for_node_15.len > 0 {
 		tfchain_client.cancel_contract(node_contracts_for_node_15[0]) or {
-			if "$err".contains('TwinNotAuthorizedToCancelContract') {
-				logger.info("Can't cancel contract ${node_contracts_for_node_15[0]}. That's normal, it's not mine: $err")
-			} else{
-				return error("$err")
-			}
+			logger.info("Can't cancel contract ${node_contracts_for_node_15[0]}. That's normal, it's not mine: $err")
 		}
 	}
 
@@ -424,6 +413,7 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
+	mnemonic := fp.string('mnemonic', `m`, '', 'The mnemonic to be used to call any function')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
@@ -441,14 +431,14 @@ fn main() {
 		exit(1)
 	}
 
-	_ := spawn myclient.run() // QUESTION: why is that in thread?
+	_ := spawn myclient.run()
 	/*
 	execute_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
 	*/
-	execute_rpcs_tfchain(mut myclient, mut logger) or {
+	execute_rpcs_tfchain(mut myclient, mut logger, mnemonic) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

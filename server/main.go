@@ -8,6 +8,7 @@ import (
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
 	"github.com/threefoldtech/web3_proxy/server/pkg/stellar"
 	"github.com/threefoldtech/web3_proxy/server/pkg/tfchain"
+	"github.com/threefoldtech/web3_proxy/server/pkg/tfgrid"
 )
 
 func main() {
@@ -15,7 +16,6 @@ func main() {
 	errors := jsonrpc.NewErrors()
 	errors.Register(-1001, &pkg.ErrClientNotConnected{})
 	errors.Register(-2001, &stellar.ErrUnknownNetwork{})
-	errors.Register(-4001, &tfgridBase.ErrUnknownNetwork)
 
 	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(errors))
 	rpcServer.Register("eth", eth.NewClient())
