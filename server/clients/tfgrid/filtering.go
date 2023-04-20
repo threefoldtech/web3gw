@@ -208,7 +208,7 @@ func GetFarmerBotResult(action FarmerBotAction, key string) (string, error) {
 	return "", fmt.Errorf("Couldn't found a result for the same key: %s", key)
 }
 
-func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOptions) (FilterResult, error) {
+func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOptions) ([]uint32, error) {
 
 	// construct farmerbot request
 	params := BuildFarmerBotParams(options)
@@ -216,7 +216,7 @@ func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 	// make farmerbot request
 	farmerTwinID, err := r.GetFarmerTwinIDByFarmID(options.FarmID)
 	if err != nil {
-		return FilterResult{}, errors.Wrapf(err, "Failed to get TwinID for FarmID %+v", options.FarmID)
+		return []uint32{}, errors.Wrapf(err, "Failed to get TwinID for FarmID %+v", options.FarmID)
 	}
 
 	sourceTwinID := r.TwinID
@@ -227,44 +227,34 @@ func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 
 	err = r.client.RMBCall(ctx, farmerTwinID, FarmerBotRMBFunction, data, &output)
 	if err != nil {
-		return FilterResult{}, errors.Wrapf(err, "Failed calling farmerbot on farm %d", options.FarmID)
+		return []uint32{}, errors.Wrapf(err, "Failed calling farmerbot on farm %d", options.FarmID)
 	}
 
 	// build the result
 	nodeIdStr, err := GetFarmerBotResult(output, "nodeid")
 	if err != nil {
-		return FilterResult{}, err
+		return []uint32{}, err
 	}
 
 	nodeId, err := strconv.ParseUint(nodeIdStr, 10, 32)
 	if err != nil {
-		return FilterResult{}, fmt.Errorf("can't parse node id")
+		return []uint32{}, fmt.Errorf("can't parse node id")
 	}
 
-	result := FilterResult{
-		FilterOption:   options,
-		AvailableNodes: []uint32{uint32(nodeId)},
-	}
-
-	return result, nil
+	return []uint32{uint32(nodeId)}, nil
 }
 
-func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) (FilterResult, error) {
+func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) ([]uint32, error) {
 	proxyFilters := BuildGridProxyFilters(options, uint64(r.TwinID))
 
 	nodes, _, err := r.client.FilterNodes(proxyFilters, proxyTypes.Limit{})
 	if err != nil || len(nodes) == 0 {
-		return FilterResult{}, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
+		return []uint32{}, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
 	}
 
 	nodesIDs := GetNodesIDs(nodes)
 
-	result := FilterResult{
-		FilterOption:   options,
-		AvailableNodes: nodesIDs,
-	}
-
-	return result, nil
+	return nodesIDs, nil
 }
 
 func GetNodesIDs(nodes []proxyTypes.Node) []uint32 {
@@ -356,7 +346,7 @@ func (r *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservatio
 				options.PublicIpsCount = 1
 			}
 
-			var res FilterResult
+			var nodes []uint32
 			var err error
 			ctx2, cancel := context.WithTimeout(ctx, 3*time.Second)
 			defer cancel()
@@ -366,14 +356,14 @@ func (r *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservatio
 
 			if options.FarmID != 0 && hasFarmerBot {
 				log.Info().Msg("Calling farmerbot")
-				res, err = r.FilterNodesWithFarmerBot(ctx, options)
+				nodes, err = r.FilterNodesWithFarmerBot(ctx, options)
 
 			} else {
 				log.Info().Msg("Calling gridproxy")
-				res, err = r.FilterNodesWithGridProxy(ctx, options)
+				nodes, err = r.FilterNodesWithGridProxy(ctx, options)
 			}
 
-			if err != nil || len(res.AvailableNodes) == 0 {
+			if err != nil || len(nodes) == 0 {
 				return errors.Errorf("Failed to find node on farm %+v", options.FarmID)
 			}
 
@@ -386,7 +376,6 @@ func (r *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservatio
 				reservedIps[options.FarmID]++
 			}
 
-			nodes := res.AvailableNodes
 			selectedNodeId := uint32(0)
 			for _, nodeId := range nodes {
 				nodeIsValid := r.checkNodeAvailability(nodeId, *workload, reservedCapacity)

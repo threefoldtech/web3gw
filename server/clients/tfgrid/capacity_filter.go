@@ -7,8 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (r *Client) FilterNodes(ctx context.Context, options FilterOptions) (FilterResult, error) {
-	var res FilterResult
+func (r *Client) FilterNodes(ctx context.Context, options FilterOptions) ([]uint32, error) {
+	var res []uint32
 	var err error
 
 	ctx2, cancel := context.WithTimeout(ctx, 3*time.Second)

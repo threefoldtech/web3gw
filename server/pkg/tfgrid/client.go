@@ -232,10 +232,10 @@ func (c *Client) GatewayFQDNDelete(ctx context.Context, modelName string) error 
 	return state.cl.GatewayFQDNDelete(ctx, projectName)
 }
 
-func (c *Client) FilterNodes(ctx context.Context, filters tfgridBase.FilterOptions) (tfgridBase.FilterResult, error) {
+func (c *Client) FilterNodes(ctx context.Context, filters tfgridBase.FilterOptions) ([]uint32, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return tfgridBase.FilterResult{}, pkg.ErrClientNotConnected{}
+		return []uint32{}, pkg.ErrClientNotConnected{}
 	}
 
 	return state.cl.FilterNodes(ctx, filters)
