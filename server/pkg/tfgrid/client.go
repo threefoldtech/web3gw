@@ -2,10 +2,9 @@ package tfgrid
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/threefoldtech/grid3-go/deployer"
-	procedure "github.com/threefoldtech/tf-grid-cli/pkg/server/procedures"
-	"github.com/threefoldtech/tf-grid-cli/pkg/server/types"
+	tfgridBase "github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
@@ -34,8 +33,7 @@ type (
 	}
 
 	tfgridState struct {
-		//cl *tfgrid.Client
-		cl *deployer.TFPluginClient
+		cl *tfgridBase.Client
 	}
 )
 
@@ -46,15 +44,22 @@ func NewClient() *Client {
 	}
 }
 
+func generateProjectName(modelName string) (projectName string) {
+	return fmt.Sprintf("%s.web3proxy", modelName)
+}
+
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, mnemonic string, network string) error {
-	cl, err := deployer.NewTFPluginClient(mnemonic, keyType, network, deployer.SubstrateURLs[network], deployer.RelayURLS[network], deployer.RMBProxyURLs[network], DeployerTimeoutSeconds, true, false)
+	tfgrid_client := tfgridBase.Client{}
+	err := tfgrid_client.Login(ctx, tfgridBase.Credentials{
+		Mnemonics: mnemonic,
+		Network:   network,
+	})
 	if err != nil {
 		return err
 	}
-
 	gs := tfgridState{
-		cl: &cl,
+		cl: &tfgrid_client,
 	}
 
 	c.state.Set(state.IDFromContext(ctx), gs)
@@ -62,26 +67,176 @@ func (c *Client) Load(ctx context.Context, mnemonic string, network string) erro
 	return nil
 }
 
-func (c *Client) MachinesDeploy(ctx context.Context, model types.MachinesModel) (types.MachinesModel, error) {
+func (c *Client) MachinesDeploy(ctx context.Context, model tfgridBase.MachinesModel) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return types.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return procedure.MachinesDeploy(ctx, model, state.cl)
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.MachinesDeploy(ctx, model, projectName)
 }
 
-func (c *Client) MachinesGet(ctx context.Context, name string) (types.MachinesModel, error) {
+func (c *Client) MachinesGet(ctx context.Context, modelName string) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return types.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
-	return procedure.MachinesGet(ctx, name, state.cl)
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.MachinesGet(ctx, modelName, projectName)
 }
 
-func (c *Client) MachinesDelete(ctx context.Context, name string) error {
+func (c *Client) MachinesDelete(ctx context.Context, modelName string) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
-	return procedure.MachinesDelete(ctx, name, state.cl)
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.MachinesDelete(ctx, projectName)
+}
+
+func (c *Client) K8sDeploy(ctx context.Context, model tfgridBase.K8sCluster) (tfgridBase.K8sCluster, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.K8sDeploy(ctx, model, projectName)
+}
+
+func (c *Client) K8sGet(ctx context.Context, modelName string) (tfgridBase.K8sCluster, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.K8sGet(ctx, modelName, projectName)
+}
+
+func (c *Client) K8sDelete(ctx context.Context, modelName string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.K8sDelete(ctx, projectName)
+}
+
+func (c *Client) ZDBDeploy(ctx context.Context, model tfgridBase.ZDB) (tfgridBase.ZDB, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.ZDB{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.ZDBDeploy(ctx, model, projectName)
+}
+
+func (c *Client) ZDBGet(ctx context.Context, modelName string) (tfgridBase.ZDB, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.ZDB{}, pkg.ErrClientNotConnected{}
+	}
+
+	modelName = generateProjectName(modelName)
+
+	return state.cl.ZDBGet(ctx, modelName)
+}
+
+func (c *Client) ZDBDelete(ctx context.Context, modelName string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.ZDBDelete(ctx, projectName)
+}
+
+func (c *Client) GatewayNameDeploy(ctx context.Context, model tfgridBase.GatewayNameModel) (tfgridBase.GatewayNameModel, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.GatewayNameModel{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.GatewayNameDeploy(ctx, model, projectName)
+}
+
+func (c *Client) GatewayNameGet(ctx context.Context, modelName string) (tfgridBase.GatewayNameModel, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.GatewayNameModel{}, pkg.ErrClientNotConnected{}
+	}
+
+	modelName = generateProjectName(modelName)
+
+	return state.cl.GatewayNameGet(ctx, modelName)
+}
+
+func (c *Client) GatewayNameDelete(ctx context.Context, modelName string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.GatewayNameDelete(ctx, projectName)
+}
+
+func (c *Client) GatewayFQDNDeploy(ctx context.Context, model tfgridBase.GatewayFQDNModel) (tfgridBase.GatewayFQDNModel, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.GatewayFQDNModel{}, pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(model.Name)
+
+	return state.cl.GatewayFQDNDeploy(ctx, model, projectName)
+}
+
+func (c *Client) GatewayFQDNGet(ctx context.Context, modelName string) (tfgridBase.GatewayFQDNModel, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return tfgridBase.GatewayFQDNModel{}, pkg.ErrClientNotConnected{}
+	}
+
+	modelName = generateProjectName(modelName)
+
+	return state.cl.GatewayFQDNGet(ctx, modelName)
+}
+
+func (c *Client) GatewayFQDNDelete(ctx context.Context, modelName string) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	projectName := generateProjectName(modelName)
+
+	return state.cl.GatewayFQDNDelete(ctx, projectName)
+}
+
+func (c *Client) FilterNodes(ctx context.Context, filters tfgridBase.FilterOptions) ([]uint32, error) {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return []uint32{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.FilterNodes(ctx, filters)
 }

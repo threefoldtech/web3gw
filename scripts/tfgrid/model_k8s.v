@@ -20,6 +20,7 @@ pub struct K8sClusterResult {
 pub struct K8sNode {
 	name       string [required]
 	node_id    u32
+	farm_id    u32
 	public_ip  bool
 	public_ip6 bool
 	planetary  bool   = true
@@ -32,6 +33,7 @@ pub struct K8sNode {
 pub struct K8sNodeResult {
 	name       string
 	node_id    u32
+	farm_id    u32
 	public_ip  bool
 	public_ip6 bool
 	planetary  bool
@@ -46,14 +48,13 @@ pub struct K8sNodeResult {
 	ygg_ip       string
 }
 
+// NOTE: not implemented
+// pub struct AddK8sNode {
+// 	node K8sNode
+// 	cluster_name string
+// }
 
-pub struct AddK8sNode {
-	node K8sNode
-	cluster_name string
-}
-
-
-pub struct RemoveK8sNode {
-	cluster_name string
-	node_name string
-}
+// pub struct RemoveK8sNode {
+// 	cluster_name string
+// 	node_name string
+// }
