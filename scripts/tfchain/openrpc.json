@@ -7,6 +7,7 @@
     "methods": [
       {
         "name": "load",
+        "description": "Load your mnemonic with this call. Choose the network while doing so. The network should be one of: mainnet, testnet, qanet, devnet",
         "params": [
           {
             "name": "args",
@@ -24,6 +25,7 @@
       },
       {
         "name": "transfer",
+        "description": "Transfer some amount to some destination. The destionation should be a SS58 address.",
         "params": [
           {
             "name": "args",
@@ -41,6 +43,7 @@
       },
       {
         "name": "balance",
+        "description": "Ask for the balance of an entity using this call. The address should be a SS58 address.",
         "params": [
           {
             "name": "address",
@@ -58,6 +61,7 @@
       },
       {
         "name": "height",
+        "description": "Get the current height of the chain.",
         "params": [],
         "result": {
           "name": "!u64",
@@ -68,6 +72,7 @@
       },
       {
         "name": "get_twin",
+        "description": "Get a twin by id.",
         "params": [
           {
             "name": "id",
@@ -85,6 +90,7 @@
       },
       {
         "name": "get_twin_by_pubkey",
+        "description": "Get the twin id that is bound to a SS58 address.",
         "params": [
           {
             "name": "address",
@@ -102,6 +108,7 @@
       },
       {
         "name": "create_twin",
+        "description": "Create a twin. Provide the relay and your public key in this call. The result of this call contains your twin id.",
         "params": [
           {
             "name": "args",
@@ -119,6 +126,7 @@
       },
       {
         "name": "accept_terms_and_conditions",
+        "description": "Accepts terms and conditions. Provide the document link and document hash while executing this call.",
         "params": [
           {
             "name": "args",
@@ -136,6 +144,7 @@
       },
       {
         "name": "get_node",
+        "description": "Get a node by id.",
         "params": [
           {
             "name": "id",
@@ -153,6 +162,7 @@
       },
       {
         "name": "create_node",
+        "description": "Create a node. Provide the twin id, farm id, resources (cru, hru, mru, sru), location (city, country, latitude, longitude), interfaces, secure_boot, virtualized and board serial of the node. Returns the node id of the created node.",
         "params": [
           {
             "name": "args",
@@ -170,6 +180,7 @@
       },
       {
         "name": "get_nodes",
+        "description": "Get the nodes that belong to the farm with id. Returns a list of node ids.",
         "params": [
           {
             "name": "farm_id",
@@ -190,6 +201,7 @@
       },
       {
         "name": "get_farm",
+        "description": "Get farm by id.",
         "params": [
           {
             "name": "id",
@@ -207,6 +219,7 @@
       },
       {
         "name": "get_farm_by_name",
+        "description": "Get farm by name.",
         "params": [
           {
             "name": "name",
@@ -224,6 +237,7 @@
       },
       {
         "name": "create_farm",
+        "description": "Create a farm. Provide a name an a list of public ips if there are any.",
         "params": [
           {
             "name": "args",
@@ -241,6 +255,7 @@
       },
       {
         "name": "get_contract",
+        "description": "Get a contract by id. Contract can be any of the following types: node contract, name contract or rent contract.",
         "params": [
           {
             "name": "contract_id",
@@ -258,6 +273,7 @@
       },
       {
         "name": "get_contract_id_by_name_registration",
+        "description": "Get contract by name registration. Returns the id of the contract.",
         "params": [
           {
             "name": "name",
@@ -275,6 +291,7 @@
       },
       {
         "name": "get_contract_with_hash",
+        "description": "Get contract by hash. Returns the contract id.",
         "params": [
           {
             "name": "args",
@@ -292,6 +309,7 @@
       },
       {
         "name": "get_node_contracts",
+        "description": "Get contracts belonging to a node. Returns a list of contract ids.",
         "params": [
           {
             "name": "node_id",
@@ -312,6 +330,7 @@
       },
       {
         "name": "create_name_contract",
+        "description": "Create a name contract. Provide the dns name via this call. Returns the id of the contract it creates.",
         "params": [
           {
             "name": "name",
@@ -329,6 +348,7 @@
       },
       {
         "name": "create_node_contract",
+        "description": "Create a node contract. Provide the node id, body, hash, how many public ips you want to use and optionally the solution provider id.",
         "params": [
           {
             "name": "args",
@@ -346,6 +366,7 @@
       },
       {
         "name": "create_rent_contract",
+        "description": "Create a rent contract. Provide the node id of the node you want to rent and optionally the solution provider id.",
         "params": [
           {
             "name": "args",
@@ -363,6 +384,7 @@
       },
       {
         "name": "service_contract_create",
+        "description": "Create a service contract. Provide the SS58 addresses of the service and the consumer.",
         "params": [
           {
             "name": "args",
@@ -380,6 +402,7 @@
       },
       {
         "name": "service_contract_approve",
+        "description": "Approve a service contract. Provide the contract id to do so. Approving the contract is only allowed if the agreement is ready and only by the consumer or the service.",
         "params": [
           {
             "name": "contract_id",
@@ -397,6 +420,7 @@
       },
       {
         "name": "service_contract_bill",
+        "description": "Bill a service contract. Provide the contract id, variable_amount and some metadata. The contract can only be billed if both service and consumer have approved the contract.",
         "params": [
           {
             "name": "args",
@@ -414,6 +438,7 @@
       },
       {
         "name": "service_contract_cancel",
+        "description": "Cancel a service contract. Provide the contract id to do so.",
         "params": [
           {
             "name": "contract_id",
@@ -431,6 +456,7 @@
       },
       {
         "name": "service_contract_reject",
+        "description": "Reject a service contract. Provide the contract id to do so. Only the service or the consumer is allowed to do so and only if it reached a state of agreement. The contract will be deleted when at the first call of either the service or the consumer.",
         "params": [
           {
             "name": "contract_id",
@@ -448,6 +474,7 @@
       },
       {
         "name": "service_contract_set_fees",
+        "description": "Set the service contract fees. Provide the contract id, the base fee and the variable fee. Only the service is allowed to set the fees and only if the contract is not approved by both parties yet. The state is set to agreemen if the metadata has been set.",
         "params": [
           {
             "name": "args",
@@ -465,6 +492,7 @@
       },
       {
         "name": "service_contract_set_metadata",
+        "description": "Set the service contract metadata. Provide contract id and the metadata. Only service or consumer can set the metadata. The metadata can be modified by calling this method again but only if the contract is not yet approved by both parties. The base fee cannot be 0.",
         "params": [
           {
             "name": "args",
@@ -482,6 +510,7 @@
       },
       {
         "name": "cancel_contract",
+        "description": "Cancel a contract. Provide the contract id to do so. Only the creator of the contract can cancle the contract. If the contract is a rent contract it can only be canceled if it has no more active workloads.",
         "params": [
           {
             "name": "contract_id",
@@ -499,6 +528,7 @@
       },
       {
         "name": "batch_cancel_contract",
+        "description": "Cancel a list contracts. Provide a list of contract ids to do so. They can only be canceled if they were created by the entity calling this function. Rent contracts can not have active workloads in order to be canceled.",
         "params": [
           {
             "name": "contract_ids",
@@ -519,6 +549,7 @@
       },
       {
         "name": "get_zos_version",
+        "description": "Get the current ZOS version",
         "params": [],
         "result": {
           "name": "!string",
@@ -561,16 +592,6 @@
             },
             "is_deleted": {
               "type": "boolean"
-            },
-            "as_deleted": {
-              "properties": {
-                "is_canceled_by_user": {
-                  "type": "boolean"
-                },
-                "is_out_of_funds": {
-                  "type": "boolean"
-                }
-              }
             },
             "is_grace_period": {
               "type": "boolean"
@@ -638,6 +659,7 @@
         },
         "Farm": {
           "title": "Farm",
+          "description": "Farm type",
           "properties": {
             "version": {
               "type": "integer"
@@ -782,16 +804,6 @@
             "interfaces": {
               "$ref": "#/components/schemas/Interface"
             },
-            "certification": {
-              "properties": {
-                "is_diy": {
-                  "type": "boolean"
-                },
-                "is_certified": {
-                  "type": "boolean"
-                }
-              }
-            },
             "secure_boot": {
               "type": "boolean"
             },
@@ -867,26 +879,6 @@
           "properties": {
             "ip4": {
               "$ref": "#/components/schemas/IP"
-            },
-            "ip6": {
-              "properties": {
-                "has_value": {
-                  "type": "boolean"
-                },
-                "as_value": {
-                  "$ref": "#/components/schemas/IP"
-                }
-              }
-            },
-            "domain": {
-              "properties": {
-                "has_value": {
-                  "type": "boolean"
-                },
-                "as_value": {
-                  "type": "string"
-                }
-              }
             }
           }
         },
@@ -911,10 +903,7 @@
               "type": "string"
             },
             "ips": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+              "type": "array"
             }
           }
         },
@@ -927,28 +916,8 @@
             "account_id": {
               "type": "string"
             },
-            "relay": {
-              "properties": {
-                "has_value": {
-                  "type": "boolean"
-                },
-                "as_value": {
-                  "type": "string"
-                }
-              }
-            },
             "entities": {
               "$ref": "#/components/schemas/EntityProof"
-            },
-            "pk": {
-              "properties": {
-                "has_value": {
-                  "type": "boolean"
-                },
-                "as_value": {
-                  "type": "string"
-                }
-              }
             }
           }
         },
