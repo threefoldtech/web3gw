@@ -2,67 +2,102 @@ module tfgrid
 
 import json
 
+// zos_deployment_deploy deploys a deployment on a node
+// - request: node id, and the deployment information
+// returns a string containing system hypervisor info
 pub fn (mut client TFGridClient) zos_deployment_deploy(request ZOSNodeRequest) ! {
 	client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentDeploy', [
 		request,
 	], default_timeout)!
 }
 
+// zos_system_version returns the system version of the node
+// request: node id
+// returns a SystemVersion object containig system version information
 pub fn (mut client TFGridClient) zos_system_version(request ZOSNodeRequest) !SystemVersion {
 	return client.send_json_rpc[[]ZOSNodeRequest, SystemVersion]('tfgrid.ZOSSystemVersion',
 		[request], default_timeout)!
 }
 
+// zos_system_hypervisor returns system hypervisor info on the node
+// - request: node id
+// returns a string containing system hypervisor info
 pub fn (mut client TFGridClient) zos_system_hypervisor(request ZOSNodeRequest) !string {
 	return client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSSystemHypervisor',
 		[request], default_timeout)!
 }
 
+// zos_system_dmi checks system DMI information
+// - request: node id
+// returns a DMI object containing dmi information for the specified node
 pub fn (mut client TFGridClient) zos_system_dmi(request ZOSNodeRequest) !DMI {
 	return client.send_json_rpc[[]ZOSNodeRequest, DMI]('tfgrid.ZOSSystemDMI', [
 		request,
 	], default_timeout)!
 }
 
+// zos_network_public_config gets the public configuration of the specified node
+// - request: node id
+// returns a PublicConfig object containing the public configuration information of the specified node
 pub fn (mut client TFGridClient) zos_network_public_config(request ZOSNodeRequest) !PublicConfig {
 	return client.send_json_rpc[[]ZOSNodeRequest, PublicConfig]('tfgrid.ZOSNetworkPublicConfigGet',
 		[request], default_timeout)!
 }
 
+// zos_network_interfaces returns all physical devices on a node
+// - request: node id
+// returns a map from interface name to its ips
 pub fn (mut client TFGridClient) zos_network_interfaces(request ZOSNodeRequest) !map[string][]string {
 	return client.send_json_rpc[[]ZOSNodeRequest, map[string][]string]('tfgrid.ZOSNetworkInterfaces',
 		[request], default_timeout)!
 }
 
+// zos_network_list_wg_ports returns a list of all taken ports on the node.
+// - request: node id
+// returns a list of taken ports
 pub fn (mut client TFGridClient) zos_network_list_wg_ports(request ZOSNodeRequest) ![]u16 {
 	return client.send_json_rpc[[]ZOSNodeRequest, []u16]('tfgrid.ZOSNetworkListWGPorts',
 		[request], default_timeout)!
 }
 
+// zos_node_statistics returns some node statistics including total and available cpu, memory, storage, etc...
+// - request: node id
+// returns a Statistics object containing node statistics
 pub fn (mut client TFGridClient) zos_node_statistics(request ZOSNodeRequest) !Statistics {
 	return client.send_json_rpc[[]ZOSNodeRequest, Statistics]('tfgrid.ZOSStatisticsGet',
 		[request], default_timeout)!
 }
 
+// zos_deployment_changes returns all workload changes over the lifetime of the deployment
+// - request: node id, and deployment contract id
+// returns a list of Workload objects containing the workloads' states over the lifetime of the deployment
 pub fn (mut client TFGridClient) zos_deployment_changes(request ZOSNodeRequest) ![]Workload {
 	wls := client.send_json_rpc[[]ZOSNodeRequest, []WorkloadRaw]('tfgrid.ZOSDeploymentChanges',
 		[request], default_timeout)!
 	return decode_workloads(wls)!
 }
 
+// zos_deployment_update updates a deployment on a node
+// - request: node id, and new deployment object
+// returns 
 pub fn (mut client TFGridClient) zos_deployment_update(request ZOSNodeRequest) ! {
 	client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentUpdate', [
 		request,
 	], default_timeout)!
 }
 
-// this is disabled in zos, user should instead cancel their contract
+// zos_deployment_delete deletes a deployment on a node, 
+// - request: node id, and deployment contract id
+// returns 
 pub fn (mut client TFGridClient) zos_deployment_delete(request ZOSNodeRequest) ! {
 	client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentDelete', [
 		request,
 	], default_timeout)!
 }
 
+// zos_deployment_deploy sends a deploy request to a zos node
+// - request: node id, and deployment contract id
+// returns Deployment object containing deployment information
 pub fn (mut client TFGridClient) zos_deployment_get(request ZOSNodeRequest) !Deployment {
 	deployment := client.send_json_rpc[[]ZOSNodeRequest, DeploymentRaw]('tfgrid.ZOSDeploymentGet',
 		[
@@ -71,6 +106,7 @@ pub fn (mut client TFGridClient) zos_deployment_get(request ZOSNodeRequest) !Dep
 	return decode_deployment(deployment)!
 }
 
+// decode_deployment is used to decode DeploymentRaw to Deployment
 fn decode_deployment(dl DeploymentRaw) !Deployment {
 	wls := decode_workloads(dl.workloads)!
 	return Deployment{
@@ -85,6 +121,7 @@ fn decode_deployment(dl DeploymentRaw) !Deployment {
 	}
 }
 
+// decode_workloads is used to decode []WorkloadRaw to []Workload
 fn decode_workloads(raw_workloads []WorkloadRaw) ![]Workload {
 	mut wls := []Workload{}
 	for wl in raw_workloads {
