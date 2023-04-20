@@ -26,6 +26,9 @@ jobs:
       - name: Build V Client
         run: |
           v scripts/main.v
+          v scripts/main_explorer.v
+          v scripts/main_tfchain.v
+          v scripts/main_tfgrid.v
 
       - name: Build Server
         run: |

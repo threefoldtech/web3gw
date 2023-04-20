@@ -14,6 +14,26 @@ go build .
 
 Server will now listen on `ws://localhost:8080`
 
+### Adding more clients
+
+1) Create folder for the client and add a client.go file in that folder
+2) Add the funtions, similar to the one below, that the server needs to open up in client.go
+    - Use only one argument that contains the required argument for that function!
+    - The function should either return error or (<SOME_OBJECT>, error)
+3) Register the client in main.go
+4) Add the V client in [scripts](../scripts)
+
+```
+func (c *Client) ServiceContractSetMetadata(ctx context.Context, args ServiceContractSetMetadata) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ServiceContractSetMetadata(*state.identity, args.ContractID, args.Metadata)
+}
+```
+
 ### Examples with websocat
 
 1. Load eth: `{"jsonrpc":"2.0", "id": 1, "method": "eth.Load", "params":["http://[2a04:7700:1003:1:4883:fff:fe19:e118]:8545","abcdefabcdefabcdefabcdefabcdefababcdefabcdefabcdefabcdefabcdefab"]}`
