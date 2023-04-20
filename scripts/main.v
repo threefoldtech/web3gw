@@ -310,12 +310,12 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 	client.zos_deployment_delete(request)!
 }
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
+fn execute_rpcs_tfgrid(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut tfgrid_client := tfgrid.new(mut client)
 
 	// ADD YOUR CALLS HERE
 	tfgrid_client.load(tfgrid.Credentials{
-		mnemonic: '' // FILL IN YOUR MNEMONIC HERE
+		mnemonic: mnemonic // FILL IN YOUR MNEMONIC HERE
 		network: 'dev'
 	})!
 
@@ -432,12 +432,14 @@ fn main() {
 	}
 
 	_ := spawn myclient.run()
+	
 	/*
-	execute_rpcs(mut myclient, mut logger) or {
+	execute_rpcs_tfgrid(mut myclient, mut logger, mnemonic) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
 	*/
+	
 	execute_rpcs_tfchain(mut myclient, mut logger, mnemonic) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
