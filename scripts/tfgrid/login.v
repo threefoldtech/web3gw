@@ -7,7 +7,7 @@ pub struct Credentials {
 }
 
 // Loads the mnemonic into the session for a specific network. The call returns an error if the mnemonic or the
-// network is invalid. 
+// network is invalid.
 pub fn (mut t TFGridClient) load(credentials Credentials) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfgrid.Load', [credentials.mnemonic, credentials.network],
 		default_timeout)!

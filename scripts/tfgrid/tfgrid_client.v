@@ -9,7 +9,7 @@ mut:
 	client &RpcWsClient
 }
 
-pub fn new(mut client RpcWsClient) TFGridClient{
+pub fn new(mut client RpcWsClient) TFGridClient {
 	return TFGridClient{
 		client: &client
 	}

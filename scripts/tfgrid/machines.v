@@ -1,6 +1,6 @@
 module tfgrid
 
-// Deploys a machines workload given a machines model. If it does not succeed the call returns an error. 
+// Deploys a machines workload given a machines model. If it does not succeed the call returns an error.
 pub fn (mut t TFGridClient) machines_deploy(model MachinesModel) !MachinesResult {
 	return t.client.send_json_rpc[[]MachinesModel, MachinesResult]('tfgrid.MachinesDeploy',
 		[model], default_timeout)!
@@ -13,10 +13,11 @@ pub fn (mut t TFGridClient) machines_get(model_name string) !MachinesResult {
 	], default_timeout)!
 }
 
-// Deletes a deployed machines given the name used when deploying. 
+// Deletes a deployed machines given the name used when deploying.
 pub fn (mut t TFGridClient) machines_delete(model_name string) ! {
-	_ := t.client.send_json_rpc[[]string, string]('tfgrid.MachinesDelete', [model_name],
-		default_timeout)!
+	_ := t.client.send_json_rpc[[]string, string]('tfgrid.MachinesDelete', [
+		model_name,
+	], default_timeout)!
 }
 
 // NOTE: not implemented

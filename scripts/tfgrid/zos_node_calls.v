@@ -21,7 +21,7 @@ pub fn (mut t TFGridClient) zos_system_hypervisor(request ZOSNodeRequest) !strin
 		[request], default_timeout)!
 }
 
-// Checks system DMI information for the selected ZOS node. 
+// Checks system DMI information for the selected ZOS node.
 pub fn (mut t TFGridClient) zos_system_dmi(request ZOSNodeRequest) !DMI {
 	return t.client.send_json_rpc[[]ZOSNodeRequest, DMI]('tfgrid.ZOSSystemDMI', [
 		request,
@@ -35,13 +35,13 @@ pub fn (mut t TFGridClient) zos_network_public_config(request ZOSNodeRequest) !P
 }
 
 // Returns all network interfaces of the selected ZOS node. It returns a map from interface name
-// to its IPs.  
+// to its IPs.
 pub fn (mut t TFGridClient) zos_network_interfaces(request ZOSNodeRequest) !map[string][]string {
 	return t.client.send_json_rpc[[]ZOSNodeRequest, map[string][]string]('tfgrid.ZOSNetworkInterfaces',
 		[request], default_timeout)!
 }
 
-// Returns a list of all the ports that are taken on the selected ZOS node. 
+// Returns a list of all the ports that are taken on the selected ZOS node.
 pub fn (mut t TFGridClient) zos_network_list_wg_ports(request ZOSNodeRequest) ![]u16 {
 	return t.client.send_json_rpc[[]ZOSNodeRequest, []u16]('tfgrid.ZOSNetworkListWGPorts',
 		[request], default_timeout)!
@@ -53,21 +53,21 @@ pub fn (mut t TFGridClient) zos_node_statistics(request ZOSNodeRequest) !Statist
 		[request], default_timeout)!
 }
 
-// Returns all workload changes over the lifetime of the deployment. 
+// Returns all workload changes over the lifetime of the deployment.
 pub fn (mut t TFGridClient) zos_deployment_changes(request ZOSNodeRequest) ![]Workload {
 	wls := t.client.send_json_rpc[[]ZOSNodeRequest, []WorkloadRaw]('tfgrid.ZOSDeploymentChanges',
 		[request], default_timeout)!
 	return decode_workloads(wls)!
 }
 
-// Updates a deployment on a node given new deployment data. 
+// Updates a deployment on a node given new deployment data.
 pub fn (mut t TFGridClient) zos_deployment_update(request ZOSNodeRequest) ! {
 	t.client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentUpdate', [
 		request,
 	], default_timeout)!
 }
 
-// Deletes a deployment on a ZOS node. 
+// Deletes a deployment on a ZOS node.
 pub fn (mut t TFGridClient) zos_deployment_delete(request ZOSNodeRequest) ! {
 	t.client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentDelete', [
 		request,
