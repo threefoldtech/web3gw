@@ -20,6 +20,17 @@ pub:
 	workloads             []Workload           [json: 'workloads']
 }
 
+struct DeploymentRaw {
+	version               u32                  [json: 'version']
+	twin_id               u32                  [json: 'twin_id']
+	contract_id           u64                  [json: 'contract_id']
+	metadata              string               [json: 'metadata']
+	description           string               [json: 'description']
+	expiration            i64                  [json: 'expiration']
+	signature_requirement SignatureRequirement [json: 'signature_requirement']
+	workloads             []WorkloadRaw        [json: 'workloads']
+}
+
 pub struct SignatureRequirement {
 pub:
 	requests        []SignatureRequest [json: 'requests']
@@ -44,22 +55,55 @@ pub:
 
 pub struct Workload {
 pub:
-	version       u32    [json: 'version']
-	name          string [json: 'name']
-	workload_type string [json: 'type']
-	data          string [json: 'data'; raw]
-	metadata      string [json: 'metadata']
-	description   string [json: 'description']
-	result        Result [json: 'result']
+	version       u32          [json: 'version']
+	name          string       [json: 'name']
+	workload_type string       [json: 'type']
+	data          WorkloadData [json: 'data']
+	metadata      string       [json: 'metadata']
+	description   string       [json: 'description']
+	result        Result       [json: 'result']
 }
+
+struct WorkloadRaw {
+	version       u32       [json: 'version']
+	name          string    [json: 'name']
+	workload_type string    [json: 'type']
+	data          string    [json: 'data'; raw]
+	metadata      string    [json: 'metadata']
+	description   string    [json: 'description']
+	result        ResultRaw [json: 'result']
+}
+
+type WorkloadData = GatewayFQDNProxyWorkload
+	| GatewayNameProxyWorkload
+	| NetworkWorkload
+	| PublicIP
+	| ZDBWorkload
+	| ZMachine
+	| ZMount
+	| Zlogs
 
 struct Result {
 pub:
+	created i64        [json: 'created']
+	state   string     [json: 'state']
+	message string     [json: 'message']
+	data    ResultData [json: 'data']
+}
+
+struct ResultRaw {
 	created i64    [json: 'created']
 	state   string [json: 'state']
 	message string [json: 'message']
 	data    string [json: 'data'; raw]
 }
+
+type ResultData = GatewayNameProxyResult
+	| PublicIPResult
+	| ZDBResult
+	| ZDBResultData
+	| ZMachineResult
+	| string
 
 pub struct SystemVersion {
 pub:

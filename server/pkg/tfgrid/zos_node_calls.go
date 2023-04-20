@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net"
-	"strconv"
 
 	"github.com/pkg/errors"
 	client "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
@@ -29,10 +28,6 @@ func (c *Client) ZOSDeploymentDeploy(ctx context.Context, request ZOSNodeRequest
 	dl := gridtypes.Deployment{}
 	if err := json.Unmarshal(request.Data, &dl); err != nil {
 		return errors.Wrap(err, "failed to parse deployment data")
-	}
-
-	if err := unquoteWorkloadsData(&dl); err != nil {
-		return err
 	}
 
 	return state.cl.ZOSDeploymentDeploy(ctx, request.NodeID, dl)
@@ -75,10 +70,6 @@ func (c *Client) ZOSDeploymentUpdate(ctx context.Context, request ZOSNodeRequest
 	dl := gridtypes.Deployment{}
 	if err := json.Unmarshal(request.Data, &dl); err != nil {
 		return errors.Wrap(err, "failed to parse deployment data")
-	}
-
-	if err := unquoteWorkloadsData(&dl); err != nil {
-		return err
 	}
 
 	return state.cl.ZOSDeploymentUpdate(ctx, request.NodeID, dl)
@@ -214,16 +205,4 @@ func (c *Client) ZOSNetworkGetPublicExitDevice(ctx context.Context, request ZOSN
 	}
 
 	return state.cl.ZOSNetworkGetPublicExitDevice(ctx, request.NodeID)
-}
-
-func unquoteWorkloadsData(dl *gridtypes.Deployment) error {
-	for idx := range dl.Workloads {
-		s, err := strconv.Unquote(string(dl.Workloads[idx].Data))
-		if err != nil {
-			return errors.Wrapf(err, "failed to unqouted workload %s data", dl.Workloads[idx].Name.String())
-		}
-		dl.Workloads[idx].Data = []byte(s)
-	}
-
-	return nil
 }
