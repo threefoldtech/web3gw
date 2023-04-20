@@ -30,6 +30,11 @@ type (
 		network  string
 	}
 
+	Load struct {
+		Network  string `json:"network"`
+		Mnemonic string `json:"mnemonic"`
+	}
+
 	Transfer struct {
 		Amount      uint64 `json:"amount"`
 		Destination string `json:"destination"`
@@ -64,8 +69,8 @@ type (
 	}
 
 	ServiceContractCreate struct {
-		Service  substrate.AccountID `json:"service"`
-		Consumer substrate.AccountID `json:"consumer"`
+		Service  string `json:"service"`
+		Consumer string `json:"consumer"`
 	}
 
 	ServiceContractBill struct {
@@ -118,8 +123,8 @@ func tfchainNetworkFromNetworkString(ntwrk string) (string, error) {
 }
 
 // Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given mnemonic
-func (c *Client) Load(ctx context.Context, network string, passphrase string) error {
-	url, err := tfchainNetworkFromNetworkString(network)
+func (c *Client) Load(ctx context.Context, args Load) error {
+	url, err := tfchainNetworkFromNetworkString(args.Network)
 	if err != nil {
 		return err
 	}
@@ -130,7 +135,7 @@ func (c *Client) Load(ctx context.Context, network string, passphrase string) er
 		return err
 	}
 
-	identity, err := substrate.NewIdentityFromSr25519Phrase(passphrase)
+	identity, err := substrate.NewIdentityFromSr25519Phrase(args.Mnemonic)
 	if err != nil {
 		return err
 	}
@@ -138,7 +143,7 @@ func (c *Client) Load(ctx context.Context, network string, passphrase string) er
 	ts := tfchainState{
 		client:   substrateConnection,
 		identity: &identity,
-		network:  network,
+		network:  args.Network,
 	}
 
 	c.state.Set(state.IDFromContext(ctx), ts)
@@ -254,6 +259,7 @@ func (c *Client) CreateNode(ctx context.Context, node *substrate.Node) (uint32, 
 	if !ok || state.client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
+
 	return state.client.CreateNode(*state.identity, *node)
 }
 
@@ -353,7 +359,17 @@ func (c *Client) ServiceContractCreate(ctx context.Context, args ServiceContract
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractCreate(*state.identity, args.Service, args.Consumer)
+	accountIdService, err := substrate.FromAddress(args.Service)
+	if err != nil {
+		return 0, err
+	}
+
+	accountIdConsumer, err := substrate.FromAddress(args.Consumer)
+	if err != nil {
+		return 0, err
+	}
+
+	return state.client.ServiceContractCreate(*state.identity, accountIdService, accountIdConsumer)
 }
 
 func (c *Client) ServiceContractApprove(ctx context.Context, contract_id uint64) error {
