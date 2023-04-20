@@ -311,7 +311,7 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 	client.zos_deployment_delete(request)!
 }
 
-fn test_nodes(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_nodes(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	node_filters := explorer.NodeFilter{
 		node_id: 11
 	}
@@ -328,7 +328,7 @@ fn test_nodes(mut client explorer.Explorer, mut logger log.Logger) ! {
 	logger.info("nodes: ${nodes}")
 }
 
-fn test_farms(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_farms(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	farm_filters := explorer.FarmFilter{
 		farm_id: 1
 	}
@@ -342,7 +342,7 @@ fn test_farms(mut client explorer.Explorer, mut logger log.Logger) ! {
 	logger.info("farms: ${farms}")
 }
 
-fn test_contracts(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_contracts(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	contract_filters := explorer.ContractFilter{
 		contract_id: 4523
 	}
@@ -359,7 +359,7 @@ fn test_contracts(mut client explorer.Explorer, mut logger log.Logger) ! {
 	logger.info("contracts: ${contracts}")
 }
 
-fn test_twins(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_twins(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	twin_filters := explorer.TwinFilter{
 		twin_id: 29
 	}
@@ -374,17 +374,17 @@ fn test_twins(mut client explorer.Explorer, mut logger log.Logger) ! {
 	logger.info("twins: ${twins}")
 }
 
-fn test_node(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_node(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	node := client.node(11)!
 	logger.info("node: ${node}")
 }
 
-fn test_node_status(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_node_status(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	status := client.node_status(11)!
 	logger.info("nodestatus: ${status}")
 }
 
-fn test_counters(mut client explorer.Explorer, mut logger log.Logger) ! {
+fn test_counters(mut client explorer.ExplorerClient, mut logger log.Logger) ! {
 	filters := explorer.StatsFilter{
 		status: 'up'
 	}
@@ -490,7 +490,7 @@ fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger, mnemonic 
 }
 
 fn execute_explorer_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
-	mut explorer_client := explorer.Explorer{client}
+	mut explorer_client := explorer.new(mut client)
 	explorer_client.load('dev')!
 
 	test_nodes(mut explorer_client, mut logger)!
@@ -534,9 +534,13 @@ fn main() {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
-	*/
 	
 	execute_rpcs_tfchain(mut myclient, mut logger, mnemonic) or {
+		logger.error("Failed executing calls: $err")
+		exit(1)
+	}
+	*/
+	execute_explorer_rpcs(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
