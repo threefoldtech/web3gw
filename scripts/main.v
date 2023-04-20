@@ -355,59 +355,18 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	}
 }
 
-fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
-	mut tfchain_client := tfchain.new(mut client)
-	tfchain_client.load("devnet", mnemonic)! // FILL IN YOUR MNEMONIC HERE
+fn execute_rpcs_tfchain(mut client RpcWsClient, mut logger log.Logger) ! {
+	tfchain.load(mut client, "devnet", "")! // FILL IN YOUR MNEMONIC HERE
+	tfchain.transfer(mut client, tfchain.Transfer{amount: 1000, destination: ""})! // FILL IN SOME DESTINATION
+	height := tfchain.height(mut client)!
+	println("Height is ${height}")
 
-	my_balance_before := tfchain_client.balance("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
-	logger.info("My balance before: ${my_balance_before}")
+	my_balance := tfchain.balance(mut client, "5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
+	println("My balance: ${my_balance}")
 
-	tfchain_client.transfer(tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
+	twin_32 := tfchain.get_twin(mut client, 32)! // decoding to json is not yet working but add --debug and you will see the received message from server
+	println("Twin with id 32: ${twin_32}")
 
-	my_balance := tfchain_client.balance("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
-	logger.info("My balance: ${my_balance}")
-
-	height := tfchain_client.height()!
-	logger.info("Height is ${height}")
-
-	twin_164 := tfchain_client.get_twin(164)! // decoding to json is not yet working but add --debug and you will see the received message from server
-	logger.info("Twin with id 164: ${twin_164}")
-
-	twin_id := tfchain_client.get_twin_by_pubkey("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")!
-	logger.info("Twin id is ${twin_id}")
-
-	node := tfchain_client.get_node(15)!
-	logger.info("Node with id 15: ${node}")
-
-	node_contracts_for_node_15 := tfchain_client.get_node_contracts(15)!
-	logger.info("Node contracts for node 15: ${node_contracts_for_node_15}")
-	
-	for contract_id in node_contracts_for_node_15[..5] {
-		logger.info("Getting contract ${contract_id}")
-		contract := tfchain_client.get_contract(contract_id)!
-		logger.info("Contract ${contract_id}: ${contract}")
-	}
-	if node_contracts_for_node_15.len > 0 {
-		tfchain_client.cancel_contract(node_contracts_for_node_15[0]) or {
-			if "$err".contains('TwinNotAuthorizedToCancelContract') {
-				logger.info("Can't cancel contract ${node_contracts_for_node_15[0]}. That's normal, it's not mine: $err")
-			} else{
-				return error("$err")
-			}
-		}
-	}
-
-	nodes := tfchain_client.get_nodes(1)!
-	logger.info("Nodes of farm 1: ${nodes}")
-
-	farm := tfchain_client.get_farm(1)!
-	logger.info("Farm with id 1: ${farm}")
-
-	farm_2 := tfchain_client.get_farm_by_name("Freefarm")!
-	logger.info("Farm with name Freefarm: ${farm_2}")
-
-	zos_version := tfchain_client.get_zos_version()!
-	logger.info("Zos version is: ${zos_version}")
 }
 
 fn main() {
@@ -418,7 +377,6 @@ fn main() {
 	fp.skip_executable()
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
-	mnemonic := fp.string('mnemonic', `m`, '', 'The mnemonic that will be used for your calls.')
 	_ := fp.finalize() or {
 		eprintln(err)
 		println(fp.usage())
@@ -441,7 +399,7 @@ fn main() {
 		exit(1)
 	}
 	*/
-	execute_rpcs_tfchain(mut myclient, mut logger, mnemonic) or {
+	execute_rpcs_tfchain(mut myclient, mut logger) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
