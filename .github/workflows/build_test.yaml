@@ -27,7 +27,7 @@ jobs:
         run: |
           v scripts/main.v
 
-      - name: Run Server
+      - name: Build Server
         run: |
           cd server
           go build
