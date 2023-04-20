@@ -1,7 +1,7 @@
 module tfgrid
 
 // NOTE: no need for this one
-
+/*
 pub struct Node {
 pub:
 	version           u32
@@ -28,3 +28,4 @@ pub:
 // todo: here we translate json, maybe can be done at golang side
 
 // what is purpose of this one!
+*/

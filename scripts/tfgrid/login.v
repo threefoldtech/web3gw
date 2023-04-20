@@ -1,14 +1,14 @@
 module tfgrid
 
-// the needed configurations for twin login
+// The credentials required before executing any other tfgrid rpc.
 pub struct Credentials {
-	mnemonic string // secret mnemonics
+	mnemonic string // secret mnemonic
 	network  string // grid network [dev, qa, test, main]
 }
 
-// load logins with twin credentials. must be executed on each session
-// - credentials: user mnemonics and grid network
-pub fn (mut client TFGridClient) load(credentials Credentials) ! {
-	_ := client.send_json_rpc[[]string, string]('tfgrid.Load', [credentials.mnemonic, credentials.network],
+// Loads the mnemonic into the session for a specific network. The call returns an error if the mnemonic or the
+// network is invalid. 
+pub fn (mut t TFGridClient) load(credentials Credentials) ! {
+	_ := t.client.send_json_rpc[[]string, string]('tfgrid.Load', [credentials.mnemonic, credentials.network],
 		default_timeout)!
 }

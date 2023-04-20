@@ -11,17 +11,10 @@ pub struct FilterOptions {
 	sru              u64  // free ssd storage on node in GB.
 }
 
-// the output result for filter_nodes
-pub struct FilterResult {
-	filter_options  FilterOptions // the passed request filters.
-	available_nodes []u32 // list of available nodes ids.
-}
-
-// filter_nodes is filters the grid nodes with farmerbot or gridproxy
-// - filters: instance of FilterOptions
-// returns list of available nodes ids and the filters
-pub fn (mut client TFGridClient) filter_nodes(filters FilterOptions) !FilterResult {
-	return client.send_json_rpc[[]FilterOptions, FilterResult]('tfgrid.FilterNodes', [
+// This call can be used to filter nodes on specific options such as the available memory, cores, etc. It
+// returns list of available nodes (their id).
+pub fn (mut t TFGridClient) filter_nodes(filters FilterOptions) ![]u32 {
+	return t.client.send_json_rpc[[]FilterOptions, []u32]('tfgrid.FilterNodes', [
 		filters,
 	], default_timeout)
 }

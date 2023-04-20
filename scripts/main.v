@@ -1,13 +1,12 @@
 module main
 
-import freeflowuniverse.crystallib.rpcwebsocket
+import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import stellar
 import tfgrid
 import flag
 import log
 import os
 import time
-import json
 
 const (
 	default_server_address = 'http://127.0.0.1:8080'
@@ -310,44 +309,46 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 	client.zos_deployment_delete(request)!
 }
 
-fn execute_rpcs(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
+	mut tfgrid_client := tfgrid.new(mut client)
+
 	// ADD YOUR CALLS HERE
-	client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Credentials{
 		mnemonic: '' // FILL IN YOUR MNEMONIC HERE
 		network: 'dev'
 	})!
 
-	// test_machines_ops(mut client, mut logger) or {
+	// test_machines_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing machines ops: $err")
 	// 	exit(1)
 	// }
 
-	// test_k8s_ops(mut client, mut logger) or {
+	// test_k8s_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing k8s ops: $err")
 	// 	exit(1)
 	// }
 
-	// test_zdb_ops(mut client, mut logger) or {
+	// test_zdb_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing zdb ops: $err")
 	// 	exit(1)
 	// }
 
-	// test_name_gw_ops(mut client, mut logger) or {
+	// test_name_gw_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing name gw ops: $err")
 	// 	exit(1)
 	// }
 
-	// test_fqdn_gw_ops(mut client, mut logger) or {
+	// test_fqdn_gw_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing fqdn gw ops: $err")
 	// 	exit(1)
 	// }
 
-	// test_capacity_filter(mut client, mut logger) or {
+	// test_capacity_filter(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing capacity filter: $err")
 	// 	exit(1)
 	// }
 
-	test_zos_node_calls(mut client, mut logger) or {
+	test_zos_node_calls(mut tfgrid_client, mut logger) or {
 		logger.error('Failed executing zos node calls: ${err}')
 		exit(1)
 	}
@@ -376,9 +377,8 @@ fn main() {
 		exit(1)
 	}
 
-	mut tfgrid_client := tfgrid.TFGridClient{myclient}
 	_ := spawn myclient.run() // QUESTION: why is that in thread?
-	execute_rpcs(mut tfgrid_client, mut logger) or {
+	execute_rpcs(mut myclient, mut logger) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}

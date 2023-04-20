@@ -1,6 +1,6 @@
 module tfgrid
 
-// a request that contains zos node calls information
+// A request that contains zos node calls information
 pub struct ZOSNodeRequest {
 pub:
 	node_id u32                [json: 'node_id'] // node id of the desired node
@@ -121,7 +121,7 @@ pub:
 	zinit string [json: 'zinit'] // zinit version
 }
 
-// contains DMI information of the node
+// Contains DMI information of the node
 pub struct DMI {
 pub:
 	tooling  Tooling   [json: 'tooling']
