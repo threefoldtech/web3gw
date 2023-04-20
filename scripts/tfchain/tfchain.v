@@ -41,18 +41,6 @@ pub struct AcceptTermsAndConditions {
 }
 
 [params]
-pub struct CreateNode {
-	twin_id u32
-	farm_id u32
-	resources Resources
-	location Location
-	interfaces []Interface
-	secure_boot bool
-	virtualized bool
-	board_serial OptionBoardSerial
-}
-
-[params]
 pub struct GetContractWithHash {
 	node_id u32
 	hash    []byte
@@ -170,13 +158,6 @@ pub fn (mut t TfChainClient) accept_terms_and_conditions(args AcceptTermsAndCond
 // Get a node by id.
 pub fn (mut t TfChainClient) get_node(id u32) !Node {
 	return t.client.send_json_rpc[[]u32, Node]('tfchain.GetNode', [id], tfchain.default_timeout)!
-}
-
-// Create a node. Provide the twin id, farm id, resources (cru, hru, mru, sru), location (city, country,
-// latitude, longitude), interfaces, secure_boot, virtualized and board serial of the node. Returns the 
-// node id of the created node. 
-pub fn (mut t TfChainClient) create_node(args CreateNode) !u32 {
-	return t.client.send_json_rpc[[]CreateNode, u32]('tfchain.CreateNode', [args], tfchain.default_timeout)!
 }
 
 // Get the nodes that belong to the farm with id. Returns a list of node ids. 
