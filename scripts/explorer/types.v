@@ -20,6 +20,26 @@ pub struct ContractsRequestParams {
 	pagination Limit
 }
 
+pub struct NodesResult  {
+	nodes      []Node 
+	total_count int  
+}
+
+pub struct FarmsResult  {
+	farms      []Farm 
+	total_count int  
+}
+
+pub struct TwinsResult  {
+	twins      []Twin 
+	total_count int  
+}
+
+pub struct ContractsResult  {
+	contracts      []Contract 
+	total_count int  
+}
+
 pub struct Node {
 	id                 string       [json: 'id']
 	node_id            int          [json: 'nodeId']
