@@ -79,16 +79,16 @@ pub fn (mut client TFGridClient) zos_deployment_changes(request ZOSNodeRequest) 
 
 // zos_deployment_update updates a deployment on a node
 // - request: node id, and new deployment object
-// returns 
+// returns
 pub fn (mut client TFGridClient) zos_deployment_update(request ZOSNodeRequest) ! {
 	client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentUpdate', [
 		request,
 	], default_timeout)!
 }
 
-// zos_deployment_delete deletes a deployment on a node, 
+// zos_deployment_delete deletes a deployment on a node,
 // - request: node id, and deployment contract id
-// returns 
+// returns
 pub fn (mut client TFGridClient) zos_deployment_delete(request ZOSNodeRequest) ! {
 	client.send_json_rpc[[]ZOSNodeRequest, string]('tfgrid.ZOSDeploymentDelete', [
 		request,

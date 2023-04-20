@@ -1,23 +1,25 @@
 module tfgrid
 
+// a request that contains zos node calls information
 pub struct ZOSNodeRequest {
 pub:
-	node_id u32                [json: 'node_id']
-	data    ZOSNodeRequestData [json: 'data']
+	node_id u32                [json: 'node_id'] // node id of the desired node
+	data    ZOSNodeRequestData [json: 'data'] // data of the request, could be a Deployment or a contract id
 }
 
 type ZOSNodeRequestData = Deployment | u64
 
+// Deployment is a ZOS deployment structure
 pub struct Deployment {
 pub:
-	version               u32                  [json: 'version']
-	twin_id               u32                  [json: 'twin_id']
-	contract_id           u64                  [json: 'contract_id']
-	metadata              string               [json: 'metadata']
-	description           string               [json: 'description']
-	expiration            i64                  [json: 'expiration']
-	signature_requirement SignatureRequirement [json: 'signature_requirement']
-	workloads             []Workload           [json: 'workloads']
+	version               u32                  [json: 'version'] // deployment version
+	twin_id               u32                  [json: 'twin_id'] // twin id of the user
+	contract_id           u64                  [json: 'contract_id'] // contract id of the deployment
+	metadata              string               [json: 'metadata'] // metdata of the deployment
+	description           string               [json: 'description'] //  description is human readable description of the deployment
+	expiration            i64                  [json: 'expiration'] // expiration [deprecated] is not used
+	signature_requirement SignatureRequirement [json: 'signature_requirement'] // signature specifications
+	workloads             []Workload           [json: 'workloads'] // workloads is a list of workloads associated with this deployment
 }
 
 struct DeploymentRaw {
@@ -31,37 +33,42 @@ struct DeploymentRaw {
 	workloads             []WorkloadRaw        [json: 'workloads']
 }
 
+// SignatureRequirement struct describes the signatures that are needed to be valid
+// for the node to accept the deployment
 pub struct SignatureRequirement {
 pub:
-	requests        []SignatureRequest [json: 'requests']
-	weight_required u32                [json: 'weight_required']
-	signatures      []Signature        [json: 'signatures']
+	requests        []SignatureRequest [json: 'requests'] // signature requests
+	weight_required u32                [json: 'weight_required'] // basically describes how many signatures are required
+	signatures      []Signature        [json: 'signatures'] // list of actual signatures
 	signature_style string             [json: 'signature_style']
 }
 
+// SignatureRequest describes which twin should sign the deployment and how much this signature weighs
 pub struct SignatureRequest {
 pub:
-	twin_id  u32  [json: 'twin_id']
-	required bool [json: 'required']
-	weight   u32  [json: 'weight']
+	twin_id  u32  [json: 'twin_id'] // twin id of the signer
+	required bool [json: 'required'] // true if this twin is required to sign the deployment
+	weight   u32  [json: 'weight'] // weight of this signature
 }
 
+// Signature contains actual signature information
 pub struct Signature {
 pub:
-	twin_id        u32    [json: 'twin_id']
-	signature      string [json: 'signature']
-	signature_type string [json: 'signature_type']
+	twin_id        u32    [json: 'twin_id'] // twin id of the signer
+	signature      string [json: 'signature'] // signature string
+	signature_type string [json: 'signature_type'] // signature style
 }
 
+// Workload contains workload information
 pub struct Workload {
 pub:
-	version       u32          [json: 'version']
-	name          string       [json: 'name']
-	workload_type string       [json: 'type']
-	data          WorkloadData [json: 'data']
-	metadata      string       [json: 'metadata']
-	description   string       [json: 'description']
-	result        Result       [json: 'result']
+	version       u32          [json: 'version'] // workload verison
+	name          string       [json: 'name'; required] // workload name, must be unique per deployment
+	workload_type string       [json: 'type'] // Type of the workload (zmachine, zdb, vm, etc...)
+	data          WorkloadData [json: 'data'] // contains the workload type arguments.
+	metadata      string       [json: 'metadata'] // metadata is user specific meta attached to deployment
+	description   string       [json: 'description'] // human readale description of the workload
+	result        Result       [json: 'result'] // result of reservation, set by the node
 }
 
 struct WorkloadRaw {
@@ -83,12 +90,14 @@ type WorkloadData = GatewayFQDNProxyWorkload
 	| ZMount
 	| Zlogs
 
+// Result is the struct filled by the node
+// after a reservation object has been processed
 struct Result {
 pub:
-	created i64        [json: 'created']
-	state   string     [json: 'state']
-	message string     [json: 'message']
-	data    ResultData [json: 'data']
+	created i64        [json: 'created'] // Time when the result is sent
+	state   string     [json: 'state'] // state ate of the deployment (ok,error, ...)
+	message string     [json: 'message'] // if State is "error", then this field contains the error, otherwise it's nil
+	data    ResultData [json: 'data'] // data is the information generated by the provisioning of the workload, its type depend on the reservation type
 }
 
 struct ResultRaw {
@@ -105,12 +114,14 @@ type ResultData = GatewayNameProxyResult
 	| ZMachineResult
 	| string
 
+// SystemVersion contains system version information
 pub struct SystemVersion {
 pub:
-	zos   string [json: 'zos']
-	zinit string [json: 'zinit']
+	zos   string [json: 'zos'] // zos version
+	zinit string [json: 'zinit'] // zinit version
 }
 
+// contains DMI information of the node
 pub struct DMI {
 pub:
 	tooling  Tooling   [json: 'tooling']
@@ -139,20 +150,23 @@ struct PropertyData {
 	items []string [json: 'items']
 }
 
+// PublicConfig is the configuration of the interface
+// that is connected to the public internet
 pub struct PublicConfig {
 pub:
-	type_  string [json: 'type']
+	type_  string [json: 'type'] // Type define if we need to use the Vlan field or the MacVlan
 	ipv4   string [json: 'ipv4']
 	ipv6   string [json: 'ipv6']
 	gw4    string [json: 'gw4']
 	gw6    string [json: 'gw6']
-	domain string [json: 'domain']
+	domain string [json: 'domain'] // Domain is the node domain name like gent01.devnet.grid.tf or similar
 }
 
+// Statistics contains some info about the node like total and used resources
 pub struct Statistics {
 pub:
-	total Capacity [json: 'total']
-	used  Capacity [json: 'used']
+	total Capacity [json: 'total'] // total resources of the node
+	used  Capacity [json: 'used'] // used resources of the node
 }
 
 struct Capacity {
