@@ -3,11 +3,12 @@ module github.com/threefoldtech/web3_proxy/server
 go 1.20
 
 require (
-	github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7
+	github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
+	github.com/nbd-wtf/go-nostr v0.16.11
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
@@ -24,7 +25,10 @@ require (
 
 require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
+	github.com/SaveTheRbtz/generic-sync-map-go v0.0.0-20220414055132-a37292614db8 // indirect
+	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
+	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
@@ -68,6 +72,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
+	github.com/valyala/fastjson v1.6.3 // indirect
 	github.com/vedhavyas/go-subkey v1.0.3 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
@@ -75,6 +80,7 @@ require (
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
+	golang.org/x/exp v0.0.0-20230206171751-46f607a40771 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
