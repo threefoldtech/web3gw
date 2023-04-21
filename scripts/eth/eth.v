@@ -7,6 +7,12 @@ const (
 )
 
 [params]
+pub struct Load {
+	url string
+	secret string
+}
+
+[params]
 pub struct Transfer {
 	destination string
 	amount i64
@@ -119,8 +125,8 @@ pub fn new(mut client RpcWsClient) EthClient {
 
 // CORE
 
-pub fn (mut e EthClient) load(url string, secret string) ! {
-	_ := e.client.send_json_rpc[[]string, string]('eth.Load', [url, secret], eth.default_timeout)!
+pub fn (mut e EthClient) load(args Load) ! {
+	_ := e.client.send_json_rpc[[]Load, string]('eth.Load', [args], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) transer(args Transfer) !string {

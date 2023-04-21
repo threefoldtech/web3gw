@@ -18,6 +18,11 @@ type (
 		client *goethclient.Client
 	}
 
+	Load struct {
+		Url    string `json:"url"`
+		Secret string `json:"secret"`
+	}
+
 	Transfer struct {
 		Amount      int64  `json:"amount"`
 		Destination string `json:"destination"`
@@ -32,8 +37,8 @@ func NewClient() *Client {
 }
 
 // Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given secret
-func (c *Client) Load(ctx context.Context, url string, secret string) error {
-	cl, err := goethclient.NewClient(url, secret)
+func (c *Client) Load(ctx context.Context, args Load) error {
+	cl, err := goethclient.NewClient(args.Url, args.Secret)
 	if err != nil {
 		return err
 	}
