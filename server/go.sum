@@ -4,6 +4,10 @@ github.com/ChainSafe/go-schnorrkel v1.0.0 h1:3aDA67lAykLaG1y3AOjs88dMxC88PgUuHRr
 github.com/ChainSafe/go-schnorrkel v1.0.0/go.mod h1:dpzHYVxLZcp8pjlV+O+UR8K0Hp/z7vcchBSbMBEhCw4=
 github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7 h1:fsjxi0WYF+IGdcIyy8P18rdKaiI2uD/xG69pmfB4FS0=
 github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7/go.mod h1:iLgTxMgzjJVm4Op6Ws8qXUgjPojQIrcXi3X4oIkllkU=
+github.com/LeeSmet/go-jsonrpc v0.0.0-20230420162030-cc42f6656da8 h1:vExxmx/7te5uL8vpCQM7oQEC1roTcKtUuOuepyGCVAI=
+github.com/LeeSmet/go-jsonrpc v0.0.0-20230420162030-cc42f6656da8/go.mod h1:iLgTxMgzjJVm4Op6Ws8qXUgjPojQIrcXi3X4oIkllkU=
+github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb h1:/2hRGzqujnvMJQ1x3pB8ZpwO6/pNsR3BjbB+Q4o9054=
+github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb/go.mod h1:iLgTxMgzjJVm4Op6Ws8qXUgjPojQIrcXi3X4oIkllkU=
 github.com/SaveTheRbtz/generic-sync-map-go v0.0.0-20220414055132-a37292614db8 h1:Xa6tp8DPDhdV+k23uiTC/GrAYOe4IdyJVKtob4KW3GA=
 github.com/SaveTheRbtz/generic-sync-map-go v0.0.0-20220414055132-a37292614db8/go.mod h1:ihkm1viTbO/LOsgdGoFPBSvzqvx7ibvkMzYp3CgtHik=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=

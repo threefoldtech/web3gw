@@ -3,7 +3,7 @@ module github.com/threefoldtech/web3_proxy/server
 go 1.20
 
 require (
-	github.com/LeeSmet/go-jsonrpc v0.0.0-20230328142836-3e61d560b1c7
+	github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/pkg/errors v0.9.1
 	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
