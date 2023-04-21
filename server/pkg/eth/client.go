@@ -17,6 +17,11 @@ type (
 	ethState struct {
 		client *goethclient.Client
 	}
+
+	Transfer struct {
+		Amount      int64  `json:"amount"`
+		Destination string `json:"destination"`
+	}
 )
 
 // NewClient creates a new Client ready for use
@@ -68,11 +73,11 @@ func (c *Client) Height(ctx context.Context) (uint64, error) {
 }
 
 // Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
-func (c *Client) Transfer(ctx context.Context, amount int64, destination string) (string, error) {
+func (c *Client) Transfer(ctx context.Context, args Transfer) (string, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.TransferEth(amount, destination)
+	return state.client.TransferEth(args.Amount, args.Destination)
 }
