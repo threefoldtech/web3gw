@@ -2,17 +2,21 @@ package nostr
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/clients/nostr"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
-	"github.com/threefoldtech/web3_proxy/server/pkg/state"
+)
+
+const (
+	// NostrID is the ID for state of a nostr client in the connection state.
+	NostrID = "nostr"
 )
 
 type (
 	// Client exposes nostr related functionality
 	Client struct {
-		state *state.StateManager[nostrState]
+		server *nostr.Server
 	}
 	// state managed by nostr client
 	nostrState struct {
@@ -20,41 +24,54 @@ type (
 	}
 )
 
+// State from a connection. If no state is present, it is initialized
+func State(conState jsonrpc.State) *nostrState {
+	raw, exists := conState[NostrID]
+	if !exists {
+		ns := &nostrState{
+			client: nil,
+		}
+		conState[NostrID] = ns
+		return ns
+	}
+	ns, ok := raw.(*nostrState)
+	if !ok {
+		// This means the invariant is violated, so panic here is ok
+		panic("Invalid saved state for nostr")
+	}
+	return ns
+}
+
 func NewClient() *Client {
 	return &Client{
-		state: state.NewStateManager[nostrState](),
+		server: nostr.NewServer(),
 	}
 }
 
-func (c *Client) Load(ctx context.Context, secret string) error {
-	srv := nostr.NewServer()
-
-	cl, err := srv.NewClient(secret)
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, secret string) error {
+	cl, err := c.server.NewClient(secret)
 	if err != nil {
 		return err
 	}
 
-	ns := nostrState{
-		client: cl,
-	}
-
-	c.state.Set(state.IDFromContext(ctx), ns)
+	state := State(conState)
+	state.client = cl
 
 	return nil
 }
 
-func (c *Client) ConnectAuthRelay(ctx context.Context, url string) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) ConnectAuthRelay(ctx context.Context, conState jsonrpc.State, url string) error {
+	state := State(conState)
+	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.ConnectAuthRelay(ctx, url)
 }
 
-func (c *Client) ConnectRelay(ctx context.Context, url string) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) ConnectRelay(ctx context.Context, conState jsonrpc.State, url string) error {
+	state := State(conState)
+	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -65,9 +82,9 @@ func (c *Client) GenerateKeyPair(ctx context.Context) (string, error) {
 	return nostr.GenerateKeyPair(), nil
 }
 
-func (c *Client) ConnectToRelay(ctx context.Context, url string) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) ConnectToRelay(ctx context.Context, conState jsonrpc.State, url string) error {
+	state := State(conState)
+	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -79,27 +96,27 @@ type EventInput struct {
 	Content string   `json:"content"`
 }
 
-func (c *Client) PublishEventToRelays(ctx context.Context, input EventInput) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) PublishEventToRelays(ctx context.Context, conState jsonrpc.State, input EventInput) error {
+	state := State(conState)
+	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.PublishTextNote(ctx, input.Tags, input.Content)
 }
 
-func (c *Client) SubscribeRelays(ctx context.Context) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) SubscribeRelays(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.SubscribeRelays()
 }
 
-func (c *Client) CloseSubscription(ctx context.Context, id string) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) CloseSubscription(ctx context.Context, conState jsonrpc.State, id string) error {
+	state := State(conState)
+	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -108,24 +125,22 @@ func (c *Client) CloseSubscription(ctx context.Context, id string) error {
 	return nil
 }
 
-func (c *Client) GetSubscriptionIds(ctx context.Context) ([]string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) GetSubscriptionIds(ctx context.Context, conState jsonrpc.State) ([]string, error) {
+	state := State(conState)
+	if state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.SubscriptionIds(), nil
 }
 
-func (c *Client) GetEvents(ctx context.Context) ([]nostr.NostrEvent, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) GetEvents(ctx context.Context, conState jsonrpc.State) ([]nostr.NostrEvent, error) {
+	state := State(conState)
+	if state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
 	evs := state.client.GetEvents()
-
-	fmt.Printf("events: %v", evs)
 
 	return evs, nil
 }
