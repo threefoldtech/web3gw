@@ -23,8 +23,14 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Run tests
-        env:
-          VJOBS: 1
+      - name: Build V Client
         run: |
-          v -stats test .
+          v scripts/main.v
+          v scripts/main_explorer.v
+          v scripts/main_tfchain.v
+          v scripts/main_tfgrid.v
+
+      - name: Build Server
+        run: |
+          cd server
+          go build

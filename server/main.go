@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/LeeSmet/go-jsonrpc"
-	tfgridBase "github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
+	"github.com/threefoldtech/web3_proxy/server/pkg/explorer"
 	"github.com/threefoldtech/web3_proxy/server/pkg/nostr"
 	"github.com/threefoldtech/web3_proxy/server/pkg/stellar"
 	"github.com/threefoldtech/web3_proxy/server/pkg/tfchain"
@@ -19,7 +19,6 @@ func main() {
 	errors := jsonrpc.NewErrors()
 	errors.Register(-1001, &pkg.ErrClientNotConnected{})
 	errors.Register(-2001, &stellar.ErrUnknownNetwork{})
-	errors.Register(-4001, &tfgridBase.ErrUnknownNetwork)
 
 	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(errors))
 	rpcServer.Register("eth", eth.NewClient())
@@ -27,6 +26,7 @@ func main() {
 	rpcServer.Register("tfchain", tfchain.NewClient())
 	rpcServer.Register("tfgrid", tfgrid.NewClient())
 	rpcServer.Register("nostr", nostr.NewClient())
+	rpcServer.Register("explorer", explorer.NewClient())
 
 	http.HandleFunc("/", rpcServer.ServeHTTP)
 	http.ListenAndServe(":8080", nil)
