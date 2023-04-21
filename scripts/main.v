@@ -2,6 +2,8 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
+import eth
+import explorer
 import stellar
 import tfchain
 import tfgrid
