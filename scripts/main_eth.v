@@ -14,7 +14,7 @@ const (
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
 	mut eth_client := eth.new(mut client)
-	eth_client.load('', secret)!
+	eth_client.load(url:'', secret: secret)!
 
 	// TODO add calls here
 }
