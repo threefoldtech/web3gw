@@ -8,7 +8,6 @@ import stellar
 import tfchain
 import tfgrid
 import nostr
-import explorer
 //ADD NEW CLIENTS HERE
 
 import flag
