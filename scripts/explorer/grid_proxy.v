@@ -1,10 +1,22 @@
 module explorer
 
-import freeflowuniverse.crystallib.rpcwebsocket
+import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
 const (
 	default_timeout = 500000
 )
+
+[noinit]
+pub struct ExplorerClient {
+mut:
+	client &RpcWsClient
+}
+
+pub fn new(mut client RpcWsClient) ExplorerClient {
+	return ExplorerClient{
+		client: &client
+	}
+}
 
 // First call to make to initialize your session. Provide the network you want to use to do so.
 pub fn (mut e ExplorerClient) load(network string) ! {

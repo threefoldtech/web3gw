@@ -6,55 +6,56 @@ const (
 	default_timeout = 500000
 )
 
-pub fn load(mut client RpcWsClient, secret string) ! {
-	_ := client.send_json_rpc[[]string, string]('nostr.Load', [secret], default_timeout)!
-}
-
-pub fn connect_to_relay(mut client RpcWsClient, relayUrl string) ! {
-	_ := client.send_json_rpc[[]string, string]('nostr.ConnectRelay', [relayUrl], default_timeout)!
-}
-
-pub fn connect_to_auth_relay(mut client RpcWsClient, relayUrl string) ! {
-	_ := client.send_json_rpc[[]string, string]('nostr.ConnectAuthRelay', [relayUrl], default_timeout)!
-}
-
-pub fn generate_keypair(mut client RpcWsClient) !string {
-	return client.send_json_rpc[[]string, string]('nostr.GenerateKeyPair', []string{}, default_timeout)!
-}
-
+[params]
 pub struct RelayMessage {
 	tags []string
 	content string
 }
 
-pub fn publish_to_relays(mut client RpcWsClient, tags []string, content string) ! {
-	_ := client.send_json_rpc[[]RelayMessage, string]('nostr.PublishEventToRelays', [RelayMessage { tags: tags, content: content }], default_timeout)!
+[noinit]
+pub struct NostrClient {
+mut:
+	client &RpcWsClient
 }
 
-pub struct Event {
-	id        string
-	pubkey    string
-	created_at u64
-	kind      int
-	tags      []string
-	content   string
-	sig       string
-
-	// extra map[string]any
+pub fn new(mut client RpcWsClient) NostrClient {
+	return NostrClient{
+		client: &client
+	}
 }
 
-pub fn subscribe_to_relays(mut client RpcWsClient) ! {
-	_ := client.send_json_rpc[[]string, string]('nostr.SubscribeRelays', []string{}, default_timeout)!
+pub fn (mut n NostrClient) load(secret string) ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.Load', [secret], default_timeout)!
 }
 
-pub fn get_events(mut client RpcWsClient) ![]Event {
-	return client.send_json_rpc[[]string, []Event]('nostr.GetEvents', []string{}, default_timeout)!
+pub fn (mut n NostrClient) connect_to_relay(relay_url string) ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.ConnectRelay', [relay_url], default_timeout)!
 }
 
-pub fn close_subscription(mut client RpcWsClient, id string) ! {
-	_ := client.send_json_rpc[[]string, string]('nostr.CloseSubscription', [id], default_timeout)!
+pub fn (mut n NostrClient) connect_to_auth_relay(relay_url string) ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.ConnectAuthRelay', [relay_url], default_timeout)!
 }
 
-pub fn get_subscription_ids(mut client RpcWsClient) ![]string {
-	return client.send_json_rpc[[]string, []string]('nostr.GetSubscriptionIds', []string{}, default_timeout)!
+pub fn (mut n NostrClient) generate_keypair() !string {
+	return n.client.send_json_rpc[[]string, string]('nostr.GenerateKeyPair', []string{}, default_timeout)!
+}
+
+pub fn (mut n NostrClient) publish_to_relays(args RelayMessage) ! {
+	_ := n.client.send_json_rpc[[]RelayMessage, string]('nostr.PublishEventToRelays', [args], default_timeout)!
+}
+
+pub fn (mut n NostrClient) subscribe_to_relays() ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeRelays', []string{}, default_timeout)!
+}
+
+pub fn (mut n NostrClient) get_events() ![]Event {
+	return n.client.send_json_rpc[[]string, []Event]('nostr.GetEvents', []string{}, default_timeout)!
+}
+
+pub fn (mut n NostrClient) close_subscription(id string) ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.CloseSubscription', [id], default_timeout)!
+}
+
+pub fn (mut n NostrClient) get_subscription_ids() ![]string {
+	return n.client.send_json_rpc[[]string, []string]('nostr.GetSubscriptionIds', []string{}, default_timeout)!
 }

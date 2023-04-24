@@ -2,13 +2,7 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import eth
-import explorer
-import stellar
-import tfchain
-import tfgrid
 import nostr
-//ADD NEW CLIENTS HERE
 
 import flag
 import log
@@ -19,11 +13,37 @@ const (
 	default_server_address = 'http://127.0.0.1:8080'
 )
 
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
+	mut nostr_client := nostr.new(mut client)
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
-	// ADD YOUR CALLS HERE
+	key := if secret == "" {
+		k := nostr_client.generate_keypair()!
+		logger.info("Key: ${k}")
+		k
+	} else {
+		secret
+	}
+
+	nostr_client.load(key)!
+
+	nostr_client.connect_to_relay("ws://localhost:8081")!
+	nostr_client.subscribe_to_relays()!
+
+	nostr_client.publish_to_relays(tags: [""], content: "hello world 1!")!
+	nostr_client.publish_to_relays(tags: [""], content: "hello world 2!")!
+
+	time.sleep(5 * time.second)
+
+	events := nostr_client.get_events()!
+	logger.info("Events: ${events}")
+
+	// Close subscriptions
+	subscription_ids := nostr_client.get_subscription_ids()!
+	logger.info("Subscription IDs: ${subscription_ids}")
+	for id in subscription_ids {
+		nostr_client.close_subscription(id)!
+	}
 }
-
 
 fn main() {
 	mut fp := flag.new_flag_parser(os.args)
@@ -31,7 +51,7 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
-	mnemonic := fp.string('mnemonic', `m`, '', 'The mnemonic to be used to call any function')
+	secret := fp.string('secret', `s`, '', 'The secret to use for eth.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
@@ -48,8 +68,11 @@ fn main() {
 		logger.error('Failed creating rpc websocket client: ${err}')
 		exit(1)
 	}
+
 	_ := spawn myclient.run()
-	execute_rpcs(mut myclient, mut logger, mnemonic) or {
+	
+	
+	execute_rpcs(mut myclient, mut logger, secret) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

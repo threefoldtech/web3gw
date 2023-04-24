@@ -28,6 +28,7 @@ jobs:
           v scripts/main.v
           v scripts/main_eth.v
           v scripts/main_explorer.v
+          v scripts/main_nostr.v
           v scripts/main_tfchain.v
           v scripts/main_tfgrid.v
 
