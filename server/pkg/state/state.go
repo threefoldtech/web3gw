@@ -1,9 +1,10 @@
 package state
 
 import (
-	"fmt"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -71,16 +72,16 @@ func NewStateManager[S State]() *StateManager[S] {
 				if !open {
 					break
 				}
-				fmt.Println("Checking keys")
+				log.Debug().Msg("Checking keys")
 				//cleanse keys
 				sm.conStates.Range(func(key any, value any) bool {
 					meta, ok := value.(stateMeta[S])
 					if !ok {
-						fmt.Println("invalid state meta conversion in cleanup loop")
+						log.Debug().Msg("invalid state meta conversion in cleanup loop")
 						return true
 					}
 					if meta.accessed < time.Now().Unix()-int64(keyStaleMark.Seconds()) {
-						fmt.Println("Removing stale key", key)
+						log.Debug().Msgf("Removing stale key", key)
 						sm.conStates.Delete(key)
 					}
 					return true
@@ -90,7 +91,7 @@ func NewStateManager[S State]() *StateManager[S] {
 				break
 			}
 		}
-		fmt.Println("State manager background task closed")
+		log.Debug().Msg("State manager background task closed")
 	}()
 
 	return sm
