@@ -3,22 +3,54 @@ package ipfs
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 
+	"github.com/LeeSmet/go-jsonrpc"
 	ipfslite "github.com/hsanjuan/ipfs-lite"
 	"github.com/ipfs/go-cid"
 	"github.com/rs/zerolog/log"
 )
 
-type Client struct {
-	peer *ipfslite.Peer
+const (
+	// IpfsID is the ID for state of a ipfs client in the connection state.
+	IpfsID = "ipfs"
+)
+
+type (
+	// Client exposes ipfs related functionality
+	Client struct {
+		peer *ipfslite.Peer
+	}
+	// state managed by ipfs client
+	ipfsState struct {
+		cids map[string][]byte
+	}
+)
+
+// State from a connection. If no state is present, it is initialized
+func State(conState jsonrpc.State) *ipfsState {
+	raw, exists := conState[IpfsID]
+	if !exists {
+		ns := &ipfsState{
+			cids: make(map[string][]byte),
+		}
+		conState[IpfsID] = ns
+		return ns
+	}
+	ns, ok := raw.(*ipfsState)
+	if !ok {
+		// This means the invariant is violated, so panic here is ok
+		panic("Invalid saved state for ipfs")
+	}
+	return ns
 }
 
 func NewClient(peer *ipfslite.Peer) *Client {
 	return &Client{peer: peer}
 }
 
-func (c *Client) StoreFile(ctx context.Context, data []byte) (string, error) {
+func (c *Client) StoreFile(ctx context.Context, conState jsonrpc.State, data []byte) (string, error) {
 	node, err := c.peer.AddFile(ctx, bytes.NewReader(data), &ipfslite.AddParams{})
 	if err != nil {
 		return "", err
@@ -26,15 +58,25 @@ func (c *Client) StoreFile(ctx context.Context, data []byte) (string, error) {
 
 	log.Debug().Msgf("IPFS: stored file with contentId: %s", node.Cid().String())
 
+	state := State(conState)
+	state.cids[node.Cid().String()] = data
+
 	return node.Cid().String(), nil
 }
 
-func (c *Client) GetFile(ctx context.Context, contentId string) ([]byte, error) {
+func (c *Client) GetFile(ctx context.Context, conState jsonrpc.State, contentId string) ([]byte, error) {
 	log.Debug().Msgf("IPFS: trying to get file with contentId: %s", contentId)
 
 	cId, err := cid.Decode(contentId)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check if we have the content in our state
+	state := State(conState)
+	_, found := state.cids[contentId]
+	if !found {
+		return nil, errors.New("contentId not found in state")
 	}
 
 	node, err := c.peer.GetFile(ctx, cId)
@@ -65,4 +107,20 @@ func (c *Client) RemoveFile(ctx context.Context, contentId string) (bool, error)
 	}
 
 	return true, nil
+}
+
+func (c *Client) RemoveAllFiles(ctx context.Context, conState jsonrpc.State) error {
+	state := State(conState)
+	for id := range state.cids {
+		cId, err := cid.Decode(id)
+		if err != nil {
+			return err
+		}
+
+		err = c.peer.Remove(ctx, cId)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

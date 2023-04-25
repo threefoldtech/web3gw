@@ -25,6 +25,9 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 
 	removed := ipfs_client.remove_file(cid)!
 	logger.info("removed file?: ${removed}")
+
+	ipfs_client.remove_all_files()!
+	logger.info("example how to remove all files")
 }
 
 fn main() {
