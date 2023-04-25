@@ -23,6 +23,9 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	content := ipfs_client.get_file(cid)!
 	logger.info("content: ${base64.decode_str(content)}")
 
+	cids := ipfs_client.list_cids()!
+	logger.info("cids: ${cids}")
+
 	removed := ipfs_client.remove_file(cid)!
 	logger.info("removed file?: ${removed}")
 

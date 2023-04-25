@@ -50,6 +50,20 @@ func NewClient(peer *ipfslite.Peer) *Client {
 	return &Client{peer: peer}
 }
 
+// ListCids lists all CIDs stored in the ipfs client
+func (c *Client) ListCids(ctx context.Context, conState jsonrpc.State) ([]string, error) {
+	log.Debug().Msg("IPFS: listing file cids")
+
+	state := State(conState)
+	var cids []string
+	for cid := range state.cids {
+		cids = append(cids, cid)
+	}
+
+	return cids, nil
+}
+
+// StoreFile stores a file in the ipfs client
 func (c *Client) StoreFile(ctx context.Context, conState jsonrpc.State, data []byte) (string, error) {
 	node, err := c.peer.AddFile(ctx, bytes.NewReader(data), &ipfslite.AddParams{})
 	if err != nil {
@@ -64,6 +78,7 @@ func (c *Client) StoreFile(ctx context.Context, conState jsonrpc.State, data []b
 	return node.Cid().String(), nil
 }
 
+// GetFile gets a file from the ipfs client
 func (c *Client) GetFile(ctx context.Context, conState jsonrpc.State, contentId string) ([]byte, error) {
 	log.Debug().Msgf("IPFS: trying to get file with contentId: %s", contentId)
 
@@ -93,6 +108,7 @@ func (c *Client) GetFile(ctx context.Context, conState jsonrpc.State, contentId 
 	return content, nil
 }
 
+// RemoveFile removes a file from the ipfs client
 func (c *Client) RemoveFile(ctx context.Context, contentId string) (bool, error) {
 	log.Debug().Msgf("IPFS: trying to remove file with contentId: %s", contentId)
 
@@ -109,6 +125,7 @@ func (c *Client) RemoveFile(ctx context.Context, contentId string) (bool, error)
 	return true, nil
 }
 
+// RemoveAllFiles removes all files from the ipfs client
 func (c *Client) RemoveAllFiles(ctx context.Context, conState jsonrpc.State) error {
 	state := State(conState)
 	for id := range state.cids {

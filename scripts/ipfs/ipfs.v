@@ -37,3 +37,8 @@ pub fn (mut e IpfsClient) remove_file(cid string) !bool {
 pub fn (mut e IpfsClient) remove_all_files() ! {
 	_ := e.client.send_json_rpc[[]string, string]('ipfs.RemoveAllFiles', []string{}, ipfs.default_timeout)!
 }
+
+// list all cids from ipfs
+pub fn (mut e IpfsClient) list_cids() ![]string {
+	return e.client.send_json_rpc[[]string, []string]('ipfs.ListCids', []string{}, ipfs.default_timeout)!
+}
