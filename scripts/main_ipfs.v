@@ -7,6 +7,7 @@ import ipfs
 import flag
 import log
 import os
+import encoding.base64
 
 const (
 	default_server_address = 'http://127.0.0.1:8080'
@@ -20,7 +21,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
 	logger.info("cid: ${cid}")
 
 	content := ipfs_client.get_file(cid)!
-	logger.info("content: ${content.bytestr()}")
+	logger.info("content: ${base64.decode_str(content)}")
 
 	removed := ipfs_client.remove_file(cid)!
 	logger.info("removed file?: ${removed}")

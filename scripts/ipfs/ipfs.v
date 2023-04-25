@@ -22,8 +22,8 @@ pub fn (mut e IpfsClient) store_file(content []byte) !string {
 	return e.client.send_json_rpc[[][]byte, string]('ipfs.StoreFile', [content], ipfs.default_timeout)!
 }
 
-pub fn (mut e IpfsClient) get_file(cid string) ![]byte {
-	return e.client.send_json_rpc[[]string, []byte]('ipfs.GetFile', [cid], ipfs.default_timeout)!
+pub fn (mut e IpfsClient) get_file(cid string) !string {
+	return e.client.send_json_rpc[[]string, string]('ipfs.GetFile', [cid], ipfs.default_timeout)!
 }
 
 // remove file from ipfs
