@@ -214,7 +214,7 @@ func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags
 
 }
 
-// Subscribe to events on a relay
+// Subscribe to textnote events on a relay
 func (c *Client) SubscribeRelays() (string, error) {
 	relays := c.server.clientRelays(c.Id())
 	if len(relays) == 0 {
@@ -222,14 +222,9 @@ func (c *Client) SubscribeRelays() (string, error) {
 	}
 
 	var filters nostr.Filters
-	if _, v, err := nip19.Decode(c.Id()); err == nil {
-		// pub := v.(string)
-		t := make(map[string][]string)
-		t["p"] = []string{v.(string)}
-
+	if _, _, err := nip19.Decode(c.Id()); err == nil {
 		filters = []nostr.Filter{{
 			Kinds: []int{1},
-			// Tags:  t,
 			Limit: 1000,
 		}}
 	} else {
