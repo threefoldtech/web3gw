@@ -13,6 +13,7 @@ import (
 	"github.com/nbd-wtf/go-nostr/nip19"
 	"github.com/nbd-wtf/go-nostr/nip42"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type (
@@ -81,6 +82,10 @@ func (c *Client) Id() string {
 	}
 
 	return id
+}
+
+func (c *Client) PublicKey() string {
+	return c.pk
 }
 
 func (c *Client) ConnectRelay(ctx context.Context, relayURL string) error {
@@ -166,7 +171,7 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 			return errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
 		}
 
-		fmt.Printf("published event to relay: %+v\nSTATUS:%s\n", ev, status)
+		log.Debug().Str("component", "nostr").Msgf("published event to relay: %+v with status:%s", ev, status)
 
 		if status == nostr.PublishStatusFailed {
 			return ErrFailedToPublishEvent
@@ -209,7 +214,7 @@ func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags
 
 }
 
-// Subscribe to events on a relay
+// Subscribe to textnote events on a relay
 func (c *Client) SubscribeRelays() (string, error) {
 	relays := c.server.clientRelays(c.Id())
 	if len(relays) == 0 {
@@ -217,14 +222,9 @@ func (c *Client) SubscribeRelays() (string, error) {
 	}
 
 	var filters nostr.Filters
-	if _, v, err := nip19.Decode(c.Id()); err == nil {
-		// pub := v.(string)
-		t := make(map[string][]string)
-		t["p"] = []string{v.(string)}
-
+	if _, _, err := nip19.Decode(c.Id()); err == nil {
 		filters = []nostr.Filter{{
 			Kinds: []int{1},
-			// Tags:  t,
 			Limit: 1000,
 		}}
 	} else {
@@ -237,10 +237,10 @@ func (c *Client) SubscribeRelays() (string, error) {
 	buf := newEventBuffer()
 
 	for _, relay := range relays {
-		fmt.Printf("Connected to relay %s\n", relay.URL)
+		log.Debug().Msgf("NOSTR: Connected to relay %s", relay.URL)
 		sub, err := relay.Subscribe(ctx, filters)
 		if err != nil {
-			fmt.Println("error subscribing to relay")
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
 			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
 		}
 
@@ -248,12 +248,87 @@ func (c *Client) SubscribeRelays() (string, error) {
 
 		go func() {
 			<-sub.EndOfStoredEvents
-			fmt.Println("End of stored events")
+			log.Debug().Msg("End of stored events")
 		}()
 
 		go func() {
 			for ev := range sub.Events {
-				fmt.Printf("Received event from relay %+v", ev)
+				log.Debug().Msgf("NOSTR: Received event from relay %+v", ev)
+				buf.push(ev)
+			}
+		}()
+	}
+
+	sub := &Subscription{
+		id:     randString(SUB_ID_LENGTH),
+		buffer: buf,
+		subs:   subs,
+	}
+
+	c.server.manageSubscription(c.Id(), sub)
+
+	return sub.id, nil
+}
+
+// SubscribeMessages subscribes to direct messages (Kind 4) on all relays and decrypts them if they are addressed to the client
+func (c *Client) SubscribeMessages() (string, error) {
+	relays := c.server.clientRelays(c.Id())
+	if len(relays) == 0 {
+		return "", ErrNoRelayConnected
+	}
+
+	var filters nostr.Filters
+	if _, v, err := nip19.Decode(c.Id()); err == nil {
+		t := make(map[string][]string)
+		t["p"] = []string{v.(string)}
+		filters = []nostr.Filter{{
+			Kinds: []int{4},
+			Limit: 1000,
+			Tags:  t,
+		}}
+	} else {
+		return "", errors.New("could not create client filters")
+	}
+
+	subs := []*nostr.Subscription{}
+
+	ctx := context.Background()
+	buf := newEventBuffer()
+
+	for _, relay := range relays {
+		log.Debug().Msgf("NOSTR: Connected to relay %s\n", relay.URL)
+		sub, err := relay.Subscribe(ctx, filters)
+		if err != nil {
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
+			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+		}
+
+		subs = append(subs, sub)
+
+		go func() {
+			<-sub.EndOfStoredEvents
+			log.Debug().Msg("End of stored events")
+		}()
+
+		go func() {
+			for ev := range sub.Events {
+				log.Debug().Msgf("NOSTR: Received direct message from relay, tags: %s", ev.Tags.GetFirst([]string{"p"}).Value())
+
+				ss, err := nip04.ComputeSharedSecret(ev.PubKey, c.sk)
+				if err != nil {
+					log.Error().Msgf("could not compute shared secret for receiver %s", err.Error())
+					continue
+				}
+				msg, err := nip04.Decrypt(ev.Content, ss)
+				if err != nil {
+					log.Error().Msgf("could not decrypt message %s", err.Error())
+					continue
+				}
+
+				// Set decrypted content
+				ev.Content = msg
+
+				log.Debug().Msgf("NOSTR: Received event from relay %+v", ev)
 				buf.push(ev)
 			}
 		}()
@@ -294,7 +369,7 @@ func (c *Client) SubscriptionIds() []string {
 
 // CloseSubscription managed by the server for this client, based on its ID.
 func (c *Client) CloseSubscription(id string) {
-	fmt.Println("calling close subscription")
+	log.Debug().Msg("NOSTR: calling close subscription")
 	sub := c.server.removeSubscription(c.Id(), id)
 	if sub != nil {
 		sub.Close()

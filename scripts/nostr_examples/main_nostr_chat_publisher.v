@@ -2,18 +2,17 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import nostr
+import threefoldtech.threebot.nostr
 
 import flag
 import log
 import os
-import time
 
 const (
 	default_server_address = 'http://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
+fn send_message(mut client RpcWsClient, mut logger log.Logger, receiver string, secret string) ! {
 	mut nostr_client := nostr.new(mut client)
 
 	key := if secret == "" {
@@ -24,38 +23,19 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 		secret
 	}
 
+	if receiver == "" {
+		return error("No receiver specified")
+	}
+
 	nostr_client.load(key)!
 
 	nostr_id := nostr_client.get_id()!
 	logger.info("Nostr: ID: ${nostr_id}")
 
 	nostr_client.connect_to_relay("ws://localhost:8081")!
-	nostr_client.subscribe()!
 
-	nostr_client.publish_text_note(tags: [""], content: "hello world 1!")!
-	nostr_client.publish_text_note(tags: [""], content: "hello world 2!")!
-
-	metadata := nostr.Metadata {
-		tags: [""],
-		metadata: nostr.NostrMetadata {
-			name: "test",
-			about: "about test",
-			picture: "test picture",
-		}
-	}
-	nostr_client.publish_metadata(metadata)!
-
-	time.sleep(5 * time.second)
-
-	events := nostr_client.get_events()!
-	logger.info("Events: ${events}")
-
-	// Close subscriptions
-	subscription_ids := nostr_client.get_subscription_ids()!
-	logger.info("Subscription IDs: ${subscription_ids}")
-	for id in subscription_ids {
-		nostr_client.close_subscription(id)!
-	}
+	// Send a message to a receiver
+	nostr_client.publish_direct_message(receiver: receiver, tags: [""], content: "hi, from ${nostr_id}")!
 }
 
 fn main() {
@@ -65,6 +45,7 @@ fn main() {
 	fp.description('')
 	fp.skip_executable()
 	secret := fp.string('secret', `s`, '', 'The secret to use for nostr.')
+	receiver := fp.string('receiver', `r`, '', 'Nostr receiver to use.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
@@ -85,7 +66,7 @@ fn main() {
 	_ := spawn myclient.run()
 	
 	
-	execute_rpcs(mut myclient, mut logger, secret) or {
+	send_message(mut myclient, mut logger, receiver, secret) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

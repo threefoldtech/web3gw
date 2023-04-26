@@ -2,7 +2,7 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import nostr
+import threefoldtech.threebot.nostr
 
 import flag
 import log
@@ -13,7 +13,7 @@ const (
 	default_server_address = 'http://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
+fn subscribe_messages(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
 	mut nostr_client := nostr.new(mut client)
 
 	key := if secret == "" {
@@ -29,32 +29,16 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 	nostr_id := nostr_client.get_id()!
 	logger.info("Nostr: ID: ${nostr_id}")
 
+	public_key := nostr_client.get_public_key()!
+	logger.info("Nostr: Public Key: ${public_key}")
+
 	nostr_client.connect_to_relay("ws://localhost:8081")!
-	nostr_client.subscribe()!
+	nostr_client.subscribe_to_direct_messages()!
 
-	nostr_client.publish_text_note(tags: [""], content: "hello world 1!")!
-	nostr_client.publish_text_note(tags: [""], content: "hello world 2!")!
-
-	metadata := nostr.Metadata {
-		tags: [""],
-		metadata: nostr.NostrMetadata {
-			name: "test",
-			about: "about test",
-			picture: "test picture",
-		}
-	}
-	nostr_client.publish_metadata(metadata)!
-
-	time.sleep(5 * time.second)
-
-	events := nostr_client.get_events()!
-	logger.info("Events: ${events}")
-
-	// Close subscriptions
-	subscription_ids := nostr_client.get_subscription_ids()!
-	logger.info("Subscription IDs: ${subscription_ids}")
-	for id in subscription_ids {
-		nostr_client.close_subscription(id)!
+	for {
+		time.sleep(5 * time.second)
+		events := nostr_client.get_events()!
+		logger.info("Checking for Events: ${events}")
 	}
 }
 
@@ -85,7 +69,7 @@ fn main() {
 	_ := spawn myclient.run()
 	
 	
-	execute_rpcs(mut myclient, mut logger, secret) or {
+	subscribe_messages(mut myclient, mut logger, secret) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

@@ -42,12 +42,14 @@ func State(conState jsonrpc.State) *nostrState {
 	return ns
 }
 
+// NewClient creates a new client
 func NewClient() *Client {
 	return &Client{
 		server: nostr.NewServer(),
 	}
 }
 
+// Load a client from a connection state
 func (c *Client) Load(ctx context.Context, conState jsonrpc.State, secret string) error {
 	cl, err := c.server.NewClient(secret)
 	if err != nil {
@@ -60,6 +62,27 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, secret string
 	return nil
 }
 
+// GetPublicKey returns the nostr ID for the client
+func (c *Client) GetId(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.Id(), nil
+}
+
+// GetPublicKey returns the public key of the client in hex
+func (c *Client) GetPublicKey(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublicKey(), nil
+}
+
+// ConnectRelay connects to an authenticated relay with a given url
 func (c *Client) ConnectAuthRelay(ctx context.Context, conState jsonrpc.State, url string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -69,6 +92,7 @@ func (c *Client) ConnectAuthRelay(ctx context.Context, conState jsonrpc.State, u
 	return state.client.ConnectAuthRelay(ctx, url)
 }
 
+// ConnectRelay connects to a relay with a given url
 func (c *Client) ConnectRelay(ctx context.Context, conState jsonrpc.State, url string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -78,10 +102,12 @@ func (c *Client) ConnectRelay(ctx context.Context, conState jsonrpc.State, url s
 	return state.client.ConnectRelay(ctx, url)
 }
 
+// GenerateKeyPair generates a new keypair
 func (c *Client) GenerateKeyPair(ctx context.Context) (string, error) {
 	return nostr.GenerateKeyPair(), nil
 }
 
+// ConnectToRelay connects to a relay with a given url
 func (c *Client) ConnectToRelay(ctx context.Context, conState jsonrpc.State, url string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -91,13 +117,16 @@ func (c *Client) ConnectToRelay(ctx context.Context, conState jsonrpc.State, url
 	return state.client.ConnectAuthRelay(ctx, url)
 }
 
-type EventInput struct {
+// TextNote is a text note published on a relay
+type TextInput struct {
 	Tags    []string `json:"tags"`
 	Content string   `json:"content"`
 }
 
-func (c *Client) PublishEventToRelays(ctx context.Context, conState jsonrpc.State, input EventInput) error {
+// PublishTextNote publishes a text note to all relays
+func (c *Client) PublishTextNote(ctx context.Context, conState jsonrpc.State, input TextInput) error {
 	state := State(conState)
+
 	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
@@ -105,6 +134,39 @@ func (c *Client) PublishEventToRelays(ctx context.Context, conState jsonrpc.Stat
 	return state.client.PublishTextNote(ctx, input.Tags, input.Content)
 }
 
+// MetadataInput is metadata published on a relay
+type MetadataInput struct {
+	Tags     []string       `json:"tags"`
+	Metadata nostr.Metadata `json:"metadata"`
+}
+
+// PublishMetadata publishes metadata to all relays
+func (c *Client) PublishMetadata(ctx context.Context, conState jsonrpc.State, input MetadataInput) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublishMetadata(ctx, input.Tags, input.Metadata)
+}
+
+type DirectMessageInput struct {
+	Receiver string   `json:"receiver"`
+	Tags     []string `json:"tags"`
+	Content  string   `json:"content"`
+}
+
+// PublishDirectMessage publishes a direct message to a receiver
+func (c *Client) PublishDirectMessage(ctx context.Context, conState jsonrpc.State, input DirectMessageInput) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublishDirectMessage(ctx, input.Receiver, input.Tags, input.Content)
+}
+
+// SubscribeRelays subscribes to text notes on all relays
 func (c *Client) SubscribeRelays(ctx context.Context, conState jsonrpc.State) (string, error) {
 	state := State(conState)
 	if state.client == nil {
@@ -114,6 +176,17 @@ func (c *Client) SubscribeRelays(ctx context.Context, conState jsonrpc.State) (s
 	return state.client.SubscribeRelays()
 }
 
+// SubscribeDirectMessages subscribes to direct messages on all relays and decrypts them
+func (c *Client) SubscribeDirectMessages(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.SubscribeMessages()
+}
+
+// CloseSubscription closes a subscription by id
 func (c *Client) CloseSubscription(ctx context.Context, conState jsonrpc.State, id string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -125,6 +198,7 @@ func (c *Client) CloseSubscription(ctx context.Context, conState jsonrpc.State, 
 	return nil
 }
 
+// GetSubscriptionIds returns all subscription ids
 func (c *Client) GetSubscriptionIds(ctx context.Context, conState jsonrpc.State) ([]string, error) {
 	state := State(conState)
 	if state.client == nil {
@@ -134,6 +208,7 @@ func (c *Client) GetSubscriptionIds(ctx context.Context, conState jsonrpc.State)
 	return state.client.SubscriptionIds(), nil
 }
 
+// GetEvents returns all events for all subscriptions
 func (c *Client) GetEvents(ctx context.Context, conState jsonrpc.State) ([]nostr.NostrEvent, error) {
 	state := State(conState)
 	if state.client == nil {
