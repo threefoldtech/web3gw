@@ -30,7 +30,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 	logger.info("Nostr: ID: ${nostr_id}")
 
 	nostr_client.connect_to_relay("ws://localhost:8081")!
-	nostr_client.subscribe_to_relays()!
+	nostr_client.subscribe()!
 
 	nostr_client.publish_text_note(tags: [""], content: "hello world 1!")!
 	nostr_client.publish_text_note(tags: [""], content: "hello world 2!")!
@@ -64,7 +64,7 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
-	secret := fp.string('secret', `s`, '', 'The secret to use for eth.')
+	secret := fp.string('secret', `s`, '', 'The secret to use for nostr.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {

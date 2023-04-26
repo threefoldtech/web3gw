@@ -6,6 +6,12 @@ Project setup:
 - Clients (the web3 clients)
 - Scripts (client scripts to invoke server commands)
 
+## Installing
+
+```
+./install.sh
+```
+
 ## How to run the web3 proxy
 
 First start the server:

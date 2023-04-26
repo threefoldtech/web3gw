@@ -84,6 +84,10 @@ func (c *Client) Id() string {
 	return id
 }
 
+func (c *Client) PublicKey() string {
+	return c.pk
+}
+
 func (c *Client) ConnectRelay(ctx context.Context, relayURL string) error {
 	// ctxConnect, cancelFuncConnect := context.WithTimeout(ctx, relayConnectTimeout)
 	// defer cancelFuncConnect()
@@ -238,6 +242,65 @@ func (c *Client) SubscribeRelays() (string, error) {
 	buf := newEventBuffer()
 
 	for _, relay := range relays {
+		log.Debug().Msgf("NOSTR: Connected to relay %s", relay.URL)
+		sub, err := relay.Subscribe(ctx, filters)
+		if err != nil {
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
+			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+		}
+
+		subs = append(subs, sub)
+
+		go func() {
+			<-sub.EndOfStoredEvents
+			log.Debug().Msg("End of stored events")
+		}()
+
+		go func() {
+			for ev := range sub.Events {
+				log.Debug().Msgf("NOSTR: Received event from relay %+v", ev)
+				buf.push(ev)
+			}
+		}()
+	}
+
+	sub := &Subscription{
+		id:     randString(SUB_ID_LENGTH),
+		buffer: buf,
+		subs:   subs,
+	}
+
+	c.server.manageSubscription(c.Id(), sub)
+
+	return sub.id, nil
+}
+
+// SubscribeMessages subscribes to direct messages (Kind 4) on all relays and decrypts them if they are addressed to the client
+func (c *Client) SubscribeMessages() (string, error) {
+	relays := c.server.clientRelays(c.Id())
+	if len(relays) == 0 {
+		return "", ErrNoRelayConnected
+	}
+
+	var filters nostr.Filters
+	if _, v, err := nip19.Decode(c.Id()); err == nil {
+		t := make(map[string][]string)
+		t["p"] = []string{v.(string)}
+		filters = []nostr.Filter{{
+			Kinds: []int{4},
+			Limit: 1000,
+			Tags:  t,
+		}}
+	} else {
+		return "", errors.New("could not create client filters")
+	}
+
+	subs := []*nostr.Subscription{}
+
+	ctx := context.Background()
+	buf := newEventBuffer()
+
+	for _, relay := range relays {
 		log.Debug().Msgf("NOSTR: Connected to relay %s\n", relay.URL)
 		sub, err := relay.Subscribe(ctx, filters)
 		if err != nil {
@@ -254,6 +317,22 @@ func (c *Client) SubscribeRelays() (string, error) {
 
 		go func() {
 			for ev := range sub.Events {
+				log.Debug().Msgf("NOSTR: Received direct message from relay, tags: %s", ev.Tags.GetFirst([]string{"p"}).Value())
+
+				ss, err := nip04.ComputeSharedSecret(ev.PubKey, c.sk)
+				if err != nil {
+					log.Error().Msgf("could not compute shared secret for receiver %s", err.Error())
+					continue
+				}
+				msg, err := nip04.Decrypt(ev.Content, ss)
+				if err != nil {
+					log.Error().Msgf("could not decrypt message %s", err.Error())
+					continue
+				}
+
+				// Set decrypted content
+				ev.Content = msg
+
 				log.Debug().Msgf("NOSTR: Received event from relay %+v", ev)
 				buf.push(ev)
 			}

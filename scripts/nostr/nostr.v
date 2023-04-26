@@ -68,6 +68,11 @@ pub fn (mut n NostrClient) get_id() !string {
 	return n.client.send_json_rpc[[]string, string]('nostr.GetId', []string{}, default_timeout)!
 }
 
+// get public key
+pub fn (mut n NostrClient) get_public_key() !string {
+	return n.client.send_json_rpc[[]string, string]('nostr.GetPublicKey', []string{}, default_timeout)!
+}
+
 // publish a text note to the relay
 pub fn (mut n NostrClient) publish_text_note(args TextNote) ! {
 	_ := n.client.send_json_rpc[[]TextNote, string]('nostr.PublishTextNote', [args], default_timeout)!
@@ -83,9 +88,14 @@ pub fn (mut n NostrClient) publish_direct_message(args DirectMessage) ! {
 	_ := n.client.send_json_rpc[[]DirectMessage, string]('nostr.PublishDirectMessage', [args], default_timeout)!
 }
 
-// subscribe to the relay for messages and events
-pub fn (mut n NostrClient) subscribe_to_relays() ! {
+// subscribe to the relays for text notes
+pub fn (mut n NostrClient) subscribe() ! {
 	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeRelays', []string{}, default_timeout)!
+}
+
+// subscribe to the relays for direct messages 
+pub fn (mut n NostrClient) subscribe_to_direct_messages() ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeDirectMessages', []string{}, default_timeout)!
 }
 
 // get all the events for the subscriptions
