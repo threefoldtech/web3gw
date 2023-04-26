@@ -13,6 +13,7 @@ import (
 	"github.com/nbd-wtf/go-nostr/nip19"
 	"github.com/nbd-wtf/go-nostr/nip42"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type (
@@ -166,7 +167,7 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 			return errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
 		}
 
-		fmt.Printf("published event to relay: %+v\nSTATUS:%s\n", ev, status)
+		log.Debug().Str("component", "nostr").Msgf("published event to relay: %+v with status:%s", ev, status)
 
 		if status == nostr.PublishStatusFailed {
 			return ErrFailedToPublishEvent
@@ -237,10 +238,10 @@ func (c *Client) SubscribeRelays() (string, error) {
 	buf := newEventBuffer()
 
 	for _, relay := range relays {
-		fmt.Printf("Connected to relay %s\n", relay.URL)
+		log.Debug().Msgf("NOSTR: Connected to relay %s\n", relay.URL)
 		sub, err := relay.Subscribe(ctx, filters)
 		if err != nil {
-			fmt.Println("error subscribing to relay")
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
 			return "", errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
 		}
 
@@ -248,12 +249,12 @@ func (c *Client) SubscribeRelays() (string, error) {
 
 		go func() {
 			<-sub.EndOfStoredEvents
-			fmt.Println("End of stored events")
+			log.Debug().Msg("End of stored events")
 		}()
 
 		go func() {
 			for ev := range sub.Events {
-				fmt.Printf("Received event from relay %+v", ev)
+				log.Debug().Msgf("NOSTR: Received event from relay %+v", ev)
 				buf.push(ev)
 			}
 		}()
@@ -294,7 +295,7 @@ func (c *Client) SubscriptionIds() []string {
 
 // CloseSubscription managed by the server for this client, based on its ID.
 func (c *Client) CloseSubscription(id string) {
-	fmt.Println("calling close subscription")
+	log.Debug().Msg("NOSTR: calling close subscription")
 	sub := c.server.removeSubscription(c.Id(), id)
 	if sub != nil {
 		sub.Close()

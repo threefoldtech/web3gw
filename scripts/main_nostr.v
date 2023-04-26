@@ -26,11 +26,24 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 
 	nostr_client.load(key)!
 
+	nostr_id := nostr_client.get_id()!
+	logger.info("Nostr: ID: ${nostr_id}")
+
 	nostr_client.connect_to_relay("ws://localhost:8081")!
 	nostr_client.subscribe_to_relays()!
 
-	nostr_client.publish_to_relays(tags: [""], content: "hello world 1!")!
-	nostr_client.publish_to_relays(tags: [""], content: "hello world 2!")!
+	nostr_client.publish_text_note(tags: [""], content: "hello world 1!")!
+	nostr_client.publish_text_note(tags: [""], content: "hello world 2!")!
+
+	metadata := nostr.Metadata {
+		tags: [""],
+		metadata: nostr.NostrMetadata {
+			name: "test",
+			about: "about test",
+			picture: "test picture",
+		}
+	}
+	nostr_client.publish_metadata(metadata)!
 
 	time.sleep(5 * time.second)
 

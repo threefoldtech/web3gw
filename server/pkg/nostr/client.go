@@ -60,6 +60,15 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, secret string
 	return nil
 }
 
+func (c *Client) GetId(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.Id(), nil
+}
+
 func (c *Client) ConnectAuthRelay(ctx context.Context, conState jsonrpc.State, url string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -91,18 +100,51 @@ func (c *Client) ConnectToRelay(ctx context.Context, conState jsonrpc.State, url
 	return state.client.ConnectAuthRelay(ctx, url)
 }
 
-type EventInput struct {
+type TextInput struct {
 	Tags    []string `json:"tags"`
 	Content string   `json:"content"`
 }
 
-func (c *Client) PublishEventToRelays(ctx context.Context, conState jsonrpc.State, input EventInput) error {
+// PublishTextNote publishes a text note to all relays
+func (c *Client) PublishTextNote(ctx context.Context, conState jsonrpc.State, input TextInput) error {
 	state := State(conState)
+
 	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
 	return state.client.PublishTextNote(ctx, input.Tags, input.Content)
+}
+
+type MetadataInput struct {
+	Tags     []string       `json:"tags"`
+	Metadata nostr.Metadata `json:"metadata"`
+}
+
+// PublishMetadata publishes metadata to all relays
+func (c *Client) PublishMetadata(ctx context.Context, conState jsonrpc.State, input MetadataInput) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublishMetadata(ctx, input.Tags, input.Metadata)
+}
+
+type DirectMessageInput struct {
+	Receiver string   `json:"receiver"`
+	Tags     []string `json:"tags"`
+	Content  string   `json:"content"`
+}
+
+// PublishDirectMessage publishes a direct message to a receiver
+func (c *Client) PublishDirectMessage(ctx context.Context, conState jsonrpc.State, input DirectMessageInput) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublishDirectMessage(ctx, input.Receiver, input.Tags, input.Content)
 }
 
 func (c *Client) SubscribeRelays(ctx context.Context, conState jsonrpc.State) (string, error) {
