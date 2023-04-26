@@ -166,14 +166,14 @@ func (c *Client) PublishDirectMessage(ctx context.Context, conState jsonrpc.Stat
 	return state.client.PublishDirectMessage(ctx, input.Receiver, input.Tags, input.Content)
 }
 
-// SubscribeRelays subscribes to text notes on all relays
-func (c *Client) SubscribeRelays(ctx context.Context, conState jsonrpc.State) (string, error) {
+// SubscribeTextNotes subscribes to text notes on all relays
+func (c *Client) SubscribeTextNotes(ctx context.Context, conState jsonrpc.State) (string, error) {
 	state := State(conState)
 	if state.client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.SubscribeRelays()
+	return state.client.SubscribeTextNotes()
 }
 
 // SubscribeDirectMessages subscribes to direct messages on all relays and decrypts them
@@ -184,6 +184,26 @@ func (c *Client) SubscribeDirectMessages(ctx context.Context, conState jsonrpc.S
 	}
 
 	return state.client.SubscribeMessages()
+}
+
+// SubscribeStallCreation subscribes to stall creation on all relays
+func (c *Client) SubscribeStallCreation(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.SubscribeStallCreation()
+}
+
+// SubscribeProductCreation subscribes to product creation on all relays
+func (c *Client) SubscribeProductCreation(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.SubscribeProductCreation()
 }
 
 // CloseSubscription closes a subscription by id
@@ -218,4 +238,32 @@ func (c *Client) GetEvents(ctx context.Context, conState jsonrpc.State) ([]nostr
 	evs := state.client.GetEvents()
 
 	return evs, nil
+}
+
+type StallInput struct {
+	Tags  []string    `json:"tags"`
+	Stall nostr.Stall `json:"stall"`
+}
+
+func (c *Client) PublishStall(ctx context.Context, conState jsonrpc.State, input StallInput) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublishStall(ctx, input.Tags, input.Stall)
+}
+
+type ProductInput struct {
+	Tags    []string      `json:"tags"`
+	Product nostr.Product `json:"product"`
+}
+
+func (c *Client) PublishProduct(ctx context.Context, conState jsonrpc.State, input ProductInput) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.PublishProduct(ctx, input.Tags, input.Product)
 }
