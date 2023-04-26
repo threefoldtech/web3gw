@@ -32,7 +32,7 @@ fn subscribe_messages(mut client RpcWsClient, mut logger log.Logger, secret stri
 	public_key := nostr_client.get_public_key()!
 	logger.info("Nostr: Public Key: ${public_key}")
 
-	nostr_client.connect_to_relay("ws://localhost:8081")!
+	nostr_client.connect_to_relay("https://nostr01.grid.tf/")!
 	nostr_client.subscribe_to_direct_messages()!
 
 	for {

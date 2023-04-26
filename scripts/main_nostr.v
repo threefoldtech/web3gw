@@ -29,7 +29,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 	nostr_id := nostr_client.get_id()!
 	logger.info("Nostr: ID: ${nostr_id}")
 
-	nostr_client.connect_to_relay("ws://localhost:8081")!
+	nostr_client.connect_to_relay("https://nostr01.grid.tf/")!
 	nostr_client.subscribe()!
 
 	nostr_client.publish_text_note(tags: [""], content: "hello world 1!")!

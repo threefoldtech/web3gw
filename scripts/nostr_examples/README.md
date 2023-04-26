@@ -1,26 +1,6 @@
 # Nostr examples
 
-## Chat example
-
-### Relay
-
-Install a local relay first:
-
-```
-git clone git@github.com:scsibug/nostr-rs-relay.git
-cd nostr-rs-relay
-cargo build -r
-```
-
-Open the `config.toml` in `nostr-rs-relay` and change the port from `8080` to `8081`.
-
-Now run the relay:
-
-```
-./target/release/nostr-rs-relay
-```
-
-### Chat
+## Chat
 
 To run the chat example, open 2 terminal windows. In one window run the consumer (this will start streaming for direct messages on a nostr relay):
 

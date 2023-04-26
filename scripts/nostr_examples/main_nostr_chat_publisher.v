@@ -32,7 +32,7 @@ fn send_message(mut client RpcWsClient, mut logger log.Logger, receiver string, 
 	nostr_id := nostr_client.get_id()!
 	logger.info("Nostr: ID: ${nostr_id}")
 
-	nostr_client.connect_to_relay("ws://localhost:8081")!
+	nostr_client.connect_to_relay("https://nostr01.grid.tf/")!
 
 	// Send a message to a receiver
 	nostr_client.publish_direct_message(receiver: receiver, tags: [""], content: "hi, from ${nostr_id}")!
