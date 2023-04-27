@@ -6,31 +6,6 @@ const (
 	default_timeout = 500000
 )
 
-[params]
-pub struct TextNote {
-	tags []string
-	content string
-}
-
-[params]
-pub struct Metadata {
-	tags []string
-	metadata NostrMetadata
-}
-
-pub struct NostrMetadata {
-	name string
-	about string
-	picture string
-}
-
-[params]
-pub struct DirectMessage {
-	receiver string
-	tags []string
-	content string
-}
-
 [noinit]
 pub struct NostrClient {
 mut:
@@ -89,13 +64,23 @@ pub fn (mut n NostrClient) publish_direct_message(args DirectMessage) ! {
 }
 
 // subscribe to the relays for text notes
-pub fn (mut n NostrClient) subscribe() ! {
-	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeRelays', []string{}, default_timeout)!
+pub fn (mut n NostrClient) subscribe_text_notes() ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeTextNotes', []string{}, default_timeout)!
 }
 
 // subscribe to the relays for direct messages 
 pub fn (mut n NostrClient) subscribe_to_direct_messages() ! {
 	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeDirectMessages', []string{}, default_timeout)!
+}
+
+// subscribe to relays for stall creation
+pub fn (mut n NostrClient) subscribe_to_stall_creation() ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeStallCreation', []string{}, default_timeout)!
+}
+
+// subscribe to relays for product creation
+pub fn (mut n NostrClient) subscribe_to_product_creation() ! {
+	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeProductCreation', []string{}, default_timeout)!
 }
 
 // get all the events for the subscriptions
@@ -111,4 +96,12 @@ pub fn (mut n NostrClient) close_subscription(id string) ! {
 // get all the subscription ids
 pub fn (mut n NostrClient) get_subscription_ids() ![]string {
 	return n.client.send_json_rpc[[]string, []string]('nostr.GetSubscriptionIds', []string{}, default_timeout)!
+}
+
+pub fn (mut n NostrClient) publish_stall(args StallCreateInput) ! {
+	_ := n.client.send_json_rpc[[]StallCreateInput, string]('nostr.PublishStall', [args], default_timeout)!
+}
+
+pub fn (mut n NostrClient) publish_product(args ProductCreateInput) ! {
+	_ := n.client.send_json_rpc[[]ProductCreateInput, string]('nostr.PublishProduct', [args], default_timeout)!
 }
