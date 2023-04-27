@@ -10,13 +10,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	goethclient "github.com/threefoldtech/web3_proxy/server/clients/eth"
 	"github.com/threefoldtech/web3_proxy/server/clients/nostr"
+	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
 )
 
 type (
 	// Client for atomic swaps
 	Client struct {
-		nostr  *nostr.Client
+		nostr   *nostr.Client
+		eth     *goethclient.Client
+		stellar *stellargoclient.Client
+
 		stalls []nostr.Stall
 	}
 )
@@ -35,8 +40,8 @@ var (
 )
 
 // NewClient for atomic swaps
-func NewClient(ctx context.Context, nostr *nostr.Client) (*Client, error) {
-	client := &Client{nostr: nostr}
+func NewClient(ctx context.Context, nostr *nostr.Client, eth *goethclient.Client, stellar *stellargoclient.Client) (*Client, error) {
+	client := &Client{nostr: nostr, eth: eth, stellar: stellar}
 
 	if err := client.loadOwnStalls(ctx); err != nil {
 		return nil, errors.Wrap(err, "could not fetch owned stalls")
@@ -85,12 +90,12 @@ func (c *Client) PlaceSellOrder(ctx context.Context, amount uint, currency strin
 		return nil, errors.Wrap(err, "could not publish sale")
 	}
 
-	driver := initDriver(c.nostr)
-	if err := driver.OpenSale(); err != nil {
+	driver := initDriver(c.nostr, c.eth, c.stellar)
+	if err := driver.OpenSale(product); err != nil {
 		return nil, errors.Wrap(err, "could not start sale driver")
 	}
 
-	return initDriver(c.nostr), nil
+	return driver, nil
 }
 
 // Attempt to buy from an already existing swap
@@ -127,7 +132,7 @@ func (c *Client) AttemptBuy(ctx context.Context, amount uint, currency string, m
 
 	// if we actually have a sale open, attempt to drive it
 	if len(filteredSales) > 0 {
-		driver := initDriver(c.nostr)
+		driver := initDriver(c.nostr, c.eth, c.stellar)
 		// TODO
 		driver.Buy(filteredSales[0], amount)
 		return driver, nil

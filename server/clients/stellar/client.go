@@ -37,3 +37,8 @@ func NewClient(secret, stellarNetwork string) (*Client, error) {
 
 	return cl, nil
 }
+
+// Address of the loaded keypair
+func (c *Client) Address() string {
+	return c.kp.Address()
+}

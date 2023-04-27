@@ -355,6 +355,77 @@ func (c *Client) subscribeWithFiler(filters nostr.Filters) (string, error) {
 	return sub.id, nil
 }
 
+// TODO: Remove once subsciptions are more porper
+func (c *Client) SubscribeDirectMessagesDirect(swapTag string) (<-chan NostrEvent, error) {
+	var filters nostr.Filters
+	if _, v, err := nip19.Decode(c.Id()); err == nil {
+		t := make(map[string][]string)
+		t["p"] = []string{v.(string)}
+		t["s"] = []string{swapTag}
+		filters = []nostr.Filter{{
+			Kinds: []int{kindDirectMessage},
+			Limit: 0,
+			Tags:  t,
+		}}
+	} else {
+		return nil, errors.New("could not create client filters")
+	}
+
+	relays := c.server.clientRelays(c.Id())
+	if len(relays) == 0 {
+		return nil, ErrNoRelayConnected
+	}
+
+	subs := []*nostr.Subscription{}
+
+	ctx := context.Background()
+
+	ch := make(chan NostrEvent)
+	for _, relay := range relays {
+		log.Debug().Msgf("NOSTR: Connected to relay %s", relay.URL)
+		sub, err := relay.Subscribe(ctx, filters)
+		if err != nil {
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
+			return nil, errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+		}
+
+		subs = append(subs, sub)
+
+		go func() {
+			<-sub.EndOfStoredEvents
+			log.Debug().Msg("End of stored events")
+		}()
+
+		go func() {
+			for ev := range sub.Events {
+				log.Debug().Msgf("NOSTR: Received event from relay, kind: %d", ev.Kind)
+
+				// Decrypt direct messages
+				log.Debug().Msgf("NOSTR: Decrypting message from relay")
+
+				ss, err := nip04.ComputeSharedSecret(ev.PubKey, c.sk)
+				if err != nil {
+					log.Error().Msgf("could not compute shared secret for receiver %s", err.Error())
+					continue
+				}
+				msg, err := nip04.Decrypt(ev.Content, ss)
+				if err != nil {
+					log.Error().Msgf("could not decrypt message %s", err.Error())
+					continue
+				}
+
+				// Set decrypted content
+				ev.Content = msg
+
+				ch <- *ev
+
+			}
+		}()
+	}
+
+	return ch, nil
+}
+
 // Get all historic events on active subscriptions for the client.
 // Note that only a limited amount of events are kept. If the actual client waits
 // too long to call this, events might be dropped.
