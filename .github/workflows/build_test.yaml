@@ -33,6 +33,7 @@ jobs:
           v scripts/main_tfchain.v
           v scripts/main_tfgrid.v
           v scripts/nostr_examples/main_nostr_chat_consumer.v
+          v scripts/main_btc.v
           v scripts/nostr_examples/main_nostr_chat_publisher.v
 
       - name: Build Server
