@@ -48,6 +48,8 @@ const (
 	// size of a subscription id
 	SUB_ID_LENGTH = 10
 
+	DEFAULT_LIMIT = 100
+
 	kindSetMetadata     = 0
 	kindTextNote        = 1
 	kindRecommendServer = 2
@@ -220,7 +222,7 @@ func (c *Client) SubscribeTextNotes() (string, error) {
 	if _, _, err := nip19.Decode(c.Id()); err == nil {
 		filters = []nostr.Filter{{
 			Kinds: []int{kindTextNote},
-			Limit: 1000,
+			Limit: DEFAULT_LIMIT,
 		}}
 	} else {
 		return "", errors.New("could not create client filters")
@@ -238,7 +240,7 @@ func (c *Client) SubscribeMessages() (string, error) {
 		t["p"] = []string{v.(string)}
 		filters = []nostr.Filter{{
 			Kinds: []int{kindDirectMessage},
-			Limit: 1000,
+			Limit: DEFAULT_LIMIT,
 			Tags:  t,
 		}}
 	} else {
@@ -252,12 +254,9 @@ func (c *Client) SubscribeMessages() (string, error) {
 func (c *Client) SubscribeStallCreation() (string, error) {
 	var filters nostr.Filters
 	if _, _, err := nip19.Decode(c.Id()); err == nil {
-		// t := make(map[string][]string)
-		// t["p"] = []string{v.(string)}
 		filters = []nostr.Filter{{
 			Kinds: []int{kindSetStall},
-			Limit: 1000,
-			// Tags:  t,
+			Limit: DEFAULT_LIMIT,
 		}}
 	} else {
 		return "", errors.New("could not create client filters")
@@ -270,12 +269,9 @@ func (c *Client) SubscribeStallCreation() (string, error) {
 func (c *Client) SubscribeProductCreation() (string, error) {
 	var filters nostr.Filters
 	if _, _, err := nip19.Decode(c.Id()); err == nil {
-		// t := make(map[string][]string)
-		// t["p"] = []string{v.(string)}
 		filters = []nostr.Filter{{
 			Kinds: []int{kindSetProduct},
-			Limit: 1000,
-			// Tags:  t,
+			Limit: DEFAULT_LIMIT,
 		}}
 	} else {
 		return "", errors.New("could not create client filters")
@@ -312,11 +308,11 @@ func (c *Client) subscribeWithFiler(filters nostr.Filters) (string, error) {
 
 		go func() {
 			for ev := range sub.Events {
-				log.Debug().Msgf("NOSTR: Received event from relay %+v", ev)
+				log.Debug().Msgf("NOSTR: Received event from relay, kind: %d", ev.Kind)
 
 				// Decrypt direct messages
 				if ev.Kind == kindDirectMessage {
-					log.Debug().Msgf("NOSTR: Received direct message from relay, tags: %s", ev.Tags.GetFirst([]string{"p"}).Value())
+					log.Debug().Msgf("NOSTR: Decrypting message from relay")
 
 					ss, err := nip04.ComputeSharedSecret(ev.PubKey, c.sk)
 					if err != nil {
