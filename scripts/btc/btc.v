@@ -42,3 +42,45 @@ pub fn (mut e BtcClient) load(params Load) !string {
 		params,
 	], explorer.default_timeout)!
 }
+
+pub fn (mut e BtcClient) create_new_account(account string) ! {
+	return e.client.send_json_rpc[[]string, string]('btc.CreateNewAccount', [
+		account,
+	], explorer.default_timeout)!
+}
+
+pub fn (mut e BtcClient) create_encrypted_wallet(passphrase string) ! {
+	return e.client.send_json_rpc[[]string, string]('btc.CreateEncryptedWallet', [
+		passphrase,
+	], explorer.default_timeout)!
+}
+
+pub fn (mut e BtcClient) import_address(address string) ! {
+	return e.client.send_json_rpc[[]string, string]('btc.ImportAddress', [
+		address,
+	], explorer.default_timeout)!
+}
+
+pub fn (mut e BtcClient) import_address_rescan(args ImportAddressRescan) ! {
+	return e.client.send_json_rpc[[]ImportAddressRescan, string]('btc.ImportAddressRescan', [
+		args,
+	], explorer.default_timeout)!
+}
+
+pub fn (mut e BtcClient) import_priv_key(wif string) ! {
+	return e.client.send_json_rpc[[]string, string]('btc.ImportPrivKey', [
+		wif,
+	], explorer.default_timeout)!
+}
+
+pub fn (mut e BtcClient) import_priv_key_label(args ImportPrivKeyLabel) ! {
+	return e.client.send_json_rpc[[]string, string]('btc.ImportPrivKeyLabel', [
+		args,
+	], explorer.default_timeout)!
+}
+
+pub fn (mut e BtcClient) import_priv_key_rescan(args ImportPrivKeyRescan) ! {
+	return e.client.send_json_rpc[[]string, string]('btc.ImportPrivKeyRescan', [
+		args,
+	], explorer.default_timeout)!
+}
