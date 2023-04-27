@@ -145,7 +145,6 @@ func (c *Client) CreateNewAccount(ctx context.Context, conState jsonrpc.State, a
 	return state.client.CreateNewAccount(account)
 }
 
-/*
 func (c *Client) CreateEncryptedWallet(ctx context.Context, conState jsonrpc.State, passphrase string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -154,7 +153,6 @@ func (c *Client) CreateEncryptedWallet(ctx context.Context, conState jsonrpc.Sta
 
 	return state.client.CreateEncryptedWallet(passphrase)
 }
-*/
 
 func (c *Client) ImportAddress(ctx context.Context, conState jsonrpc.State, address string) error {
 	state := State(conState)
