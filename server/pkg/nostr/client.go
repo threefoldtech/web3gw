@@ -193,7 +193,7 @@ func (c *Client) SubscribeStallCreation(ctx context.Context, conState jsonrpc.St
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.SubscribeStallCreation()
+	return state.client.SubscribeStallCreation("")
 }
 
 // SubscribeProductCreation subscribes to product creation on all relays
@@ -203,7 +203,7 @@ func (c *Client) SubscribeProductCreation(ctx context.Context, conState jsonrpc.
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.SubscribeProductCreation()
+	return state.client.SubscribeProductCreation("")
 }
 
 // CloseSubscription closes a subscription by id

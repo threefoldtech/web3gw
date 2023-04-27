@@ -251,13 +251,18 @@ func (c *Client) SubscribeMessages() (string, error) {
 }
 
 // SubscribeStallCreation subscribes to stall creation events (Kind 30017) on all relays
-func (c *Client) SubscribeStallCreation() (string, error) {
+func (c *Client) SubscribeStallCreation(tag string) (string, error) {
 	var filters nostr.Filters
 	if _, _, err := nip19.Decode(c.Id()); err == nil {
 		filters = []nostr.Filter{{
 			Kinds: []int{kindSetStall},
 			Limit: DEFAULT_LIMIT,
 		}}
+		if tag != "" {
+			t := make(map[string][]string)
+			t["t"] = []string{tag}
+			filters[0].Tags = t
+		}
 	} else {
 		return "", errors.New("could not create client filters")
 	}
@@ -266,13 +271,18 @@ func (c *Client) SubscribeStallCreation() (string, error) {
 }
 
 // Subscribe ProductCreation subscribes to product creation events (Kind 30018) on all relays
-func (c *Client) SubscribeProductCreation() (string, error) {
+func (c *Client) SubscribeProductCreation(tag string) (string, error) {
 	var filters nostr.Filters
 	if _, _, err := nip19.Decode(c.Id()); err == nil {
 		filters = []nostr.Filter{{
 			Kinds: []int{kindSetProduct},
 			Limit: DEFAULT_LIMIT,
 		}}
+		if tag != "" {
+			t := make(map[string][]string)
+			t["t"] = []string{tag}
+			filters[0].Tags = t
+		}
 	} else {
 		return "", errors.New("could not create client filters")
 	}
@@ -355,6 +365,17 @@ func (c *Client) GetEvents() []NostrEvent {
 		events = append(events, sub.buffer.take()...)
 	}
 	return events
+}
+
+// GetSubscriptionEvents for a subscription with the given ID. Events are removed from the subscription
+func (c *Client) GetSubscriptionEvents(id string) []NostrEvent {
+	subs := c.server.subscriptions(c.Id())
+	for _, sub := range subs {
+		if sub.id == id {
+			return sub.buffer.take()
+		}
+	}
+	return nil
 }
 
 // Get the ID's of all active subscriptions
