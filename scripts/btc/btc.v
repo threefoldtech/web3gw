@@ -12,6 +12,69 @@ mut:
 	client &RpcWsClient
 }
 
+// configurations to load bitcoin client
+[params]
+pub struct Config {
+	host string
+	user string
+	pass string
+}
+
+// args to import bitcoin address
+[params]
+pub struct ImportAddressRescan {
+	address string
+	account string
+	rescan  bool
+}
+
+[params]
+pub struct ImportPrivKeyLabel {
+	wif   string
+	label string
+}
+
+[params]
+pub struct ImportPrivKeyRescan {
+	wif    string
+	label  string
+	rescan bool
+}
+
+[params]
+pub struct ImportPubKeyRescan {
+	pub_key string
+	rescan  bool
+}
+
+[params]
+pub struct RenameAccount {
+	old_account string
+	new_account string
+}
+
+// send amount of token to address, with/without comment
+[params]
+pub struct SendToAddress {
+	address    string
+	amount     i64
+	comment    string // is intended to be used for the purpose of the transaction
+	comment_to string // is intended to be used for who the transaction is being sent to.
+}
+
+[params]
+pub struct EstimateSmartFee {
+	conf_target i64
+	mode        string
+}
+
+[params]
+pub struct GenerateToAddress {
+	num_blocks i64
+	address    string
+	max_tries  i64
+}
+
 pub fn new(mut client RpcWsClient) BtcClient {
 	return BtcClient{
 		client: &client
@@ -102,12 +165,6 @@ pub fn (mut c BtcClient) invalidate_block(hash string) ! {
 pub fn (mut c BtcClient) rename_account(args RenameAccount) ! {
 	c.client.send_json_rpc[[]RenameAccount, string]('btc.RenameAccount', [args], btc.default_timeout)!
 }
-
-// NOTE: a way to define SubmitBlock struct?
-// // attempts to submit a new block into the bitcoin network.
-// pub fn (mut c BtcClient) submit_block(block SubmitBlock) ! {
-// 	return c.client.send_json_rpc[[]SubmitBlock, string]('btc.SubmitBlock', [block], btc.default_timeout)!
-// }
 
 // sends the passed amount to the given address.
 pub fn (mut c BtcClient) send_to_address(args SendToAddress) ![]byte {
