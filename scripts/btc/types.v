@@ -133,3 +133,103 @@ pub struct ScriptPubKeyResult {
 	type_     string   [json: 'type']
 	addresses []string
 }
+
+// GetChainTxStatsResult models the data from the getchaintxstats command.
+pub struct GetChainTxStatsResult {
+	time                      i64
+	txcount                   i64
+	window_final_block_hash   string
+	window_final_block_height int
+	window_block_count        int
+	window_tx_count           int
+	window_interval           int
+	txrate                    f64
+}
+
+// GetMiningInfoResult models the data from the getmininginfo command.
+pub struct GetMiningInfoResult {
+	blocks             i64
+	currentblocksize   u64
+	currentblockweight u64
+	currentblocktx     u64
+	difficulty         f64
+	errors             string
+	generate           bool
+	genproclimit       int
+	hashespersec       f64
+	networkhashps      f64
+	pooledtx           u64
+	testnet            bool
+}
+
+// GetNodeAddressesResult models the data returned from the getnodeaddresses command.
+pub struct GetNodeAddressesResult {
+	// Timestamp in seconds since epoch (Jan 1 1970 GMT) keeping track of when the node was last seen
+	time     i64
+	services u64
+	address  string
+	port     u16
+}
+
+// GetPeerInfoResult models the data returned from the getpeerinfo command.
+pub struct GetPeerInfoResult {
+	id             int
+	addr           string
+	addrlocal      string
+	services       string
+	relaytxes      bool
+	lastsend       i64
+	lastrecv       i64
+	bytessent      u64
+	bytesrecv      u64
+	conntime       i64
+	timeoffset     i64
+	pingtime       f64
+	pingwait       f64
+	version        u32
+	subver         string
+	inbound        bool
+	startingheight int
+	currentheight  int
+	banscore       int
+	feefilter      i64
+	syncnode       bool
+}
+
+pub struct Tx {
+	msg_tx          MsgTx  // Underlying MsgTx
+	tx_hash         []byte // Cached transaction hash
+	tx_hash_witness []byte // Cached transaction witness hash
+	tx_has_witness  bool   // If the transaction has witness data
+	tx_index        int    // Position within a block or TxIndexUnknown
+}
+
+pub struct MsgTx {
+	version   int
+	tx_in     []TxIn
+	tx_out    []TxOut
+	lock_time u32
+}
+
+pub struct TxIn {
+	previous_out_point OutPoint
+	signature_script   []byte
+	witness            [][]byte
+	sequence           u32
+}
+
+pub struct OutPoint {
+	hash  []byte
+	index u32
+}
+
+pub struct TxOut {
+	value     i64
+	pk_script []byte
+}
+
+// CreateWalletResult models the result of the createwallet command.
+pub struct CreateWalletResult {
+	name    string
+	warning string
+}

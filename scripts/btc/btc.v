@@ -75,6 +75,30 @@ pub struct GenerateToAddress {
 	max_tries  i64
 }
 
+[params]
+pub struct GetChainTxStatsNBlocksBlockHash {
+	amount_of_blocks int
+	block_hash_end   string
+}
+
+[params]
+pub struct CreateWallet {
+	name                 string
+	disable_private_keys bool
+	create_blank_wallet  bool
+	passphrase           string
+	avoid_reuse          bool
+}
+
+[params]
+pub struct Move {
+	from_account      string
+	to_account        string
+	amount            i64
+	min_confirmations int
+	comment           string
+}
+
 pub fn new(mut client RpcWsClient) BtcClient {
 	return BtcClient{
 		client: &client
@@ -95,12 +119,12 @@ pub fn (mut c BtcClient) create_new_account(account string) ! {
 	], btc.default_timeout)!
 }
 
-// requests the creation of an encrypted wallet.
-pub fn (mut c BtcClient) create_encrypted_wallet(passphrase string) ! {
-	c.client.send_json_rpc[[]string, string]('btc.CreateEncryptedWallet', [
-		passphrase,
-	], btc.default_timeout)!
-}
+// // requests the creation of an encrypted wallet.
+// pub fn (mut c BtcClient) create_encrypted_wallet(passphrase string) ! {
+// 	c.client.send_json_rpc[[]string, string]('btc.CreateEncryptedWallet', [
+// 		passphrase,
+// 	], btc.default_timeout)!
+// }
 
 // imports the passed public address.
 pub fn (mut c BtcClient) import_address(address string) ! {
@@ -172,11 +196,11 @@ pub fn (mut c BtcClient) send_to_address(args SendToAddress) ![]byte {
 		btc.default_timeout)!
 }
 
-// sends the passed amount to the given address and stored the provided comment and comment to in the wallet
-pub fn (mut c BtcClient) send_to_address_comment(args SendToAddress) ![]byte {
-	return c.client.send_json_rpc[[]SendToAddress, []byte]('btc.SendToAddressComment',
-		[args], btc.default_timeout)!
-}
+// // sends the passed amount to the given address and stored the provided comment and comment to in the wallet
+// pub fn (mut c BtcClient) send_to_address_comment(args SendToAddress) ![]byte {
+// 	return c.client.send_json_rpc[[]SendToAddress, []byte]('btc.SendToAddressComment',
+// 		[args], btc.default_timeout)!
+// }
 
 // provides an estimated fee  in bitcoins per kilobyte
 // num is the number of blocks
@@ -192,12 +216,12 @@ pub fn (mut c BtcClient) estimate_smart_fee(args EstimateSmartFee) !EstimateSmar
 
 // generates numBlocks blocks and returns their hashes.
 pub fn (mut c BtcClient) generate(num u32) ![][]byte {
-	return c.client.send_json_rpc[[]u32, [][]byte]('btc.Generate', [num], btc.default_timeout)!
+	return c.client.send_json_rpc[[]u32, [][]byte]('btc.GenerateBlocks', [num], btc.default_timeout)!
 }
 
 // generates numBlocks blocks to the given address and returns their hashes.
 pub fn (mut c BtcClient) generate_to_address(args GenerateToAddress) ![][]byte {
-	return c.client.send_json_rpc[[]GenerateToAddress, [][]byte]('btc.GenerateToAddress',
+	return c.client.send_json_rpc[[]GenerateToAddress, [][]byte]('btc.GenerateBlocksToAddress',
 		[args], btc.default_timeout)!
 }
 
@@ -252,4 +276,67 @@ pub fn (mut c BtcClient) get_block_stats(hash string) !GetBlockStatsResult {
 pub fn (mut c BtcClient) get_block_verbose_tx(hash string) !GetBlockVerboseTxResult {
 	return c.client.send_json_rpc[[]string, GetBlockVerboseTxResult]('btc.GetBlockVerboseTx',
 		[hash], btc.default_timeout)!
+}
+
+// returns statistics about the total number and rate of transactions in the chain.
+pub fn (mut c BtcClient) get_chain_tx_stats() !GetChainTxStatsResult {
+	return c.client.send_json_rpc[[]string, GetChainTxStatsResult]('btc.GetChainTxStats',
+		[]string{}, btc.default_timeout)!
+}
+
+// returns statistics about the total number and rate of transactions in the chain.
+pub fn (mut c BtcClient) get_chain_tx_stats_nblocks(nblocks int) !GetChainTxStatsResult {
+	return c.client.send_json_rpc[[]int, GetChainTxStatsResult]('btc.GetChainTxStatsNBlocks',
+		[nblocks], btc.default_timeout)!
+}
+
+// returns statistics about the total number and rate of transactions in the chain.
+pub fn (mut c BtcClient) get_chain_tx_stats_nblocks_blockhash(args GetChainTxStatsNBlocksBlockHash) !GetChainTxStatsResult {
+	return c.client.send_json_rpc[[]GetChainTxStatsNBlocksBlockHash, GetChainTxStatsResult]('btc.GetChainTxStatsNBlocksBlockHash',
+		[args], btc.default_timeout)!
+}
+
+// returns the proof-of-work difficulty as a multiple of the minimum difficulty.
+pub fn (mut c BtcClient) get_difficulty() !f64 {
+	return c.client.send_json_rpc[[]string, f64]('btc.GetDifficulty', []string{}, btc.default_timeout)!
+}
+
+// returns mining information.
+pub fn (mut c BtcClient) get_mining_info() !GetMiningInfoResult {
+	return c.client.send_json_rpc[[]string, GetMiningInfoResult]('btc.GetMiningInfo',
+		[]string{}, btc.default_timeout)!
+}
+
+// returns a new address, and decodes based on the client's chain params.
+pub fn (mut c BtcClient) get_new_address(account string) !string {
+	return c.client.send_json_rpc[[]string, string]('btc.GetNewAddress', [account], btc.default_timeout)!
+}
+
+// returns data about known node addresses.
+pub fn (mut c BtcClient) get_node_addresses() ![]GetNodeAddressesResult {
+	return c.client.send_json_rpc[[]string, []GetNodeAddressesResult]('btc.GetNodeAddresses',
+		[]string{}, btc.default_timeout)!
+}
+
+// returns data about each connected network peer.
+pub fn (mut c BtcClient) get_peer_info() ![]GetPeerInfoResult {
+	return c.client.send_json_rpc[[]string, []GetPeerInfoResult]('btc.GetPeerInfo', []string{},
+		btc.default_timeout)!
+}
+
+// returns a transaction given its hash.
+pub fn (mut c BtcClient) get_raw_transaction(tx_hash string) ![]Tx {
+	return c.client.send_json_rpc[[]string, []Tx]('btc.GetRawTransaction', [tx_hash],
+		btc.default_timeout)!
+}
+
+// creates a new wallet account, with the possibility to use private keys.
+pub fn (mut c BtcClient) create_wallet(args CreateWallet) ![]CreateWalletResult {
+	return c.client.send_json_rpc[[]CreateWallet, []CreateWalletResult]('btc.CreateWallet',
+		[args], btc.default_timeout)!
+}
+
+// moves specified amount from one account in your wallet to another.  Only funds with the default number of minimum confirmations will be used.
+pub fn (mut c BtcClient) move(args Move) !bool {
+	return c.client.send_json_rpc[[]Move, bool]('btc.CreateWallet', [args], btc.default_timeout)!
 }
