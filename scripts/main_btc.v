@@ -1,16 +1,23 @@
 module main
 
+import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
+import flag
+import log
+import os
 import btc
+
+const (
+	default_server_address = 'http://127.0.0.1:8080'
+)
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut btc_client := btc.new(mut client)
 
-	btc_client.load(btc.Load{
+	btc_client.load(btc.Config{
 		host: 'host'
 		user: 'user'
 		pass: 'pass'
 	})!
-
 }
 
 fn main() {
@@ -38,10 +45,9 @@ fn main() {
 	}
 
 	_ := spawn myclient.run()
-	
-	
+
 	execute_rpcs(mut myclient, mut logger, mnemonic) or {
-		logger.error("Failed executing calls: $err")
+		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
 }
