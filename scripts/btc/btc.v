@@ -120,3 +120,79 @@ pub fn (mut c BtcClient) send_to_address_comment(args SendToAddress) ![]byte {
 	return c.client.send_json_rpc[[]SendToAddress, []byte]('btc.SendToAddressComment',
 		[args], btc.default_timeout)!
 }
+
+// provides an estimated fee  in bitcoins per kilobyte
+// num is the number of blocks
+pub fn (mut c BtcClient) estimate_fee(num i64) !f64 {
+	return c.client.send_json_rpc[[]i64, f64]('btc.EstimateFee', [num], btc.default_timeout)!
+}
+
+// requests the server to estimate a fee level based on the given parameters.
+pub fn (mut c BtcClient) estimate_smart_fee(args EstimateSmartFee) !EstimateSmartFeeResult {
+	return c.client.send_json_rpc[[]EstimateSmartFee, EstimateSmartFeeResult]('btc.EstimateSmartFee',
+		[args], btc.default_timeout)!
+}
+
+// generates numBlocks blocks and returns their hashes.
+pub fn (mut c BtcClient) generate(num u32) ![][]byte {
+	return c.client.send_json_rpc[[]u32, [][]byte]('btc.Generate', [num], btc.default_timeout)!
+}
+
+// generates numBlocks blocks to the given address and returns their hashes.
+pub fn (mut c BtcClient) generate_to_address(args GenerateToAddress) ![][]byte {
+	return c.client.send_json_rpc[[]GenerateToAddress, [][]byte]('btc.GenerateToAddress',
+		[args], btc.default_timeout)!
+}
+
+// returns the account associated with the passed address.
+pub fn (mut c BtcClient) get_account(address string) !string {
+	return c.client.send_json_rpc[[]string, string]('btc.GetAccount', [address], btc.default_timeout)!
+}
+
+// returns the current Bitcoin address for receiving payments to the specified account.
+pub fn (mut c BtcClient) get_account_address(account string) !string {
+	return c.client.send_json_rpc[[]string, string]('btc.GetAccountAddress', [account],
+		btc.default_timeout)!
+}
+
+// returns information about the given bitcoin address.
+pub fn (mut c BtcClient) get_address_info(address string) !GetAddressInfoResult {
+	return c.client.send_json_rpc[[]string, GetAddressInfoResult]('btc.GetAddressInfo',
+		[address], btc.default_timeout)!
+}
+
+// returns the list of addresses associated with the passed account.
+pub fn (mut c BtcClient) get_addresses_by_account(account string) ![]string {
+	return c.client.send_json_rpc[[]string, []string]('btc.GetAddressesByAccount', [
+		account,
+	], btc.default_timeout)!
+}
+
+// returns the available balance from the server for the specified account using the default number of minimum confirmations.
+// The account may be "*" for all accounts.
+pub fn (mut c BtcClient) get_balance(account string) !i64 {
+	return c.client.send_json_rpc[[]string, i64]('btc.GetBalance', [account], btc.default_timeout)!
+}
+
+// returns the number of blocks in the longest block chain.
+pub fn (mut c BtcClient) get_block_count(account string) !i64 {
+	return c.client.send_json_rpc[[]string, i64]('btc.GetBlockCount', [account], btc.default_timeout)!
+}
+
+// returns the hash of the block in the best block chain at the given height.
+pub fn (mut c BtcClient) get_block_hash(block_height i64) ![]byte {
+	return c.client.send_json_rpc[[]i64, []byte]('btc.GetBlockHash', [block_height], btc.default_timeout)!
+}
+
+// returns block statistics.
+// hash argument specifies height or hash of the target block
+pub fn (mut c BtcClient) get_block_stats(hash string) !GetBlockStatsResult {
+	return c.client.send_json_rpc[[]string, GetBlockStatsResult]('btc.GetBlockStats',
+		[hash], btc.default_timeout)!
+}
+
+// returns a data structure from the server with information about a block and its transactions given its hash.
+pub fn (mut c BtcClient) get_block_verbose_tx(hash string) !GetBlockVerboseTxResult {
+	return c.client.send_json_rpc[[]string, GetBlockVerboseTxResult]('btc.GetBlockVerboseTx',
+		[hash], btc.default_timeout)!
+}
