@@ -18,25 +18,6 @@ pub fn new(mut client RpcWsClient) BtcClient {
 	}
 }
 
-// Needed calls
-// Load(ctx context.Context, conState jsonrpc.State, args Load)
-// CreateNewAccount(ctx context.Context, conState jsonrpc.State, account string) 
-// CreateEncryptedWallet(ctx context.Context, conState jsonrpc.State, passphrase string) 
-// ImportAddress(ctx context.Context, conState jsonrpc.State, address string) 
-// ImportAddressRescan(ctx context.Context, conState jsonrpc.State, args ImportAddressRescan) 
-// ImportPrivKey(ctx context.Context, conState jsonrpc.State, wif string) 
-// ImportPrivKeyLabel(ctx context.Context, conState jsonrpc.State, args ImportPrivKeyLabel)
-// ImportPrivKeyRescan(ctx context.Context, conState jsonrpc.State, args ImportPrivKeyRescan) 
-
-// ImportPubKey(ctx context.Context, conState jsonrpc.State, pubKey string) 
-// ImportPubKeyRescan(ctx context.Context, conState jsonrpc.State, args ImportPubKeyRescan) 
-// InvalidateBlock(ctx context.Context, conState jsonrpc.State, hash string) 
-// RenameAccount(ctx context.Context, conState jsonrpc.State, args RenameAccount)
-// SubmitBlock(ctx context.Context, conState jsonrpc.State, args SubmitBlock)
-// SendToAddress(ctx context.Context, conState jsonrpc.State, args SendToAddress)
-// SendToAddressComment(ctx context.Context, conState jsonrpc.State, args SendToAddress) 
-
-
 pub fn (mut e BtcClient) load(params Load) !string {
 	return e.client.send_json_rpc[[]Load, string]('btc.Load', [
 		params,
@@ -83,4 +64,35 @@ pub fn (mut e BtcClient) import_priv_key_rescan(args ImportPrivKeyRescan) ! {
 	return e.client.send_json_rpc[[]string, string]('btc.ImportPrivKeyRescan', [
 		args,
 	], explorer.default_timeout)!
+}
+
+pub fn (mut b BtcClient) import_pub_key(pub_key string) ! {
+	b.client.send_json_rpc[[]string, string]('btc.ImportPubKey', [pub_key], default_timeout)!
+}
+
+pub fn (mut b BtcClient) import_pub_key_rescan(args ImportPubKeyRescan) ! {
+	b.client.send_json_rpc[[]ImportAddressRescan, string]('btc.ImportPubKeyRescan', [
+		args,
+	], default_timeout)!
+}
+
+pub fn (mut b BtcClient) invalidate_block(hash string) ! {
+	b.client.send_json_rpc[[]string, string]('btc.InvalidateBlock', [hash], default_timeout)!
+}
+
+pub fn (mut b BtcClient) rename_account(args RenameAccount) ! {
+	b.client.send_json_rpc[[]RenameAccount, string]('btc.RenameAccount', [args], default_timeout)!
+}
+
+pub fn (mut b BtcClient) submit_block(block SubmitBlock) ! {
+	b.client.send_json_rpc[[]SubmitBlock, string]('btc.SubmitBlock', [block], default_timeout)!
+}
+
+pub fn (mut b BtcClient) send_to_address(args SendToAddress) ! {
+	b.client.send_json_rpc[[]SendToAddress, string]('btc.SendToAddress', [args], default_timeout)!
+}
+
+pub fn (mut b BtcClient) send_to_address_comment(args SendToAddress) ! {
+	b.client.send_json_rpc[[]SendToAddress, string]('btc.SendToAddressComment', [args],
+		default_timeout)!
 }
