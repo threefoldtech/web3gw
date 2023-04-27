@@ -13,6 +13,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
+	"github.com/threefoldtech/web3_proxy/server/pkg/btc"
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
 	"github.com/threefoldtech/web3_proxy/server/pkg/explorer"
 	"github.com/threefoldtech/web3_proxy/server/pkg/ipfs"
