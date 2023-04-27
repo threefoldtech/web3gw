@@ -1,11 +1,13 @@
 module btc
 
-pub struct Load {
+// configurations to load bitcoin client
+pub struct Config {
 	host string 
 	user string 
 	pass string 
 }
 
+// args to import bitcoin address
 pub struct ImportAddressRescan {
 	address string 
 	account string 
@@ -38,11 +40,12 @@ pub struct SubmitBlock {
 	options *btcjson.SubmitBlockOptions 
 }
 
+// send amount of token to address, with/without comment
 pub struct SendToAddress {
 	address   string         
 	amount    btcutil.Amount 
-	comment   string         
-	comment_to string         
+	comment   string         // is intended to be used for the purpose of the transaction
+	comment_to string         // is intended to be used for who the transaction is being sent to.
 }
 
 
