@@ -31,6 +31,7 @@ jobs:
           v scripts/main_nostr.v
           v scripts/main_tfchain.v
           v scripts/main_tfgrid.v
+          v scripts/main_btc.v
 
 
       - name: Build Server
