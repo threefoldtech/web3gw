@@ -58,11 +58,6 @@ type (
 		NewAccount string `json:"new_account"`
 	}
 
-	SubmitBlock struct {
-		Block   *btcutil.Block              `json:"block"`
-		Options *btcjson.SubmitBlockOptions `json:"options"`
-	}
-
 	SendToAddress struct {
 		Address   string         `json:"address"`
 		Amount    btcutil.Amount `json:"amount"`
@@ -79,6 +74,27 @@ type (
 		NumBlocks int64  `json:"num_blocks"`
 		Address   string `json:"address"`
 		MaxTries  int64  `json:"max_tries"`
+	}
+
+	GetChainTxStatsNBlocksBlockHash struct {
+		AmountOfBlocks int32  `json:"amount_of_blocks"`
+		BlockHashEnd   string `json:"block_hash_end"`
+	}
+
+	CreateWallet struct {
+		Name               string `json:"name"`
+		DisablePrivateKeys bool   `json:"disable_private_keys"`
+		CreateBlackWallet  bool   `json:"create_blank_wallet"`
+		Passphrase         string `json:"passphrase"`
+		AvoidReuse         bool   `json:"avoid_reuse"`
+	}
+
+	Move struct {
+		FromAccount      string         `json:"from_account"`
+		ToAccount        string         `json:"to_account"`
+		Amount           btcutil.Amount `json:"amount"`
+		MinConfirmations int            `json:"min_confirmations"`
+		Comment          string         `json:"comment"`
 	}
 )
 
@@ -129,6 +145,7 @@ func (c *Client) CreateNewAccount(ctx context.Context, conState jsonrpc.State, a
 	return state.client.CreateNewAccount(account)
 }
 
+/*
 func (c *Client) CreateEncryptedWallet(ctx context.Context, conState jsonrpc.State, passphrase string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -137,6 +154,7 @@ func (c *Client) CreateEncryptedWallet(ctx context.Context, conState jsonrpc.Sta
 
 	return state.client.CreateEncryptedWallet(passphrase)
 }
+*/
 
 func (c *Client) ImportAddress(ctx context.Context, conState jsonrpc.State, address string) error {
 	state := State(conState)
@@ -239,15 +257,6 @@ func (c *Client) RenameAccount(ctx context.Context, conState jsonrpc.State, args
 	return state.client.RenameAccount(args.OldAccount, args.NewAccount)
 }
 
-func (c *Client) SubmitBlock(ctx context.Context, conState jsonrpc.State, args SubmitBlock) error {
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.SubmitBlock(args.Block, args.Options)
-}
-
 func (c *Client) SendToAddress(ctx context.Context, conState jsonrpc.State, args SendToAddress) (*chainhash.Hash, error) {
 	state := State(conState)
 	if state.client == nil {
@@ -259,21 +268,10 @@ func (c *Client) SendToAddress(ctx context.Context, conState jsonrpc.State, args
 		return nil, err
 	}
 
+	if args.Comment != "" {
+		return state.client.SendToAddressComment(address, args.Amount, args.Comment, args.CommentTo)
+	}
 	return state.client.SendToAddress(address, args.Amount)
-}
-
-func (c *Client) SendToAddressComment(ctx context.Context, conState jsonrpc.State, args SendToAddress) (*chainhash.Hash, error) {
-	state := State(conState)
-	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	address, err := btcutil.DecodeAddress(args.Address, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return state.client.SendToAddressComment(address, args.Amount, args.Comment, args.CommentTo)
 }
 
 func (c *Client) EstimateFee(ctx context.Context, conState jsonrpc.State, numBlocks int64) (float64, error) {
@@ -294,7 +292,7 @@ func (c *Client) EstimateSmartFee(ctx context.Context, conState jsonrpc.State, a
 	return state.client.EstimateSmartFee(args.ConfTarget, &args.Mode)
 }
 
-func (c *Client) Generate(ctx context.Context, conState jsonrpc.State, numBlocks uint32) ([]*chainhash.Hash, error) {
+func (c *Client) GenerateBlocks(ctx context.Context, conState jsonrpc.State, numBlocks uint32) ([]*chainhash.Hash, error) {
 	state := State(conState)
 	if state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
@@ -303,7 +301,7 @@ func (c *Client) Generate(ctx context.Context, conState jsonrpc.State, numBlocks
 	return state.client.Generate(numBlocks)
 }
 
-func (c *Client) GenerateToAddress(ctx context.Context, conState jsonrpc.State, args GenerateToAddress) ([]*chainhash.Hash, error) {
+func (c *Client) GenerateBlocksToAddress(ctx context.Context, conState jsonrpc.State, args GenerateToAddress) ([]*chainhash.Hash, error) {
 	state := State(conState)
 	if state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
@@ -426,4 +424,139 @@ func (c *Client) GetBlockVerboseTx(ctx context.Context, conState jsonrpc.State, 
 	}
 
 	return state.client.GetBlockVerboseTx(blockHash)
+}
+
+func (c *Client) GetChainTxStats(ctx context.Context, conState jsonrpc.State) (*btcjson.GetChainTxStatsResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetChainTxStats()
+}
+
+func (c *Client) GetChainTxStatsNBlocks(ctx context.Context, conState jsonrpc.State, nBlocks int32) (*btcjson.GetChainTxStatsResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetChainTxStatsNBlocks(nBlocks)
+}
+
+func (c *Client) GetChainTxStatsNBlocksBlockHash(ctx context.Context, conState jsonrpc.State, args GetChainTxStatsNBlocksBlockHash) (*btcjson.GetChainTxStatsResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	blockHash, err := chainhash.NewHashFromStr(args.BlockHashEnd)
+	if err != nil {
+		return nil, err
+	}
+
+	return state.client.GetChainTxStatsNBlocksBlockHash(args.AmountOfBlocks, *blockHash)
+}
+
+func (c *Client) GetDifficulty(ctx context.Context, conState jsonrpc.State) (float64, error) {
+	state := State(conState)
+	if state.client == nil {
+		return 0, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetDifficulty()
+}
+
+func (c *Client) GetMiningInfo(ctx context.Context, conState jsonrpc.State) (*btcjson.GetMiningInfoResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetMiningInfo()
+}
+
+func (c *Client) GetNewAddress(ctx context.Context, conState jsonrpc.State, account string) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	address, err := state.client.GetNewAddress(account)
+	if err != nil {
+		return "", err
+	}
+
+	return address.EncodeAddress(), nil
+}
+
+func (c *Client) GetNodeAddresses(ctx context.Context, conState jsonrpc.State) ([]btcjson.GetNodeAddressesResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return []btcjson.GetNodeAddressesResult{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetNodeAddresses(nil)
+}
+
+func (c *Client) GetPeerInfo(ctx context.Context, conState jsonrpc.State) ([]btcjson.GetPeerInfoResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return []btcjson.GetPeerInfoResult{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetPeerInfo()
+}
+
+func (c *Client) GetRawTransaction(ctx context.Context, conState jsonrpc.State, txHash string) (*btcutil.Tx, error) {
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	txHashDecoded, err := chainhash.NewHashFromStr(txHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return state.client.GetRawTransaction(txHashDecoded)
+}
+
+func (c *Client) CreateWallet(ctx context.Context, conState jsonrpc.State, args CreateWallet) (*btcjson.CreateWalletResult, error) {
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	options := []btcRpcClient.CreateWalletOpt{}
+	if args.DisablePrivateKeys {
+		options = append(options, btcRpcClient.WithCreateWalletDisablePrivateKeys())
+	}
+	if args.AvoidReuse {
+		options = append(options, btcRpcClient.WithCreateWalletAvoidReuse())
+	}
+	if args.CreateBlackWallet {
+		options = append(options, btcRpcClient.WithCreateWalletBlank())
+	}
+	if args.Passphrase != "" {
+		options = append(options, btcRpcClient.WithCreateWalletPassphrase(args.Passphrase))
+	}
+
+	return state.client.CreateWallet(args.Name, options...)
+}
+
+func (c *Client) Move(ctx context.Context, conState jsonrpc.State, args Move) (bool, error) {
+	state := State(conState)
+	if state.client == nil {
+		return false, pkg.ErrClientNotConnected{}
+	}
+
+	if args.MinConfirmations > 0 {
+		if args.Comment != "" {
+			return state.client.MoveComment(args.FromAccount, args.ToAccount, args.Amount, args.MinConfirmations, args.Comment)
+		}
+		return state.client.MoveMinConf(args.FromAccount, args.ToAccount, args.Amount, args.MinConfirmations)
+	}
+	return state.client.Move(args.FromAccount, args.ToAccount, args.Amount)
+
 }
