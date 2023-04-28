@@ -1,10 +1,11 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
+import threefoldtech.threebot.btc
+
 import flag
 import log
 import os
-import btc
 
 const (
 	default_server_address = 'http://127.0.0.1:8080'

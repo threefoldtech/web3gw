@@ -2,12 +2,12 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import eth
-import explorer
-import stellar
-import tfchain
-import tfgrid
-import nostr
+import threefoldtech.threebot.eth
+import threefoldtech.threebot.explorer
+import threefoldtech.threebot.stellar
+import threefoldtech.threebot.tfchain
+import threefoldtech.threebot.tfgrid
+import threefoldtech.threebot.nostr
 //ADD NEW CLIENTS HERE
 
 import flag
