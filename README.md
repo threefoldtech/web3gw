@@ -18,7 +18,7 @@ First start the server:
 ```
 cd server
 go build
-go run main.go --debug
+./server --debug
 ```
 
 Then you can go through the documentation under [scripts](scripts/)
