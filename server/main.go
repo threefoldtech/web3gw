@@ -51,6 +51,7 @@ func main() {
 	errors.Register(-2001, &stellar.ErrUnknownNetwork{})
 
 	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(errors))
+	rpcServer.Register("btc", btc.NewClient())
 	rpcServer.Register("eth", eth.NewClient())
 	rpcServer.Register("stellar", stellar.NewClient())
 	rpcServer.Register("tfchain", tfchain.NewClient())
