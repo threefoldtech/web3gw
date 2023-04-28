@@ -64,7 +64,7 @@ pub struct SendToAddress {
 
 [params]
 pub struct EstimateSmartFee {
-	conf_target i64 // confirmation target in blocks
+	conf_target i64 = 1 // confirmation target in blocks
 	mode        string = "CONSERVATIVE" // defines the different fee estimation modes, should be one of UNSET, ECONOMICAL or CONSERVATIVE
 }
 
@@ -109,13 +109,6 @@ pub fn new(mut client RpcWsClient) BtcClient {
 pub fn (mut c BtcClient) load(params Load) !string {
 	return c.client.send_json_rpc[[]Load, string]('btc.Load', [
 		params,
-	], btc.default_timeout)!
-}
-
-// Creates a new wallet account.
-pub fn (mut c BtcClient) create_new_account(account string) ! {
-	_ := c.client.send_json_rpc[[]string, string]('btc.CreateNewAccount', [
-		account,
 	], btc.default_timeout)!
 }
 
@@ -182,11 +175,6 @@ pub fn (mut c BtcClient) rename_account(args RenameAccount) ! {
 pub fn (mut c BtcClient) send_to_address(args SendToAddress) !string {
 	return c.client.send_json_rpc[[]SendToAddress, string]('btc.SendToAddress', [args],
 		btc.default_timeout)!
-}
-
-// Provides an estimated fee in bitcoins per kilobyte for the requested amount of blocks
-pub fn (mut c BtcClient) estimate_fee(num_blocks i64) !f64 {
-	return c.client.send_json_rpc[[]i64, f64]('btc.EstimateFee', [num_blocks], btc.default_timeout)!
 }
 
 // Provides a more accurate estimated fee given an estimation mode. 
@@ -299,8 +287,8 @@ pub fn (mut c BtcClient) get_raw_transaction(tx_hash string) !Transaction {
 }
 
 // Creates a new wallet account taken into account the provided arguments. 
-pub fn (mut c BtcClient) create_wallet(args CreateWallet) ![]CreateWalletResult {
-	return c.client.send_json_rpc[[]CreateWallet, []CreateWalletResult]('btc.CreateWallet',
+pub fn (mut c BtcClient) create_wallet(args CreateWallet) !CreateWalletResult {
+	return c.client.send_json_rpc[[]CreateWallet, CreateWalletResult]('btc.CreateWallet',
 		[args], btc.default_timeout)!
 }
 
