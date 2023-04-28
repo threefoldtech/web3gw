@@ -42,3 +42,8 @@ func NewClient(secret, stellarNetwork string) (*Client, error) {
 func (c *Client) Address() string {
 	return c.kp.Address()
 }
+
+// KeyPair loaded in the client
+func (c *Client) KeyPair() keypair.Full {
+	return *c.kp
+}
