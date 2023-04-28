@@ -145,15 +145,6 @@ func (c *Client) CreateNewAccount(ctx context.Context, conState jsonrpc.State, a
 	return state.client.CreateNewAccount(account)
 }
 
-func (c *Client) CreateEncryptedWallet(ctx context.Context, conState jsonrpc.State, passphrase string) error {
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.CreateEncryptedWallet(passphrase)
-}
-
 func (c *Client) ImportAddress(ctx context.Context, conState jsonrpc.State, address string) error {
 	state := State(conState)
 	if state.client == nil {
@@ -230,20 +221,6 @@ func (c *Client) ImportPubKeyRescan(ctx context.Context, conState jsonrpc.State,
 	}
 
 	return state.client.ImportPubKeyRescan(args.PubKey, args.Rescan)
-}
-
-func (c *Client) InvalidateBlock(ctx context.Context, conState jsonrpc.State, hash string) error {
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	blockHash, err := chainhash.NewHashFromStr(hash)
-	if err != nil {
-		return err
-	}
-
-	return state.client.InvalidateBlock(blockHash)
 }
 
 func (c *Client) RenameAccount(ctx context.Context, conState jsonrpc.State, args RenameAccount) error {
@@ -424,36 +401,23 @@ func (c *Client) GetBlockVerboseTx(ctx context.Context, conState jsonrpc.State, 
 	return state.client.GetBlockVerboseTx(blockHash)
 }
 
-func (c *Client) GetChainTxStats(ctx context.Context, conState jsonrpc.State) (*btcjson.GetChainTxStatsResult, error) {
+func (c *Client) GetChainTxStats(ctx context.Context, conState jsonrpc.State, args GetChainTxStatsNBlocksBlockHash) (*btcjson.GetChainTxStatsResult, error) {
 	state := State(conState)
 	if state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
+	if args.AmountOfBlocks > 0 {
+		if args.BlockHashEnd != "" {
+			blockHash, err := chainhash.NewHashFromStr(args.BlockHashEnd)
+			if err != nil {
+				return nil, err
+			}
+			return state.client.GetChainTxStatsNBlocksBlockHash(args.AmountOfBlocks, *blockHash)
+		}
+		return state.client.GetChainTxStatsNBlocks(args.AmountOfBlocks)
+	}
 	return state.client.GetChainTxStats()
-}
-
-func (c *Client) GetChainTxStatsNBlocks(ctx context.Context, conState jsonrpc.State, nBlocks int32) (*btcjson.GetChainTxStatsResult, error) {
-	state := State(conState)
-	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.GetChainTxStatsNBlocks(nBlocks)
-}
-
-func (c *Client) GetChainTxStatsNBlocksBlockHash(ctx context.Context, conState jsonrpc.State, args GetChainTxStatsNBlocksBlockHash) (*btcjson.GetChainTxStatsResult, error) {
-	state := State(conState)
-	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	blockHash, err := chainhash.NewHashFromStr(args.BlockHashEnd)
-	if err != nil {
-		return nil, err
-	}
-
-	return state.client.GetChainTxStatsNBlocksBlockHash(args.AmountOfBlocks, *blockHash)
 }
 
 func (c *Client) GetDifficulty(ctx context.Context, conState jsonrpc.State) (float64, error) {

@@ -196,7 +196,7 @@ pub struct GetPeerInfoResult {
 	syncnode       bool
 }
 
-pub struct Tx {
+pub struct Transaction {
 	msg_tx          MsgTx  // Underlying MsgTx
 	tx_hash         []byte // Cached transaction hash
 	tx_hash_witness []byte // Cached transaction witness hash

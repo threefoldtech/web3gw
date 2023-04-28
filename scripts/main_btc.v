@@ -13,11 +13,7 @@ const (
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut btc_client := btc.new(mut client)
 
-	btc_client.load(btc.Config{
-		host: 'host'
-		user: 'user'
-		pass: 'pass'
-	})!
+	btc_client.load(host: 'host', user: 'user', pass: 'pass')!
 }
 
 fn main() {
