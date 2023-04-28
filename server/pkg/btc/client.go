@@ -355,7 +355,7 @@ func (c *Client) GetBalance(ctx context.Context, conState jsonrpc.State, account
 	return state.client.GetBalance(account)
 }
 
-func (c *Client) GetBlockCount(ctx context.Context, conState jsonrpc.State, account string) (int64, error) {
+func (c *Client) GetBlockCount(ctx context.Context, conState jsonrpc.State) (int64, error) {
 	state := State(conState)
 	if state.client == nil {
 		return 0, pkg.ErrClientNotConnected{}

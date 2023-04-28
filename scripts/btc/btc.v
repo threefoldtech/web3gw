@@ -236,8 +236,8 @@ pub fn (mut c BtcClient) get_balance(account string) !i64 {
 }
 
 // Returns the number of blocks in the longest block chain.
-pub fn (mut c BtcClient) get_block_count(account string) !i64 {
-	return c.client.send_json_rpc[[]string, i64]('btc.GetBlockCount', [account], btc.default_timeout)!
+pub fn (mut c BtcClient) get_block_count() !i64 {
+	return c.client.send_json_rpc[[]string, i64]('btc.GetBlockCount', []string{}, btc.default_timeout)!
 }
 
 // Returns the hash of the block in the best block chain at the given height.

@@ -10,10 +10,13 @@ const (
 	default_server_address = 'http://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user string, password string) ! {
 	mut btc_client := btc.new(mut client)
 
-	btc_client.load(host: 'host', user: 'user', pass: 'pass')!
+	btc_client.load(host: host, user: user, pass: password)!
+
+	amount_blocks := btc_client.get_block_count()!
+	logger.info("Block count: ${amount_blocks}")
 }
 
 fn main() {
@@ -22,9 +25,12 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
-	mnemonic := fp.string('mnemonic', `m`, '', 'The mnemonic to be used to call any function')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
+	password := fp.string('pass', `p`, '', 'The password to use to connect to the bitcoin node.')
+	host := fp.string('host', `h`, '', 'The address of the bitcoin node to connect to.')
+	user := fp.string('user', `u`, '', 'The user to use to connect to the bitcoin node.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
+
 	_ := fp.finalize() or {
 		eprintln(err)
 		println(fp.usage())
@@ -42,7 +48,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, mnemonic) or {
+	execute_rpcs(mut myclient, mut logger, host, user, password) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
