@@ -2,7 +2,7 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import tfchain
+import threefoldtech.threebot.tfchain
 
 import flag
 import log

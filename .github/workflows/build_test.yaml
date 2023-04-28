@@ -27,6 +27,7 @@ jobs:
         run: |
           bash install.sh
           v scripts/main.v
+          v scripts/main_btc.v
           v scripts/main_eth.v
           v scripts/main_explorer.v
           v scripts/main_nostr.v

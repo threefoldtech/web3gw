@@ -13,6 +13,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
+	"github.com/threefoldtech/web3_proxy/server/pkg/btc"
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
 	"github.com/threefoldtech/web3_proxy/server/pkg/explorer"
 	"github.com/threefoldtech/web3_proxy/server/pkg/ipfs"
@@ -50,6 +51,7 @@ func main() {
 	errors.Register(-2001, &stellar.ErrUnknownNetwork{})
 
 	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(errors))
+	rpcServer.Register("btc", btc.NewClient())
 	rpcServer.Register("eth", eth.NewClient())
 	rpcServer.Register("stellar", stellar.NewClient())
 	rpcServer.Register("tfchain", tfchain.NewClient())

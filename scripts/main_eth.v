@@ -1,8 +1,7 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
-import eth
+import threefoldtech.threebot.eth
 
 import flag
 import log
