@@ -102,6 +102,11 @@ const (
 	DriverStageDone
 )
 
+const (
+	// dialTimeout for dialing eth nodes
+	dialTimeout = time.Second * 10
+)
+
 var (
 	// contract address on the goerli network
 	contractAddress = common.HexToAddress("0x8420c8271d602F6D0B190856Cea8E74D09A0d3cF")
@@ -206,11 +211,13 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 	// seller accepted our buy, so initiate the atomic swap.
 	// we have ETH and want to buy TFT on stellar, so set up the eth
 	// part of the swap
-	client, err := eth.DialClient(d.eth.Url) // TODO: should probably be able to construct this from the existing client
+	dialCtx, cancel := context.WithTimeout(ctx, dialTimeout)
+	client, err := eth.DialClient(dialCtx, d.eth.Url) // TODO: should probably be able to construct this from the existing client
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to dial eth node")
 		return
 	}
+	cancel()
 	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to construct swap contract transactor")
@@ -256,11 +263,13 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 
 	// Buyer initiated an Eth atomic swap, so first check and see if that is correct
 	// Note that at this point, the seller does not have an sct yet
-	client, err := eth.DialClient(d.eth.Url) // TODO: should probably be able to construct this from the existing client
+	dialCtx, cancel := context.WithTimeout(ctx, dialTimeout)
+	client, err := eth.DialClient(dialCtx, d.eth.Url) // TODO: should probably be able to construct this from the existing client
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to dial eth node")
 		return
 	}
+	cancel()
 	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to construct swap contract transactor")

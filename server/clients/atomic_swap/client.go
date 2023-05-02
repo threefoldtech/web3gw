@@ -24,6 +24,11 @@ type (
 
 		stalls []nostr.Stall
 	}
+
+	tokenSale struct {
+		seller string
+		sale   nostr.Product
+	}
 )
 
 const (
@@ -111,13 +116,13 @@ func (c *Client) AttemptBuy(ctx context.Context, amount uint, currency string, m
 		return nil, errors.Wrap(err, "could not load existing sales")
 	}
 
-	filteredSales := []nostr.Product{}
+	filteredSales := []tokenSale{}
 	for _, sale := range openSales {
-		if sale.Currency != currency {
+		if sale.sale.Currency != currency {
 			continue
 		}
 
-		if sale.Price > float64(maxPrice) {
+		if sale.sale.Price > float64(maxPrice) {
 			continue
 		}
 
@@ -127,14 +132,14 @@ func (c *Client) AttemptBuy(ctx context.Context, amount uint, currency string, m
 	// filteredSales is a list of all sales in the given currency
 	// sort by by price
 	sort.Slice(filteredSales, func(i, j int) bool {
-		return filteredSales[i].Price < filteredSales[j].Price
+		return filteredSales[i].sale.Price < filteredSales[j].sale.Price
 	})
 
 	// if we actually have a sale open, attempt to drive it
 	if len(filteredSales) > 0 {
 		driver := initDriver(c.nostr, c.eth, c.stellar)
 		// TODO
-		driver.Buy(filteredSales[0], amount)
+		driver.Buy(ctx, filteredSales[0].seller, filteredSales[0].sale, amount)
 		return driver, nil
 	}
 
@@ -173,7 +178,7 @@ func (c *Client) loadOwnStalls(ctx context.Context) error {
 	return nil
 }
 
-func (c *Client) loadSaleOrders(ctx context.Context) ([]nostr.Product, error) {
+func (c *Client) loadSaleOrders(ctx context.Context) ([]tokenSale, error) {
 	subId, err := c.nostr.SubscribeProductCreation(tagTftSaleOrder)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not subscribe to product creation events")
@@ -184,13 +189,13 @@ func (c *Client) loadSaleOrders(ctx context.Context) ([]nostr.Product, error) {
 	time.Sleep(time.Second * 5)
 	events := c.nostr.GetSubscriptionEvents(subId)
 
-	sales := []nostr.Product{}
+	sales := []tokenSale{}
 	for _, evt := range events {
 		sale := nostr.Product{}
 		if err := json.Unmarshal([]byte(evt.Content), &sale); err != nil {
 			log.Debug().Err(err).Msg("unexpected content in event")
 		}
-		sales = append(sales, sale)
+		sales = append(sales, tokenSale{sale: sale, seller: evt.ID})
 	}
 
 	c.nostr.CloseSubscription(subId)
