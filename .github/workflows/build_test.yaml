@@ -33,8 +33,8 @@ jobs:
           v examples/main_nostr.v
           v examples/main_tfchain.v
           v examples/main_tfgrid.v
-          v examples/nostr_examples/main_nostr_chat_consumer.v
-          v examples/nostr_examples/main_nostr_chat_publisher.v
+          v examples/nostr/main_nostr_chat_consumer.v
+          v examples/nostr/main_nostr_chat_publisher.v
 
       - name: Build Server
         run: |
