@@ -5399,7 +5399,7 @@
           "title": "MachineCapacity",
           "properties": {
             "cpu": {
-              "type": "u8"
+              "type": "integer"
             },
             "memory": {
               "type": "string"
