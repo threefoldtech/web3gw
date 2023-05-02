@@ -7,7 +7,7 @@ pub:
 	data    ZOSNodeRequestData [json: 'data'] // data of the request, could be a Deployment or a contract id
 }
 
-type ZOSNodeRequestData = Deployment | u64
+pub type ZOSNodeRequestData = Deployment | u64
 
 // Deployment is a ZOS deployment structure
 pub struct Deployment {
@@ -81,7 +81,7 @@ pub struct WorkloadRaw {
 	result        ResultRaw [json: 'result']
 }
 
-type WorkloadData = GatewayFQDNProxyWorkload
+pub type WorkloadData = GatewayFQDNProxyWorkload
 	| GatewayNameProxyWorkload
 	| NetworkWorkload
 	| PublicIP
@@ -107,7 +107,7 @@ pub struct ResultRaw {
 	data    string [json: 'data'; raw]
 }
 
-type ResultData = GatewayNameProxyResult
+pub type ResultData = GatewayNameProxyResult
 	| PublicIPResult
 	| ZDBResult
 	| ZDBResultData
