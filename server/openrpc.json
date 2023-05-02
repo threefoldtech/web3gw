@@ -3930,13 +3930,16 @@
             "cru": {
               "type": "string"
             },
-            "sru": {
-              "type": "string"
-            },
             "hru": {
               "type": "string"
             },
+            "sru": {
+              "type": "string"
+            },
             "mru": {
+              "type": "string"
+            },
+            "ipv4u": {
               "type": "string"
             }
           }
@@ -5023,6 +5026,72 @@
             }
           }
         },
+        "MachineResult": {
+          "title": "MachineResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "node_id": {
+              "type": "integer"
+            },
+            "farm_id": {
+              "type": "integer"
+            },
+            "flist": {
+              "type": "string"
+            },
+            "entrypoint": {
+              "type": "string"
+            },
+            "public_ip": {
+              "type": "boolean"
+            },
+            "public_ip6": {
+              "type": "boolean"
+            },
+            "planetary": {
+              "type": "boolean"
+            },
+            "cpu": {
+              "type": "integer"
+            },
+            "memory": {
+              "type": "string"
+            },
+            "rootfs_size": {
+              "type": "string"
+            },
+            "zlogs": {
+              "$ref": "#/components/schemas/Zlog"
+            },
+            "disks": {
+              "$ref": "#/components/schemas/DiskResult"
+            },
+            "qsfs": {
+              "$ref": "#/components/schemas/QSFSResult"
+            },
+            "env_vars": {
+              "type": "object"
+            },
+            "description": {
+              "description": "computed",
+              "type": "string"
+            },
+            "computed_ip4": {
+              "type": "string"
+            },
+            "computed_ip6": {
+              "type": "string"
+            },
+            "wireguard_ip": {
+              "type": "string"
+            },
+            "ygg_ip": {
+              "type": "string"
+            }
+          }
+        },
         "Disk": {
           "title": "Disk",
           "properties": {
@@ -5201,6 +5270,21 @@
             }
           }
         },
+        "NetworkResult": {
+          "title": "NetworkResult",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "ip_range": {
+              "description": "computed",
+              "type": "string"
+            },
+            "wireguard_config": {
+              "type": "string"
+            }
+          }
+        },
         "MachinesGet": {
           "title": "MachinesGet",
           "description": "struct AddMachine { machine Machine project_name string } struct RemoveMachine { machine_name string project_name string }",
@@ -5286,6 +5370,53 @@
             }
           }
         },
+        "MachineNetwork": {
+          "title": "MachineNetwork",
+          "properties": {
+            "public_ip": {
+              "type": "string"
+            },
+            "planetary": {
+              "type": "boolean"
+            },
+            "interfaces": {
+              "$ref": "#/components/schemas/MachineInterface"
+            }
+          }
+        },
+        "MachineInterface": {
+          "title": "MachineInterface",
+          "properties": {
+            "network": {
+              "type": "string"
+            },
+            "ip": {
+              "type": "string"
+            }
+          }
+        },
+        "MachineCapacity": {
+          "title": "MachineCapacity",
+          "properties": {
+            "cpu": {
+              "type": "u8"
+            },
+            "memory": {
+              "type": "string"
+            }
+          }
+        },
+        "MachineMount": {
+          "title": "MachineMount",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "mountpoint": {
+              "type": "string"
+            }
+          }
+        },
         "Zlogs": {
           "title": "Zlogs",
           "description": "Zlogs is a workload that enables users to stream logs from a zmachine to some url",
@@ -5358,6 +5489,34 @@
             },
             "peers": {
               "$ref": "#/components/schemas/Peer"
+            }
+          }
+        },
+        "IPNet": {
+          "title": "IPNet",
+          "properties": {
+            "ip": {
+              "type": "string"
+            },
+            "mask": {
+              "type": "string"
+            }
+          }
+        },
+        "Peer": {
+          "title": "Peer",
+          "properties": {
+            "subnet": {
+              "$ref": "#/components/schemas/IPNet"
+            },
+            "wg_public_key": {
+              "type": "string"
+            },
+            "allowed_ips": {
+              "$ref": "#/components/schemas/IPNet"
+            },
+            "endpoint": {
+              "type": "string"
             }
           }
         },
@@ -5531,6 +5690,35 @@
             }
           }
         },
+        "DeploymentRaw": {
+          "title": "DeploymentRaw",
+          "properties": {
+            "version": {
+              "type": "integer"
+            },
+            "twin_id": {
+              "type": "integer"
+            },
+            "contract_id": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "expiration": {
+              "type": "string"
+            },
+            "signature_requirement": {
+              "$ref": "#/components/schemas/SignatureRequirement"
+            },
+            "workloads": {
+              "$ref": "#/components/schemas/WorkloadRaw"
+            }
+          }
+        },
         "SignatureRequirement": {
           "title": "SignatureRequirement",
           "description": "SignatureRequirement struct describes the signatures that are needed to be valid for the node to accept the deployment",
@@ -5616,6 +5804,69 @@
             }
           }
         },
+        "WorkloadRaw": {
+          "title": "WorkloadRaw",
+          "properties": {
+            "version": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "workload_type": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "result": {
+              "$ref": "#/components/schemas/ResultRaw"
+            }
+          }
+        },
+        "Result": {
+          "title": "Result",
+          "description": "Result is the struct filled by the node after a reservation object has been processed",
+          "properties": {
+            "created": {
+              "type": "string"
+            },
+            "state": {
+              "description": "Time when the result is sent",
+              "type": "string"
+            },
+            "message": {
+              "description": "state ate of the deployment (ok,error, ...)",
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/components/schemas/ResultData"
+            }
+          }
+        },
+        "ResultRaw": {
+          "title": "ResultRaw",
+          "properties": {
+            "created": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string"
+            }
+          }
+        },
         "SystemVersion": {
           "title": "SystemVersion",
           "description": "SystemVersion contains system version information",
@@ -5638,6 +5889,56 @@
             },
             "sections": {
               "$ref": "#/components/schemas/Section"
+            }
+          }
+        },
+        "Tooling": {
+          "title": "Tooling",
+          "properties": {
+            "aggregator": {
+              "type": "string"
+            },
+            "decoder": {
+              "type": "string"
+            }
+          }
+        },
+        "Section": {
+          "title": "Section",
+          "properties": {
+            "handleline": {
+              "type": "string"
+            },
+            "typestr": {
+              "type": "string"
+            },
+            "type_": {
+              "type": "integer"
+            },
+            "subsections": {
+              "$ref": "#/components/schemas/Subsection"
+            }
+          }
+        },
+        "Subsection": {
+          "title": "Subsection",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "properties": {
+              "$ref": "#/components/schemas/PropertyData"
+            }
+          }
+        },
+        "PropertyData": {
+          "title": "PropertyData",
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array"
             }
           }
         },
