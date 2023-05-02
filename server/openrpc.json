@@ -5953,6 +5953,69 @@
               "$ref": "#/components/schemas/Capacity"
             }
           }
+        },
+        "ZOSNodeRequestData": {
+          "title": "ZOSNodeRequestData",
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/Deployment"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "WorkloadData": {
+          "title": "WorkloadData",
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/GatewayFQDNProxyWorkload"
+            },
+            {
+              "$ref": "#/components/schemas/GatewayNameProxyWorkload"
+            },
+            {
+              "$ref": "#/components/schemas/NetworkWorkload"
+            },
+            {
+              "$ref": "#/components/schemas/PublicIP"
+            },
+            {
+              "$ref": "#/components/schemas/ZDBWorkload"
+            },
+            {
+              "$ref": "#/components/schemas/ZMachine"
+            },
+            {
+              "$ref": "#/components/schemas/ZMount"
+            },
+            {
+              "$ref": "#/components/schemas/Zlogs"
+            }
+          ]
+        },
+        "ResultData": {
+          "title": "ResultData",
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/GatewayNameProxyResult"
+            },
+            {
+              "$ref": "#/components/schemas/PublicIPResult"
+            },
+            {
+              "$ref": "#/components/schemas/ZDBResult"
+            },
+            {
+              "$ref": "#/components/schemas/ZDBResultData"
+            },
+            {
+              "$ref": "#/components/schemas/ZMachineResult"
+            },
+            {
+              "type": "string"
+            }
+          ]
         }
       }
     }
