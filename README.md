@@ -3,8 +3,8 @@
 Project setup:
 
 - Server (the proxy server)
-- Clients (the web3 clients)
-- Scripts (client scripts to invoke server commands)
+- Lib (the clients in V lang)
+- Examples (example scripts)
 
 ## Installing
 
@@ -22,6 +22,10 @@ go build
 ```
 
 Then you can go through the documentation under [scripts](scripts/)
+
+## Examples
+
+See `./examples` folder for examples of how to interact with the proxy.
 
 
 ## Documentation

@@ -26,15 +26,15 @@ jobs:
       - name: Build V Client
         run: |
           bash install.sh
-          v scripts/main.v
-          v scripts/main_btc.v
-          v scripts/main_eth.v
-          v scripts/main_explorer.v
-          v scripts/main_nostr.v
-          v scripts/main_tfchain.v
-          v scripts/main_tfgrid.v
-          v scripts/nostr_examples/main_nostr_chat_consumer.v
-          v scripts/nostr_examples/main_nostr_chat_publisher.v
+          v examples/main.v
+          v examples/main_btc.v
+          v examples/main_eth.v
+          v examples/main_explorer.v
+          v examples/main_nostr.v
+          v examples/main_tfchain.v
+          v examples/main_tfgrid.v
+          v examples/nostr_examples/main_nostr_chat_consumer.v
+          v examples/nostr_examples/main_nostr_chat_publisher.v
 
       - name: Build Server
         run: |
