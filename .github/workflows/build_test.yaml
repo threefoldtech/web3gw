@@ -31,6 +31,7 @@ jobs:
           v examples/main_eth.v
           v examples/main_explorer.v
           v examples/main_nostr.v
+          v examples/main_stellar.v
           v examples/main_tfchain.v
           v examples/main_tfgrid.v
           v examples/nostr/main_nostr_chat_consumer.v

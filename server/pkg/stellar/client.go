@@ -3,14 +3,15 @@ package stellar
 import (
 	"context"
 
+	"github.com/LeeSmet/go-jsonrpc"
 	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
-	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
 
 const (
 	stellarNetworkPublic  = "public"
 	stellarNetworkTestnet = "testnet"
+	StellarID             = "stellar"
 )
 
 type (
@@ -18,11 +19,21 @@ type (
 	ErrUnknownNetwork struct{}
 	// Client exposing stellar methods
 	Client struct {
-		state *state.StateManager[stellarState]
 	}
 	stellarState struct {
 		client  *stellargoclient.Client
 		network string
+	}
+
+	Load struct {
+		Network string `json:"network"`
+		Secret  string `json:"secret"`
+	}
+
+	Transfer struct {
+		Amount      string `json:"amount"`
+		Destination string `json:"destination"`
+		Memo        string `json:"memo"`
 	}
 )
 
@@ -31,47 +42,60 @@ func (e ErrUnknownNetwork) Error() string {
 	return "only 'public' and 'testnet' networks are supported"
 }
 
-// NewClient creates a new Client ready for use
-func NewClient() *Client {
-	return &Client{
-		state: state.NewStateManager[stellarState](),
+// State from a connection. If no state is present, it is initialized
+func State(conState jsonrpc.State) *stellarState {
+	raw, exists := conState[StellarID]
+	if !exists {
+		ns := &stellarState{
+			client: nil,
+		}
+		conState[StellarID] = ns
+		return ns
 	}
+	ns, ok := raw.(*stellarState)
+	if !ok {
+		// This means the invariant is violated, so panic here is ok
+		panic("Invalid saved state for stellar")
+	}
+	return ns
+}
+
+// NewClient creates a new client
+func NewClient() *Client {
+	return &Client{}
 }
 
 // Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given secret
-func (c *Client) Load(ctx context.Context, network string, secret string) error {
-	if network != stellarNetworkTestnet && network != stellarNetworkPublic {
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
+	if args.Network != stellarNetworkTestnet && args.Network != stellarNetworkPublic {
 		return ErrUnknownNetwork{}
 	}
-	cl, err := stellargoclient.NewClient(secret, network)
+	cl, err := stellargoclient.NewClient(args.Secret, args.Network)
 	if err != nil {
 		return err
 	}
 
-	ss := stellarState{
-		client:  cl,
-		network: network,
-	}
-
-	c.state.Set(state.IDFromContext(ctx), ss)
+	state := State(conState)
+	state.client = cl
+	state.network = args.Network
 
 	return nil
 }
 
 // Transer an amount of TFT from the loaded account to the destination.
-func (c *Client) Transfer(ctx context.Context, amount string, destination string, memo string) error {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) error {
+	state := State(conState)
+	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.Transfer(destination, memo, amount)
+	return state.client.Transfer(args.Destination, args.Memo, args.Amount)
 }
 
 // Balance of an account for TFT on stellar.
-func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (int64, error) {
+	state := State(conState)
+	if state.client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
