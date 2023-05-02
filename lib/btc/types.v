@@ -16,7 +16,7 @@ pub struct GetAddressInfoResult {
 	embedded    EmbeddedAddressInfo
 }
 
-struct EmbeddedAddressInfo {
+pub struct EmbeddedAddressInfo {
 	address             string
 	script_pub_key      string   [json: 'scriptPubKey']
 	solvable            bool
