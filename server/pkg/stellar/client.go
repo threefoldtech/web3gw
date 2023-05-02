@@ -62,7 +62,7 @@ func State(conState jsonrpc.State) *StellarState {
 	ns, ok := raw.(*StellarState)
 	if !ok {
 		// This means the invariant is violated, so panic here is ok
-		panic("Invalid saved state for atomic swap")
+		panic("Invalid saved state for stellar")
 	}
 	return ns
 }
