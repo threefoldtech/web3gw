@@ -6,7 +6,7 @@
     },
     "methods": [
       {
-        "name": "load",
+        "name": "btc.Load",
         "description": "Connects to the bitcoin node. This should be the first call to execute.",
         "params": [
           {
@@ -24,7 +24,7 @@
         }
       },
       {
-        "name": "import_address",
+        "name": "btc.ImportAddress",
         "description": "Imports the passed public address.",
         "params": [
           {
@@ -42,7 +42,7 @@
         }
       },
       {
-        "name": "import_address_rescan",
+        "name": "btc.ImportAddressRescan",
         "description": "Imports the passed public address. When rescan is true, the block history is scanned for transactions addressed to provided address.",
         "params": [
           {
@@ -60,7 +60,7 @@
         }
       },
       {
-        "name": "import_priv_key",
+        "name": "btc.ImportPrivKey",
         "description": "Imports the passed private key which must be the wallet import format (WIF). The WIF string must be a base58-encoded string.",
         "params": [
           {
@@ -78,7 +78,7 @@
         }
       },
       {
-        "name": "import_priv_key_label",
+        "name": "btc.ImportPrivKeyLabel",
         "description": "Imports the passed private key which must be the wallet import format (WIF). It sets the account label to the one provided. The WIF string must be a base58-encoded string.",
         "params": [
           {
@@ -96,7 +96,7 @@
         }
       },
       {
-        "name": "import_priv_key_rescan",
+        "name": "btc.ImportPrivKeyRescan",
         "description": "Imports the passed private key which must be the wallet import format (WIF). It sets the account label to the one provided. When rescan is true, the block history is scanned for transactions addressed to provided privKey. The WIF string must be a base58-encoded string.",
         "params": [
           {
@@ -114,7 +114,7 @@
         }
       },
       {
-        "name": "import_pub_key",
+        "name": "btc.ImportPubKey",
         "description": "Imports the passed public key.",
         "params": [
           {
@@ -132,7 +132,7 @@
         }
       },
       {
-        "name": "import_pub_key_rescan",
+        "name": "btc.ImportPubKeyRescan",
         "description": "Imports the passed public key. When rescan is true, the block history is scanned for transactions addressed to provided pubkey.",
         "params": [
           {
@@ -150,7 +150,7 @@
         }
       },
       {
-        "name": "rename_account",
+        "name": "btc.RenameAccount",
         "description": "Allows you to rename an account.",
         "params": [
           {
@@ -168,7 +168,7 @@
         }
       },
       {
-        "name": "send_to_address",
+        "name": "btc.SendToAddress",
         "description": "Sends the passed amount to the given address with a comment if provided and returns the hash of the transaction",
         "params": [
           {
@@ -186,7 +186,7 @@
         }
       },
       {
-        "name": "estimate_smart_fee",
+        "name": "btc.EstimateSmartFee",
         "description": "Provides a more accurate estimated fee given an estimation mode.",
         "params": [
           {
@@ -204,7 +204,7 @@
         }
       },
       {
-        "name": "generate_blocks",
+        "name": "btc.GenerateBlocks",
         "description": "Generates the provided amount of blocks and returns their hashes.",
         "params": [
           {
@@ -225,7 +225,7 @@
         }
       },
       {
-        "name": "generate_blocks_to_address",
+        "name": "btc.GenerateBlocksToAddress",
         "description": "Generates numBlocks blocks to the given address and returns their hashes.",
         "params": [
           {
@@ -246,7 +246,7 @@
         }
       },
       {
-        "name": "get_account",
+        "name": "btc.GetAccount",
         "description": "Returns the account associated with the passed address. The address should be the string encoded version of a valid address.",
         "params": [
           {
@@ -264,7 +264,7 @@
         }
       },
       {
-        "name": "get_account_address",
+        "name": "btc.GetAccountAddress",
         "description": "Returns the current Bitcoin address for receiving payments to the specified account.",
         "params": [
           {
@@ -282,7 +282,7 @@
         }
       },
       {
-        "name": "get_address_info",
+        "name": "btc.GetAddressInfo",
         "description": "Returns information about the given bitcoin address.",
         "params": [
           {
@@ -300,7 +300,7 @@
         }
       },
       {
-        "name": "get_addresses_by_account",
+        "name": "btc.GetAddressesByAccount",
         "description": "Returns the list of addresses associated with the provided account. The returned list will be the string encoded versions of the addresses.",
         "params": [
           {
@@ -321,7 +321,7 @@
         }
       },
       {
-        "name": "get_balance",
+        "name": "btc.GetBalance",
         "description": "Returns the available balance for the specified account using the default number of minimum confirmations. You can provide * as an account to get the balance of all accounts.",
         "params": [
           {
@@ -339,7 +339,7 @@
         }
       },
       {
-        "name": "get_block_count",
+        "name": "btc.GetBlockCount",
         "description": "Returns the number of blocks in the longest block chain.",
         "params": [],
         "result": {
@@ -350,7 +350,7 @@
         }
       },
       {
-        "name": "get_block_hash",
+        "name": "btc.GetBlockHash",
         "description": "Returns the hash of the block in the best block chain at the given height.",
         "params": [
           {
@@ -368,7 +368,7 @@
         }
       },
       {
-        "name": "get_block_stats",
+        "name": "btc.GetBlockStats",
         "description": "Returns block statistics given the hash of that block.",
         "params": [
           {
@@ -386,7 +386,7 @@
         }
       },
       {
-        "name": "get_block_verbose_tx",
+        "name": "btc.GetBlockVerboseTx",
         "description": "Returns information about a block and its transactions given the hash of that block.",
         "params": [
           {
@@ -404,7 +404,7 @@
         }
       },
       {
-        "name": "get_chain_tx_stats",
+        "name": "btc.GetChainTxStats",
         "description": "Returns statistics about the total number and rate of transactions in the chain. Providing the arguments will reduce the amount of blocks to calculate the statistics on.",
         "params": [
           {
@@ -422,7 +422,7 @@
         }
       },
       {
-        "name": "get_difficulty",
+        "name": "btc.GetDifficulty",
         "description": "Returns the proof-of-work difficulty as a multiple of the minimum difficulty.",
         "params": [],
         "result": {
@@ -433,7 +433,7 @@
         }
       },
       {
-        "name": "get_mining_info",
+        "name": "btc.GetMiningInfo",
         "description": "Returns mining information.",
         "params": [],
         "result": {
@@ -444,7 +444,7 @@
         }
       },
       {
-        "name": "get_new_address",
+        "name": "btc.GetNewAddress",
         "description": "Returns a new address. The returned string will be the encoded address (format will be based on the chain's parameters).",
         "params": [
           {
@@ -462,7 +462,7 @@
         }
       },
       {
-        "name": "get_node_addresses",
+        "name": "btc.GetNodeAddresses",
         "description": "Returns data about known node addresses.",
         "params": [],
         "result": {
@@ -473,7 +473,7 @@
         }
       },
       {
-        "name": "get_peer_info",
+        "name": "btc.GetPeerInfo",
         "description": "Returns data about each connected network peer.",
         "params": [],
         "result": {
@@ -484,7 +484,7 @@
         }
       },
       {
-        "name": "get_raw_transaction",
+        "name": "btc.GetRawTransaction",
         "description": "Returns a transaction given its hash.",
         "params": [
           {
@@ -502,7 +502,7 @@
         }
       },
       {
-        "name": "create_wallet",
+        "name": "btc.CreateWallet",
         "description": "Creates a new wallet account taken into account the provided arguments.",
         "params": [
           {
@@ -520,7 +520,7 @@
         }
       },
       {
-        "name": "move",
+        "name": "btc.Move",
         "description": "Moves specified amount from one account in your wallet to another. Only funds with the default number of minimum confirmations will be used. A comment can also be added to the transaction.",
         "params": [
           {
@@ -538,7 +538,7 @@
         }
       },
       {
-        "name": "load",
+        "name": "eth.Load",
         "description": "CORE",
         "params": [
           {
@@ -556,7 +556,7 @@
         }
       },
       {
-        "name": "transer",
+        "name": "eth.Transer",
         "params": [
           {
             "name": "args",
@@ -573,7 +573,7 @@
         }
       },
       {
-        "name": "balance",
+        "name": "eth.Balance",
         "params": [
           {
             "name": "address",
@@ -590,7 +590,7 @@
         }
       },
       {
-        "name": "height",
+        "name": "eth.Height",
         "params": [],
         "result": {
           "name": "!u64",
@@ -600,7 +600,7 @@
         }
       },
       {
-        "name": "token_balance",
+        "name": "eth.TokenBalance",
         "description": "ERC20",
         "params": [
           {
@@ -624,7 +624,7 @@
         }
       },
       {
-        "name": "token_transer",
+        "name": "eth.TokenTranser",
         "params": [
           {
             "name": "args",
@@ -641,7 +641,7 @@
         }
       },
       {
-        "name": "token_transer_from",
+        "name": "eth.TokenTranserFrom",
         "params": [
           {
             "name": "args",
@@ -658,7 +658,7 @@
         }
       },
       {
-        "name": "approve_token_spending",
+        "name": "eth.ApproveTokenSpending",
         "params": [
           {
             "name": "args",
@@ -675,7 +675,7 @@
         }
       },
       {
-        "name": "get_multisig_owners",
+        "name": "eth.GetMultisigOwners",
         "description": "Multisig",
         "params": [
           {
@@ -696,7 +696,7 @@
         }
       },
       {
-        "name": "get_multisig_threshold",
+        "name": "eth.GetMultisigThreshold",
         "params": [
           {
             "name": "contractAddress",
@@ -713,7 +713,7 @@
         }
       },
       {
-        "name": "add_multisig_owner",
+        "name": "eth.AddMultisigOwner",
         "params": [
           {
             "name": "args",
@@ -730,7 +730,7 @@
         }
       },
       {
-        "name": "remove_multisig_owner",
+        "name": "eth.RemoveMultisigOwner",
         "params": [
           {
             "name": "args",
@@ -747,7 +747,7 @@
         }
       },
       {
-        "name": "approve_hash",
+        "name": "eth.ApproveHash",
         "params": [
           {
             "name": "args",
@@ -764,7 +764,7 @@
         }
       },
       {
-        "name": "is_approved",
+        "name": "eth.IsApproved",
         "params": [
           {
             "name": "args",
@@ -781,7 +781,7 @@
         }
       },
       {
-        "name": "initiate_multisig_eth_transfer",
+        "name": "eth.InitiateMultisigEthTransfer",
         "params": [
           {
             "name": "args",
@@ -798,7 +798,7 @@
         }
       },
       {
-        "name": "initiate_multisig_token_transfer",
+        "name": "eth.InitiateMultisigTokenTransfer",
         "params": [
           {
             "name": "args",
@@ -815,7 +815,7 @@
         }
       },
       {
-        "name": "get_fungible_balance",
+        "name": "eth.GetFungibleBalance",
         "description": "Fungibles GetFungibleBalance (ERC721)",
         "params": [
           {
@@ -833,7 +833,7 @@
         }
       },
       {
-        "name": "owner_of_fungible",
+        "name": "eth.OwnerOfFungible",
         "description": "OwnerOfFungible (ERC721)",
         "params": [
           {
@@ -851,7 +851,7 @@
         }
       },
       {
-        "name": "safe_transfer_fungible",
+        "name": "eth.SafeTransferFungible",
         "description": "SafeTransferFungible (ERC721)",
         "params": [
           {
@@ -869,7 +869,7 @@
         }
       },
       {
-        "name": "transfer_fungible",
+        "name": "eth.TransferFungible",
         "description": "TransferFungible (ERC721)",
         "params": [
           {
@@ -887,7 +887,7 @@
         }
       },
       {
-        "name": "set_fungible_approval",
+        "name": "eth.SetFungibleApproval",
         "description": "SetFungibleApproval (ERC721)",
         "params": [
           {
@@ -905,7 +905,7 @@
         }
       },
       {
-        "name": "set_fungible_approval_for_all",
+        "name": "eth.SetFungibleApprovalForAll",
         "description": "SetFungibleApprovalForAll (ERC721)",
         "params": [
           {
@@ -923,7 +923,7 @@
         }
       },
       {
-        "name": "get_fungible_approval",
+        "name": "eth.GetFungibleApproval",
         "description": "GetApprovalForFungible (ERC721)",
         "params": [
           {
@@ -941,7 +941,7 @@
         }
       },
       {
-        "name": "get_fungible_approval_for_all",
+        "name": "eth.GetFungibleApprovalForAll",
         "description": "GetApprovalForAllFungible (ERC721)",
         "params": [
           {
@@ -959,7 +959,7 @@
         }
       },
       {
-        "name": "load",
+        "name": "explorer.Load",
         "description": "First call to make to initialize your session. Provide the network you want to use to do so.",
         "params": [
           {
@@ -977,7 +977,7 @@
         }
       },
       {
-        "name": "ping",
+        "name": "explorer.Ping",
         "description": "Pings the gridproxy server",
         "params": [],
         "result": {
@@ -988,7 +988,7 @@
         }
       },
       {
-        "name": "nodes",
+        "name": "explorer.Nodes",
         "description": "Fetches grid nodes based on some filters. A list of nodes is returned and the total amount of nodes too.",
         "params": [
           {
@@ -1006,7 +1006,7 @@
         }
       },
       {
-        "name": "farms",
+        "name": "explorer.Farms",
         "description": "Fetches grid farms based on some filters. A list of farms is returned and the total amount of farms too.",
         "params": [
           {
@@ -1024,7 +1024,7 @@
         }
       },
       {
-        "name": "contracts",
+        "name": "explorer.Contracts",
         "description": "Fetches grid contracts based on some filters. A list of contracts is returned and the total amount of contracts too.",
         "params": [
           {
@@ -1042,7 +1042,7 @@
         }
       },
       {
-        "name": "twins",
+        "name": "explorer.Twins",
         "description": "Fetches grid twins based on some filters. A list of the twins is returned and the total amount of twins too.",
         "params": [
           {
@@ -1060,7 +1060,7 @@
         }
       },
       {
-        "name": "node",
+        "name": "explorer.Node",
         "description": "Gets the node with the provided id. The result object contains data relevant to the node (resources, farm, etc.)",
         "params": [
           {
@@ -1078,7 +1078,7 @@
         }
       },
       {
-        "name": "node_status",
+        "name": "explorer.NodeStatus",
         "description": "Checks the status of node (if it is up or down).",
         "params": [
           {
@@ -1096,7 +1096,7 @@
         }
       },
       {
-        "name": "counters",
+        "name": "explorer.Counters",
         "description": "Counters fetches statistics of the grid (amount nodes, amount of farms, amount of contracts, etc).",
         "params": [
           {
@@ -1114,7 +1114,7 @@
         }
       },
       {
-        "name": "store_file",
+        "name": "ipfs.StoreFile",
         "description": "Store content on ipfs, returns cid",
         "params": [
           {
@@ -1132,7 +1132,7 @@
         }
       },
       {
-        "name": "get_file",
+        "name": "ipfs.GetFile",
         "description": "Gets file content from ipfs based on cid",
         "params": [
           {
@@ -1150,7 +1150,7 @@
         }
       },
       {
-        "name": "remove_file",
+        "name": "ipfs.RemoveFile",
         "description": "Removes files based on cid",
         "params": [
           {
@@ -1168,7 +1168,7 @@
         }
       },
       {
-        "name": "remove_all_files",
+        "name": "ipfs.RemoveAllFiles",
         "description": "remove all files from ipfs",
         "params": [],
         "result": {
@@ -1179,7 +1179,7 @@
         }
       },
       {
-        "name": "list_cids",
+        "name": "ipfs.ListCids",
         "description": "list all cids from ipfs",
         "params": [],
         "result": {
@@ -1193,7 +1193,7 @@
         }
       },
       {
-        "name": "load",
+        "name": "nostr.Load",
         "description": " the nostr client with a secret",
         "params": [
           {
@@ -1211,7 +1211,7 @@
         }
       },
       {
-        "name": "connect_to_relay",
+        "name": "nostr.ConnectToRelay",
         "description": "connect to a relay given a url",
         "params": [
           {
@@ -1229,7 +1229,7 @@
         }
       },
       {
-        "name": "connect_to_auth_relay",
+        "name": "nostr.ConnectToAuthRelay",
         "description": "connect to the authenticated relay",
         "params": [
           {
@@ -1247,7 +1247,7 @@
         }
       },
       {
-        "name": "generate_keypair",
+        "name": "nostr.GenerateKeypair",
         "description": "generate a keypair",
         "params": [],
         "result": {
@@ -1258,7 +1258,7 @@
         }
       },
       {
-        "name": "get_id",
+        "name": "nostr.GetId",
         "description": "get the nostr encoded id",
         "params": [],
         "result": {
@@ -1269,7 +1269,7 @@
         }
       },
       {
-        "name": "get_public_key",
+        "name": "nostr.GetPublicKey",
         "description": "get public key",
         "params": [],
         "result": {
@@ -1280,7 +1280,7 @@
         }
       },
       {
-        "name": "publish_text_note",
+        "name": "nostr.PublishTextNote",
         "description": "publish a text note to the relay",
         "params": [
           {
@@ -1298,7 +1298,7 @@
         }
       },
       {
-        "name": "publish_metadata",
+        "name": "nostr.PublishMetadata",
         "description": "publish metadata to the relay",
         "params": [
           {
@@ -1316,7 +1316,7 @@
         }
       },
       {
-        "name": "publish_direct_message",
+        "name": "nostr.PublishDirectMessage",
         "description": "publish a direct message to the relay given a receiver",
         "params": [
           {
@@ -1334,7 +1334,7 @@
         }
       },
       {
-        "name": "subscribe_text_notes",
+        "name": "nostr.SubscribeTextNotes",
         "description": "subscribe to the relays for text notes",
         "params": [],
         "result": {
@@ -1345,7 +1345,7 @@
         }
       },
       {
-        "name": "subscribe_to_direct_messages",
+        "name": "nostr.SubscribeToDirectMessages",
         "description": "subscribe to the relays for direct messages",
         "params": [],
         "result": {
@@ -1356,7 +1356,7 @@
         }
       },
       {
-        "name": "subscribe_to_stall_creation",
+        "name": "nostr.SubscribeToStallCreation",
         "description": "subscribe to relays for stall creation",
         "params": [],
         "result": {
@@ -1367,7 +1367,7 @@
         }
       },
       {
-        "name": "subscribe_to_product_creation",
+        "name": "nostr.SubscribeToProductCreation",
         "description": "subscribe to relays for product creation",
         "params": [],
         "result": {
@@ -1378,7 +1378,7 @@
         }
       },
       {
-        "name": "get_events",
+        "name": "nostr.GetEvents",
         "description": "get all the events for the subscriptions",
         "params": [],
         "result": {
@@ -1389,7 +1389,7 @@
         }
       },
       {
-        "name": "close_subscription",
+        "name": "nostr.CloseSubscription",
         "description": "close a subscription given an id",
         "params": [
           {
@@ -1407,7 +1407,7 @@
         }
       },
       {
-        "name": "get_subscription_ids",
+        "name": "nostr.GetSubscriptionIds",
         "description": "get all the subscription ids",
         "params": [],
         "result": {
@@ -1421,7 +1421,7 @@
         }
       },
       {
-        "name": "publish_stall",
+        "name": "nostr.PublishStall",
         "params": [
           {
             "name": "args",
@@ -1438,7 +1438,7 @@
         }
       },
       {
-        "name": "publish_product",
+        "name": "nostr.PublishProduct",
         "params": [
           {
             "name": "args",
@@ -1455,7 +1455,7 @@
         }
       },
       {
-        "name": "load",
+        "name": "stellar.Load",
         "params": [
           {
             "name": "client",
@@ -1484,7 +1484,7 @@
         }
       },
       {
-        "name": "transer",
+        "name": "stellar.Transer",
         "params": [
           {
             "name": "client",
@@ -1519,7 +1519,7 @@
         }
       },
       {
-        "name": "balance",
+        "name": "stellar.Balance",
         "params": [
           {
             "name": "client",
@@ -1542,7 +1542,7 @@
         }
       },
       {
-        "name": "load",
+        "name": "tfchain.Load",
         "description": "Load your mnemonic with this call. Choose the network while doing so. The network should be one of: mainnet, testnet, qanet, devnet",
         "params": [
           {
@@ -1560,7 +1560,7 @@
         }
       },
       {
-        "name": "transfer",
+        "name": "tfchain.Transfer",
         "description": "Transfer some amount to some destination. The destionation should be a SS58 address.",
         "params": [
           {
@@ -1578,7 +1578,7 @@
         }
       },
       {
-        "name": "balance",
+        "name": "tfchain.Balance",
         "description": "Ask for the balance of an entity using this call. The address should be a SS58 address.",
         "params": [
           {
@@ -1596,7 +1596,7 @@
         }
       },
       {
-        "name": "height",
+        "name": "tfchain.Height",
         "description": "Get the current height of the chain.",
         "params": [],
         "result": {
@@ -1607,7 +1607,7 @@
         }
       },
       {
-        "name": "get_twin",
+        "name": "tfchain.GetTwin",
         "description": "Get a twin by id.",
         "params": [
           {
@@ -1625,7 +1625,7 @@
         }
       },
       {
-        "name": "get_twin_by_pubkey",
+        "name": "tfchain.GetTwinByPubkey",
         "description": "Get the twin id that is bound to a SS58 address.",
         "params": [
           {
@@ -1643,7 +1643,7 @@
         }
       },
       {
-        "name": "create_twin",
+        "name": "tfchain.CreateTwin",
         "description": "Create a twin. Provide the relay and your public key in this call. The result of this call contains your twin id.",
         "params": [
           {
@@ -1661,7 +1661,7 @@
         }
       },
       {
-        "name": "accept_terms_and_conditions",
+        "name": "tfchain.AcceptTermsAndConditions",
         "description": "Accepts terms and conditions. Provide the document link and document hash while executing this call.",
         "params": [
           {
@@ -1679,7 +1679,7 @@
         }
       },
       {
-        "name": "get_node",
+        "name": "tfchain.GetNode",
         "description": "Get a node by id.",
         "params": [
           {
@@ -1697,7 +1697,7 @@
         }
       },
       {
-        "name": "get_nodes",
+        "name": "tfchain.GetNodes",
         "description": "Get the nodes that belong to the farm with id. Returns a list of node ids.",
         "params": [
           {
@@ -1718,7 +1718,7 @@
         }
       },
       {
-        "name": "get_farm",
+        "name": "tfchain.GetFarm",
         "description": "Get farm by id.",
         "params": [
           {
@@ -1736,7 +1736,7 @@
         }
       },
       {
-        "name": "get_farm_by_name",
+        "name": "tfchain.GetFarmByName",
         "description": "Get farm by name.",
         "params": [
           {
@@ -1754,7 +1754,7 @@
         }
       },
       {
-        "name": "create_farm",
+        "name": "tfchain.CreateFarm",
         "description": "Create a farm. Provide a name an a list of public ips if there are any.",
         "params": [
           {
@@ -1772,7 +1772,7 @@
         }
       },
       {
-        "name": "get_contract",
+        "name": "tfchain.GetContract",
         "description": "Get a contract by id. Contract can be any of the following types: node contract, name contract or rent contract.",
         "params": [
           {
@@ -1790,7 +1790,7 @@
         }
       },
       {
-        "name": "get_contract_id_by_name_registration",
+        "name": "tfchain.GetContractIdByNameRegistration",
         "description": "Get contract by name registration. Returns the id of the contract.",
         "params": [
           {
@@ -1808,7 +1808,7 @@
         }
       },
       {
-        "name": "get_contract_with_hash",
+        "name": "tfchain.GetContractWithHash",
         "description": "Get contract by hash. Returns the contract id.",
         "params": [
           {
@@ -1826,7 +1826,7 @@
         }
       },
       {
-        "name": "get_node_contracts",
+        "name": "tfchain.GetNodeContracts",
         "description": "Get contracts belonging to a node. Returns a list of contract ids.",
         "params": [
           {
@@ -1847,7 +1847,7 @@
         }
       },
       {
-        "name": "create_name_contract",
+        "name": "tfchain.CreateNameContract",
         "description": "Create a name contract. Provide the dns name via this call. Returns the id of the contract it creates.",
         "params": [
           {
@@ -1865,7 +1865,7 @@
         }
       },
       {
-        "name": "create_node_contract",
+        "name": "tfchain.CreateNodeContract",
         "description": "Create a node contract. Provide the node id, body, hash, how many public ips you want to use and optionally the solution provider id.",
         "params": [
           {
@@ -1883,7 +1883,7 @@
         }
       },
       {
-        "name": "create_rent_contract",
+        "name": "tfchain.CreateRentContract",
         "description": "Create a rent contract. Provide the node id of the node you want to rent and optionally the solution provider id.",
         "params": [
           {
@@ -1901,7 +1901,7 @@
         }
       },
       {
-        "name": "service_contract_create",
+        "name": "tfchain.ServiceContractCreate",
         "description": "Create a service contract. Provide the SS58 addresses of the service and the consumer.",
         "params": [
           {
@@ -1919,7 +1919,7 @@
         }
       },
       {
-        "name": "service_contract_approve",
+        "name": "tfchain.ServiceContractApprove",
         "description": "Approve a service contract. Provide the contract id to do so. Approving the contract is only allowed if the agreement is ready and only by the consumer or the service.",
         "params": [
           {
@@ -1937,7 +1937,7 @@
         }
       },
       {
-        "name": "service_contract_bill",
+        "name": "tfchain.ServiceContractBill",
         "description": "Bill a service contract. Provide the contract id, variable_amount and some metadata. The contract can only be billed if both service and consumer have approved the contract.",
         "params": [
           {
@@ -1955,7 +1955,7 @@
         }
       },
       {
-        "name": "service_contract_cancel",
+        "name": "tfchain.ServiceContractCancel",
         "description": "Cancel a service contract. Provide the contract id to do so.",
         "params": [
           {
@@ -1973,7 +1973,7 @@
         }
       },
       {
-        "name": "service_contract_reject",
+        "name": "tfchain.ServiceContractReject",
         "description": "Reject a service contract. Provide the contract id to do so. Only the service or the consumer is allowed to do so and only if it reached a state of agreement. The contract will be deleted when at the first call of either the service or the consumer.",
         "params": [
           {
@@ -1991,7 +1991,7 @@
         }
       },
       {
-        "name": "service_contract_set_fees",
+        "name": "tfchain.ServiceContractSetFees",
         "description": "Set the service contract fees. Provide the contract id, the base fee and the variable fee. Only the service is allowed to set the fees and only if the contract is not approved by both parties yet. The state is set to agreemen if the metadata has been set.",
         "params": [
           {
@@ -2009,7 +2009,7 @@
         }
       },
       {
-        "name": "service_contract_set_metadata",
+        "name": "tfchain.ServiceContractSetMetadata",
         "description": "Set the service contract metadata. Provide contract id and the metadata. Only service or consumer can set the metadata. The metadata can be modified by calling this method again but only if the contract is not yet approved by both parties. The base fee cannot be 0.",
         "params": [
           {
@@ -2027,7 +2027,7 @@
         }
       },
       {
-        "name": "cancel_contract",
+        "name": "tfchain.CancelContract",
         "description": "Cancel a contract. Provide the contract id to do so. Only the creator of the contract can cancle the contract. If the contract is a rent contract it can only be canceled if it has no more active workloads.",
         "params": [
           {
@@ -2045,7 +2045,7 @@
         }
       },
       {
-        "name": "batch_cancel_contract",
+        "name": "tfchain.BatchCancelContract",
         "description": "Cancel a list contracts. Provide a list of contract ids to do so. They can only be canceled if they were created by the entity calling this function. Rent contracts can not have active workloads in order to be canceled.",
         "params": [
           {
@@ -2066,7 +2066,7 @@
         }
       },
       {
-        "name": "get_zos_version",
+        "name": "tfchain.GetZosVersion",
         "description": "Get the current ZOS version",
         "params": [],
         "result": {
@@ -2077,7 +2077,7 @@
         }
       },
       {
-        "name": "filter_nodes",
+        "name": "tfgrid.FilterNodes",
         "description": "This call can be used to filter nodes on specific options such as the available memory, cores, etc. It",
         "params": [
           {
@@ -2098,7 +2098,7 @@
         }
       },
       {
-        "name": "gateways_deploy_fqdn",
+        "name": "tfgrid.GatewaysDeployFqdn",
         "description": "Deploys a fully qualified domain on gateway (for example site.com) and returns gateway model with some extra data related to the created fqdn.",
         "params": [
           {
@@ -2116,7 +2116,7 @@
         }
       },
       {
-        "name": "gateways_get_fqdn",
+        "name": "tfgrid.GatewaysGetFqdn",
         "description": "Gets the fqdn info using the name given when created. It returns an object containing the fully qualified domain on gateway information.",
         "params": [
           {
@@ -2134,7 +2134,7 @@
         }
       },
       {
-        "name": "gateways_delete_fqdn",
+        "name": "tfgrid.GatewaysDeleteFqdn",
         "description": "Deletes the fully qualified domain on gateway given the name used to create it. An error is returned if the attempt failed.",
         "params": [
           {
@@ -2152,7 +2152,7 @@
         }
       },
       {
-        "name": "gateways_deploy_name",
+        "name": "tfgrid.GatewaysDeployName",
         "description": "Deploys a gateway name given the configuration and returns an object containing the gateway name configuration.",
         "params": [
           {
@@ -2170,7 +2170,7 @@
         }
       },
       {
-        "name": "gateways_get_name",
+        "name": "tfgrid.GatewaysGetName",
         "description": "Gets the gateway name object given the name used when deploying.",
         "params": [
           {
@@ -2188,7 +2188,7 @@
         }
       },
       {
-        "name": "gateways_delete_name",
+        "name": "tfgrid.GatewaysDeleteName",
         "description": "Deletes the gateway name given the name used when deploying. This call will return an error if it fails to do so.",
         "params": [
           {
@@ -2206,7 +2206,7 @@
         }
       },
       {
-        "name": "k8s_deploy",
+        "name": "tfgrid.K8sDeploy",
         "description": "Deploys a kubernetes cluster given the cluster configuration. The cluster object is returned with extra data if the call succeeds.",
         "params": [
           {
@@ -2224,7 +2224,7 @@
         }
       },
       {
-        "name": "k8s_get",
+        "name": "tfgrid.K8sGet",
         "description": "Gets a deployed kubernetes cluster data given its name. Returns an error if no cluster can be found with the provided name.",
         "params": [
           {
@@ -2242,7 +2242,7 @@
         }
       },
       {
-        "name": "k8s_delete",
+        "name": "tfgrid.K8sDelete",
         "description": "Deletes a deployed kubernetes cluster given a name. The call returns an error if it fails to do so.",
         "params": [
           {
@@ -2260,7 +2260,7 @@
         }
       },
       {
-        "name": "load",
+        "name": "tfgrid.Load",
         "description": "Loads the mnemonic into the session for a specific network. The call returns an error if the mnemonic or the network is invalid.",
         "params": [
           {
@@ -2278,7 +2278,7 @@
         }
       },
       {
-        "name": "machines_deploy",
+        "name": "tfgrid.MachinesDeploy",
         "description": "Deploys a machines workload given a machines model. If it does not succeed the call returns an error.",
         "params": [
           {
@@ -2296,7 +2296,7 @@
         }
       },
       {
-        "name": "machines_get",
+        "name": "tfgrid.MachinesGet",
         "description": "Gets the information about a machines deployment using the deployment name",
         "params": [
           {
@@ -2314,7 +2314,7 @@
         }
       },
       {
-        "name": "machines_delete",
+        "name": "tfgrid.MachinesDelete",
         "description": "Deletes a deployed machines given the name used when deploying.",
         "params": [
           {
@@ -2332,7 +2332,7 @@
         }
       },
       {
-        "name": "zdb_deploy",
+        "name": "tfgrid.ZdbDeploy",
         "description": "Deploys a zdb workload on the grid given a model. This call returns the zdb model with extra computed data from the grid upon success.",
         "params": [
           {
@@ -2350,7 +2350,7 @@
         }
       },
       {
-        "name": "zdb_delete",
+        "name": "tfgrid.ZdbDelete",
         "description": "Deletes a deployed zdb workload given its name. Returns an error if it does not succeed.",
         "params": [
           {
@@ -2368,7 +2368,7 @@
         }
       },
       {
-        "name": "zdb_get",
+        "name": "tfgrid.ZdbGet",
         "description": "Gets a deployed zdb deployment info given its configuration name. Returns the zdb deployment data upon success.",
         "params": [
           {
@@ -2386,7 +2386,7 @@
         }
       },
       {
-        "name": "zos_deployment_deploy",
+        "name": "tfgrid.ZosDeploymentDeploy",
         "description": "Deploys a deployment on a ZOS node and returns a string containing system hypervisor info.",
         "params": [
           {
@@ -2404,7 +2404,7 @@
         }
       },
       {
-        "name": "zos_system_version",
+        "name": "tfgrid.ZosSystemVersion",
         "description": "Returns the system version of the ZOS node.",
         "params": [
           {
@@ -2422,7 +2422,7 @@
         }
       },
       {
-        "name": "zos_system_hypervisor",
+        "name": "tfgrid.ZosSystemHypervisor",
         "description": "Returns system hypervisor info of the ZOS node.",
         "params": [
           {
@@ -2440,7 +2440,7 @@
         }
       },
       {
-        "name": "zos_system_dmi",
+        "name": "tfgrid.ZosSystemDmi",
         "description": "Checks system DMI information for the selected ZOS node.",
         "params": [
           {
@@ -2458,7 +2458,7 @@
         }
       },
       {
-        "name": "zos_network_public_config",
+        "name": "tfgrid.ZosNetworkPublicConfig",
         "description": "Gets the public configuration of the specified ZOS node.",
         "params": [
           {
@@ -2476,7 +2476,7 @@
         }
       },
       {
-        "name": "zos_network_interfaces",
+        "name": "tfgrid.ZosNetworkInterfaces",
         "description": "Returns all network interfaces of the selected ZOS node. It returns a map from interface name to its IPs.",
         "params": [
           {
@@ -2500,7 +2500,7 @@
         }
       },
       {
-        "name": "zos_network_list_wg_ports",
+        "name": "tfgrid.ZosNetworkListWgPorts",
         "description": "Returns a list of all the ports that are taken on the selected ZOS node.",
         "params": [
           {
@@ -2521,7 +2521,7 @@
         }
       },
       {
-        "name": "zos_node_statistics",
+        "name": "tfgrid.ZosNodeStatistics",
         "description": "Returns the node statistics including total and available cpu, memory, storage, etc...",
         "params": [
           {
@@ -2539,7 +2539,7 @@
         }
       },
       {
-        "name": "zos_deployment_changes",
+        "name": "tfgrid.ZosDeploymentChanges",
         "description": "Returns all workload changes over the lifetime of the deployment.",
         "params": [
           {
@@ -2557,7 +2557,7 @@
         }
       },
       {
-        "name": "zos_deployment_update",
+        "name": "tfgrid.ZosDeploymentUpdate",
         "description": "Updates a deployment on a node given new deployment data.",
         "params": [
           {
@@ -2575,7 +2575,7 @@
         }
       },
       {
-        "name": "zos_deployment_delete",
+        "name": "tfgrid.ZosDeploymentDelete",
         "description": "Deletes a deployment on a ZOS node.",
         "params": [
           {
@@ -2593,7 +2593,7 @@
         }
       },
       {
-        "name": "zos_deployment_get",
+        "name": "tfgrid.ZosDeploymentGet",
         "description": "Gets the deployment data of an existing deployment. This call requires the contract id.",
         "params": [
           {
