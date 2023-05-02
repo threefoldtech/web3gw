@@ -3,19 +3,19 @@ package eth
 import (
 	"context"
 
+	"github.com/LeeSmet/go-jsonrpc"
 	goethclient "github.com/threefoldtech/web3_proxy/server/clients/eth"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
-	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
 
 type (
 	// Client exposes ethereum related functionality
 	Client struct {
-		state *state.StateManager[ethState]
 	}
-	// state managed by ethereum client
-	ethState struct {
-		client *goethclient.Client
+
+	// EthState managed by ethereum client
+	EthState struct {
+		Client *goethclient.Client
 	}
 
 	Load struct {
@@ -29,37 +29,56 @@ type (
 	}
 )
 
+const (
+	// Eth is the ID for state of an eth client in the connection state.
+	EthID = "eth"
+)
+
 // NewClient creates a new Client ready for use
 func NewClient() *Client {
-	return &Client{
-		state: state.NewStateManager[ethState](),
+	return &Client{}
+}
+
+// State from a connection. If no state is present, it is initialized
+func State(conState jsonrpc.State) *EthState {
+	raw, exists := conState[EthID]
+	if !exists {
+		ns := &EthState{
+			Client: nil,
+		}
+		conState[EthID] = ns
+		return ns
 	}
+	ns, ok := raw.(*EthState)
+	if !ok {
+		// This means the invariant is violated, so panic here is ok
+		panic("Invalid saved state for atomic swap")
+	}
+	return ns
 }
 
 // Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given secret
-func (c *Client) Load(ctx context.Context, args Load) error {
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
 	cl, err := goethclient.NewClient(args.Url, args.Secret)
 	if err != nil {
 		return err
 	}
 
-	es := ethState{
-		client: cl,
-	}
+	state := State(conState)
 
-	c.state.Set(state.IDFromContext(ctx), es)
+	state.Client = cl
 
 	return nil
 }
 
 // Balance of an address
-func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (int64, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	balance, err := state.client.GetBalance(address)
+	balance, err := state.Client.GetBalance(address)
 	if err != nil {
 		return 0, err
 	}
@@ -68,21 +87,21 @@ func (c *Client) Balance(ctx context.Context, address string) (int64, error) {
 }
 
 // Height of the chain for the connected rpc remote
-func (c *Client) Height(ctx context.Context) (uint64, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) Height(ctx context.Context, conState jsonrpc.State) (uint64, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.GetCurrentHeight()
+	return state.Client.GetCurrentHeight()
 }
 
 // Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
-func (c *Client) Transfer(ctx context.Context, args Transfer) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.TransferEth(args.Amount, args.Destination)
+	return state.Client.TransferEth(args.Amount, args.Destination)
 }
