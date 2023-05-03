@@ -11,7 +11,6 @@ import (
 const (
 	stellarNetworkPublic  = "public"
 	stellarNetworkTestnet = "testnet"
-	StellarID             = "stellar"
 )
 
 type (
