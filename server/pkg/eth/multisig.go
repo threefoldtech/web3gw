@@ -4,8 +4,8 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
-	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
 
 type (
@@ -35,81 +35,81 @@ type (
 )
 
 // GetMultisigOwners fetches the owner addresses for a multisig contract
-func (c *Client) GetMultisigOwners(ctx context.Context, contractAddress string) ([]string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) GetMultisigOwners(ctx context.Context, conState jsonrpc.State, contractAddress string) ([]string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.GetOwners(contractAddress)
+	return state.Client.GetOwners(contractAddress)
 }
 
 // GetMultisigThreshold fetches the treshold for a multisig contract
-func (c *Client) GetMultisigThreshold(ctx context.Context, contractAddress string) (*big.Int, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) GetMultisigThreshold(ctx context.Context, conState jsonrpc.State, contractAddress string) (*big.Int, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.GetThreshold(contractAddress)
+	return state.Client.GetThreshold(contractAddress)
 }
 
 // AddMultisigOwner adds an owner to a multisig contract
-func (c *Client) AddMultisigOwner(ctx context.Context, args MultisigOwner) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) AddMultisigOwner(ctx context.Context, conState jsonrpc.State, args MultisigOwner) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.AddOwner(args.ContractAddress, args.Target, args.Threshold)
+	return state.Client.AddOwner(args.ContractAddress, args.Target, args.Threshold)
 }
 
 // RemoveMultisigOwner adds an owner to a multisig contract
-func (c *Client) RemoveMultisigOwner(ctx context.Context, args MultisigOwner) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) RemoveMultisigOwner(ctx context.Context, conState jsonrpc.State, args MultisigOwner) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.RemoveOwner(args.ContractAddress, args.Target, args.Threshold)
+	return state.Client.RemoveOwner(args.ContractAddress, args.Target, args.Threshold)
 }
 
 // ApproveHash approves a transaction hash
-func (c *Client) ApproveHash(ctx context.Context, args ApproveHash) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) ApproveHash(ctx context.Context, conState jsonrpc.State, args ApproveHash) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ApproveHash(args.ContractAddress, args.Hash)
+	return state.Client.ApproveHash(args.ContractAddress, args.Hash)
 }
 
 // IsApproved approves a transaction hash
-func (c *Client) IsApproved(ctx context.Context, args ApproveHash) (bool, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) IsApproved(ctx context.Context, conState jsonrpc.State, args ApproveHash) (bool, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return false, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.IsApproved(args.ContractAddress, args.Hash)
+	return state.Client.IsApproved(args.ContractAddress, args.Hash)
 }
 
 // InitiateMultisigEthTransfer initiates a multisig eth transfer operation
-func (c *Client) InitiateMultisigEthTransfer(ctx context.Context, args InitiateMultisigEthTransfer) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) InitiateMultisigEthTransfer(ctx context.Context, conState jsonrpc.State, args InitiateMultisigEthTransfer) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.InitiateMultisigEthTransfer(args.ContractAddress, args.Destination, args.Amount)
+	return state.Client.InitiateMultisigEthTransfer(args.ContractAddress, args.Destination, args.Amount)
 }
 
 // InitiateMultisigTokenTransfer initiates a multisig eth transfer operation
-func (c *Client) InitiateMultisigTokenTransfer(ctx context.Context, args InitiateMultisigTokenTransfer) (string, error) {
-	state, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || state.client == nil {
+func (c *Client) InitiateMultisigTokenTransfer(ctx context.Context, conState jsonrpc.State, args InitiateMultisigTokenTransfer) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.InitiateMultisigTokenTransfer(args.ContractAddress, args.TokenAddress, args.Destination, args.Amount)
+	return state.Client.InitiateMultisigTokenTransfer(args.ContractAddress, args.TokenAddress, args.Destination, args.Amount)
 }

@@ -8,7 +8,7 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5
-	github.com/ethereum/go-ethereum v1.11.5
+	github.com/ethereum/go-ethereum v1.11.6
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/hsanjuan/ipfs-lite v1.7.0
@@ -18,7 +18,7 @@ require (
 	github.com/nbd-wtf/go-nostr v0.16.11
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
-	github.com/stellar/go v0.0.0-20230316102104-335848c1cd8e
+	github.com/stellar/go v0.0.0-20230420111333-3274d0f71fbc
 	github.com/stretchr/testify v1.8.2
 	github.com/threefoldtech/substrate-client v0.1.5
 	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230417112020-958303130d16
@@ -83,7 +83,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
-	github.com/holiman/uint256 v1.2.0 // indirect
+	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
 	github.com/huin/goupnp v1.0.3 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/boxo v0.8.0 // indirect
@@ -168,6 +168,7 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/stellar/go-xdr v0.0.0-20211103144802-8017fc4bdfee // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/threefoldtech/atomicswap v1.1.2-0.20230502162047-c69296991748 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect

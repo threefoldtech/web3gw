@@ -11,7 +11,6 @@ import (
 const (
 	stellarNetworkPublic  = "public"
 	stellarNetworkTestnet = "testnet"
-	StellarID             = "stellar"
 )
 
 type (
@@ -20,8 +19,9 @@ type (
 	// Client exposing stellar methods
 	Client struct {
 	}
-	stellarState struct {
-		client  *stellargoclient.Client
+
+	StellarState struct {
+		Client  *stellargoclient.Client
 		network string
 	}
 
@@ -37,22 +37,28 @@ type (
 	}
 )
 
+const (
+	// StellarID is the ID for state of a stellar client in the connection state.
+	StellarID = "stellar"
+)
+
 // Error implements the error interface
 func (e ErrUnknownNetwork) Error() string {
 	return "only 'public' and 'testnet' networks are supported"
 }
 
 // State from a connection. If no state is present, it is initialized
-func State(conState jsonrpc.State) *stellarState {
+func State(conState jsonrpc.State) *StellarState {
 	raw, exists := conState[StellarID]
 	if !exists {
-		ns := &stellarState{
-			client: nil,
+		ns := &StellarState{
+			Client:  nil,
+			network: stellarNetworkTestnet,
 		}
 		conState[StellarID] = ns
 		return ns
 	}
-	ns, ok := raw.(*stellarState)
+	ns, ok := raw.(*StellarState)
 	if !ok {
 		// This means the invariant is violated, so panic here is ok
 		panic("Invalid saved state for stellar")
@@ -60,7 +66,7 @@ func State(conState jsonrpc.State) *stellarState {
 	return ns
 }
 
-// NewClient creates a new client
+// NewClient creates a new Client ready for use
 func NewClient() *Client {
 	return &Client{}
 }
@@ -76,7 +82,7 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 	}
 
 	state := State(conState)
-	state.client = cl
+	state.Client = cl
 	state.network = args.Network
 
 	return nil
@@ -85,21 +91,21 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 // Transer an amount of TFT from the loaded account to the destination.
 func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) error {
 	state := State(conState)
-	if state.client == nil {
+	if state.Client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.Transfer(args.Destination, args.Memo, args.Amount)
+	return state.Client.Transfer(args.Destination, args.Memo, args.Amount)
 }
 
 // Balance of an account for TFT on stellar.
 func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (int64, error) {
 	state := State(conState)
-	if state.client == nil {
+	if state.Client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	balance, err := state.client.GetBalance(address)
+	balance, err := state.Client.GetBalance(address)
 	if err != nil {
 		return 0, err
 	}
