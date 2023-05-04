@@ -79,7 +79,7 @@ type (
 
 	MsgParticipateStellar struct {
 		Id             string `json:"id"`
-		HoldingAccount string `json:"holdingAccount`
+		HoldingAccount string `json:"holdingAccount"`
 		RefundTx       string `json:"refundTx"`
 	}
 
@@ -112,6 +112,8 @@ var (
 	contractAddress = common.HexToAddress("0x8420c8271d602F6D0B190856Cea8E74D09A0d3cF")
 	// TFT asset on the stellar testnet
 	testnetTftAsset = mustStellarTestnetTftAsset()
+
+	goerliChainID = big.NewInt(5)
 )
 
 func initDriver(nostr *nostr.Client, eth *goethclient.Client, stellar *stellargoclient.Client) *Driver {
@@ -212,13 +214,14 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 	// we have ETH and want to buy TFT on stellar, so set up the eth
 	// part of the swap
 	dialCtx, cancel := context.WithTimeout(ctx, dialTimeout)
+	defer cancel()
 	client, err := eth.DialClient(dialCtx, d.eth.Url) // TODO: should probably be able to construct this from the existing client
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to dial eth node")
 		return
 	}
 	cancel()
-	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key)
+	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key, goerliChainID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to construct swap contract transactor")
 		return
@@ -232,6 +235,8 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 		log.Error().Err(err).Msg("Failed to initiate ETH swap")
 		return
 	}
+
+	log.Info().Msgf("Submitted eth initiate transaction %s", output.ContractTransaction.Hash())
 
 	msg := MsgInitiateEth{
 		Id:                  d.saleId,
@@ -264,13 +269,14 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	// Buyer initiated an Eth atomic swap, so first check and see if that is correct
 	// Note that at this point, the seller does not have an sct yet
 	dialCtx, cancel := context.WithTimeout(ctx, dialTimeout)
+	defer cancel()
 	client, err := eth.DialClient(dialCtx, d.eth.Url) // TODO: should probably be able to construct this from the existing client
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to dial eth node")
 		return
 	}
 	cancel()
-	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key)
+	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key, goerliChainID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to construct swap contract transactor")
 		return
