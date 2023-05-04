@@ -151,7 +151,7 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 	}
 
 	// FIXME: A tag is itself a list of strings
-	parsedTags := make(nostr.Tags, len(tags))
+	parsedTags := make(nostr.Tags, 0, len(tags))
 	for _, rawTag := range tags {
 		parsedTags = append(parsedTags, nostr.Tag(rawTag))
 	}
@@ -167,7 +167,9 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 	// calling Sign sets the event ID field and the event Sig field
 	ev.Sign(c.sk)
 
+	log.Debug().Str("component", "nostr").Msgf("Publish event to connected relays")
 	for _, relay := range c.server.connectedRelays[c.Id()] {
+		log.Debug().Str("component", "nostr").Msgf("publising event to relay: %+v", ev)
 		status, err := relay.Publish(ctx, ev)
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
@@ -204,6 +206,7 @@ func (c *Client) PublishRecommendServer(ctx context.Context, tags []string, cont
 
 // / PublishDirectMessage publishes a direct message for a given peer identified by the given pubkey on the connected relays
 func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags []string, content string) error {
+	log.Debug().Str("receiver", receiver).Msg("Sending direct message")
 	ss, err := nip04.ComputeSharedSecret(receiver, c.sk)
 	if err != nil {
 		return errors.Wrap(err, "could not compute shared secret for receiver")
@@ -373,13 +376,13 @@ func (c *Client) SubscribeDirectMessagesDirect(swapTag string) (<-chan NostrEven
 
 	relays := c.server.clientRelays(c.Id())
 	if len(relays) == 0 {
+		log.Error().Msg("No relays connected to subscribe for direct messages")
 		return nil, ErrNoRelayConnected
 	}
 
-	subs := []*nostr.Subscription{}
-
 	ctx := context.Background()
 
+	log.Debug().Msgf("Connecting to relays to subscribe to direct messages, with filters %+v", filters)
 	ch := make(chan NostrEvent)
 	for _, relay := range relays {
 		log.Debug().Msgf("NOSTR: Connected to relay %s", relay.URL)
@@ -388,8 +391,6 @@ func (c *Client) SubscribeDirectMessagesDirect(swapTag string) (<-chan NostrEven
 			log.Error().Msgf("error subscribing to relay: %s", err.Error())
 			return nil, errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
 		}
-
-		subs = append(subs, sub)
 
 		go func() {
 			<-sub.EndOfStoredEvents

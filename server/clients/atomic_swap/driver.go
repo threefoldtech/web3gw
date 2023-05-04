@@ -146,7 +146,7 @@ func (d *Driver) Buy(ctx context.Context, seller string, sale nostr.Product, amo
 	if err != nil {
 		return errors.Wrap(err, "could not encode buy message")
 	}
-	log.Info().Msg("Starting atomic swap buy")
+	log.Info().Msg("Starting atomic swap buy, notify seller")
 	return d.nostr.PublishDirectMessage(ctx, seller, []string{"s", sale.Id}, string(data))
 }
 
@@ -461,10 +461,12 @@ func (d *Driver) handleRedeemedMessage(ctx context.Context, sender string, req M
 }
 
 func handleMessage(driver *Driver) {
+	log.Debug().Msg("Start to handle swap messages")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	for evt := range driver.msges {
+		log.Debug().Str("sender", evt.PubKey).Msg("Got swap driver message")
 		switch driver.stage {
 		case DriverStageOpenSale:
 			msg := MsgBuy{}

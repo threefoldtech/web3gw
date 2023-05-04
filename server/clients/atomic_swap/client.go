@@ -195,7 +195,7 @@ func (c *Client) loadSaleOrders(ctx context.Context) ([]tokenSale, error) {
 		if err := json.Unmarshal([]byte(evt.Content), &sale); err != nil {
 			log.Debug().Err(err).Msg("unexpected content in event")
 		}
-		sales = append(sales, tokenSale{sale: sale, seller: evt.ID})
+		sales = append(sales, tokenSale{sale: sale, seller: evt.PubKey})
 	}
 
 	c.nostr.CloseSubscription(subId)
