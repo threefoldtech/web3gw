@@ -21,6 +21,11 @@ do
     $OPENRPC_CLI docgen -t "$name JSON-RPC API" -p -o server/pkg/$name $file
 done
 
+# copy playground to docs dir
+mkdir docs/playground
+cp playground/index.html docs/playground
+cp -an playground/* docs/
+
 # v fmt -w .
 # v doc -m -f html . -readme -comments -no-timestamp
 
