@@ -670,6 +670,8 @@ github.com/threefoldtech/atomicswap v1.1.2-0.20230504143829-8eefb47177b0 h1:9suc
 github.com/threefoldtech/atomicswap v1.1.2-0.20230504143829-8eefb47177b0/go.mod h1:PZ0Kc615G7C3lLTsaNl0hVp13P9qJ80OTzkC3dl9oC0=
 github.com/threefoldtech/atomicswap v1.1.2-0.20230505122951-da84ba1a0b21 h1:EG7OqnAoNdv3xYtmkJgCCFxAls2udhSYYQTw0xhRNL0=
 github.com/threefoldtech/atomicswap v1.1.2-0.20230505122951-da84ba1a0b21/go.mod h1:PZ0Kc615G7C3lLTsaNl0hVp13P9qJ80OTzkC3dl9oC0=
+github.com/threefoldtech/atomicswap v1.1.2-0.20230505130256-162c30d215c8 h1:HGoGRMRLhmN0G5e9mjIHDLgCy5j5Nbh1f6x2z5EKk18=
+github.com/threefoldtech/atomicswap v1.1.2-0.20230505130256-162c30d215c8/go.mod h1:PZ0Kc615G7C3lLTsaNl0hVp13P9qJ80OTzkC3dl9oC0=
 github.com/threefoldtech/go-substrate-rpc-client/v4 v4.0.6-0.20230102154731-7c633b7d3c71 h1:vvoXPRI10quMOEXHKcakKhBZe+TlLXhNsh1wwX4cyk4=
 github.com/threefoldtech/go-substrate-rpc-client/v4 v4.0.6-0.20230102154731-7c633b7d3c71/go.mod h1:5g1oM4Zu3BOaLpsKQ+O8PAv2kNuq+kPcA1VzFbsSqxE=
 github.com/threefoldtech/substrate-client v0.1.5 h1:yYmWaJCMoJO0ieaO6eu3vIK0agehSw4OhSXlGydmv/E=
