@@ -35,6 +35,17 @@ type (
 		Destination string `json:"destination"`
 		Memo        string `json:"memo"`
 	}
+
+	BridgeTransfer struct {
+		Amount      string `json:"amount"`
+		Destination string `json:"destination"`
+	}
+
+	TfchainBridgeTransfer struct {
+		Amount      string `json:"amount"`
+		Destination string `json:"destination"`
+		TwinId      uint64 `json:"twin_id"`
+	}
 )
 
 const (
@@ -111,4 +122,34 @@ func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address st
 	}
 
 	return balance.Int64(), nil
+}
+
+// BridgeToEth transfers TFT from the loaded account to eth bridge and deposits into the destination ethereum account.
+func (c *Client) BridgeToEth(ctx context.Context, conState jsonrpc.State, args BridgeTransfer) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.TransferToEthBridge(args.Destination, args.Amount)
+}
+
+// BridgeToBsc transfers TFT from the loaded account to bsc bridge and deposits into the destination bsc account.
+func (c *Client) BridgeToBsc(ctx context.Context, conState jsonrpc.State, args BridgeTransfer) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.TransferToBscBridge(args.Destination, args.Amount)
+}
+
+// BridgeToTfchain transfers TFT from the loaded account to tfchain bridge and deposits into a twin account.
+func (c *Client) BridgeToTfchain(ctx context.Context, conState jsonrpc.State, args TfchainBridgeTransfer) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.TransferToTfchainBridge(args.Destination, args.Amount, args.TwinId)
 }

@@ -35,13 +35,13 @@ type (
 )
 
 // GetTokenBalance fetches the balance for an erc20 compatible contract
-func (c *Client) GetTokenBalance(ctx context.Context, conState jsonrpc.State, args GetTokenBalance) (*big.Int, error) {
+func (c *Client) GetTokenBalance(ctx context.Context, conState jsonrpc.State, contractAddress string) (*big.Int, error) {
 	state := State(conState)
 	if state.Client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.GetTokenBalance(args.ContractAddress, args.Target)
+	return state.Client.GetTokenBalance(contractAddress)
 }
 
 // TransferToken transfer an erc20 compatible token to a destination
@@ -51,7 +51,7 @@ func (c *Client) TransferTokens(ctx context.Context, conState jsonrpc.State, arg
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferTokens(args.ContractAddress, args.Destination, args.Amount)
+	return state.Client.TransferTokens(ctx, args.ContractAddress, args.Destination, args.Amount)
 }
 
 // TransferFromTokens transfer tokens from an account to another account (can be executed by anyone that is approved to spend)
@@ -61,7 +61,7 @@ func (c *Client) TransferFromTokens(ctx context.Context, conState jsonrpc.State,
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferFromTokens(args.ContractAddress, args.From, args.Destination, args.Amount)
+	return state.Client.TransferFromTokens(ctx, args.ContractAddress, args.From, args.Destination, args.Amount)
 }
 
 // ApproveTokenSpending approved spending of a token contract with a limit
@@ -71,5 +71,5 @@ func (c *Client) ApproveTokenSpending(ctx context.Context, conState jsonrpc.Stat
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.ApproveTokenSpending(args.ContractAddress, args.Target, args.Amount)
+	return state.Client.ApproveTokenSpending(ctx, args.ContractAddress, args.Target, args.Amount)
 }
