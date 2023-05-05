@@ -399,14 +399,14 @@ func (d *Driver) handleParticipateStellarMessage(ctx context.Context, sender str
 		return
 	}
 
-	contractValue, err := strconv.ParseUint(auditOutput.ContractValue, 10, 64)
+	contractValue, err := strconv.ParseFloat(auditOutput.ContractValue, 64)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not parse contract value, this is an internal coding error")
 		return
 	}
 
 	// if the seller wants to give us more TFT than agreed, we will shamelessly accept
-	if contractValue < uint64(d.swapAmount) {
+	if contractValue < float64(d.swapAmount) {
 		log.Warn().Msg("Contract does not have enough TFT locked")
 		return
 	}
