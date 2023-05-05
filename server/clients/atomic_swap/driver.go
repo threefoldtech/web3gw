@@ -290,9 +290,26 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	// save the sct so we can use it later
 	d.sct = &sct
 
-	auditOutput, err := eth.AuditContract(ctx, sct, req.InitiateTransaction)
+	deadline := time.Now().Add(time.Minute * 5)
+	var auditOutput eth.AuditContractOutput
+	for {
+		auditOutput, err = eth.AuditContract(ctx, sct, req.InitiateTransaction)
+		if err != nil {
+			if errors.Is(err, eth.ErrTxPending) {
+				if time.Now().After(deadline) {
+					log.Warn().Msg("Tx not confirmed yet but deadline passed, abort")
+					return
+				}
+				log.Info().Msg("Tx not confirmed yet, sleeping and trying again")
+				time.Sleep(time.Second * 15)
+				continue
+			}
+			log.Error().Err(err).Msg("Failed to audit eth contract")
+			return
+		}
+		break
+	}
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to audit eth contract")
 		return
 	}
 
@@ -338,6 +355,10 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	horizonClient := horizonclient.DefaultTestNetClient
 	log.Info().Msg("Validated Eth contract, setting up stellar side")
 	participateOutput, err := stellar.Participate(network.TestNetworkPassphrase, &kp, req.StellarAddress, strconv.FormatUint(uint64(d.swapAmount), 10), req.SharedSecret[:], testnetTftAsset, horizonClient)
+	if err != nil {
+		log.Error().Err(err).Msg("Can not participate on the stellar side")
+		return
+	}
 
 	msg := MsgParticipateStellar{
 		Id:             d.saleId,
