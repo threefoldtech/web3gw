@@ -7,23 +7,12 @@
   "methods": [
     {
       "name": "stellar.Load",
+      "description": "Load a client, connecting to the rpc endpoint at the given network and loading a keypair from the given secret.",
       "params": [
         {
-          "name": "client",
+          "name": "args",
           "schema": {
-            "$ref": "#\/components\/schemas\/RpcWsClient"
-          }
-        },
-        {
-          "name": "secret",
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "network",
-          "schema": {
-            "type": "string"
+            "$ref": "#\/components\/schemas\/Load"
           }
         }
       ],
@@ -36,29 +25,12 @@
     },
     {
       "name": "stellar.Transer",
+      "description": "Transer an amount of TFT from the loaded account to the destination.",
       "params": [
         {
-          "name": "client",
+          "name": "args",
           "schema": {
-            "$ref": "#\/components\/schemas\/RpcWsClient"
-          }
-        },
-        {
-          "name": "amount",
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "destination",
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "memo",
-          "schema": {
-            "type": "string"
+            "$ref": "#\/components\/schemas\/Transfer"
           }
         }
       ],
@@ -71,13 +43,8 @@
     },
     {
       "name": "stellar.Balance",
+      "description": "Balance of an account for TFT on stellar.",
       "params": [
-        {
-          "name": "client",
-          "schema": {
-            "$ref": "#\/components\/schemas\/RpcWsClient"
-          }
-        },
         {
           "name": "address",
           "schema": {
@@ -92,5 +59,34 @@
         }
       }
     }
-  ]
+  ],
+  "components": {
+    "schemas": {
+      "Load": {
+        "title": "Load",
+        "properties": {
+          "network": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          }
+        }
+      },
+      "Transfer": {
+        "title": "Transfer",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "memo": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }
