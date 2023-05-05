@@ -10,4 +10,3 @@ ln -s $ABS_DIR_OF_SCRIPT/lib ~/.vmodules/threefoldtech/threebot
 if !(v list | grep -q 'freeflowuniverse.crystallib'); then
     git clone https://github.com/freeflowuniverse/crystallib.git ~/.vmodules/freeflowuniverse/crystallib
 fi
-

@@ -21,8 +21,6 @@ do
     $OPENRPC_CLI docgen -t "$name JSON-RPC API" -p -o server/pkg/$name $file
 done
 
-# v run ~/.vmodules/freeflowuniverse/crystallib/openrpc/cli/cli.v docgen -t "Web3Proxy JSON-RPC API" -p -o server lib
-
 # v fmt -w .
 # v doc -m -f html . -readme -comments -no-timestamp
 
