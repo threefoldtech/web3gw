@@ -111,6 +111,12 @@ pub struct ApprovalForFungible{
 	operator string
 }
 
+[params]
+pub struct TftEthTransfer {
+	destination string
+	amount i64
+}
+
 [noinit]
 pub struct EthClient {
 mut:
@@ -144,8 +150,9 @@ pub fn (mut e EthClient) height() !u64 {
 
 // ERC20
 
-pub fn (mut e EthClient) token_balance(contractAddress string, address string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetTokenBalance', [contractAddress, address], eth.default_timeout)!
+// token_balance returns balance for the given token contract.
+pub fn (mut e EthClient) token_balance(contractAddress string) !i64 {
+	return e.client.send_json_rpc[[]string, i64]('eth.GetTokenBalance', [contractAddress], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) token_transer(args TokenTransfer) !string {
@@ -253,4 +260,21 @@ pub fn (mut e EthClient) get_fungible_approval(args ApprovalForFungible) !bool {
 pub fn (mut e EthClient) get_fungible_approval_for_all(args ApprovalForFungible) !bool {
 	return e.client.send_json_rpc[[]ApprovalForFungible, bool]('eth.GetApprovalForAllFungible', [args],
 		eth.default_timeout)!
+}
+
+// TFT
+
+// transfer_tft_eth transfers tft from an account on ethereum to another
+pub fn (mut e EthClient) tft_eth_transfer(args TftEthTransfer) !string {
+	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.TransferTftEth', [args], eth.default_timeout)!
+}
+
+// withdraw_eth_tft_to_stellar withdraws eth tft to stellar
+pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !string {
+	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.WithdrawEthTftToStellar', [args], eth.default_timeout)!
+}
+
+// tft_balance returns the tft balance on ethereum
+pub fn (mut e EthClient) tft_balance() !i64 {
+	return e.client.send_json_rpc[[]string, i64]('eth.GetTFTBalance', []string{}, eth.default_timeout)!
 }
