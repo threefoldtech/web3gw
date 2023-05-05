@@ -108,12 +108,15 @@ const (
 )
 
 var (
+	// contract address on the sepolia teest network
+	contractAddress = common.HexToAddress("0x17f54245073bfed168a51c3d13b536e39e406063")
 	// contract address on the goerli network
-	contractAddress = common.HexToAddress("0x8420c8271d602F6D0B190856Cea8E74D09A0d3cF")
+	// contractAddress = common.HexToAddress("0x8420c8271d602F6D0B190856Cea8E74D09A0d3cF")
 	// TFT asset on the stellar testnet
 	testnetTftAsset = mustStellarTestnetTftAsset()
 
-	goerliChainID = big.NewInt(5)
+	// goerliChainID = big.NewInt(5)
+	sepoliaChainId = big.NewInt(11155111)
 )
 
 func initDriver(nostr *nostr.Client, eth *goethclient.Client, stellar *stellargoclient.Client) *Driver {
@@ -221,7 +224,7 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 		return
 	}
 	cancel()
-	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key, goerliChainID)
+	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key, sepoliaChainId)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to construct swap contract transactor")
 		return
@@ -276,7 +279,7 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 		return
 	}
 	cancel()
-	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key, goerliChainID)
+	sct, err := eth.NewSwapContractTransactor(ctx, client, contractAddress, d.eth.Key, sepoliaChainId)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to construct swap contract transactor")
 		return
