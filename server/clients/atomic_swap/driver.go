@@ -70,11 +70,11 @@ type (
 	}
 
 	MsgInitiateEth struct {
-		Id                  string            `json:"id"`
-		SharedSecret        [sha256.Size]byte `json:"sharedSecret"`
-		EthAddress          common.Address    `json:"ethAddress"`
-		StellarAddress      string            `json:"stellarAddress"`
-		InitiateTransaction types.Transaction `json:"initiateTransaction"`
+		Id                  string             `json:"id"`
+		SharedSecret        [sha256.Size]byte  `json:"sharedSecret"`
+		EthAddress          common.Address     `json:"ethAddress"`
+		StellarAddress      string             `json:"stellarAddress"`
+		InitiateTransaction *types.Transaction `json:"initiateTransaction"`
 	}
 
 	MsgParticipateStellar struct {
@@ -192,6 +192,8 @@ func (d *Driver) handleBuyMessage(ctx context.Context, sender string, req MsgBuy
 		Id:             d.saleId,
 		EthAddress:     d.eth.AddressFromKey(),
 		StellarAddress: d.stellar.Address(),
+		Amount:         d.swapAmount,
+		SwapPrice:      d.swapPrice,
 	}
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -246,7 +248,7 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 		SharedSecret:        output.SecretHash,
 		EthAddress:          output.InitiatorAddress,
 		StellarAddress:      d.stellar.Address(),
-		InitiateTransaction: output.ContractTransaction,
+		InitiateTransaction: &output.ContractTransaction,
 	}
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -288,7 +290,7 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	// save the sct so we can use it later
 	d.sct = &sct
 
-	auditOutput, err := eth.AuditContract(ctx, sct, &req.InitiateTransaction)
+	auditOutput, err := eth.AuditContract(ctx, sct, req.InitiateTransaction)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to audit eth contract")
 		return
