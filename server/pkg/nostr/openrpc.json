@@ -1,0 +1,452 @@
+{
+  "openrpc": "1.0.0",
+  "info": {
+    "title": "nostr JSON-RPC API",
+    "version": "1.0.0"
+  },
+  "methods": [
+    {
+      "name": "nostr.Load",
+      "description": " the nostr client with a secret",
+      "params": [
+        {
+          "name": "secret",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.ConnectToRelay",
+      "description": "connect to a relay given a url",
+      "params": [
+        {
+          "name": "relay_url",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.ConnectToAuthRelay",
+      "description": "connect to the authenticated relay",
+      "params": [
+        {
+          "name": "relay_url",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.GenerateKeypair",
+      "description": "generate a keypair",
+      "params": [
+      ],
+      "result": {
+        "name": "!string",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "nostr.GetId",
+      "description": "get the nostr encoded id",
+      "params": [
+      ],
+      "result": {
+        "name": "!string",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "nostr.GetPublicKey",
+      "description": "get public key",
+      "params": [
+      ],
+      "result": {
+        "name": "!string",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "nostr.PublishTextNote",
+      "description": "publish a text note to the relay",
+      "params": [
+        {
+          "name": "args",
+          "schema": {
+            "$ref": "#\/components\/schemas\/TextNote"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.PublishMetadata",
+      "description": "publish metadata to the relay",
+      "params": [
+        {
+          "name": "args",
+          "schema": {
+            "$ref": "#\/components\/schemas\/Metadata"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.PublishDirectMessage",
+      "description": "publish a direct message to the relay given a receiver",
+      "params": [
+        {
+          "name": "args",
+          "schema": {
+            "$ref": "#\/components\/schemas\/DirectMessage"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.SubscribeTextNotes",
+      "description": "subscribe to the relays for text notes",
+      "params": [
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.SubscribeToDirectMessages",
+      "description": "subscribe to the relays for direct messages",
+      "params": [
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.SubscribeToStallCreation",
+      "description": "subscribe to relays for stall creation",
+      "params": [
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.SubscribeToProductCreation",
+      "description": "subscribe to relays for product creation",
+      "params": [
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.GetEvents",
+      "description": "get all the events for the subscriptions",
+      "params": [
+      ],
+      "result": {
+        "name": "Event",
+        "schema": {
+          "$ref": "#\/components\/schemas\/Event"
+        }
+      }
+    },
+    {
+      "name": "nostr.CloseSubscription",
+      "description": "close a subscription given an id",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.GetSubscriptionIds",
+      "description": "get all the subscription ids",
+      "params": [
+      ],
+      "result": {
+        "name": "![]string",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "nostr.PublishStall",
+      "params": [
+        {
+          "name": "args",
+          "schema": {
+            "$ref": "#\/components\/schemas\/StallCreateInput"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "nostr.PublishProduct",
+      "params": [
+        {
+          "name": "args",
+          "schema": {
+            "$ref": "#\/components\/schemas\/ProductCreateInput"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Event": {
+        "title": "Event",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pubkey": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "integer"
+          },
+          "tags": {
+            "type": "array"
+          },
+          "content": {
+            "type": "string"
+          },
+          "sig": {
+            "description": "extra map[string]any",
+            "type": "string"
+          }
+        }
+      },
+      "TextNote": {
+        "title": "TextNote",
+        "properties": {
+          "tags": {
+            "type": "array"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "Metadata": {
+        "title": "Metadata",
+        "properties": {
+          "tags": {
+            "type": "array"
+          },
+          "metadata": {
+            "$ref": "#\/components\/schemas\/NostrMetadata"
+          }
+        }
+      },
+      "NostrMetadata": {
+        "title": "NostrMetadata",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "about": {
+            "type": "string"
+          },
+          "picture": {
+            "type": "string"
+          }
+        }
+      },
+      "DirectMessage": {
+        "title": "DirectMessage",
+        "properties": {
+          "receiver": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "Stall": {
+        "title": "Stall",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "shipping": {
+            "$ref": "#\/components\/schemas\/Shipping"
+          }
+        }
+      },
+      "StallCreateInput": {
+        "title": "StallCreateInput",
+        "properties": {
+          "tags": {
+            "type": "array"
+          },
+          "stall": {
+            "$ref": "#\/components\/schemas\/Stall"
+          }
+        }
+      },
+      "Shipping": {
+        "title": "Shipping",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "cost": {
+            "type": "string"
+          },
+          "countries": {
+            "type": "array"
+          }
+        }
+      },
+      "Product": {
+        "title": "Product",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "stall_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "specs": {
+            "type": "array"
+          }
+        }
+      },
+      "ProductCreateInput": {
+        "title": "ProductCreateInput",
+        "properties": {
+          "tags": {
+            "type": "array"
+          },
+          "product": {
+            "$ref": "#\/components\/schemas\/Product"
+          }
+        }
+      }
+    }
+  }
+}

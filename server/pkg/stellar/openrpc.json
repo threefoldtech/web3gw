@@ -1,0 +1,96 @@
+{
+  "openrpc": "1.0.0",
+  "info": {
+    "title": "stellar JSON-RPC API",
+    "version": "1.0.0"
+  },
+  "methods": [
+    {
+      "name": "stellar.Load",
+      "params": [
+        {
+          "name": "client",
+          "schema": {
+            "$ref": "#\/components\/schemas\/RpcWsClient"
+          }
+        },
+        {
+          "name": "secret",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "network",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "stellar.Transer",
+      "params": [
+        {
+          "name": "client",
+          "schema": {
+            "$ref": "#\/components\/schemas\/RpcWsClient"
+          }
+        },
+        {
+          "name": "amount",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "destination",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "memo",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "stellar.Balance",
+      "params": [
+        {
+          "name": "client",
+          "schema": {
+            "$ref": "#\/components\/schemas\/RpcWsClient"
+          }
+        },
+        {
+          "name": "address",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!i64",
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,814 @@
+{
+  "openrpc": "1.0.0",
+  "info": {
+    "title": "explorer JSON-RPC API",
+    "version": "1.0.0"
+  },
+  "methods": [
+    {
+      "name": "explorer.Load",
+      "description": "First call to make to initialize your session. Provide the network you want to use to do so.",
+      "params": [
+        {
+          "name": "network",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "!",
+        "schema": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "name": "explorer.Ping",
+      "description": "Pings the gridproxy server",
+      "params": [
+      ],
+      "result": {
+        "name": "!string",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "explorer.Nodes",
+      "description": "Fetches grid nodes based on some filters. A list of nodes is returned and the total amount of nodes too.",
+      "params": [
+        {
+          "name": "params",
+          "schema": {
+            "$ref": "#\/components\/schemas\/NodesRequestParams"
+          }
+        }
+      ],
+      "result": {
+        "name": "NodesResult",
+        "schema": {
+          "$ref": "#\/components\/schemas\/NodesResult"
+        }
+      }
+    },
+    {
+      "name": "explorer.Farms",
+      "description": "Fetches grid farms based on some filters. A list of farms is returned and the total amount of farms too.",
+      "params": [
+        {
+          "name": "params",
+          "schema": {
+            "$ref": "#\/components\/schemas\/FarmsRequestParams"
+          }
+        }
+      ],
+      "result": {
+        "name": "FarmsResult",
+        "schema": {
+          "$ref": "#\/components\/schemas\/FarmsResult"
+        }
+      }
+    },
+    {
+      "name": "explorer.Contracts",
+      "description": "Fetches grid contracts based on some filters. A list of contracts is returned and the total amount of contracts too.",
+      "params": [
+        {
+          "name": "params",
+          "schema": {
+            "$ref": "#\/components\/schemas\/ContractsRequestParams"
+          }
+        }
+      ],
+      "result": {
+        "name": "ContractsResult",
+        "schema": {
+          "$ref": "#\/components\/schemas\/ContractsResult"
+        }
+      }
+    },
+    {
+      "name": "explorer.Twins",
+      "description": "Fetches grid twins based on some filters. A list of the twins is returned and the total amount of twins too.",
+      "params": [
+        {
+          "name": "params",
+          "schema": {
+            "$ref": "#\/components\/schemas\/TwinsRequestParams"
+          }
+        }
+      ],
+      "result": {
+        "name": "TwinsResult",
+        "schema": {
+          "$ref": "#\/components\/schemas\/TwinsResult"
+        }
+      }
+    },
+    {
+      "name": "explorer.Node",
+      "description": "Gets the node with the provided id. The result object contains data relevant to the node (resources, farm, etc.)",
+      "params": [
+        {
+          "name": "node_id",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "NodeWithNestedCapacity",
+        "schema": {
+          "$ref": "#\/components\/schemas\/NodeWithNestedCapacity"
+        }
+      }
+    },
+    {
+      "name": "explorer.NodeStatus",
+      "description": "Checks the status of node (if it is up or down).",
+      "params": [
+        {
+          "name": "node_id",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "NodeStatus",
+        "schema": {
+          "$ref": "#\/components\/schemas\/NodeStatus"
+        }
+      }
+    },
+    {
+      "name": "explorer.Counters",
+      "description": "Counters fetches statistics of the grid (amount nodes, amount of farms, amount of contracts, etc).",
+      "params": [
+        {
+          "name": "filters",
+          "schema": {
+            "$ref": "#\/components\/schemas\/StatsFilter"
+          }
+        }
+      ],
+      "result": {
+        "name": "Counters",
+        "schema": {
+          "$ref": "#\/components\/schemas\/Counters"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "NodesRequestParams": {
+        "title": "NodesRequestParams",
+        "properties": {
+          "filters": {
+            "$ref": "#\/components\/schemas\/NodeFilter"
+          },
+          "pagination": {
+            "$ref": "#\/components\/schemas\/Limit"
+          }
+        }
+      },
+      "FarmsRequestParams": {
+        "title": "FarmsRequestParams",
+        "properties": {
+          "filters": {
+            "$ref": "#\/components\/schemas\/FarmFilter"
+          },
+          "pagination": {
+            "$ref": "#\/components\/schemas\/Limit"
+          }
+        }
+      },
+      "TwinsRequestParams": {
+        "title": "TwinsRequestParams",
+        "properties": {
+          "filters": {
+            "$ref": "#\/components\/schemas\/TwinFilter"
+          },
+          "pagination": {
+            "$ref": "#\/components\/schemas\/Limit"
+          }
+        }
+      },
+      "ContractsRequestParams": {
+        "title": "ContractsRequestParams",
+        "properties": {
+          "filters": {
+            "$ref": "#\/components\/schemas\/ContractFilter"
+          },
+          "pagination": {
+            "$ref": "#\/components\/schemas\/Limit"
+          }
+        }
+      },
+      "NodesResult": {
+        "title": "NodesResult",
+        "properties": {
+          "nodes": {
+            "$ref": "#\/components\/schemas\/Node"
+          },
+          "total_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "FarmsResult": {
+        "title": "FarmsResult",
+        "properties": {
+          "farms": {
+            "$ref": "#\/components\/schemas\/Farm"
+          },
+          "total_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "TwinsResult": {
+        "title": "TwinsResult",
+        "properties": {
+          "twins": {
+            "$ref": "#\/components\/schemas\/Twin"
+          },
+          "total_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "ContractsResult": {
+        "title": "ContractsResult",
+        "properties": {
+          "contracts": {
+            "$ref": "#\/components\/schemas\/Contract"
+          },
+          "total_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "NodeFilter": {
+        "title": "NodeFilter",
+        "description": "available options for filtering nodes",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "free_mru": {
+            "type": "string"
+          },
+          "free_hru": {
+            "type": "string"
+          },
+          "free_sru": {
+            "type": "string"
+          },
+          "total_mru": {
+            "type": "string"
+          },
+          "total_hru": {
+            "type": "string"
+          },
+          "total_sru": {
+            "type": "string"
+          },
+          "total_cru": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "country_contains": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "city_contains": {
+            "type": "string"
+          },
+          "farm_name": {
+            "type": "string"
+          },
+          "farm_name_contains": {
+            "type": "string"
+          },
+          "farm_ids": {
+            "type": "array"
+          },
+          "free_ips": {
+            "type": "string"
+          },
+          "ipv4": {
+            "type": "boolean"
+          },
+          "ipv6": {
+            "type": "boolean"
+          },
+          "domain": {
+            "type": "boolean"
+          },
+          "dedicated": {
+            "type": "boolean"
+          },
+          "rentable": {
+            "type": "boolean"
+          },
+          "rented": {
+            "type": "boolean"
+          },
+          "rented_by": {
+            "type": "string"
+          },
+          "available_for": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "twin_id": {
+            "type": "string"
+          }
+        }
+      },
+      "FarmFilter": {
+        "title": "FarmFilter",
+        "description": "available options for filtering farms",
+        "properties": {
+          "free_ips": {
+            "type": "string"
+          },
+          "total_ips": {
+            "type": "string"
+          },
+          "stellar_address": {
+            "type": "string"
+          },
+          "pricing_policy_id": {
+            "type": "string"
+          },
+          "farm_id": {
+            "type": "string"
+          },
+          "twin_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "name_contains": {
+            "type": "string"
+          },
+          "certification_type": {
+            "type": "string"
+          },
+          "dedicated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TwinFilter": {
+        "title": "TwinFilter",
+        "description": "available options for filtering twins",
+        "properties": {
+          "twin_id": {
+            "type": "string"
+          },
+          "account_id": {
+            "type": "string"
+          },
+          "relay": {
+            "type": "string"
+          },
+          "public_key": {
+            "type": "string"
+          }
+        }
+      },
+      "ContractFilter": {
+        "title": "ContractFilter",
+        "description": "available options for filtering contracts",
+        "properties": {
+          "contract_id": {
+            "type": "string"
+          },
+          "twin_id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "type_": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "number_of_public_ips": {
+            "type": "string"
+          },
+          "deployment_data": {
+            "type": "string"
+          },
+          "deployment_hash": {
+            "type": "string"
+          }
+        }
+      },
+      "StatsFilter": {
+        "title": "StatsFilter",
+        "description": "filter statistics based on grid node status",
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Node": {
+        "title": "Node",
+        "description": "grid node info",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "integer"
+          },
+          "farm_id": {
+            "type": "integer"
+          },
+          "twin_id": {
+            "type": "integer"
+          },
+          "country": {
+            "type": "string"
+          },
+          "grid_version": {
+            "type": "integer"
+          },
+          "city": {
+            "type": "string"
+          },
+          "uptime": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "farming_policy_id": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "total_resources": {
+            "$ref": "#\/components\/schemas\/Capacity"
+          },
+          "used_resources": {
+            "$ref": "#\/components\/schemas\/Capacity"
+          },
+          "location": {
+            "$ref": "#\/components\/schemas\/Location"
+          },
+          "public_config": {
+            "$ref": "#\/components\/schemas\/PublicConfig"
+          },
+          "status": {
+            "type": "string"
+          },
+          "certification_type": {
+            "type": "string"
+          },
+          "dedicated": {
+            "type": "boolean"
+          },
+          "rent_contract_id": {
+            "type": "integer"
+          },
+          "rented_by_twin_id": {
+            "type": "integer"
+          },
+          "serial_number": {
+            "type": "string"
+          }
+        }
+      },
+      "NodeWithNestedCapacity": {
+        "title": "NodeWithNestedCapacity",
+        "description": "grid node with nested capacity object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "integer"
+          },
+          "farm_id": {
+            "type": "integer"
+          },
+          "twin_id": {
+            "type": "integer"
+          },
+          "country": {
+            "type": "string"
+          },
+          "grid_version": {
+            "type": "integer"
+          },
+          "city": {
+            "type": "string"
+          },
+          "uptime": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "farming_policy_id": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "capacity": {
+            "$ref": "#\/components\/schemas\/CapacityResult"
+          },
+          "location": {
+            "$ref": "#\/components\/schemas\/Location"
+          },
+          "public_config": {
+            "$ref": "#\/components\/schemas\/PublicConfig"
+          },
+          "status": {
+            "type": "string"
+          },
+          "certification_type": {
+            "type": "string"
+          },
+          "dedicated": {
+            "type": "boolean"
+          },
+          "rent_contract_id": {
+            "type": "integer"
+          },
+          "rented_by_twin_id": {
+            "type": "integer"
+          },
+          "serial_number": {
+            "type": "string"
+          }
+        }
+      },
+      "CapacityResult": {
+        "title": "CapacityResult",
+        "properties": {
+          "total": {
+            "$ref": "#\/components\/schemas\/Capacity"
+          },
+          "used": {
+            "$ref": "#\/components\/schemas\/Capacity"
+          }
+        }
+      },
+      "PublicConfig": {
+        "title": "PublicConfig",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "gw4": {
+            "type": "string"
+          },
+          "gw6": {
+            "type": "string"
+          },
+          "ipv4": {
+            "type": "string"
+          },
+          "ipv6": {
+            "type": "string"
+          }
+        }
+      },
+      "Capacity": {
+        "title": "Capacity",
+        "properties": {
+          "cru": {
+            "type": "string"
+          },
+          "sru": {
+            "type": "string"
+          },
+          "hru": {
+            "type": "string"
+          },
+          "mru": {
+            "type": "string"
+          }
+        }
+      },
+      "Location": {
+        "title": "Location",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "longitude": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "string"
+          }
+        }
+      },
+      "Limit": {
+        "title": "Limit",
+        "properties": {
+          "size": {
+            "type": "string"
+          },
+          "page": {
+            "type": "string"
+          },
+          "ret_count": {
+            "type": "boolean"
+          },
+          "randomize": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Twin": {
+        "title": "Twin",
+        "description": "Twin info",
+        "properties": {
+          "twin_id": {
+            "type": "string"
+          },
+          "account_id": {
+            "type": "string"
+          },
+          "relay": {
+            "type": "string"
+          },
+          "public_key": {
+            "type": "string"
+          }
+        }
+      },
+      "Counters": {
+        "title": "Counters",
+        "description": "Counters for grid statistics",
+        "properties": {
+          "nodes": {
+            "type": "string"
+          },
+          "farms": {
+            "type": "string"
+          },
+          "countries": {
+            "type": "string"
+          },
+          "total_cru": {
+            "type": "string"
+          },
+          "total_sru": {
+            "type": "string"
+          },
+          "total_mru": {
+            "type": "string"
+          },
+          "total_hru": {
+            "type": "string"
+          },
+          "public_ips": {
+            "type": "string"
+          },
+          "access_nodes": {
+            "type": "string"
+          },
+          "gateways": {
+            "type": "string"
+          },
+          "twins": {
+            "type": "string"
+          },
+          "contracts": {
+            "type": "string"
+          },
+          "nodes_distribution": {
+            "type": "object"
+          }
+        }
+      },
+      "NodeStatus": {
+        "title": "NodeStatus",
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Contract": {
+        "title": "Contract",
+        "properties": {
+          "contract_id": {
+            "type": "integer"
+          },
+          "twin_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "integer"
+          },
+          "type_": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          },
+          "billing": {
+            "$ref": "#\/components\/schemas\/ContractBilling"
+          }
+        }
+      },
+      "ContractBilling": {
+        "title": "ContractBilling",
+        "properties": {
+          "amount_billed": {
+            "type": "string"
+          },
+          "discount_received": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "Farm": {
+        "title": "Farm",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "farm_id": {
+            "type": "integer"
+          },
+          "twin_id": {
+            "type": "integer"
+          },
+          "pricing_policy_id": {
+            "type": "integer"
+          },
+          "certification_type": {
+            "type": "string"
+          },
+          "stellar_address": {
+            "type": "string"
+          },
+          "dedicated": {
+            "type": "boolean"
+          },
+          "public_ips": {
+            "$ref": "#\/components\/schemas\/PublicIP"
+          }
+        }
+      },
+      "PublicIP": {
+        "title": "PublicIP",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "farm_id": {
+            "type": "string"
+          },
+          "contract_id": {
+            "type": "integer"
+          },
+          "gateway": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
