@@ -18,33 +18,30 @@ pub struct Load {
 	host string
 	user string
 	pass string
+	wallet string
 }
 
 // args to import bitcoin address
 [params]
-pub struct ImportAddressRescan {
-	address string
-	account string
-	rescan  bool
+pub struct ImportAddress {
+	address string // the Bitcoin address (or hex-encoded script)
+	label string // an optional label
+	rescan bool = true // whether or not to scan the chain and mempool for wallet transactions
+	p2sh bool // add the p2sh version of the script as well
 }
 
 [params]
-pub struct ImportPrivKeyLabel {
-	wif   string
-	label string
-}
-
-[params]
-pub struct ImportPrivKeyRescan {
+pub struct ImportPrivKey {
 	wif    string
-	label  string
-	rescan bool
+	label  string // an optional label (default: current label if address exists, otherwise "")
+	rescan bool = true // scan the chain and mempool for wallet transactions
 }
 
 [params]
-pub struct ImportPubKeyRescan {
+pub struct ImportPubKey {
 	pub_key string
-	rescan  bool
+	label string // an optional label
+	rescan  bool // scan the chain and mempool for wallet transactions
 }
 
 [params]
@@ -53,7 +50,7 @@ pub struct RenameAccount {
 	new_account string
 }
 
-// send amount of token to address, with/without comment
+// send amount of token to address, with/without comment 
 [params]
 pub struct SendToAddress {
 	address    string
@@ -64,7 +61,7 @@ pub struct SendToAddress {
 
 [params]
 pub struct EstimateSmartFee {
-	conf_target i64 = 1 // confirmation target in blocks
+	conf_target i64 = 1 // confirmation target in blocks (value between 1 and 1008)
 	mode        string = "CONSERVATIVE" // defines the different fee estimation modes, should be one of UNSET, ECONOMICAL or CONSERVATIVE
 }
 
@@ -82,12 +79,18 @@ pub struct GetChainTxStats {
 }
 
 [params]
+pub struct GetNewAddress {
+	label string
+	address_type string
+}
+
+[params]
 pub struct CreateWallet {
-	name                 string
-	disable_private_keys bool
-	create_blank_wallet  bool
-	passphrase           string
-	avoid_reuse          bool
+	name                 string // name of the wallet to create
+	disable_private_keys bool // disable the possibility of private keys (only watchonlys are possible in this mode)
+	create_blank_wallet  bool // create a blank wallet (has no keys or HD seed)
+	passphrase           string // encrypt the wallet with this passphrase
+	avoid_reuse          bool // keep track of coin reuse, and treat dirty and clean coins differently with privacy considerations in mind
 }
 
 [params]
@@ -99,7 +102,12 @@ pub struct Move {
 	comment           string
 }
 
-[openrpc: exclude]
+[params]
+pub struct SetLabel {
+	label string // the label to assign to the address
+	address string // the bitcoin address to be associated with a label
+}
+
 pub fn new(mut client RpcWsClient) BtcClient {
 	return BtcClient{
 		client: &client
@@ -113,34 +121,10 @@ pub fn (mut c BtcClient) load(params Load) !string {
 	], btc.default_timeout)!
 }
 
-// Imports the passed public address.
-pub fn (mut c BtcClient) import_address(address string) ! {
-	_ := c.client.send_json_rpc[[]string, string]('btc.ImportAddress', [
-		address,
-	], btc.default_timeout)!
-}
-
 // Imports the passed public address. When rescan is true,
 // the block history is scanned for transactions addressed to provided address.
-pub fn (mut c BtcClient) import_address_rescan(args ImportAddressRescan) ! {
-	_ := c.client.send_json_rpc[[]ImportAddressRescan, string]('btc.ImportAddressRescan', [
-		args,
-	], btc.default_timeout)!
-}
-
-// Imports the passed private key which must be the wallet import format (WIF).
-// The WIF string must be a base58-encoded string.
-pub fn (mut c BtcClient) import_priv_key(wif string) ! {
-	_ := c.client.send_json_rpc[[]string, string]('btc.ImportPrivKey', [
-		wif,
-	], btc.default_timeout)!
-}
-
-// Imports the passed private key which must be the wallet import
-// format (WIF). It sets the account label to the one provided.
-// The WIF string must be a base58-encoded string.
-pub fn (mut c BtcClient) import_priv_key_label(args ImportPrivKeyLabel) ! {
-	_ := c.client.send_json_rpc[[]ImportPrivKeyLabel, string]('btc.ImportPrivKeyLabel', [
+pub fn (mut c BtcClient) import_address(args ImportAddress) ! {
+	_ := c.client.send_json_rpc[[]ImportAddress, string]('btc.ImportAddress', [
 		args,
 	], btc.default_timeout)!
 }
@@ -149,27 +133,27 @@ pub fn (mut c BtcClient) import_priv_key_label(args ImportPrivKeyLabel) ! {
 // format (WIF). It sets the account label to the one provided. When rescan is true,
 // the block history is scanned for transactions addressed to provided privKey.
 // The WIF string must be a base58-encoded string.
-pub fn (mut c BtcClient) import_priv_key_rescan(args ImportPrivKeyRescan) ! {
-	_ := c.client.send_json_rpc[[]ImportPrivKeyRescan, string]('btc.ImportPrivKeyRescan', [
+pub fn (mut c BtcClient) import_priv_key(args ImportPrivKey) ! {
+	_ := c.client.send_json_rpc[[]ImportPrivKey, string]('btc.ImportPrivKey', [
 		args,
 	], btc.default_timeout)!
-}
-
-// Imports the passed public key.
-pub fn (mut c BtcClient) import_pub_key(pub_key string) ! {
-	_ := c.client.send_json_rpc[[]string, string]('btc.ImportPubKey', [pub_key], btc.default_timeout)!
 }
 
 // Imports the passed public key. When rescan is true, the block history is scanned for transactions addressed to provided pubkey.
-pub fn (mut c BtcClient) import_pub_key_rescan(args ImportPubKeyRescan) ! {
-	_ := c.client.send_json_rpc[[]ImportPubKeyRescan, string]('btc.ImportPubKeyRescan', [
+pub fn (mut c BtcClient) import_pub_key_rescan(args ImportPubKey) ! {
+	_ := c.client.send_json_rpc[[]ImportPubKey, string]('btc.ImportPubKey', [
 		args,
 	], btc.default_timeout)!
+}
+
+// List the accounts of a wallet
+pub fn (mut c BtcClient) list_labels() !map[string]i64 {
+	return c.client.send_json_rpc[[]string, map[string]i64]('btc.ListLabels', []string{}, btc.default_timeout)!
 }
 
 // Allows you to rename an account.
 pub fn (mut c BtcClient) rename_account(args RenameAccount) ! {
-	c.client.send_json_rpc[[]RenameAccount, string]('btc.RenameAccount', [args], btc.default_timeout)!
+	_ := c.client.send_json_rpc[[]RenameAccount, string]('btc.RenameAccount', [args], btc.default_timeout)!
 }
 
 // Sends the passed amount to the given address with a comment if provided and returns the hash of the transaction
@@ -195,15 +179,9 @@ pub fn (mut c BtcClient) generate_blocks_to_address(args GenerateToAddress) ![]s
 		[args], btc.default_timeout)!
 }
 
-// Returns the account associated with the passed address. The address should be the string encoded version of a valid address.
-pub fn (mut c BtcClient) get_account(address string) !string {
-	return c.client.send_json_rpc[[]string, string]('btc.GetAccount', [address], btc.default_timeout)!
-}
-
-// Returns the current Bitcoin address for receiving payments to the specified account.
-pub fn (mut c BtcClient) get_account_address(account string) !string {
-	return c.client.send_json_rpc[[]string, string]('btc.GetAccountAddress', [account],
-		btc.default_timeout)!
+// Associates the given label to the given address
+pub fn (mut c BtcClient) set_label(args SetLabel) ! {
+	_ := c.client.send_json_rpc[[]SetLabel, string]('btc.SetLabel', [args], btc.default_timeout)!
 }
 
 // Returns information about the given bitcoin address.
@@ -212,19 +190,19 @@ pub fn (mut c BtcClient) get_address_info(address string) !GetAddressInfoResult 
 		[address], btc.default_timeout)!
 }
 
-// Returns the list of addresses associated with the provided account. The returned list will be the string encoded versions of the addresses.
-pub fn (mut c BtcClient) get_addresses_by_account(account string) ![]string {
-	return c.client.send_json_rpc[[]string, []string]('btc.GetAddressesByAccount', [
-		account,
+// Returns the list of addresses associated with the provided label. The returned list will be the string encoded versions of the addresses.
+pub fn (mut c BtcClient) get_addresses_by_label(label string) ![]string {
+	return c.client.send_json_rpc[[]string, []string]('btc.GetAddressesByLabel', [
+		label,
 	], btc.default_timeout)!
 }
 
-// Returns the available balance for the specified account using the default number of minimum confirmations. You can provide * as an account to get the balance of all accounts.
-pub fn (mut c BtcClient) get_balance(account string) !i64 {
-	return c.client.send_json_rpc[[]string, i64]('btc.GetBalance', [account], btc.default_timeout)!
+// Returns the available balance using the default number of minimum confirmations.
+pub fn (mut c BtcClient) get_balance() !i64 {
+	return c.client.send_json_rpc[[]string, i64]('btc.GetBalance', []string{}, btc.default_timeout)!
 }
 
-// Returns the number of blocks in the longest block chain.
+// Returns the height of the most-work fully-validated chain.
 pub fn (mut c BtcClient) get_block_count() !i64 {
 	return c.client.send_json_rpc[[]string, i64]('btc.GetBlockCount', []string{}, btc.default_timeout)!
 }
@@ -240,6 +218,12 @@ pub fn (mut c BtcClient) get_block_stats(hash string) !GetBlockStatsResult {
 		[hash], btc.default_timeout)!
 }
 
+// Returns information on the state of the blockchain. 
+pub fn (mut c BtcClient) get_blockchain_info() !GetBlockChainInfo {
+	return c.client.send_json_rpc[[]string, GetBlockChainInfo]('btc.GetBlockStats',
+		[]string{}, btc.default_timeout)!
+}
+
 // Returns information about a block and its transactions given the hash of that block.
 pub fn (mut c BtcClient) get_block_verbose_tx(hash string) !GetBlockVerboseTxResult {
 	return c.client.send_json_rpc[[]string, GetBlockVerboseTxResult]('btc.GetBlockVerboseTx',
@@ -253,6 +237,11 @@ pub fn (mut c BtcClient) get_chain_tx_stats(args GetChainTxStats) !GetChainTxSta
 		[args], btc.default_timeout)!
 }
 
+// Returns the number of connections to other nodes.
+pub fn (mut c BtcClient) get_connection_count() !i64 {
+	return c.client.send_json_rpc[[]string, i64]('btc.GetConnectionCount', []string{}, btc.default_timeout)!
+}
+
 // Returns the proof-of-work difficulty as a multiple of the minimum difficulty.
 pub fn (mut c BtcClient) get_difficulty() !f64 {
 	return c.client.send_json_rpc[[]string, f64]('btc.GetDifficulty', []string{}, btc.default_timeout)!
@@ -264,9 +253,10 @@ pub fn (mut c BtcClient) get_mining_info() !GetMiningInfoResult {
 		[]string{}, btc.default_timeout)!
 }
 
-// Returns a new address. The returned string will be the encoded address (format will be based on the chain's parameters).
-pub fn (mut c BtcClient) get_new_address(account string) !string {
-	return c.client.send_json_rpc[[]string, string]('btc.GetNewAddress', [account], btc.default_timeout)!
+// Returns a new address. The returned string will be the encoded address based on the address_type provided. If 
+// address_type is left empty the default address type will be used from the chain's parameters.
+pub fn (mut c BtcClient) get_new_address(args GetNewAddress) !string {
+	return c.client.send_json_rpc[[]GetNewAddress, string]('btc.GetNewAddress', [args], btc.default_timeout)!
 }
 
 // Returns data about known node addresses.
@@ -287,12 +277,61 @@ pub fn (mut c BtcClient) get_raw_transaction(tx_hash string) !Transaction {
 		btc.default_timeout)!
 }
 
-// Creates a new wallet account taken into account the provided arguments. 
+// Returns the total amount received by the specified label
+pub fn (mut c BtcClient) get_received_by_label(label string) !Transaction {
+	return c.client.send_json_rpc[[]string, Transaction]('btc.GetReceivedByLabel', [label],
+		btc.default_timeout)!
+}
+
+// Load a specific wallet before executing wallet specific requests
+pub fn (mut c BtcClient) load_wallet(wallet_name string) !LoadWalletResult {
+	return c.client.send_json_rpc[[]string, LoadWalletResult]('btc.LoadWallet', [wallet_name],
+		btc.default_timeout)!
+}
+
+// Return wallet information
+pub fn (mut c BtcClient) get_wallet_info() !GetWalletInfoResult {
+	return c.client.send_json_rpc[[]string, GetWalletInfoResult]('btc.GetWalletInfo', []string{},
+		btc.default_timeout)!
+}
+
+// Lists the received transactions by label
+pub fn (mut c BtcClient) list_received_by_label() ![]ListReceivedByLabelResult {
+	return c.client.send_json_rpc[[]string, []ListReceivedByLabelResult]('btc.ListReceivedByLabel', []string{},
+		btc.default_timeout)!
+}
+
+// Lists the received transactions by address
+pub fn (mut c BtcClient) list_received_by_address() ![]ListReceivedByAddressResult {
+	return c.client.send_json_rpc[[]string, []ListReceivedByAddressResult]('btc.ListReceivedByAddress', []string{},
+		btc.default_timeout)!
+}
+
+// List all transactions since block with hash.
+pub fn (mut c BtcClient) list_since_block(hash string) !ListSinceBlockResult {
+	return c.client.send_json_rpc[[]string, ListSinceBlockResult]('btc.ListSinceBlock', [hash],
+		btc.default_timeout)!
+}
+
+// List all transactions for a specific label.
+pub fn (mut c BtcClient) list_transactions(label string) ![]ListTransactionsResult {
+	return c.client.send_json_rpc[[]string, []ListTransactionsResult]('btc.ListTransactions', [label],
+		btc.default_timeout)!
+}
+
+// Creates a new wallet taking into account the provided arguments. 
 pub fn (mut c BtcClient) create_wallet(args CreateWallet) !CreateWalletResult {
 	return c.client.send_json_rpc[[]CreateWallet, CreateWalletResult]('btc.CreateWallet',
 		[args], btc.default_timeout)!
 }
 
+// Sets the transaction fee per kilobyte paid by transactions created by this wallet.
+pub fn (mut c BtcClient) set_tx_fee(fee i64) ! {
+	_ := c.client.send_json_rpc[[]i64, string]('btc.SetTxFee',
+		[fee], btc.default_timeout)!
+}
+
+// Deprecated
 // Moves specified amount from one account in your wallet to another. Only funds with the default number of minimum confirmations will be used.
 // A comment can also be added to the transaction.
 pub fn (mut c BtcClient) move(args Move) !bool {
