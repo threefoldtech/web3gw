@@ -166,15 +166,17 @@ pub:
 	wireguard_config string
 }
 
-// struct AddMachine {
-// 	machine Machine
-// 	project_name string
-// }
+pub struct AddMachine {
+pub:
+	machine    Machine
+	model_name string
+}
 
-// struct RemoveMachine {
-// 	machine_name string
-// 	project_name string
-// }
+pub struct RemoveMachine {
+pub:
+	machine_name string
+	model_name   string
+}
 
 pub struct MachinesGet {
 	model_name   string
