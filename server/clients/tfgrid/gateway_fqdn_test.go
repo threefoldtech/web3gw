@@ -7,10 +7,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
-	client "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
-	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
@@ -25,7 +23,8 @@ func TestGatewayFQDN(t *testing.T) {
 	}
 
 	t.Run("fqdn_deploy_success", func(t *testing.T) {
-		projectName := "project1"
+		modelName := "name1"
+		projectName := generateProjectName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 		backends := []zos.Backend{
@@ -38,7 +37,7 @@ func TestGatewayFQDN(t *testing.T) {
 			NodeID:         nodeID,
 			Backends:       backends,
 			FQDN:           fqdn,
-			Name:           "name1",
+			Name:           modelName,
 			TLSPassthrough: false,
 			Description:    "description1",
 			ContractID:     contractID,
@@ -48,7 +47,7 @@ func TestGatewayFQDN(t *testing.T) {
 			NodeID:         nodeID,
 			Backends:       backends,
 			FQDN:           fqdn,
-			Name:           "name1",
+			Name:           modelName,
 			TLSPassthrough: false,
 			Description:    "description1",
 			SolutionType:   projectName,
@@ -73,14 +72,15 @@ func TestGatewayFQDN(t *testing.T) {
 			Description:    want.Description,
 		}
 
-		got, err := r.GatewayFQDNDeploy(context.Background(), model, projectName)
+		got, err := r.GatewayFQDNDeploy(context.Background(), model)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got, "target gateway fqdn is not equal to result gateway fqdn")
 	})
 
 	t.Run("fqdn_deploy_fail_project_name_not_unique", func(t *testing.T) {
-		projectName := "project1"
+		modelName := "name1"
+		projectName := generateProjectName(modelName)
 		fqdnModel := GatewayFQDNModel{
 			NodeID: 1,
 			Backends: []zos.Backend{
@@ -88,7 +88,7 @@ func TestGatewayFQDN(t *testing.T) {
 				"backend2",
 			},
 			FQDN:           "hamada.com",
-			Name:           "name1",
+			Name:           modelName,
 			TLSPassthrough: false,
 			Description:    "description1",
 		}
@@ -101,12 +101,13 @@ func TestGatewayFQDN(t *testing.T) {
 			},
 		}, nil)
 
-		_, err := r.GatewayFQDNDeploy(context.Background(), fqdnModel, projectName)
+		_, err := r.GatewayFQDNDeploy(context.Background(), fqdnModel)
 		assert.Error(t, err)
 	})
 
 	t.Run("fqdn_get_success", func(t *testing.T) {
-		projectName := "project1"
+		modelName := "name1"
+		projectName := generateProjectName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 		want := GatewayFQDNModel{
@@ -122,7 +123,7 @@ func TestGatewayFQDN(t *testing.T) {
 			ContractID:     contractID,
 		}
 
-		cl.EXPECT().GetProjectContracts(gomock.Any(), projectName).Return(graphql.Contracts{
+		cl.EXPECT().GetProjectContracts(context.Background(), projectName).Return(graphql.Contracts{
 			NodeContracts: []graphql.Contract{
 				{
 					ContractID: "1",
@@ -131,36 +132,22 @@ func TestGatewayFQDN(t *testing.T) {
 			},
 		}, nil)
 
-		rmbClient := mocks.NewMockClient(ctrl)
-		workload := gridtypes.Workload{
-			Version: 0,
-			Name:    "name1",
-			Type:    zos.GatewayFQDNProxyType,
-			Data: gridtypes.MustMarshal(zos.GatewayFQDNProxy{
-				FQDN: "hamada.com",
-				GatewayBase: zos.GatewayBase{
-					TLSPassthrough: false,
-					Backends: []zos.Backend{
-						"backend1",
-						"backend2",
-					},
-				},
-			}),
-			Description: "description1",
-		}
-		resDeployment := workloads.NewGridDeployment(1, []gridtypes.Workload{workload})
-		dl := gridtypes.Deployment{}
-		rmbClient.EXPECT().Call(gomock.Any(), gomock.Any(), "zos.deployment.get", gomock.Any(), &dl).
-			DoAndReturn(func(ctx context.Context, twin uint32, fn string, data, result interface{}) error {
-				var res *gridtypes.Deployment = result.(*gridtypes.Deployment)
-				*res = resDeployment
-				return nil
-			})
+		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {contractID}})
 
-		nodeClient := client.NewNodeClient(nodeID, rmbClient, 10)
-		cl.EXPECT().GetNodeClient(nodeID).Return(nodeClient, nil)
+		cl.EXPECT().LoadGatewayFQDN(nodeID, modelName).Return(workloads.GatewayFQDNProxy{
+			NodeID: nodeID,
+			Backends: []zos.Backend{
+				"backend1",
+				"backend2",
+			},
+			FQDN:           "hamada.com",
+			Name:           "name1",
+			TLSPassthrough: false,
+			Description:    "description1",
+			ContractID:     contractID,
+		}, nil)
 
-		got, err := r.GatewayFQDNGet(context.Background(), projectName)
+		got, err := r.GatewayFQDNGet(context.Background(), modelName)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)

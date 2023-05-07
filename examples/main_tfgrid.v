@@ -1,9 +1,7 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
 import threefoldtech.threebot.tfgrid
-
 import flag
 import log
 import os
@@ -14,7 +12,7 @@ const (
 )
 
 fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
-	project_name := 'testMachinesOps'
+	model_name := 'testMachinesOps'
 
 	// deploy
 	mut disks := []tfgrid.Disk{}
@@ -25,7 +23,7 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	mut machines := []tfgrid.Machine{}
 	machines << tfgrid.Machine{
 		name: 'vm1'
-		node_id: 33
+		node_id: 34
 		cpu: 2
 		memory: 2048
 		rootfs_size: 1024
@@ -35,7 +33,7 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 		disks: disks
 	}
 	machines_model := tfgrid.MachinesModel{
-		name: project_name
+		name: model_name
 		network: tfgrid.Network{
 			add_wireguard_access: true
 		}
@@ -49,11 +47,68 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 
 	// get
 	time.sleep(20 * time.second)
-	res_2 := client.machines_get(project_name)!
+	res_2 := client.machines_get(model_name)!
 	logger.info('${res_2}')
 
+	client.machines_add(tfgrid.AddMachine{
+		model_name: model_name
+		machine: tfgrid.Machine{
+			name: 'vm2'
+			node_id: 11
+			cpu: 2
+			memory: 2048
+			rootfs_size: 1024
+			env_vars: {
+				'SSH_KEY': 'ssh-rsa ...'
+			}
+			disks: [tfgrid.Disk{
+				size: 10
+				mountpoint: '/mnt/disk1'
+			}]
+		}
+	})!
+
+	time.sleep(20 * time.second)
+
+	client.machines_add(tfgrid.AddMachine{
+		model_name: model_name
+		machine: tfgrid.Machine{
+			name: 'vm3'
+			node_id: 34
+			cpu: 2
+			memory: 2048
+			rootfs_size: 1024
+			env_vars: {
+				'SSH_KEY': 'ssh-rsa ...'
+			}
+			disks: [tfgrid.Disk{
+				size: 10
+				mountpoint: '/mnt/disk1'
+			}]
+		}
+	})!
+
+	time.sleep(15 * time.second)
+
+	res_3 := client.machines_get(model_name)!
+	logger.info('${res_3}')
+
+	client.machines_remove(tfgrid.RemoveMachine{
+		model_name: model_name
+		machine_name: 'vm3'
+	})!
+
+	time.sleep(15 * time.second)
+
+	client.machines_remove(tfgrid.RemoveMachine{
+		model_name: model_name
+		machine_name: 'vm2'
+	})!
+
+	time.sleep(15 * time.second)
+
 	// delete
-	client.machines_delete(project_name)!
+	client.machines_delete(model_name)!
 }
 
 fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
@@ -319,10 +374,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 		network: 'dev'
 	})!
 
-	// test_machines_ops(mut tfgrid_client, mut logger) or {
-	// 	logger.error("Failed executing machines ops: $err")
-	// 	exit(1)
-	// }
+	test_machines_ops(mut tfgrid_client, mut logger) or {
+		logger.error('Failed executing machines ops: ${err}')
+		exit(1)
+	}
 
 	// test_k8s_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing k8s ops: $err")
@@ -349,10 +404,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 	// 	exit(1)
 	// }
 
-	test_zos_node_calls(mut tfgrid_client, mut logger) or {
-		logger.error('Failed executing zos node calls: ${err}')
-		exit(1)
-	}
+	// test_zos_node_calls(mut tfgrid_client, mut logger) or {
+	// 	logger.error('Failed executing zos node calls: ${err}')
+	// 	exit(1)
+	// }
 }
 
 fn main() {
@@ -380,10 +435,9 @@ fn main() {
 	}
 
 	_ := spawn myclient.run()
-	
-	
+
 	execute_rpcs(mut myclient, mut logger, mnemonic) or {
-		logger.error("Failed executing calls: $err")
+		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
 }

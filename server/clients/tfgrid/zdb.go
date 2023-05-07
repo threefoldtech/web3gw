@@ -10,7 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	proxyTypes "github.com/threefoldtech/tfgrid-sdk-go/grid-proxy/pkg/types"
-	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
 type ZDB struct {
@@ -28,7 +27,9 @@ type ZDB struct {
 	IPs       []string `json:"ips"`
 }
 
-func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZDB, error) {
+func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB) (ZDB, error) {
+	projectName := generateProjectName(zdb.Name)
+
 	// validate no workloads with the same name
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return ZDB{}, err
@@ -40,7 +41,7 @@ func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZD
 
 	// deploy
 	zdbs := []workloads.ZDB{
-		newClientWorkloadFromZDB(zdb),
+		ZDBFromModel(zdb),
 	}
 	log.Info().Msgf("Deploying zdb: %+v", zdbs)
 
@@ -50,30 +51,16 @@ func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB, projectName string) (ZD
 		return ZDB{}, errors.Wrapf(err, "failed to deploy zdb with name: %s", zdb.Name)
 	}
 
-	// get the result with the computed values
-	nodeClient, err := r.client.GetNodeClient(zdb.NodeID)
+	r.client.SetNodeDeploymentState(map[uint32][]uint64{zdb.NodeID: {contractID}})
+
+	z, err := r.client.LoadZDB(zdb.NodeID, zdb.Name)
 	if err != nil {
-		return ZDB{}, err
+		return ZDB{}, errors.Wrap(err, "failed to load zdb")
 	}
 
-	dl, err := nodeClient.DeploymentGet(ctx, contractID)
-	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to retreive deployment with contract id %d", contractID)
-	}
+	ret := ZDBToModel(z, zdb.NodeID)
 
-	if len(dl.Workloads) != 1 {
-		return ZDB{}, errors.Wrapf(err, "deployment %d should have 1 workload, but %d were found", contractID, len(dl.Workloads))
-	}
-
-	loadedZDB, err := workloads.NewZDBFromWorkload(&dl.Workloads[0])
-	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to construct zdb from workload")
-	}
-
-	result := newZDBFromClientZDB(loadedZDB)
-	result.NodeID = zdb.NodeID
-
-	return result, nil
+	return ret, nil
 }
 
 func (r *Client) ZDBDelete(ctx context.Context, projectName string) error {
@@ -84,8 +71,9 @@ func (r *Client) ZDBDelete(ctx context.Context, projectName string) error {
 	return nil
 }
 
-func (r *Client) ZDBGet(ctx context.Context, projectName string) (ZDB, error) {
-	// get the contract
+func (r *Client) ZDBGet(ctx context.Context, modelName string) (ZDB, error) {
+	projectName := generateProjectName(modelName)
+
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return ZDB{}, errors.Wrapf(err, "failed to get contracts for project: %s", projectName)
@@ -96,39 +84,24 @@ func (r *Client) ZDBGet(ctx context.Context, projectName string) (ZDB, error) {
 	}
 
 	contract := contracts.NodeContracts[0]
-
-	cl, err := r.client.GetNodeClient(contract.NodeID)
-	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to get client for node: %d", contract.NodeID)
-	}
-
 	cid, err := strconv.ParseUint(contract.ContractID, 10, 64)
 	if err != nil {
 		return ZDB{}, errors.Wrapf(err, "failed to parse contract Id: %s", contract.ContractID)
 	}
 
-	dl, err := cl.DeploymentGet(ctx, cid)
+	r.client.SetNodeDeploymentState(map[uint32][]uint64{contract.NodeID: {cid}})
+
+	zdb, err := r.client.LoadZDB(contract.NodeID, modelName)
 	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to get deployment with contract Id: %s", contract.ContractID)
+		return ZDB{}, err
 	}
 
-	for _, workload := range dl.Workloads {
-		if workload.Type == zos.ZDBType {
-			zdb, err := workloads.NewZDBFromWorkload(&workload)
-			if err != nil {
-				return ZDB{}, errors.Wrapf(err, "failed to get zdb from workload: %s", workload.Name)
-			}
+	ret := ZDBToModel(zdb, contract.NodeID)
 
-			result := newZDBFromClientZDB(zdb)
-			result.NodeID = contract.NodeID
-			return result, nil
-		}
-	}
-
-	return ZDB{}, fmt.Errorf("found zdb workloads in contract %d", contract.NodeID)
+	return ret, nil
 }
 
-func newClientWorkloadFromZDB(zdb ZDB) workloads.ZDB {
+func ZDBFromModel(zdb ZDB) workloads.ZDB {
 	return workloads.ZDB{
 		Name:        zdb.Name,
 		Password:    zdb.Password,
@@ -141,9 +114,10 @@ func newClientWorkloadFromZDB(zdb ZDB) workloads.ZDB {
 	}
 }
 
-func newZDBFromClientZDB(wl workloads.ZDB) ZDB {
+func ZDBToModel(wl workloads.ZDB, nodeID uint32) ZDB {
 	return ZDB{
 		Name:        wl.Name,
+		NodeID:      nodeID,
 		Password:    wl.Password,
 		Public:      wl.Public,
 		Size:        wl.Size,

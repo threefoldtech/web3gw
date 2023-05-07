@@ -3,13 +3,10 @@ package tfgrid
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
-	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
 // K8sCluster struct for k8s cluster
@@ -42,7 +39,10 @@ type K8sNode struct {
 	YggIP       string `json:"ygg_ip"`
 }
 
-func (r *Client) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName string) (K8sCluster, error) {
+// K8sDeploy deploys a kubernetes cluster
+func (r *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster, error) {
+	projectName := generateProjectName(cluster.Name)
+
 	// validate project name is unique
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return K8sCluster{}, err
@@ -66,7 +66,7 @@ func (r *Client) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName 
 	cluster.NetworkName = znet.Name
 
 	// map to workloads.k8sCluster
-	k8s := newK8sClusterFromModel(cluster, projectName)
+	k8s := newK8sClusterFromModel(cluster)
 
 	// Deploy workload
 	if err := r.client.DeployK8sCluster(ctx, &k8s); err != nil {
@@ -81,7 +81,10 @@ func (r *Client) K8sDeploy(ctx context.Context, cluster K8sCluster, projectName 
 	return cluster, nil
 }
 
-func (r *Client) K8sDelete(ctx context.Context, projectName string) error {
+// K8sDelete deletes a kubernetes cluster specified by the cluster name
+func (r *Client) K8sDelete(ctx context.Context, clusterName string) error {
+	projectName := generateProjectName(clusterName)
+
 	err := r.client.CancelProject(ctx, projectName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to cancel project: %s", projectName)
@@ -90,7 +93,10 @@ func (r *Client) K8sDelete(ctx context.Context, projectName string) error {
 	return nil
 }
 
-func (r *Client) K8sGet(ctx context.Context, clusterName string, projectName string) (K8sCluster, error) {
+// K8sGet retreives a kubernetes cluster specified by the cluster name
+func (r *Client) K8sGet(ctx context.Context, clusterName string) (K8sCluster, error) {
+	projectName := generateProjectName(clusterName)
+
 	// get all contracts by project name
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
@@ -101,15 +107,90 @@ func (r *Client) K8sGet(ctx context.Context, clusterName string, projectName str
 		return K8sCluster{}, fmt.Errorf("found 0 contracts for project %s", projectName)
 	}
 
-	cluster, err := r.reconstructClusterFromContractIDs(ctx, clusterName, contracts)
+	info, err := getContractsInfo(contracts, generateNetworkName(clusterName))
+	if err != nil {
+		return K8sCluster{}, errors.Wrapf(err, "failed to get cluster %s contracts info", clusterName)
+	}
+
+	nodeIDs := info.getNodeIDs()
+
+	r.client.SetNetworkState(info.networkContracts)
+	r.client.SetNodeDeploymentState(info.deploymentContracts)
+
+	cluster, err := r.client.LoadK8s(nodeIDs, clusterName)
 	if err != nil {
 		return K8sCluster{}, err
 	}
 
-	return cluster, nil
+	nodeFarms, err := getNodeFarmsIDs(r.client, &cluster)
+	if err != nil {
+		return K8sCluster{}, errors.Wrapf(err, "failed to get node farms ids")
+	}
+
+	ret := k8sClusterToModel(cluster, clusterName, nodeFarms)
+
+	return ret, nil
 }
 
-func NewClientK8sNodeFromK8sNode(k8sNode K8sNode) workloads.K8sNode {
+func getNodeFarmsIDs(c TFGridClient, cluster *workloads.K8sCluster) (map[uint32]uint32, error) {
+	nodeFarms := map[uint32]uint32{}
+
+	farm, err := c.GetNodeFarm(cluster.Master.Node)
+	if err != nil {
+		return nil, err
+	}
+
+	nodeFarms[cluster.Master.Node] = farm
+
+	for _, w := range cluster.Workers {
+		farm, err := c.GetNodeFarm(w.Node)
+		if err != nil {
+			return nil, err
+		}
+
+		nodeFarms[w.Node] = farm
+	}
+
+	return nodeFarms, nil
+}
+
+func k8sClusterToModel(cluster workloads.K8sCluster, clusterName string, nodeFarms map[uint32]uint32) K8sCluster {
+	master := k8sNodeToModel(*cluster.Master, nodeFarms)
+	workers := []K8sNode{}
+	for _, worker := range cluster.Workers {
+		workers = append(workers, k8sNodeToModel(worker, nodeFarms))
+	}
+
+	return K8sCluster{
+		Name:        clusterName,
+		Master:      &master,
+		Workers:     workers,
+		Token:       cluster.Token,
+		NetworkName: cluster.NetworkName,
+		SSHKey:      cluster.SSHKey,
+	}
+}
+
+func k8sNodeToModel(node workloads.K8sNode, nodeFarms map[uint32]uint32) K8sNode {
+	return K8sNode{
+		Name:        node.Name,
+		NodeID:      node.Node,
+		FarmID:      nodeFarms[node.Node],
+		DiskSize:    node.DiskSize,
+		PublicIP:    node.PublicIP,
+		PublicIP6:   node.PublicIP6,
+		Planetary:   node.Planetary,
+		Flist:       node.Flist,
+		CPU:         node.CPU,
+		Memory:      node.Memory,
+		ComputedIP4: node.ComputedIP,
+		ComputedIP6: node.ComputedIP6,
+		WGIP:        node.IP,
+		YggIP:       node.YggIP,
+	}
+}
+
+func newClientK8sNodeFromK8sNode(k8sNode K8sNode) workloads.K8sNode {
 	return workloads.K8sNode{
 		Name:      k8sNode.Name,
 		Node:      k8sNode.NodeID,
@@ -123,98 +204,6 @@ func NewClientK8sNodeFromK8sNode(k8sNode K8sNode) workloads.K8sNode {
 	}
 }
 
-func (r *Client) reconstructClusterFromContractIDs(ctx context.Context, clusterName string, contracts graphql.Contracts) (K8sCluster, error) {
-	result := K8sCluster{
-		Name:        clusterName,
-		Master:      &K8sNode{},
-		Workers:     []K8sNode{},
-		NetworkName: generateNetworkName(clusterName),
-	}
-
-	diskNameNodeNameMap := map[string]string{}
-	nodeNameDiskSizeMap := map[string]int{}
-
-	for _, contract := range contracts.NodeContracts {
-		nodeClient, err := r.client.GetNodeClient(contract.NodeID)
-		if err != nil {
-			return K8sCluster{}, errors.Wrapf(err, "failed to get node %d client", contract.NodeID)
-		}
-
-		contractID, err := strconv.ParseUint(contract.ContractID, 10, 64)
-		if err != nil {
-			return K8sCluster{}, errors.Wrapf(err, "Couldn't convert ContractID: %s", contract.ContractID)
-		}
-
-		deployment, err := nodeClient.DeploymentGet(ctx, contractID)
-		if err != nil {
-			return K8sCluster{}, errors.Wrapf(err, "failed to get deployment with contract id %d", contractID)
-		}
-
-		for _, workload := range deployment.Workloads {
-			if workload.Type == zos.ZMachineType {
-				vm, err := workloads.NewVMFromWorkload(&workload, &deployment)
-				if err != nil {
-					return K8sCluster{}, errors.Wrapf(err, "Failed to get vm from workload: %s", workload.Name)
-				}
-
-				if len(vm.Mounts) == 1 {
-					diskNameNodeNameMap[vm.Mounts[0].DiskName] = vm.Name
-				}
-
-				if isWorker(vm) {
-					worker := NewK8sNodeFromVM(vm)
-					worker.NodeID = contract.NodeID
-
-					result.Workers = append(result.Workers, worker)
-				} else {
-					masterNode := NewK8sNodeFromVM(vm)
-					masterNode.NodeID = contract.NodeID
-
-					result.Master = &masterNode
-					result.SSHKey = vm.EnvVars["SSH_KEY"]
-					result.Token = vm.EnvVars["K3S_TOKEN"]
-				}
-			}
-		}
-
-		for _, workload := range deployment.Workloads {
-			if workload.Type == zos.ZMountType {
-				disk, err := workloads.NewDiskFromWorkload(&workload)
-				if err != nil {
-					return K8sCluster{}, errors.Wrapf(err, "Failed to get disk from workload: %s", workload.Name)
-				}
-
-				nodeName := diskNameNodeNameMap[disk.Name]
-				nodeNameDiskSizeMap[nodeName] = disk.SizeGB
-			}
-		}
-	}
-
-	result.Master.DiskSize = nodeNameDiskSizeMap[result.Master.Name]
-	for idx := range result.Workers {
-		result.Workers[idx].DiskSize = nodeNameDiskSizeMap[result.Workers[idx].Name]
-	}
-
-	return result, nil
-}
-
-func NewK8sNodeFromVM(vm workloads.VM) K8sNode {
-	return K8sNode{
-		Name:      vm.Name,
-		PublicIP:  vm.PublicIP,
-		PublicIP6: vm.PublicIP6,
-		Planetary: vm.Planetary,
-		Flist:     vm.Flist,
-		CPU:       vm.CPU,
-		Memory:    vm.Memory,
-
-		ComputedIP4: vm.ComputedIP,
-		ComputedIP6: vm.ComputedIP6,
-		WGIP:        vm.IP,
-		YggIP:       vm.YggIP,
-	}
-}
-
 func (k *K8sNode) assignComputedNodeValues(node workloads.K8sNode) {
 	k.ComputedIP4 = node.ComputedIP
 	k.ComputedIP6 = node.ComputedIP6
@@ -222,11 +211,7 @@ func (k *K8sNode) assignComputedNodeValues(node workloads.K8sNode) {
 	k.YggIP = node.YggIP
 }
 
-func isWorker(vm workloads.VM) bool {
-	return len(vm.EnvVars["K3S_URL"]) != 0
-}
-
-func newK8sClusterFromModel(model K8sCluster, projectName string) workloads.K8sCluster {
+func newK8sClusterFromModel(model K8sCluster) workloads.K8sCluster {
 	master := newK8sNodeFromModel(*model.Master)
 	workers := []workloads.K8sNode{}
 	for _, w := range model.Workers {
@@ -238,7 +223,7 @@ func newK8sClusterFromModel(model K8sCluster, projectName string) workloads.K8sC
 		Workers:      workers,
 		Token:        model.Token,
 		NetworkName:  model.NetworkName,
-		SolutionType: projectName,
+		SolutionType: generateProjectName(model.Name),
 		SSHKey:       model.SSHKey,
 	}
 }

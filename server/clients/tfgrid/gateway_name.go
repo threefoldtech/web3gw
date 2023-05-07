@@ -2,7 +2,6 @@ package tfgrid
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -36,7 +35,9 @@ type GatewayNameModel struct {
 	ContractID     uint64 `json:"contract_id"`
 }
 
-func (r *Client) GatewayNameDeploy(ctx context.Context, gatewayNameModel GatewayNameModel, projectName string) (GatewayNameModel, error) {
+func (r *Client) GatewayNameDeploy(ctx context.Context, gatewayNameModel GatewayNameModel) (GatewayNameModel, error) {
+	projectName := generateProjectName(gatewayNameModel.Name)
+
 	// validate that no other project is deployed with this name
 	if err := r.validateProjectName(ctx, projectName); err != nil {
 		return GatewayNameModel{}, err
@@ -47,37 +48,32 @@ func (r *Client) GatewayNameDeploy(ctx context.Context, gatewayNameModel Gateway
 	}
 
 	// deploy gateway
-	gateway := newGWNameProxyFromModel(gatewayNameModel, projectName)
+	gateway := newGWNameProxyFromModel(gatewayNameModel)
 
 	if err := r.client.DeployGWName(ctx, &gateway); err != nil {
 		return GatewayNameModel{}, errors.Wrapf(err, "failed to deploy gateway %s", gateway.Name)
 	}
 
-	nodeClient, err := r.client.GetNodeClient(gateway.NodeID)
+	nodeDomain, err := r.client.GetNodeDomain(ctx, gateway.NodeID)
 	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to get node %d client", gateway.NodeID)
+		return GatewayNameModel{}, errors.Wrapf(err, "failed to get node %d domain", gateway.NodeID)
 	}
 
-	cfg, err := nodeClient.NetworkGetPublicConfig(ctx)
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to get node %d public config", gateway.NodeID)
-	}
-
-	gatewayNameModel.FQDN = fmt.Sprintf("%s.%s", gateway.Name, cfg.Domain)
+	gatewayNameModel.FQDN = fmt.Sprintf("%s.%s", gateway.Name, nodeDomain)
 	gatewayNameModel.ContractID = gateway.ContractID
 	gatewayNameModel.NameContractID = gateway.NameContractID
 
 	return gatewayNameModel, nil
 }
 
-func newGWNameProxyFromModel(model GatewayNameModel, projectName string) workloads.GatewayNameProxy {
+func newGWNameProxyFromModel(model GatewayNameModel) workloads.GatewayNameProxy {
 	return workloads.GatewayNameProxy{
 		NodeID:         model.NodeID,
 		Name:           model.Name,
 		Backends:       model.Backends,
 		TLSPassthrough: model.TLSPassthrough,
 		Description:    model.Description,
-		SolutionType:   projectName,
+		SolutionType:   generateProjectName(model.Name),
 	}
 }
 
@@ -89,7 +85,9 @@ func (r *Client) GatewayNameDelete(ctx context.Context, projectName string) erro
 	return nil
 }
 
-func (r *Client) GatewayNameGet(ctx context.Context, projectName string) (GatewayNameModel, error) {
+func (r *Client) GatewayNameGet(ctx context.Context, modelName string) (GatewayNameModel, error) {
+	projectName := generateProjectName(modelName)
+
 	contracts, err := r.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return GatewayNameModel{}, errors.Wrapf(err, "failed to get project %s contracts", projectName)
@@ -103,63 +101,23 @@ func (r *Client) GatewayNameGet(ctx context.Context, projectName string) (Gatewa
 		return GatewayNameModel{}, fmt.Errorf("name contracts for project %s should be 1, but %d were found", projectName, len(contracts.NameContracts))
 	}
 
-	nodeID := contracts.NodeContracts[0].NodeID
-
-	nodeClient, err := r.client.GetNodeClient(nodeID)
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
-	}
-
 	nodeContractID, err := strconv.ParseUint(contracts.NodeContracts[0].ContractID, 0, 64)
 	if err != nil {
 		return GatewayNameModel{}, errors.Wrapf(err, "could not parse contract %s into uint64", contracts.NodeContracts[0].ContractID)
 	}
 
-	nameContractID, err := strconv.ParseUint(contracts.NameContracts[0].ContractID, 0, 64)
+	nodeID := contracts.NodeContracts[0].NodeID
+
+	r.client.SetNodeDeploymentState(map[uint32][]uint64{nodeID: {nodeContractID}})
+
+	gw, err := r.client.LoadGatewayName(nodeID, modelName)
 	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "could not parse contract %s into uint64", contracts.NameContracts[0].ContractID)
+		return GatewayNameModel{}, err
 	}
 
-	dl, err := nodeClient.DeploymentGet(ctx, nodeContractID)
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to get deployment with contract id %d", nodeContractID)
-	}
+	ret := GatewayNameToModel(gw)
 
-	if len(dl.Workloads) != 1 {
-		return GatewayNameModel{}, errors.Wrapf(err, "deployment should include only one gateway workload, but %d were found", len(dl.Workloads))
-	}
-
-	// gatewayWorkload, err := workloads.NewGatewayNameProxyFromZosWorkload(dl.Workloads[0])
-	// if err != nil {
-	// 	return GatewayNameModel{}, errors.Wrapf(err, "failed to parse gateway workload data")
-	// }
-	wl := dl.Workloads[0]
-	var result zos.GatewayProxyResult
-
-	if err := json.Unmarshal(wl.Result.Data, &result); err != nil {
-		return GatewayNameModel{}, errors.Wrap(err, "error unmarshalling json")
-	}
-
-	dataI, err := wl.WorkloadData()
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrap(err, "failed to get workload data")
-	}
-
-	data, ok := dataI.(*zos.GatewayNameProxy)
-	if !ok {
-		return GatewayNameModel{}, fmt.Errorf("could not create gateway name proxy workload from data %v", dataI)
-	}
-
-	return GatewayNameModel{
-		Name:           data.Name,
-		TLSPassthrough: data.TLSPassthrough,
-		Backends:       data.Backends,
-		FQDN:           result.FQDN,
-		Description:    wl.Description,
-		NodeID:         nodeID,
-		NameContractID: nameContractID,
-		ContractID:     nodeContractID,
-	}, nil
+	return ret, nil
 }
 
 func (r *Client) ensureGatewayNodeIDExist(gatewayNameModel *GatewayNameModel) error {
@@ -187,4 +145,17 @@ func (r *Client) getGatewayNode() (uint32, error) {
 	}
 
 	return uint32(nodes[rand.Intn(len(nodes))].NodeID), nil
+}
+
+func GatewayNameToModel(gw workloads.GatewayNameProxy) GatewayNameModel {
+	return GatewayNameModel{
+		NodeID:         gw.NodeID,
+		Name:           gw.Name,
+		Backends:       gw.Backends,
+		TLSPassthrough: gw.TLSPassthrough,
+		Description:    gw.Description,
+		FQDN:           gw.FQDN,
+		NameContractID: gw.NameContractID,
+		ContractID:     gw.ContractID,
+	}
 }
