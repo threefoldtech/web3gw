@@ -29,15 +29,15 @@ type TFGridClient interface {
 	GetNodeDomain(ctx context.Context, nodeID uint32) (string, error)
 	GetNodeFarm(nodeID uint32) (uint32, error)
 
-	LoadNetwork(networkName string) (workloads.ZNet, error)
-	LoadGatewayFQDN(nodeID uint32, modelName string) (workloads.GatewayFQDNProxy, error)
-	LoadGatewayName(nodeID uint32, modelName string) (workloads.GatewayNameProxy, error)
-	LoadK8s(nodeIDs []uint32, modelName string) (workloads.K8sCluster, error)
-	LoadDeployment(nodeID uint32, modelName string) (workloads.Deployment, error)
-	LoadZDB(nodeID uint32, modelName string) (workloads.ZDB, error)
-	SetNodeDeploymentState(nodeContracts map[uint32][]uint64)
-	SetNetworkState(nodeContract map[uint32]uint64)
+	LoadNetwork(networkName string, nodeContracts map[uint32]uint64) (workloads.ZNet, error)
+	LoadGatewayFQDN(modelName string, nodeID uint32, contractID uint64) (workloads.GatewayFQDNProxy, error)
+	LoadGatewayName(modelName string, nodeID uint32, contractID uint64) (workloads.GatewayNameProxy, error)
+	LoadK8s(modelName string, nodeContracts map[uint32][]uint64) (workloads.K8sCluster, error)
+	LoadDeployment(modelName string, nodeID uint32, contractID uint64) (workloads.Deployment, error)
+	LoadZDB(modelName string, nodeID uint32, contractID uint64) (workloads.ZDB, error)
+
 	CancelDeployment(ctx context.Context, dl *workloads.Deployment) error
+	CancelContract(ctx context.Context, contractID uint64) error
 }
 
 type tfgridClient struct {
@@ -149,46 +149,56 @@ func (c *tfgridClient) GetNodeDomain(ctx context.Context, nodeID uint32) (string
 	return cfg.Domain, nil
 }
 
-func (c *tfgridClient) SetNodeDeploymentState(nodeContracts map[uint32][]uint64) {
-	c.client.State.CurrentNodeDeployments = make(map[uint32]state.ContractIDs)
-	for node, contracts := range nodeContracts {
-		c.client.State.CurrentNodeDeployments[node] = contracts
-	}
-}
-
-func (c *tfgridClient) SetNetworkState(nodeContract map[uint32]uint64) {
-	c.client.State.CurrentNodeNetworks = make(map[uint32]state.ContractIDs)
-	for node, contract := range nodeContract {
+func (c *tfgridClient) LoadNetwork(networkName string, nodeContracts map[uint32]uint64) (workloads.ZNet, error) {
+	c.client.State.CurrentNodeNetworks = map[uint32]state.ContractIDs{}
+	for node, contract := range nodeContracts {
 		c.client.State.CurrentNodeNetworks[node] = []uint64{contract}
 	}
-}
 
-func (c *tfgridClient) LoadNetwork(networkName string) (workloads.ZNet, error) {
 	return c.client.State.LoadNetworkFromGrid(networkName)
 }
 
-func (c *tfgridClient) LoadGatewayFQDN(nodeID uint32, modelName string) (workloads.GatewayFQDNProxy, error) {
+func (c *tfgridClient) LoadGatewayFQDN(modelName string, nodeID uint32, contractID uint64) (workloads.GatewayFQDNProxy, error) {
+	c.client.State.CurrentNodeDeployments = map[uint32]state.ContractIDs{nodeID: {contractID}}
+
 	return c.client.State.LoadGatewayFQDNFromGrid(nodeID, modelName, modelName)
 }
 
-func (c *tfgridClient) LoadGatewayName(nodeID uint32, modelName string) (workloads.GatewayNameProxy, error) {
+func (c *tfgridClient) LoadGatewayName(modelName string, nodeID uint32, contractID uint64) (workloads.GatewayNameProxy, error) {
+	c.client.State.CurrentNodeDeployments = map[uint32]state.ContractIDs{nodeID: {contractID}}
+
 	return c.client.State.LoadGatewayNameFromGrid(nodeID, modelName, modelName)
 }
 
-func (c *tfgridClient) LoadK8s(nodeIDs []uint32, modelName string) (workloads.K8sCluster, error) {
+func (c *tfgridClient) LoadK8s(modelName string, nodeContracts map[uint32][]uint64) (workloads.K8sCluster, error) {
+	nodeIDs := []uint32{}
+	c.client.State.CurrentNodeDeployments = make(map[uint32]state.ContractIDs)
+	for node, contracts := range nodeContracts {
+		nodeIDs = append(nodeIDs, node)
+		c.client.State.CurrentNodeDeployments[node] = contracts
+	}
+
 	return c.client.State.LoadK8sFromGrid(nodeIDs, modelName)
 }
 
-func (c *tfgridClient) LoadDeployment(nodeID uint32, modelName string) (workloads.Deployment, error) {
+func (c *tfgridClient) LoadDeployment(modelName string, nodeID uint32, contractID uint64) (workloads.Deployment, error) {
+	c.client.State.CurrentNodeDeployments = map[uint32]state.ContractIDs{nodeID: {contractID}}
+
 	return c.client.State.LoadDeploymentFromGrid(nodeID, modelName)
 }
 
-func (c *tfgridClient) LoadZDB(nodeID uint32, modelName string) (workloads.ZDB, error) {
+func (c *tfgridClient) LoadZDB(modelName string, nodeID uint32, contractID uint64) (workloads.ZDB, error) {
+	c.client.State.CurrentNodeDeployments = map[uint32]state.ContractIDs{nodeID: {contractID}}
+
 	return c.client.State.LoadZdbFromGrid(nodeID, modelName, modelName)
 }
 
 func (c *tfgridClient) CancelDeployment(ctx context.Context, dl *workloads.Deployment) error {
 	return c.client.DeploymentDeployer.Cancel(ctx, dl)
+}
+
+func (c *tfgridClient) CancelContract(ctx context.Context, contractID uint64) error {
+	return c.client.SubstrateConn.CancelContract(c.client.Identity, contractID)
 }
 
 func generateProjectName(modelName string) (projectName string) {

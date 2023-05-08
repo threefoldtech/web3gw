@@ -24,10 +24,10 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230511085814-333413419983
-	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.3.0
-	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.3.0
-	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.3.0
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230509101146-8e43c43597cd
+	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.4.0
+	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.4.0
+	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.4.0
 	github.com/threefoldtech/zos v0.5.6-0.20230426125942-0ea2f91b21f5
 	golang.org/x/net v0.9.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
@@ -206,7 +206,7 @@ require (
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 // indirect
 	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
@@ -221,5 +221,3 @@ require (
 )
 
 replace github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5 => github.com/threefoldtech/go-substrate-rpc-client/v4 v4.0.6-0.20230102154731-7c633b7d3c71
-
-replace github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.1.0 => ../../tfgrid-sdk-go/grid-client

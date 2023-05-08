@@ -27,7 +27,6 @@ func TestMachines(t *testing.T) {
 		nodeID := uint32(1)
 		modelName := "model1"
 		projectName := generateProjectName(modelName)
-		networkContractID := uint64(1)
 		nodeContractID := uint64(2)
 		model := MachinesModel{
 			Name: modelName,
@@ -116,10 +115,8 @@ func TestMachines(t *testing.T) {
 		// TODO: deployment should not be any
 		cl.EXPECT().DeployDeployment(context.Background(), gomock.Any()).Return(nodeContractID, nil)
 
-		cl.EXPECT().SetNetworkState(map[uint32]uint64{nodeID: networkContractID})
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {nodeContractID}})
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
-		cl.EXPECT().LoadDeployment(nodeID, modelName).Return(workloads.Deployment{
+		cl.EXPECT().LoadDeployment(modelName, nodeID, nodeContractID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,
 			SolutionType:     projectName,
@@ -236,10 +233,7 @@ func TestMachines(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNetworkState(map[uint32]uint64{nodeID: networkContractID})
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {nodeContractID}})
-
-		cl.EXPECT().LoadNetwork(networkName).Return(workloads.ZNet{
+		cl.EXPECT().LoadNetwork(networkName, map[uint32]uint64{nodeID: networkContractID}).Return(workloads.ZNet{
 			Name:        networkName,
 			Nodes:       []uint32{nodeID},
 			AddWGAccess: false,
@@ -248,7 +242,7 @@ func TestMachines(t *testing.T) {
 
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		cl.EXPECT().LoadDeployment(nodeID, modelName).Return(workloads.Deployment{
+		cl.EXPECT().LoadDeployment(modelName, nodeID, nodeContractID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,
 			SolutionType:     projectName,

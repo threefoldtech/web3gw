@@ -112,7 +112,7 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 }
 
 fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
-	project_name := 'testK8sOps2'
+	cluster_name := 'testK8sOps2'
 
 	// deploy
 	master := tfgrid.K8sNode{
@@ -131,7 +131,7 @@ fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	}
 
 	cluster := tfgrid.K8sCluster{
-		name: project_name
+		name: cluster_name
 		token: 'token6'
 		ssh_key: 'SSH-Key'
 		master: master
@@ -143,11 +143,35 @@ fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 
 	// get
 	time.sleep(20 * time.second)
-	res_2 := client.k8s_get(project_name)!
+	res_2 := client.k8s_get(tfgrid.GetK8sInfo{
+		cluster_name: cluster_name
+		master_name: 'master'
+	})!
 	logger.info('${res_2}')
 
+	client.k8s_add_worker(tfgrid.AddK8sWorker{
+		cluster_name: cluster_name
+		worker: tfgrid.K8sNode{
+			name: 'w3'
+			node_id: 34
+			cpu: 2
+			memory: 1024
+		}
+		master_name: 'master'
+	})!
+
+	time.sleep(15 * time.second)
+
+	client.k8s_remove_worker(tfgrid.RemoveK8sWorker{
+		cluster_name: cluster_name
+		worker_name: 'w3'
+		master_name: 'master'
+	})!
+
+	time.sleep(15 * time.second)
+
 	// delete
-	client.k8s_delete(project_name)!
+	client.k8s_delete(cluster_name)!
 }
 
 fn test_zdb_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
@@ -374,15 +398,15 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 		network: 'dev'
 	})!
 
-	test_machines_ops(mut tfgrid_client, mut logger) or {
-		logger.error('Failed executing machines ops: ${err}')
-		exit(1)
-	}
-
-	// test_k8s_ops(mut tfgrid_client, mut logger) or {
-	// 	logger.error("Failed executing k8s ops: $err")
+	// test_machines_ops(mut tfgrid_client, mut logger) or {
+	// 	logger.error('Failed executing machines ops: ${err}')
 	// 	exit(1)
 	// }
+
+	test_k8s_ops(mut tfgrid_client, mut logger) or {
+		logger.error("Failed executing k8s ops: $err")
+		exit(1)
+	}
 
 	// test_zdb_ops(mut tfgrid_client, mut logger) or {
 	// 	logger.error("Failed executing zdb ops: $err")

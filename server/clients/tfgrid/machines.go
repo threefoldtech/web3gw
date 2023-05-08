@@ -125,18 +125,6 @@ type Backends []Backend
 
 // nodes should always be provided
 func (r *Client) MachinesDeploy(ctx context.Context, model MachinesModel) (MachinesModel, error) {
-	/*
-		- validate incoming deployment
-			- project name has to be unique
-		- construct network deployer
-			- get nodes from all machines
-			- build network deployer using these nodes
-		- deploy network
-		- construct deployment deployer
-		- deploy deployment
-		- construct machines model and return it
-	*/
-
 	projectName := generateProjectName(model.Name)
 
 	// validation
@@ -168,17 +156,14 @@ func (r *Client) MachinesDeploy(ctx context.Context, model MachinesModel) (Machi
 
 	// update deployment changes
 
-	r.client.SetNetworkState(znet.NodeDeploymentID)
-
 	nodeContracts := map[uint32][]uint64{}
 	for nodeID, contractID := range nodeDeploymentID {
 		nodeContracts[nodeID] = []uint64{contractID}
 	}
-	r.client.SetNodeDeploymentState(nodeContracts)
 
 	deployments := []workloads.Deployment{}
 	for nodeID := range nodeContracts {
-		dl, err := r.client.LoadDeployment(nodeID, model.Name)
+		dl, err := r.client.LoadDeployment(model.Name, nodeID, nodeContracts[nodeID][0])
 		if err != nil {
 			return MachinesModel{}, errors.Wrap(err, "failed to load deployments")
 		}
@@ -412,17 +397,14 @@ func (r *Client) MachinesGet(ctx context.Context, modelName string) (MachinesMod
 		return MachinesModel{}, errors.Wrapf(err, "failed to machines model %s contracts info", modelName)
 	}
 
-	r.client.SetNetworkState(info.networkContracts)
-	r.client.SetNodeDeploymentState(info.deploymentContracts)
-
-	znet, err := r.client.LoadNetwork(generateNetworkName(modelName))
+	znet, err := r.client.LoadNetwork(generateNetworkName(modelName), info.networkContracts)
 	if err != nil {
 		return MachinesModel{}, err
 	}
 
 	deployments := []workloads.Deployment{}
-	for nodeID := range info.deploymentContracts {
-		dl, err := r.client.LoadDeployment(nodeID, modelName)
+	for nodeID, contractIDs := range info.deploymentContracts {
+		dl, err := r.client.LoadDeployment(modelName, nodeID, contractIDs[0])
 		if err != nil {
 			return MachinesModel{}, errors.Wrap(err, "failed to load deployments")
 		}
@@ -606,9 +588,10 @@ func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 	return nil
 }
 
-func (c *Client) MachineAdd(ctx context.Context, machine MachineAddInfo) error {
-	log.Info().Msgf("adding machine %s", machine.Machine.Name)
-	projectName := generateProjectName(machine.ModelName)
+func (c *Client) MachineAdd(ctx context.Context, addInfo MachineAddInfo) error {
+	log.Info().Msgf("adding machine %s", addInfo.Machine.Name)
+	projectName := generateProjectName(addInfo.ModelName)
+	networkName := generateNetworkName(addInfo.ModelName)
 
 	contracts, err := c.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
@@ -619,40 +602,26 @@ func (c *Client) MachineAdd(ctx context.Context, machine MachineAddInfo) error {
 		return fmt.Errorf("found 0 contracts for project %s", projectName)
 	}
 
-	info, err := getContractsInfo(contracts, generateNetworkName(machine.ModelName))
+	info, err := getContractsInfo(contracts, networkName)
 	if err != nil {
-		return errors.Wrapf(err, "failed to get machines model %s contracts info", machine.ModelName)
+		return errors.Wrapf(err, "failed to get machines model %s contracts info", addInfo.ModelName)
 	}
 
-	c.client.SetNetworkState(info.networkContracts)
-	c.client.SetNodeDeploymentState(info.deploymentContracts)
+	if err := c.ensureNodeBelongsToNetwork(ctx, networkName, info.networkContracts, addInfo.Machine.NodeID); err != nil {
+		return err
+	}
 
-	networkName := generateNetworkName(machine.ModelName)
-	znet, err := c.client.LoadNetwork(networkName)
+	if err := c.updateDeployment(ctx, info.deploymentContracts, &addInfo); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) updateDeployment(ctx context.Context, oldDeployments map[uint32][]uint64, addInfo *MachineAddInfo) error {
+	dl, err := c.prepareDeploymentForUpdate(oldDeployments, addInfo)
 	if err != nil {
-		return errors.Wrapf(err, "failed to load network %s", networkName)
-	}
-
-	if !workloads.Contains(znet.Nodes, machine.Machine.NodeID) {
-		znet.Nodes = append(znet.Nodes, machine.Machine.NodeID)
-		err = c.client.DeployNetwork(ctx, &znet)
-		if err != nil {
-			return errors.Wrap(err, "failed to deploy network")
-		}
-	}
-
-	nodeVM, nodeDisks, nodeQSFSs := c.extractWorkloads(&machine.Machine, networkName)
-	dl := workloads.Deployment{}
-	if _, ok := info.deploymentContracts[machine.Machine.NodeID]; ok {
-		dl, err = c.client.LoadDeployment(machine.Machine.NodeID, machine.ModelName)
-		if err != nil {
-			return errors.Wrap(err, "failed to load deployments")
-		}
-		dl.Vms = append(dl.Vms, nodeVM)
-		dl.QSFS = append(dl.QSFS, nodeQSFSs...)
-		dl.Disks = append(dl.Disks, nodeDisks...)
-	} else {
-		dl = workloads.NewDeployment(machine.ModelName, machine.Machine.NodeID, projectName, nil, networkName, nodeDisks, nil, []workloads.VM{nodeVM}, nodeQSFSs)
+		return err
 	}
 
 	_, err = c.client.DeployDeployment(ctx, &dl)
@@ -661,6 +630,37 @@ func (c *Client) MachineAdd(ctx context.Context, machine MachineAddInfo) error {
 	}
 
 	return nil
+}
+
+func (c *Client) prepareDeploymentForUpdate(oldDeployments map[uint32][]uint64, addInfo *MachineAddInfo) (workloads.Deployment, error) {
+	networkName := generateNetworkName(addInfo.ModelName)
+	vm, disks, qsfss := c.extractWorkloads(&addInfo.Machine, networkName)
+
+	if contractIDs, ok := oldDeployments[addInfo.Machine.NodeID]; ok {
+		// there is an old deployment on this node; load and update this deployment.
+		dl, err := c.client.LoadDeployment(addInfo.ModelName, addInfo.Machine.NodeID, contractIDs[0])
+		if err != nil {
+			return workloads.Deployment{}, errors.Wrap(err, "failed to load deployments")
+		}
+
+		dl.Vms = append(dl.Vms, vm)
+		dl.QSFS = append(dl.QSFS, qsfss...)
+		dl.Disks = append(dl.Disks, disks...)
+
+		return dl, nil
+	}
+
+	return workloads.NewDeployment(
+		addInfo.ModelName,
+		addInfo.Machine.NodeID,
+		generateProjectName(addInfo.ModelName),
+		nil,
+		networkName,
+		disks,
+		nil,
+		[]workloads.VM{vm},
+		qsfss), nil
+
 }
 
 func (c *Client) MachineRemove(ctx context.Context, removeMachine MachineRemoveInfo) error {
@@ -685,18 +685,15 @@ func (c *Client) MachineRemove(ctx context.Context, removeMachine MachineRemoveI
 		return errors.Wrapf(err, "failed to get machines model %s contracts info", modelName)
 	}
 
-	c.client.SetNetworkState(info.networkContracts)
-	c.client.SetNodeDeploymentState(info.deploymentContracts)
-
 	networkName := generateNetworkName(modelName)
-	znet, err := c.client.LoadNetwork(networkName)
+	znet, err := c.client.LoadNetwork(networkName, info.networkContracts)
 	if err != nil {
 		return errors.Wrapf(err, "failed to load network %s", networkName)
 	}
 
 	dls := []workloads.Deployment{}
-	for nodeID := range info.deploymentContracts {
-		dl, err := c.client.LoadDeployment(nodeID, modelName)
+	for nodeID, contractIDs := range info.deploymentContracts {
+		dl, err := c.client.LoadDeployment(modelName, nodeID, contractIDs[0])
 		if err != nil {
 			return errors.Wrap(err, "failed to load deployments")
 		}

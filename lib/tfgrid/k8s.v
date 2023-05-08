@@ -11,9 +11,9 @@ pub fn (mut t TFGridClient) k8s_deploy(cluster K8sCluster) !K8sClusterResult {
 
 // Gets a deployed kubernetes cluster data given its name. Returns an error if no cluster can be found
 // with the provided name.
-pub fn (mut t TFGridClient) k8s_get(cluster_name string) !K8sClusterResult {
-	return t.client.send_json_rpc[[]string, K8sClusterResult]('tfgrid.K8sGet', [
-		cluster_name,
+pub fn (mut t TFGridClient) k8s_get(get_info GetK8sInfo) !K8sClusterResult {
+	return t.client.send_json_rpc[[]GetK8sInfo, K8sClusterResult]('tfgrid.K8sGet', [
+		get_info,
 	], default_timeout)!
 }
 
@@ -23,11 +23,12 @@ pub fn (mut t TFGridClient) k8s_delete(cluster_name string) ! {
 		default_timeout)!
 }
 
-// NOTE: not implemented
-// pub fn k8s_add_node(mut client RpcWsClient, params AddK8sNode) !K8sClusterResult {
-// 	return t.client.send_json_rpc[[]AddK8sNode, K8sClusterResult]('tfgrid.K8sNodeAdd', [params], default_timeout)!
-// }
+// adds a worker to a deployed kubernetes cluster
+pub fn (mut t TFGridClient)k8s_add_worker(params AddK8sWorker) ! {
+	_ := t.client.send_json_rpc[[]AddK8sWorker, string]('tfgrid.AddK8sWorker', [params], default_timeout)!
+}
 
-// pub fn k8s_remove_node(mut client RpcWsClient, params RemoveK8sNode) !K8sClusterResult {
-// 	return t.client.send_json_rpc[[]RemoveK8sNode, K8sClusterResult]('tfgrid.K8sNodeRemove', [params], default_timeout)!
-// }
+// remove a worker from a deployed kubernetes cluster
+pub fn (mut t TFGridClient)k8s_remove_worker(params RemoveK8sWorker) ! {
+	_ := t.client.send_json_rpc[[]RemoveK8sWorker, string]('tfgrid.RemoveK8sWorker', [params], default_timeout)!
+}

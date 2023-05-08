@@ -38,6 +38,20 @@ func (m *MockTFGridClient) EXPECT() *MockTFGridClientMockRecorder {
 	return m.recorder
 }
 
+// CancelContract mocks base method.
+func (m *MockTFGridClient) CancelContract(ctx context.Context, contractID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelContract", ctx, contractID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CancelContract indicates an expected call of CancelContract.
+func (mr *MockTFGridClientMockRecorder) CancelContract(ctx, contractID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelContract", reflect.TypeOf((*MockTFGridClient)(nil).CancelContract), ctx, contractID)
+}
+
 // CancelDeployment mocks base method.
 func (m *MockTFGridClient) CancelDeployment(ctx context.Context, dl *workloads.Deployment) error {
 	m.ctrl.T.Helper()
@@ -245,93 +259,93 @@ func (mr *MockTFGridClientMockRecorder) GetProjectContracts(ctx, projectName int
 }
 
 // LoadDeployment mocks base method.
-func (m *MockTFGridClient) LoadDeployment(nodeID uint32, modelName string) (workloads.Deployment, error) {
+func (m *MockTFGridClient) LoadDeployment(modelName string, nodeID uint32, contractID uint64) (workloads.Deployment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadDeployment", nodeID, modelName)
+	ret := m.ctrl.Call(m, "LoadDeployment", modelName, nodeID, contractID)
 	ret0, _ := ret[0].(workloads.Deployment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LoadDeployment indicates an expected call of LoadDeployment.
-func (mr *MockTFGridClientMockRecorder) LoadDeployment(nodeID, modelName interface{}) *gomock.Call {
+func (mr *MockTFGridClientMockRecorder) LoadDeployment(modelName, nodeID, contractID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadDeployment", reflect.TypeOf((*MockTFGridClient)(nil).LoadDeployment), nodeID, modelName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadDeployment", reflect.TypeOf((*MockTFGridClient)(nil).LoadDeployment), modelName, nodeID, contractID)
 }
 
 // LoadGatewayFQDN mocks base method.
-func (m *MockTFGridClient) LoadGatewayFQDN(nodeID uint32, modelName string) (workloads.GatewayFQDNProxy, error) {
+func (m *MockTFGridClient) LoadGatewayFQDN(modelName string, nodeID uint32, contractID uint64) (workloads.GatewayFQDNProxy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadGatewayFQDN", nodeID, modelName)
+	ret := m.ctrl.Call(m, "LoadGatewayFQDN", modelName, nodeID, contractID)
 	ret0, _ := ret[0].(workloads.GatewayFQDNProxy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LoadGatewayFQDN indicates an expected call of LoadGatewayFQDN.
-func (mr *MockTFGridClientMockRecorder) LoadGatewayFQDN(nodeID, modelName interface{}) *gomock.Call {
+func (mr *MockTFGridClientMockRecorder) LoadGatewayFQDN(modelName, nodeID, contractID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadGatewayFQDN", reflect.TypeOf((*MockTFGridClient)(nil).LoadGatewayFQDN), nodeID, modelName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadGatewayFQDN", reflect.TypeOf((*MockTFGridClient)(nil).LoadGatewayFQDN), modelName, nodeID, contractID)
 }
 
 // LoadGatewayName mocks base method.
-func (m *MockTFGridClient) LoadGatewayName(nodeID uint32, modelName string) (workloads.GatewayNameProxy, error) {
+func (m *MockTFGridClient) LoadGatewayName(modelName string, nodeID uint32, contractID uint64) (workloads.GatewayNameProxy, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadGatewayName", nodeID, modelName)
+	ret := m.ctrl.Call(m, "LoadGatewayName", modelName, nodeID, contractID)
 	ret0, _ := ret[0].(workloads.GatewayNameProxy)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LoadGatewayName indicates an expected call of LoadGatewayName.
-func (mr *MockTFGridClientMockRecorder) LoadGatewayName(nodeID, modelName interface{}) *gomock.Call {
+func (mr *MockTFGridClientMockRecorder) LoadGatewayName(modelName, nodeID, contractID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadGatewayName", reflect.TypeOf((*MockTFGridClient)(nil).LoadGatewayName), nodeID, modelName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadGatewayName", reflect.TypeOf((*MockTFGridClient)(nil).LoadGatewayName), modelName, nodeID, contractID)
 }
 
 // LoadK8s mocks base method.
-func (m *MockTFGridClient) LoadK8s(nodeIDs []uint32, modelName string) (workloads.K8sCluster, error) {
+func (m *MockTFGridClient) LoadK8s(modelName string, nodeContracts map[uint32][]uint64) (workloads.K8sCluster, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadK8s", nodeIDs, modelName)
+	ret := m.ctrl.Call(m, "LoadK8s", modelName, nodeContracts)
 	ret0, _ := ret[0].(workloads.K8sCluster)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LoadK8s indicates an expected call of LoadK8s.
-func (mr *MockTFGridClientMockRecorder) LoadK8s(nodeIDs, modelName interface{}) *gomock.Call {
+func (mr *MockTFGridClientMockRecorder) LoadK8s(modelName, nodeContracts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadK8s", reflect.TypeOf((*MockTFGridClient)(nil).LoadK8s), nodeIDs, modelName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadK8s", reflect.TypeOf((*MockTFGridClient)(nil).LoadK8s), modelName, nodeContracts)
 }
 
 // LoadNetwork mocks base method.
-func (m *MockTFGridClient) LoadNetwork(networkName string) (workloads.ZNet, error) {
+func (m *MockTFGridClient) LoadNetwork(networkName string, nodeContracts map[uint32]uint64) (workloads.ZNet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadNetwork", networkName)
+	ret := m.ctrl.Call(m, "LoadNetwork", networkName, nodeContracts)
 	ret0, _ := ret[0].(workloads.ZNet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LoadNetwork indicates an expected call of LoadNetwork.
-func (mr *MockTFGridClientMockRecorder) LoadNetwork(networkName interface{}) *gomock.Call {
+func (mr *MockTFGridClientMockRecorder) LoadNetwork(networkName, nodeContracts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadNetwork", reflect.TypeOf((*MockTFGridClient)(nil).LoadNetwork), networkName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadNetwork", reflect.TypeOf((*MockTFGridClient)(nil).LoadNetwork), networkName, nodeContracts)
 }
 
 // LoadZDB mocks base method.
-func (m *MockTFGridClient) LoadZDB(nodeID uint32, modelName string) (workloads.ZDB, error) {
+func (m *MockTFGridClient) LoadZDB(modelName string, nodeID uint32, contractID uint64) (workloads.ZDB, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadZDB", nodeID, modelName)
+	ret := m.ctrl.Call(m, "LoadZDB", modelName, nodeID, contractID)
 	ret0, _ := ret[0].(workloads.ZDB)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LoadZDB indicates an expected call of LoadZDB.
-func (mr *MockTFGridClientMockRecorder) LoadZDB(nodeID, modelName interface{}) *gomock.Call {
+func (mr *MockTFGridClientMockRecorder) LoadZDB(modelName, nodeID, contractID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadZDB", reflect.TypeOf((*MockTFGridClient)(nil).LoadZDB), nodeID, modelName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadZDB", reflect.TypeOf((*MockTFGridClient)(nil).LoadZDB), modelName, nodeID, contractID)
 }
 
 // RMBCall mocks base method.
@@ -346,28 +360,4 @@ func (m *MockTFGridClient) RMBCall(ctx context.Context, twin uint32, fn string, 
 func (mr *MockTFGridClientMockRecorder) RMBCall(ctx, twin, fn, data, result interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RMBCall", reflect.TypeOf((*MockTFGridClient)(nil).RMBCall), ctx, twin, fn, data, result)
-}
-
-// SetNetworkState mocks base method.
-func (m *MockTFGridClient) SetNetworkState(nodeContract map[uint32]uint64) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetNetworkState", nodeContract)
-}
-
-// SetNetworkState indicates an expected call of SetNetworkState.
-func (mr *MockTFGridClientMockRecorder) SetNetworkState(nodeContract interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNetworkState", reflect.TypeOf((*MockTFGridClient)(nil).SetNetworkState), nodeContract)
-}
-
-// SetNodeDeploymentState mocks base method.
-func (m *MockTFGridClient) SetNodeDeploymentState(nodeContracts map[uint32][]uint64) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetNodeDeploymentState", nodeContracts)
-}
-
-// SetNodeDeploymentState indicates an expected call of SetNodeDeploymentState.
-func (mr *MockTFGridClientMockRecorder) SetNodeDeploymentState(nodeContracts interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNodeDeploymentState", reflect.TypeOf((*MockTFGridClient)(nil).SetNodeDeploymentState), nodeContracts)
 }

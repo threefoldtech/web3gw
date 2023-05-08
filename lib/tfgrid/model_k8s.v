@@ -48,13 +48,22 @@ pub struct K8sNodeResult {
 	ygg_ip       string
 }
 
-// NOTE: not implemented
-// pub struct AddK8sNode {
-// 	node K8sNode
-// 	cluster_name string
-// }
+pub struct GetK8sInfo{
+pub:
+	cluster_name string
+	master_name string
+}
 
-// pub struct RemoveK8sNode {
-// 	cluster_name string
-// 	node_name string
-// }
+pub struct AddK8sWorker {
+pub:
+	worker K8sNode
+	cluster_name string
+	master_name string
+}
+
+pub struct RemoveK8sWorker {
+pub:
+	cluster_name string
+	worker_name string
+	master_name string
+}

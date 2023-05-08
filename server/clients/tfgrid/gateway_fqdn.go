@@ -78,14 +78,12 @@ func (r *Client) GatewayFQDNGet(ctx context.Context, modelName string) (GatewayF
 
 	nodeID := contracts.NodeContracts[0].NodeID
 
-	nodeContractID, err := strconv.ParseUint(contracts.NodeContracts[0].ContractID, 0, 64)
+	contractID, err := strconv.ParseUint(contracts.NodeContracts[0].ContractID, 0, 64)
 	if err != nil {
 		return GatewayFQDNModel{}, errors.Wrapf(err, "could not parse contract %s into uint64", contracts.NodeContracts[0].ContractID)
 	}
 
-	r.client.SetNodeDeploymentState(map[uint32][]uint64{nodeID: {nodeContractID}})
-
-	gw, err := r.client.LoadGatewayFQDN(nodeID, modelName)
+	gw, err := r.client.LoadGatewayFQDN(modelName, nodeID, contractID)
 	if err != nil {
 		return GatewayFQDNModel{}, err
 	}

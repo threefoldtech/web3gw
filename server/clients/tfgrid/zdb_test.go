@@ -60,8 +60,7 @@ func TestZDB(t *testing.T) {
 		clientDeployment := workloads.NewDeployment(model.Name, model.NodeID, projectName, nil, "", nil, zdbs, nil, nil)
 		cl.EXPECT().DeployDeployment(gomock.Any(), &clientDeployment).Return(contractID, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {contractID}})
-		cl.EXPECT().LoadZDB(nodeID, modelName).Return(workloads.ZDB{
+		cl.EXPECT().LoadZDB(modelName, nodeID, contractID).Return(workloads.ZDB{
 			Name:      modelName,
 			Password:  "pass",
 			Public:    true,
@@ -105,8 +104,7 @@ func TestZDB(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {contractID}})
-		cl.EXPECT().LoadZDB(nodeID, modelName).Return(workloads.ZDB{
+		cl.EXPECT().LoadZDB(modelName, nodeID, contractID).Return(workloads.ZDB{
 			Name:      "zdb",
 			Password:  "pass",
 			Public:    true,
