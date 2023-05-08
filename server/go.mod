@@ -7,7 +7,7 @@ require (
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12
 	github.com/ethereum/go-ethereum v1.11.6
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -21,10 +21,10 @@ require (
 	github.com/stellar/go v0.0.0-20230420111333-3274d0f71fbc
 	github.com/stretchr/testify v1.8.2
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230425112357-f35e342c2193
-	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.3.0
-	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.3.0
-	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.3.0
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230509101146-8e43c43597cd
+	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.4.0
+	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.4.0
+	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.4.0
 	github.com/threefoldtech/zos v0.5.6-0.20230426125942-0ea2f91b21f5
 	golang.org/x/net v0.9.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
@@ -188,7 +188,7 @@ require (
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb // indirect
 	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/tools v0.8.0 // indirect
@@ -201,5 +201,3 @@ require (
 )
 
 replace github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5 => github.com/threefoldtech/go-substrate-rpc-client/v4 v4.0.6-0.20230102154731-7c633b7d3c71
-
-replace github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.1.0 => ../../tfgrid-sdk-go/grid-client

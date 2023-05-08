@@ -47,3 +47,30 @@ func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []ui
 
 	return &znet, nil
 }
+
+func doesNetworkIncludeNode(networkNodes []uint32, nodeID uint32) bool {
+	for _, node := range networkNodes {
+		if node == nodeID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *Client) ensureNodeBelongsToNetwork(ctx context.Context, networkName string, networkContracts map[uint32]uint64, nodeID uint32) error {
+	znet, err := c.client.LoadNetwork(networkName, networkContracts)
+	if err != nil {
+		return errors.Wrapf(err, "failed to load network %s", networkName)
+	}
+
+	if !doesNetworkIncludeNode(znet.Nodes, nodeID) {
+		znet.Nodes = append(znet.Nodes, nodeID)
+		err = c.client.DeployNetwork(ctx, &znet)
+		if err != nil {
+			return errors.Wrap(err, "failed to deploy network")
+		}
+	}
+
+	return nil
+}

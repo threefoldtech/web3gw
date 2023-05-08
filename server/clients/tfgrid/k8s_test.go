@@ -213,10 +213,7 @@ func TestK8s(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNetworkState(map[uint32]uint64{1: 3, 2: 4})
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{1: {1}, 2: {2}})
-
-		cl.EXPECT().LoadK8s([]uint32{1, 2}, clusterName).Return(workloads.K8sCluster{
+		cl.EXPECT().LoadK8s("master", map[uint32][]uint64{1: {1}, 2: {2}}).Return(workloads.K8sCluster{
 			Master: &workloads.K8sNode{
 				Name:        "master",
 				Node:        1,
@@ -260,7 +257,10 @@ func TestK8s(t *testing.T) {
 		cl.EXPECT().GetNodeFarm(uint32(1)).Return(uint32(1), nil).AnyTimes()
 		cl.EXPECT().GetNodeFarm(uint32(2)).Return(uint32(1), nil).AnyTimes()
 
-		got, err := r.K8sGet(context.Background(), clusterName)
+		got, err := r.K8sGet(context.Background(), K8sGetInfo{
+			ClusterName: clusterName,
+			MasterName:  "master",
+		})
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)

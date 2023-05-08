@@ -120,13 +120,13 @@ func (c *Client) K8sDeploy(ctx context.Context, model tfgridBase.K8sCluster) (tf
 	return state.cl.K8sDeploy(ctx, model)
 }
 
-func (c *Client) K8sGet(ctx context.Context, modelName string) (tfgridBase.K8sCluster, error) {
+func (c *Client) K8sGet(ctx context.Context, k8sGetInfo tfgridBase.K8sGetInfo) (tfgridBase.K8sCluster, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
 	}
 
-	return state.cl.K8sGet(ctx, modelName)
+	return state.cl.K8sGet(ctx, k8sGetInfo)
 }
 
 func (c *Client) K8sDelete(ctx context.Context, modelName string) error {
@@ -136,6 +136,24 @@ func (c *Client) K8sDelete(ctx context.Context, modelName string) error {
 	}
 
 	return state.cl.K8sDelete(ctx, modelName)
+}
+
+func (c *Client) AddK8sWorker(ctx context.Context, workerInfo tfgridBase.K8sAddWorkerInfo) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.AddK8sWorker(ctx, workerInfo)
+}
+
+func (c *Client) RemoveK8sWorker(ctx context.Context, removeWorkerInfo tfgridBase.K8sRemoveWorkerInfo) error {
+	state, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.RemoveK8sWorker(ctx, removeWorkerInfo)
 }
 
 func (c *Client) ZDBDeploy(ctx context.Context, model tfgridBase.ZDB) (tfgridBase.ZDB, error) {

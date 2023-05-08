@@ -113,9 +113,7 @@ func TestGatewayName(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {nodeContractID}})
-
-		cl.EXPECT().LoadGatewayName(nodeID, modelName).Return(workloads.GatewayNameProxy{
+		cl.EXPECT().LoadGatewayName(modelName, nodeID, nodeContractID).Return(workloads.GatewayNameProxy{
 			NodeID: nodeID,
 			Name:   modelName,
 			Backends: []zos.Backend{

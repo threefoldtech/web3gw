@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 )
@@ -17,6 +18,7 @@ type K8sCluster struct {
 	Token       string    `json:"token"`
 	NetworkName string    `json:"network_name"`
 	SSHKey      string    `json:"ssh_key"`
+	AddWGAccess bool      `json:"add_wg_access"`
 }
 
 // K8sNode kubernetes data
@@ -37,6 +39,23 @@ type K8sNode struct {
 	ComputedIP6 string `json:"computed_ip6"`
 	WGIP        string `json:"wg_ip"`
 	YggIP       string `json:"ygg_ip"`
+}
+
+type K8sGetInfo struct {
+	ClusterName string `json:"cluster_name"`
+	MasterName  string `json:"master_name"`
+}
+
+type K8sAddWorkerInfo struct {
+	ClusterName string  `json:"cluster_name"`
+	MasterName  string  `json:"master_name"`
+	Worker      K8sNode `json:"worker"`
+}
+
+type K8sRemoveWorkerInfo struct {
+	ClusterName string `json:"cluster_name"`
+	MasterName  string `json:"master_name"`
+	WorkerName  string `json:"worker_name"`
 }
 
 // K8sDeploy deploys a kubernetes cluster
@@ -94,7 +113,12 @@ func (r *Client) K8sDelete(ctx context.Context, clusterName string) error {
 }
 
 // K8sGet retreives a kubernetes cluster specified by the cluster name
-func (r *Client) K8sGet(ctx context.Context, clusterName string) (K8sCluster, error) {
+func (r *Client) K8sGet(ctx context.Context, k8sGetInfo K8sGetInfo) (K8sCluster, error) {
+	clusterName := k8sGetInfo.ClusterName
+	masterName := k8sGetInfo.MasterName
+
+	log.Info().Msgf("retreiving kubernetes cluster %s", clusterName)
+
 	projectName := generateProjectName(clusterName)
 
 	// get all contracts by project name
@@ -112,14 +136,9 @@ func (r *Client) K8sGet(ctx context.Context, clusterName string) (K8sCluster, er
 		return K8sCluster{}, errors.Wrapf(err, "failed to get cluster %s contracts info", clusterName)
 	}
 
-	nodeIDs := info.getNodeIDs()
-
-	r.client.SetNetworkState(info.networkContracts)
-	r.client.SetNodeDeploymentState(info.deploymentContracts)
-
-	cluster, err := r.client.LoadK8s(nodeIDs, clusterName)
+	cluster, err := r.client.LoadK8s(masterName, info.deploymentContracts)
 	if err != nil {
-		return K8sCluster{}, err
+		return K8sCluster{}, errors.Wrapf(err, "failed to load kubernetes cluster %s", clusterName)
 	}
 
 	nodeFarms, err := getNodeFarmsIDs(r.client, &cluster)
@@ -301,4 +320,134 @@ func (r *Client) assignNodesIDsForCluster(ctx context.Context, cluster *K8sClust
 	}
 
 	return nil
+}
+
+// AddK8sWorker adds a worker to a deployed kubernetes cluster
+func (c *Client) AddK8sWorker(ctx context.Context, addWorker K8sAddWorkerInfo) error {
+	workerName := addWorker.Worker.Name
+	clusterName := addWorker.ClusterName
+	masterName := addWorker.MasterName
+
+	log.Info().Msgf("adding worker %s", workerName)
+
+	projectName := generateProjectName(clusterName)
+
+	contracts, err := c.client.GetProjectContracts(ctx, projectName)
+	if err != nil {
+		return errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
+	}
+
+	if len(contracts.NodeContracts) == 0 {
+		return fmt.Errorf("found 0 contracts for project %s", projectName)
+	}
+
+	info, err := getContractsInfo(contracts, generateNetworkName(clusterName))
+	if err != nil {
+		return errors.Wrapf(err, "failed to get kubernetes cluster %s contracts info", clusterName)
+	}
+
+	networkName := generateNetworkName(clusterName)
+	znet, err := c.client.LoadNetwork(networkName, info.networkContracts)
+	if err != nil {
+		return errors.Wrapf(err, "failed to load network %s", networkName)
+	}
+
+	if !doesNetworkIncludeNode(znet.Nodes, addWorker.Worker.NodeID) {
+		znet.Nodes = append(znet.Nodes, addWorker.Worker.NodeID)
+		err = c.client.DeployNetwork(ctx, &znet)
+		if err != nil {
+			return errors.Wrap(err, "failed to deploy network")
+		}
+	}
+
+	cluster, err := c.client.LoadK8s(masterName, info.deploymentContracts)
+	if err != nil {
+		return errors.Wrap(err, "failed to load kubernetes cluster")
+	}
+
+	cluster.Workers = append(cluster.Workers, newK8sNodeFromModel(addWorker.Worker))
+	if err := c.client.DeployK8sCluster(ctx, &cluster); err != nil {
+		return errors.Wrap(err, "failed to update kubernetes cluster")
+	}
+
+	return nil
+}
+
+// RemoveK8sWorker removes a worker from a deployed kubernetes cluster
+func (c *Client) RemoveK8sWorker(ctx context.Context, removeWorkerInfo K8sRemoveWorkerInfo) error {
+	workerName := removeWorkerInfo.WorkerName
+	clusterName := removeWorkerInfo.ClusterName
+	masterName := removeWorkerInfo.MasterName
+
+	log.Info().Msgf("removing worker %s", workerName)
+
+	projectName := generateProjectName(clusterName)
+
+	contracts, err := c.client.GetProjectContracts(ctx, projectName)
+	if err != nil {
+		return errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
+	}
+
+	if len(contracts.NodeContracts) == 0 {
+		return fmt.Errorf("found 0 contracts for project %s", projectName)
+	}
+
+	info, err := getContractsInfo(contracts, generateNetworkName(clusterName))
+	if err != nil {
+		return errors.Wrapf(err, "failed to get kubernetes cluster %s contracts info", clusterName)
+	}
+
+	networkName := generateNetworkName(clusterName)
+	znet, err := c.client.LoadNetwork(networkName, info.networkContracts)
+	if err != nil {
+		return errors.Wrapf(err, "failed to load network %s", networkName)
+	}
+
+	cluster, err := c.client.LoadK8s(masterName, info.deploymentContracts)
+	if err != nil {
+		return errors.Wrap(err, "failed to load kubernetes cluster")
+	}
+
+	workerIdx, err := getWorkerIndex(&cluster, workerName)
+	if err != nil {
+		return err
+	}
+
+	workerNodeID := cluster.Workers[workerIdx].Node
+
+	cluster.Workers = append(cluster.Workers[:workerIdx], cluster.Workers[workerIdx+1:]...)
+
+	nodeIDs := []uint32{}
+	for _, worker := range cluster.Workers {
+		nodeIDs = append(nodeIDs, worker.Node)
+	}
+	nodeIDs = append(nodeIDs, cluster.Master.Node)
+
+	if err := c.client.DeployK8sCluster(ctx, &cluster); err != nil {
+		return err
+	}
+
+	// TODO: check if there is no other worker on workerNodeID before updating network
+	for idx, nodeID := range znet.Nodes {
+		if nodeID == workerNodeID {
+			znet.Nodes = append(znet.Nodes[:idx], znet.Nodes[idx+1:]...)
+			break
+		}
+	}
+
+	if err := c.client.DeployNetwork(ctx, &znet); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getWorkerIndex(cluster *workloads.K8sCluster, workerName string) (int, error) {
+	for idx, worker := range cluster.Workers {
+		if worker.Name == workerName {
+			return idx, nil
+		}
+	}
+
+	return 0, fmt.Errorf("failed to find a worker with name %s", workerName)
 }

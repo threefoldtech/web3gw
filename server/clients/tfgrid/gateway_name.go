@@ -108,9 +108,7 @@ func (r *Client) GatewayNameGet(ctx context.Context, modelName string) (GatewayN
 
 	nodeID := contracts.NodeContracts[0].NodeID
 
-	r.client.SetNodeDeploymentState(map[uint32][]uint64{nodeID: {nodeContractID}})
-
-	gw, err := r.client.LoadGatewayName(nodeID, modelName)
+	gw, err := r.client.LoadGatewayName(modelName, nodeID, nodeContractID)
 	if err != nil {
 		return GatewayNameModel{}, err
 	}

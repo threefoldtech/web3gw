@@ -132,9 +132,7 @@ func TestGatewayFQDN(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32][]uint64{nodeID: {contractID}})
-
-		cl.EXPECT().LoadGatewayFQDN(nodeID, modelName).Return(workloads.GatewayFQDNProxy{
+		cl.EXPECT().LoadGatewayFQDN(modelName, nodeID, contractID).Return(workloads.GatewayFQDNProxy{
 			NodeID: nodeID,
 			Backends: []zos.Backend{
 				"backend1",
