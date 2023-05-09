@@ -255,6 +255,8 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 		log.Error().Err(err).Msg("Can not encode accept msg")
 	}
 
+	d.secretHash = output.SecretHash
+	d.secret = output.Secret
 	d.stage = DriverStageSetupSwap
 
 	if err := d.nostr.PublishDirectMessage(ctx, sender, []string{"s", d.saleId}, string(data)); err != nil {
