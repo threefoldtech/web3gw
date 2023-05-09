@@ -13,6 +13,7 @@ import (
 
 const (
 	PublicEthTftContractAddress = "0x395E925834996e558bdeC77CD648435d620AfB5b"
+	GoerliEthTftContractAddress = "0xDa38782ce31Fc9861087320ABffBdee64Ed60515"
 )
 
 func (c *Client) TransferTftEth(ctx context.Context, destination string, amount int64) (string, error) {

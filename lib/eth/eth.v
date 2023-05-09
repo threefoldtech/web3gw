@@ -148,6 +148,10 @@ pub fn (mut e EthClient) height() !u64 {
 	return e.client.send_json_rpc[[]string, u64]('eth.Height', []string{}, eth.default_timeout)!
 }
 
+pub fn (mut e EthClient) address() !string {
+	return e.client.send_json_rpc[[]string, string]('eth.Address', []string{}, eth.default_timeout)!
+}
+
 // ERC20
 
 // token_balance returns balance for the given token contract.
@@ -277,4 +281,12 @@ pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !strin
 // tft_balance returns the tft balance on ethereum
 pub fn (mut e EthClient) tft_balance() !i64 {
 	return e.client.send_json_rpc[[]string, i64]('eth.GetTFTBalance', []string{}, eth.default_timeout)!
+}
+
+pub fn (mut e EthClient) quote_tft_eth(amountIn string) !i64 {
+	return e.client.send_json_rpc[[]string, i64]('eth.QuoteTftEth', [amountIn], eth.default_timeout)!
+}
+
+pub fn (mut e EthClient) swap_tft_eth(amountIn string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.SwapTftEth', [amountIn], eth.default_timeout)!
 }
