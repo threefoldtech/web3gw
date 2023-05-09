@@ -42,6 +42,8 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user
 	logger.info("Result of creating wallet: ${result}")
 	*/
 
+	btc_client.load_wallet("mywallet2")!
+
 	wallet_info := btc_client.get_wallet_info()!
 	logger.info("Wallet info: ${wallet_info}")
 
