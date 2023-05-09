@@ -24,7 +24,8 @@ type (
 	}
 	// state managed by nostr client
 	btcState struct {
-		client *btcRpcClient.Client
+		client             *btcRpcClient.Client
+		connectionSettings Load
 	}
 
 	Load struct {
@@ -131,10 +132,8 @@ func NewClient() *Client {
 	return &Client{}
 }
 
-func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
-	log.Debug().Msgf("BTC: connecting to btc node %s", args.Host)
-
-	client, err := btcRpcClient.New(
+func NewBtcRpcClient(args Load) (*btcRpcClient.Client, error) {
+	return btcRpcClient.New(
 		&btcRpcClient.ConnConfig{
 			Host:         args.Host + "/wallet/" + args.Wallet,
 			User:         args.User,
@@ -142,11 +141,19 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 			HTTPPostMode: true,
 			DisableTLS:   true,
 		}, nil)
+}
+
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
+	log.Debug().Msgf("BTC: connecting to btc node %s", args.Host)
+
+	client, err := NewBtcRpcClient(args)
 	if err != nil {
 		return err
 	}
+
 	state := State(conState)
 	state.client = client
+	state.connectionSettings = args
 
 	return nil
 }
@@ -545,15 +552,38 @@ func (c *Client) GetReceivedByLabel(ctx context.Context, conState jsonrpc.State,
 	return state.client.GetReceivedByAccount(label)
 }
 
-func (c *Client) LoadWallet(ctx context.Context, conState jsonrpc.State, walletName string) (*btcjson.LoadWalletResult, error) {
+func (c *Client) ImportWallet(ctx context.Context, conState jsonrpc.State, walletDump string) error {
+	log.Debug().Msg("BTC: importing wallet")
+
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ImportWallet(walletDump)
+}
+
+func (c *Client) LoadWallet(ctx context.Context, conState jsonrpc.State, walletName string) error {
 	log.Debug().Msgf("BTC: loading wallet %s", walletName)
 
 	state := State(conState)
 	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
+		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.LoadWallet(walletName)
+	_, err := state.client.LoadWallet(walletName)
+	if err != nil && err.Error() != "-35: Wallet \""+walletName+"\" is already loaded." {
+		return err
+	}
+
+	// Set the default wallet for future calls
+	state.connectionSettings.Wallet = walletName
+	client, err := NewBtcRpcClient(state.connectionSettings)
+	if err != nil {
+		return err
+	}
+	state.client = client
+	return nil
 }
 
 func (c *Client) GetWalletInfo(ctx context.Context, conState jsonrpc.State) (*btcjson.GetWalletInfoResult, error) {

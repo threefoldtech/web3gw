@@ -15,10 +15,10 @@ mut:
 // configurations to load bitcoin client
 [params]
 pub struct Load {
-	host string
-	user string
-	pass string
-	wallet string
+	host string // the address of the node including the port (for example: 185.69.167.219:8332)
+	user string // the user name that you can use to connect to the btc node
+	pass string // the password needed to connect to the btc node
+	wallet string // optional, the wallet name you want to use for future calls (can be changed with the LoadWallet method)
 }
 
 // args to import bitcoin address
@@ -283,7 +283,7 @@ pub fn (mut c BtcClient) get_received_by_label(label string) !Transaction {
 		btc.default_timeout)!
 }
 
-// Load a specific wallet before executing wallet specific requests
+// Load a specific wallet. This is needed if you want to switch wallets or if you didn't pass any wallet name at Load time.  
 pub fn (mut c BtcClient) load_wallet(wallet_name string) !LoadWalletResult {
 	return c.client.send_json_rpc[[]string, LoadWalletResult]('btc.LoadWallet', [wallet_name],
 		btc.default_timeout)!
