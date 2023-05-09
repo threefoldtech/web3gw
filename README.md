@@ -1,6 +1,6 @@
 # Web 3 Proxy
 
-The web3 proxy implements a json rpc 2.0 server which opens up remote procedure calls for many clients clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
+The web3 proxy implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
 
 Project setup:
 

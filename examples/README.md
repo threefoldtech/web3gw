@@ -1,6 +1,6 @@
 # Examples
 
-This section of the repository contains examples of V scripts that use the V client library. They teach you how to use the V library. Inside each script you can find a function called $execute_rpcs$ in which you can add your calls to the specific V client. The first call should always be the one that creates the V client. You should pass the rpc websocket client. 
+This section of the repository contains examples of V scripts that use the V client library. They teach you how to use the V library. Inside each script you can find a function called $execute_rpcs$ in which you can add your calls to the specific V client. The first call should always be the one that creates the V client. You should give it the rpc websocket client.
 
 ```
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, network string) ! {
