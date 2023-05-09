@@ -1,34 +1,38 @@
 # Web 3 Proxy
 
+The web3 proxy implements a json rpc 2.0 server which opens up remote procedure calls for many clients clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
+
 Project setup:
 
-- Server (the proxy server)
-- Lib (the clients in V lang)
-- Examples (example scripts)
+- [Server](server/): the implementation for the json rpc 2.0 server
+- [Lib](lib/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
+- [Examples](examples): contains some examples of V scripts for each client that the json rpc 2.0 server supports, these scripts show you how you can use the V library
 
-## Installing
+
+## How to run the web3 proxy server (json rpc 2.0 server)
+
+The server is implemented in go and is located in [this folder](server/). To build and run the server execute these commands:
+```
+cd server
+go build && ./server --debug
+```
+The json rpc 2.0 server should now be up and running and should allow you to call any of the clients that the server supports.
+
+## Installing the V library
+
+If you wish to use the V library to contact the server you first have to install the V libary. Please execute the command shown below. The V library has a dependency on [crystallib](https://github.com/freeflowuniverse/crystallib). The bash scrips show below will do that for you unless you install it first. Installing it first allows you to be able to use different branches from crystallib as runtime code.
 
 ```sh
 ./install.sh
 ```
 
-This creates a symbolic link from ~/.vmodules/threefoldtech/threebot to the lib folder of this repository.
-
-## How to run the web3 proxy
-
-First start the server:
-
-```sh
-cd server
-go build
-./server --debug
-```
-
-Then you can go through the documentation under [scripts](scripts/)
-
 ## Examples
 
-See `./examples` folder for examples of how to interact with the proxy.
+You should now be able to run the examples under [examples](examples/). They should give you an idea of how you can use the V library to interact with the proxy.
+
+## Adding new clients
+
+Follow the steps [here](server/) to add the client to the json rpc 2.0 server and then look [here](lib/) to add the necessary code for the V library. This repository contains a pipeline that builds and tests both the server and V clients. This should be green for development at all times. Whenever we add a new client to the web3 proxy it should be build by CI to make sure that it is building at all times.
 
 ## Documentation
 

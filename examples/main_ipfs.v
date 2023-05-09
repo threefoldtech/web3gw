@@ -13,7 +13,7 @@ const (
 	default_server_address = 'http://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
 	mut ipfs_client := ipfs.new(mut client)
 	// ipfs_client.load(url:'', secret: secret)!
 
