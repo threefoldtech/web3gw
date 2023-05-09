@@ -8,14 +8,17 @@ Project setup:
 
 ## Installing
 
-```
+```sh
 ./install.sh
 ```
+
+This creates a symbolic link from ~/.vmodules/threefoldtech/threebot to the lib folder of this repository.
 
 ## How to run the web3 proxy
 
 First start the server:
-```
+
+```sh
 cd server
 go build
 ./server --debug
@@ -26,7 +29,6 @@ Then you can go through the documentation under [scripts](scripts/)
 ## Examples
 
 See `./examples` folder for examples of how to interact with the proxy.
-
 
 ## Documentation
 
