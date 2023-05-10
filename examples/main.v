@@ -26,6 +26,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 
 
 fn main() {
+	// This is some code that allows us to quickly create a commmand line tool with arguments. 
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
 	fp.limit_free_args(0, 0)!

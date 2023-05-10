@@ -20,12 +20,12 @@ require (
 	github.com/rs/zerolog v1.29.0
 	github.com/stellar/go v0.0.0-20230420111333-3274d0f71fbc
 	github.com/stretchr/testify v1.8.2
-	github.com/threefoldtech/substrate-client v0.1.5
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230417112020-958303130d16
-	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.1.0
-	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.1.0
-	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.0.0-20230413122927-238e88d57822
-	github.com/threefoldtech/zos v0.5.6-0.20230321103809-44426c1a69c7
+	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230425112357-f35e342c2193
+	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.3.0
+	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.3.0
+	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.3.0
+	github.com/threefoldtech/zos v0.5.6-0.20230426125942-0ea2f91b21f5
 	golang.org/x/net v0.9.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
 )
@@ -168,7 +168,6 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/stellar/go-xdr v0.0.0-20211103144802-8017fc4bdfee // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/threefoldtech/atomicswap v1.1.2-0.20230504143829-8eefb47177b0 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
