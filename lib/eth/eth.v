@@ -270,7 +270,7 @@ pub fn (mut e EthClient) get_fungible_approval_for_all(args ApprovalForFungible)
 
 // transfer_tft_eth transfers tft from an account on ethereum to another
 pub fn (mut e EthClient) tft_eth_transfer(args TftEthTransfer) !string {
-	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.TransferTftEth', [args], eth.default_timeout)!
+	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.TransferEthTftEth', [args], eth.default_timeout)!
 }
 
 // withdraw_eth_tft_to_stellar withdraws eth tft to stellar
@@ -280,11 +280,11 @@ pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !strin
 
 // tft_balance returns the tft balance on ethereum
 pub fn (mut e EthClient) tft_balance() !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetTftBalance', []string{}, eth.default_timeout)!
+	return e.client.send_json_rpc[[]string, i64]('eth.GetEthTftBalance', []string{}, eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) approve_tft_spending(amount string) !string {
-	return e.client.send_json_rpc[[]string, string]('eth.ApproveTftSpending', [amount], eth.default_timeout)!
+	return e.client.send_json_rpc[[]string, string]('eth.ApproveEthTftSpending', [amount], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) quote_eth_for_tft(amountIn string) !i64 {

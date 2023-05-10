@@ -161,7 +161,6 @@ func (c *Client) makeSwap(ctx context.Context, input string, token0 *coreEntitie
 		log.Err(err).Msg("failed to get swap call parameters")
 		return "", err
 	}
-	log.Printf("calldata = 0x%x", params.Value.String())
 
 	gasPrice, err := c.Eth.SuggestGasPrice(context.Background())
 	if err != nil {
@@ -182,7 +181,6 @@ func (c *Client) makeSwap(ctx context.Context, input string, token0 *coreEntitie
 		return "", err
 	}
 
-	// TODO: move this ?
 	res, err := bind.WaitMined(ctx, c.Eth, tx)
 	if err != nil {
 		return "", err

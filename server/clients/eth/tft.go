@@ -17,7 +17,7 @@ var (
 	GoerliEthTftContractAddress  = common.HexToAddress("0xDa38782ce31Fc9861087320ABffBdee64Ed60515")
 )
 
-func (c *Client) TransferTftEth(ctx context.Context, destination string, amount int64) (string, error) {
+func (c *Client) TransferEthTft(ctx context.Context, destination string, amount int64) (string, error) {
 	return c.TransferTokens(ctx, MainnetEthTftContractAddress, destination, amount)
 }
 
@@ -48,7 +48,7 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 	return tx.Hash().Hex(), nil
 }
 
-func (c *Client) GetTftBalance(ctx context.Context) (*big.Int, error) {
+func (c *Client) GetEthTftBalance(ctx context.Context) (*big.Int, error) {
 	tftC, err := c.GetTftTokenContract()
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (c *Client) GetTftBalance(ctx context.Context) (*big.Int, error) {
 	}, c.Address)
 }
 
-func (c *Client) ApproveTftSpending(ctx context.Context, input string) (string, error) {
+func (c *Client) ApproveEthTftSpending(ctx context.Context, input string) (string, error) {
 	tftC, err := c.GetTftTokenContract()
 	if err != nil {
 		return "", err
@@ -78,7 +78,10 @@ func (c *Client) ApproveTftSpending(ctx context.Context, input string) (string, 
 		return "", err
 	}
 
-	opts, err := c.getDefaultTransactionOpts(ctx)
+	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*1)
+	defer cancel()
+
+	opts, err := c.getDefaultTransactionOpts(ctxWithCancel)
 	if err != nil {
 		return "", err
 	}
@@ -90,7 +93,7 @@ func (c *Client) ApproveTftSpending(ctx context.Context, input string) (string, 
 		return "", err
 	}
 
-	r, err := bind.WaitMined(ctx, c.Eth, tx)
+	r, err := bind.WaitMined(ctxWithCancel, c.Eth, tx)
 	if err != nil {
 		log.Err(err).Msg("failed to wait for tft approval")
 		return "", err

@@ -66,9 +66,6 @@ func (c *Client) getDefaultTransactionOpts(ctx context.Context) (*bind.TransactO
 		return nil, errors.Wrap(err, "failed to suggest gas price")
 	}
 
-	// ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*1)
-	// defer cancel()
-
 	chainID, err := c.Eth.NetworkID(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get chainID")
