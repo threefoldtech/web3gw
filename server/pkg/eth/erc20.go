@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"github.com/LeeSmet/go-jsonrpc"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 )
 
@@ -29,7 +30,7 @@ type (
 
 	ApproveTokenSpending struct {
 		ContractAddress string `json:"contract_address"`
-		Target          string `json:"target"`
+		Spender         string `json:"spender"`
 		Amount          int64  `json:"amount"`
 	}
 )
@@ -51,7 +52,7 @@ func (c *Client) TransferTokens(ctx context.Context, conState jsonrpc.State, arg
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferTokens(ctx, args.ContractAddress, args.Destination, args.Amount)
+	return state.Client.TransferTokens(ctx, common.HexToAddress(args.ContractAddress), args.Destination, args.Amount)
 }
 
 // TransferFromTokens transfer tokens from an account to another account (can be executed by anyone that is approved to spend)
@@ -71,5 +72,5 @@ func (c *Client) ApproveTokenSpending(ctx context.Context, conState jsonrpc.Stat
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.ApproveTokenSpending(ctx, args.ContractAddress, args.Target, args.Amount)
+	return state.Client.ApproveTokenSpending(ctx, args.ContractAddress, args.Spender, args.Amount)
 }

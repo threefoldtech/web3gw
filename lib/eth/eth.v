@@ -36,7 +36,7 @@ pub struct TokenTransferFrom {
 [params]
 pub struct ApproveTokenSpending {
 	contract_address string
-	target          string
+	spender          string
 	amount          i64
 }
 
@@ -280,13 +280,25 @@ pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !strin
 
 // tft_balance returns the tft balance on ethereum
 pub fn (mut e EthClient) tft_balance() !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetTFTBalance', []string{}, eth.default_timeout)!
+	return e.client.send_json_rpc[[]string, i64]('eth.GetTftBalance', []string{}, eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) quote_tft_eth(amountIn string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.QuoteTftEth', [amountIn], eth.default_timeout)!
+pub fn (mut e EthClient) approve_tft_spending(amount string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.ApproveTftSpending', [amount], eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) swap_tft_eth(amountIn string) !string {
-	return e.client.send_json_rpc[[]string, string]('eth.SwapTftEth', [amountIn], eth.default_timeout)!
+pub fn (mut e EthClient) quote_eth_for_tft(amountIn string) !i64 {
+	return e.client.send_json_rpc[[]string, i64]('eth.QuoteEthForTft', [amountIn], eth.default_timeout)!
+}
+
+pub fn (mut e EthClient) swap_eth_for_tft(amountIn string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.SwapEthForTft', [amountIn], eth.default_timeout)!
+}
+
+pub fn (mut e EthClient) quote_tft_for_eth(amountIn string) !i64 {
+	return e.client.send_json_rpc[[]string, i64]('eth.QuoteTftForEth', [amountIn], eth.default_timeout)!
+}
+
+pub fn (mut e EthClient) swap_tft_for_eth(amountIn string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.SwapTftForEth', [amountIn], eth.default_timeout)!
 }

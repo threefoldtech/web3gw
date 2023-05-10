@@ -17,23 +17,25 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 
 	address := eth_client.address()!
 
-	eth_balance := eth_client.balance(address)!
-	print('eth_balance: ${eth_balance}\n')
+	mut eth_balance := eth_client.balance(address)!
+	print('eth_balance before swap: ${eth_balance}\n')
 
-	tft_goerli := "0xDa38782ce31Fc9861087320ABffBdee64Ed60515"
-	balance := eth_client.token_balance(tft_goerli)!
+	balance := eth_client.tft_balance()!
 	print('tft balance before swap: ${balance}\n')
 
 	amount_in := "0.0001"
 
-	quote := eth_client.quote_tft_eth(amount_in)!
+	quote := eth_client.quote_eth_for_tft(amount_in)!
 	print('will receive: ${quote} tft\n')
 
-	tx := eth_client.swap_tft_eth(amount_in)!
+	tx := eth_client.swap_eth_for_tft(amount_in)!
 	print('tx: ${tx}\n')
 
-	balance_1 := eth_client.token_balance(tft_goerli)!
+	balance_1 := eth_client.tft_balance()!
 	print('tft balance after swap: ${balance_1}\n')
+
+	eth_balance = eth_client.balance(address)!
+	print('eth_balance after swap: ${eth_balance}\n')
 }
 
 fn main() {

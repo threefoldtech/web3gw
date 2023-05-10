@@ -5,6 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 func (c *Client) sendTransaction(tx *types.Transaction) (string, error) {
@@ -13,6 +14,7 @@ func (c *Client) sendTransaction(tx *types.Transaction) (string, error) {
 		return "", errors.Wrap(err, "failed to get chainID")
 	}
 
+	log.Debug().Msg("signing tx")
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), c.Key)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to sign tx")

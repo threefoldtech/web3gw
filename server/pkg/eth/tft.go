@@ -41,3 +41,12 @@ func (c *Client) GetTftBalance(ctx context.Context, conState jsonrpc.State) (*bi
 
 	return state.Client.GetTftBalance(ctx)
 }
+
+func (c *Client) ApproveTftSpending(ctx context.Context, conState jsonrpc.State, amount string) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.ApproveTftSpending(ctx, amount)
+}
