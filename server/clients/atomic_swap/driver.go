@@ -70,11 +70,11 @@ type (
 	}
 
 	MsgInitiateEth struct {
-		Id                  string            `json:"id"`
-		SharedSecret        [sha256.Size]byte `json:"sharedSecret"`
-		EthAddress          common.Address    `json:"ethAddress"`
-		StellarAddress      string            `json:"stellarAddress"`
-		InitiateTransaction types.Transaction `json:"initiateTransaction"`
+		Id                  string             `json:"id"`
+		SharedSecret        [sha256.Size]byte  `json:"sharedSecret"`
+		EthAddress          common.Address     `json:"ethAddress"`
+		StellarAddress      string             `json:"stellarAddress"`
+		InitiateTransaction *types.Transaction `json:"initiateTransaction"`
 	}
 
 	MsgParticipateStellar struct {
@@ -192,6 +192,8 @@ func (d *Driver) handleBuyMessage(ctx context.Context, sender string, req MsgBuy
 		Id:             d.saleId,
 		EthAddress:     d.eth.AddressFromKey(),
 		StellarAddress: d.stellar.Address(),
+		Amount:         d.swapAmount,
+		SwapPrice:      d.swapPrice,
 	}
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -246,13 +248,15 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 		SharedSecret:        output.SecretHash,
 		EthAddress:          output.InitiatorAddress,
 		StellarAddress:      d.stellar.Address(),
-		InitiateTransaction: output.ContractTransaction,
+		InitiateTransaction: &output.ContractTransaction,
 	}
 	data, err := json.Marshal(msg)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not encode accept msg")
 	}
 
+	d.secretHash = output.SecretHash
+	d.secret = output.Secret
 	d.stage = DriverStageSetupSwap
 
 	if err := d.nostr.PublishDirectMessage(ctx, sender, []string{"s", d.saleId}, string(data)); err != nil {
@@ -288,9 +292,26 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	// save the sct so we can use it later
 	d.sct = &sct
 
-	auditOutput, err := eth.AuditContract(ctx, sct, &req.InitiateTransaction)
+	deadline := time.Now().Add(time.Minute * 5)
+	var auditOutput eth.AuditContractOutput
+	for {
+		auditOutput, err = eth.AuditContract(ctx, sct, req.InitiateTransaction)
+		if err != nil {
+			if errors.Is(err, eth.ErrTxPending) {
+				if time.Now().After(deadline) {
+					log.Warn().Msg("Tx not confirmed yet but deadline passed, abort")
+					return
+				}
+				log.Info().Msg("Tx not confirmed yet, sleeping and trying again")
+				time.Sleep(time.Second * 15)
+				continue
+			}
+			log.Error().Err(err).Msg("Failed to audit eth contract")
+			return
+		}
+		break
+	}
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to audit eth contract")
 		return
 	}
 
@@ -336,6 +357,10 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	horizonClient := horizonclient.DefaultTestNetClient
 	log.Info().Msg("Validated Eth contract, setting up stellar side")
 	participateOutput, err := stellar.Participate(network.TestNetworkPassphrase, &kp, req.StellarAddress, strconv.FormatUint(uint64(d.swapAmount), 10), req.SharedSecret[:], testnetTftAsset, horizonClient)
+	if err != nil {
+		log.Error().Err(err).Msg("Can not participate on the stellar side")
+		return
+	}
 
 	msg := MsgParticipateStellar{
 		Id:             d.saleId,
@@ -376,14 +401,14 @@ func (d *Driver) handleParticipateStellarMessage(ctx context.Context, sender str
 		return
 	}
 
-	contractValue, err := strconv.ParseUint(auditOutput.ContractValue, 10, 64)
+	contractValue, err := strconv.ParseFloat(auditOutput.ContractValue, 64)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not parse contract value, this is an internal coding error")
 		return
 	}
 
 	// if the seller wants to give us more TFT than agreed, we will shamelessly accept
-	if contractValue < uint64(d.swapAmount) {
+	if contractValue < float64(d.swapAmount) {
 		log.Warn().Msg("Contract does not have enough TFT locked")
 		return
 	}
