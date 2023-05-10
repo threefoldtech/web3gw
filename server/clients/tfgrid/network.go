@@ -4,10 +4,27 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
+
+func (c *Client) deployZnet(ctx context.Context, znet *workloads.ZNet) error {
+	if znet.AddWGAccess {
+		privateKey, err := wgtypes.GeneratePrivateKey()
+		if err != nil {
+			return errors.Wrap(err, "failed to generate wireguard private key")
+		}
+		znet.ExternalSK = privateKey
+	}
+
+	if err := c.client.DeployNetwork(ctx, znet); err != nil {
+		return errors.Wrap(err, "failed to deploy network")
+	}
+
+	return nil
+}
 
 func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []uint32, IPRange string, WGAccess bool, projectName string) (*workloads.ZNet, error) {
 	nodeList := []uint32{}
@@ -58,17 +75,24 @@ func doesNetworkIncludeNode(networkNodes []uint32, nodeID uint32) bool {
 	return false
 }
 
-func (c *Client) ensureNodeBelongsToNetwork(ctx context.Context, networkName string, networkContracts map[uint32]uint64, nodeID uint32) error {
-	znet, err := c.client.LoadNetwork(networkName, networkContracts)
-	if err != nil {
-		return errors.Wrapf(err, "failed to load network %s", networkName)
-	}
-
+func (c *Client) ensureNodeBelongsToNetwork(ctx context.Context, znet *workloads.ZNet, nodeID uint32) error {
+	log.Info().Msgf("ensuring node in network: %+v", znet)
 	if !doesNetworkIncludeNode(znet.Nodes, nodeID) {
 		znet.Nodes = append(znet.Nodes, nodeID)
-		err = c.client.DeployNetwork(ctx, &znet)
+		err := c.client.DeployNetwork(ctx, znet)
 		if err != nil {
 			return errors.Wrap(err, "failed to deploy network")
+		}
+	}
+
+	return nil
+}
+
+func (c *Client) removeNodeFromNetwork(ctx context.Context, znet *workloads.ZNet, nodeID uint32) error {
+	for idx, node := range znet.Nodes {
+		if node == nodeID {
+			znet.Nodes = append(znet.Nodes[:idx], znet.Nodes[idx+1:]...)
+			return c.client.DeployNetwork(ctx, znet)
 		}
 	}
 

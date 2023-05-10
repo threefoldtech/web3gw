@@ -8,6 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
@@ -116,7 +117,9 @@ func TestMachines(t *testing.T) {
 		cl.EXPECT().DeployDeployment(context.Background(), gomock.Any()).Return(nodeContractID, nil)
 
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
-		cl.EXPECT().LoadDeployment(modelName, nodeID, nodeContractID).Return(workloads.Deployment{
+
+		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
+		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,
 			SolutionType:     projectName,
@@ -233,7 +236,8 @@ func TestMachines(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().LoadNetwork(networkName, map[uint32]uint64{nodeID: networkContractID}).Return(workloads.ZNet{
+		cl.EXPECT().SetNetworkContracts(map[uint32]state.ContractIDs{nodeID: {networkContractID}})
+		cl.EXPECT().LoadNetwork(networkName).Return(workloads.ZNet{
 			Name:        networkName,
 			Nodes:       []uint32{nodeID},
 			AddWGAccess: false,
@@ -242,7 +246,8 @@ func TestMachines(t *testing.T) {
 
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		cl.EXPECT().LoadDeployment(modelName, nodeID, nodeContractID).Return(workloads.Deployment{
+		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
+		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,
 			SolutionType:     projectName,

@@ -51,7 +51,7 @@ func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB) (ZDB, error) {
 		return ZDB{}, errors.Wrapf(err, "failed to deploy zdb with name: %s", zdb.Name)
 	}
 
-	z, err := r.client.LoadZDB(zdb.Name, zdb.NodeID, contractID)
+	z, err := r.loadZDB(zdb.Name, zdb.NodeID, contractID)
 	if err != nil {
 		return ZDB{}, errors.Wrap(err, "failed to load zdb")
 	}
@@ -87,7 +87,7 @@ func (r *Client) ZDBGet(ctx context.Context, modelName string) (ZDB, error) {
 		return ZDB{}, errors.Wrapf(err, "failed to parse contract Id: %s", contract.ContractID)
 	}
 
-	zdb, err := r.client.LoadZDB(modelName, contract.NodeID, cid)
+	zdb, err := r.loadZDB(modelName, contract.NodeID, cid)
 	if err != nil {
 		return ZDB{}, err
 	}

@@ -272,6 +272,9 @@ func (r *Client) HasFarmerBot(ctx context.Context, farmID uint32) bool {
 	params := []Params{}
 
 	farmerTwinID, err := r.GetFarmerTwinIDByFarmID(farmID)
+	if err != nil {
+		return false
+	}
 
 	sourceTwinID := r.TwinID
 

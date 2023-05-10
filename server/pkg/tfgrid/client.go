@@ -93,19 +93,19 @@ func (c *Client) MachinesDelete(ctx context.Context, modelName string) error {
 	return state.cl.MachinesDelete(ctx, modelName)
 }
 
-func (c *Client) MachinesAdd(ctx context.Context, machine tfgridBase.MachineAddInfo) error {
+func (c *Client) MachinesAdd(ctx context.Context, machine tfgridBase.AddMachineParams) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return pkg.ErrClientNotConnected{}
+		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
 
 	return state.cl.MachineAdd(ctx, machine)
 }
 
-func (c *Client) MachinesRemove(ctx context.Context, removeMachine tfgridBase.MachineRemoveInfo) error {
+func (c *Client) MachinesRemove(ctx context.Context, removeMachine tfgridBase.RemoveMachineParams) (tfgridBase.MachinesModel, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
-		return pkg.ErrClientNotConnected{}
+		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
 
 	return state.cl.MachineRemove(ctx, removeMachine)
@@ -120,7 +120,7 @@ func (c *Client) K8sDeploy(ctx context.Context, model tfgridBase.K8sCluster) (tf
 	return state.cl.K8sDeploy(ctx, model)
 }
 
-func (c *Client) K8sGet(ctx context.Context, k8sGetInfo tfgridBase.K8sGetInfo) (tfgridBase.K8sCluster, error) {
+func (c *Client) K8sGet(ctx context.Context, k8sGetInfo tfgridBase.GetClusterParams) (tfgridBase.K8sCluster, error) {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
@@ -138,7 +138,7 @@ func (c *Client) K8sDelete(ctx context.Context, modelName string) error {
 	return state.cl.K8sDelete(ctx, modelName)
 }
 
-func (c *Client) AddK8sWorker(ctx context.Context, workerInfo tfgridBase.K8sAddWorkerInfo) error {
+func (c *Client) AddK8sWorker(ctx context.Context, workerInfo tfgridBase.AddWorkerParams) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return pkg.ErrClientNotConnected{}
@@ -147,7 +147,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, workerInfo tfgridBase.K8sAddW
 	return state.cl.AddK8sWorker(ctx, workerInfo)
 }
 
-func (c *Client) RemoveK8sWorker(ctx context.Context, removeWorkerInfo tfgridBase.K8sRemoveWorkerInfo) error {
+func (c *Client) RemoveK8sWorker(ctx context.Context, removeWorkerInfo tfgridBase.RemoveWorkerParams) error {
 	state, ok := c.state.Get(state.IDFromContext(ctx))
 	if !ok || state.cl == nil {
 		return pkg.ErrClientNotConnected{}

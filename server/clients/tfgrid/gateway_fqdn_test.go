@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
@@ -132,7 +133,8 @@ func TestGatewayFQDN(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().LoadGatewayFQDN(modelName, nodeID, contractID).Return(workloads.GatewayFQDNProxy{
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {contractID}})
+		cl.EXPECT().LoadGatewayFQDN(modelName, nodeID).Return(workloads.GatewayFQDNProxy{
 			NodeID: nodeID,
 			Backends: []zos.Backend{
 				"backend1",

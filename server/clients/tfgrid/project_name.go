@@ -7,8 +7,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (r *Client) validateProjectName(ctx context.Context, projectName string) error {
-	contracts, err := r.client.GetProjectContracts(ctx, projectName)
+func (c *Client) validateProjectName(ctx context.Context, modelName string) error {
+	projectName := generateProjectName(modelName)
+
+	if _, ok := c.projects[projectName]; ok {
+		return fmt.Errorf("invalid project name. project %s is not unique", projectName)
+	}
+
+	contracts, err := c.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
 	}
