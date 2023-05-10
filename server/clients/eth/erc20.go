@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/web3_proxy/server/clients/eth/erc20"
 )
 
@@ -35,7 +36,15 @@ func (c *Client) TransferTokens(ctx context.Context, contractAddress, target str
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	r, err := bind.WaitMined(ctx, c.Eth, tx)
+	if err != nil {
+		log.Err(err).Msg("failed to wait for tft approval")
+		return "", err
+	}
+
+	log.Debug().Msgf("Approve spend tx mined: %s, block %d, gas: %d, status: %d", tx.Hash().Hex(), r.BlockNumber, r.GasUsed, r.Status)
+
+	return tx.Hash().Hex(), nil
 }
 
 func (c *Client) ApproveTokenSpending(ctx context.Context, contractAddress, spender string, amount int64) (string, error) {
@@ -54,7 +63,15 @@ func (c *Client) ApproveTokenSpending(ctx context.Context, contractAddress, spen
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	r, err := bind.WaitMined(ctx, c.Eth, tx)
+	if err != nil {
+		log.Err(err).Msg("failed to wait for tft approval")
+		return "", err
+	}
+
+	log.Debug().Msgf("Approve spend tx mined: %s, block %d, gas: %d, status: %d", tx.Hash().Hex(), r.BlockNumber, r.GasUsed, r.Status)
+
+	return tx.Hash().Hex(), nil
 }
 
 func (c *Client) TransferFromTokens(ctx context.Context, contractAddress, from, to string, amount int64) (string, error) {
@@ -73,5 +90,13 @@ func (c *Client) TransferFromTokens(ctx context.Context, contractAddress, from, 
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	r, err := bind.WaitMined(ctx, c.Eth, tx)
+	if err != nil {
+		log.Err(err).Msg("failed to wait for tft approval")
+		return "", err
+	}
+
+	log.Debug().Msgf("Approve spend tx mined: %s, block %d, gas: %d, status: %d", tx.Hash().Hex(), r.BlockNumber, r.GasUsed, r.Status)
+
+	return tx.Hash().Hex(), nil
 }

@@ -30,7 +30,6 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 		return "", errors.Wrap(err, "failed to get nonce")
 	}
 
-	gasLimit := uint64(21000)
 	gasPrice, err := c.Eth.SuggestGasPrice(context.Background())
 	if err != nil {
 		return "", errors.Wrap(err, "failed to suggest gas price")
@@ -41,7 +40,7 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 
 	opts := &bind.TransactOpts{
 		GasPrice: gasPrice,
-		GasLimit: gasLimit,
+		GasLimit: GasLimit,
 		Nonce:    big.NewInt(int64(nonce)),
 		Context:  ctxWithCancel,
 	}
@@ -51,7 +50,7 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	return tx.Hash().Hex(), nil
 }
 
 func (c *Client) GetTftBalance(ctx context.Context) (*big.Int, error) {
