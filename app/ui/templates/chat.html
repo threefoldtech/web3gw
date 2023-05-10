@@ -1,0 +1,14 @@
+<div class="elastic container" hx-ext="ws" ws-connect="ws://localhost:30000">
+
+    <form ws-send>
+        <h3>Send a Message</h3>
+        <div>
+            <input type="text" name="message" style="width:500px;" value="This Is The Message" />
+            <input type="submit" value="Send" class="btn primary"/>
+        </div>
+    </form>
+
+    <br>
+    <h3>Receive a Message</h3>
+    <div id="idMessage"></div>
+</div>
