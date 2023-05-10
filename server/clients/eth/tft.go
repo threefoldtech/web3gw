@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
-	"github.com/threefoldtech/web3_proxy/server/clients/eth/tft"
+	tft "github.com/threefoldfoundation/tft/bridge/stellar/contracts/tokenv1"
 )
 
 const (
@@ -21,7 +21,7 @@ func (c *Client) TransferTftEth(ctx context.Context, destination string, amount 
 }
 
 func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string, amount int64) (string, error) {
-	tft, err := tft.NewTft(common.HexToAddress(PublicEthTftContractAddress), c.Eth)
+	tft, err := tft.NewToken(common.HexToAddress(PublicEthTftContractAddress), c.Eth)
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 }
 
 func (c *Client) GetTftBalance(ctx context.Context) (*big.Int, error) {
-	tft, err := tft.NewTft(common.HexToAddress(PublicEthTftContractAddress), c.Eth)
+	tft, err := tft.NewToken(common.HexToAddress(PublicEthTftContractAddress), c.Eth)
 	if err != nil {
 		return nil, err
 	}
