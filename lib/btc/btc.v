@@ -6,7 +6,7 @@ const (
 	default_timeout = 500000
 )
 
-[noinit]
+[noinit; openrpc: exclude]
 pub struct BtcClient {
 mut:
 	client &RpcWsClient
@@ -99,6 +99,7 @@ pub struct Move {
 	comment           string
 }
 
+[openrpc: exclude]
 pub fn new(mut client RpcWsClient) BtcClient {
 	return BtcClient{
 		client: &client
