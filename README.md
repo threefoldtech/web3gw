@@ -8,14 +8,15 @@ Project setup:
 - [Lib](lib/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
 - [Examples](examples): contains some examples of V scripts for each client that the json rpc 2.0 server supports, these scripts show you how you can use the V library
 
-
 ## How to run the web3 proxy server (json rpc 2.0 server)
 
 The server is implemented in go and is located in [this folder](server/). To build and run the server execute these commands:
-```
+
+```sh
 cd server
 go build && ./server --debug
 ```
+
 The json rpc 2.0 server should now be up and running and should allow you to call any of the clients that the server supports.
 
 ## Installing the V library
