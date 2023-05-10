@@ -21,8 +21,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Install Vlang dependencies
+        run: sudo apt install -y libgc-dev
+
+      - name: Setup Vlang
+        uses: vlang/setup-v@v1.3
+        with:
+          check-latest: true
+
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: bash install.sh
 
       - name: Install mdbook dependencies
         run: bash manual/install.sh
@@ -30,6 +41,7 @@ jobs:
       - name: Generate documentation
         run: |
           bash doc.sh
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
