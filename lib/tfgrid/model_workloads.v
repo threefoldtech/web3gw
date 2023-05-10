@@ -39,23 +39,23 @@ pub:
 	console_url string [json: 'console_url']
 }
 
-struct MachineNetwork {
+pub struct MachineNetwork {
 	public_ip  string             [json: 'public_ip']
 	planetary  bool               [json: 'planetary']
 	interfaces []MachineInterface [json: 'interfaces']
 }
 
-struct MachineInterface {
+pub struct MachineInterface {
 	network string [json: 'network']
 	ip      string [json: 'ip']
 }
 
-struct MachineCapacity {
+pub struct MachineCapacity {
 	cpu    u8  [json: 'cpu']
 	memory u64 [json: 'memory']
 }
 
-struct MachineMount {
+pub struct MachineMount {
 	name       string [json: 'name']
 	mountpoint string [json: 'mountpoint']
 }
@@ -95,12 +95,12 @@ pub:
 	peers            []Peer [json: 'peers'] // Peers is a list of other peers in this network
 }
 
-struct IPNet {
+pub struct IPNet {
 	ip   string [json: 'ip']
 	mask string [json: 'mask']
 }
 
-struct Peer {
+pub struct Peer {
 	subnet        IPNet   [json: 'subnet']
 	wg_public_key string  [json: 'wireguard_public_key']
 	allowed_ips   []IPNet [json: 'allowed_ips']

@@ -98,12 +98,13 @@ pub struct CreateFarm {
 	public_ips []PublicIPInput
 }
 
-[noinit]
+[noinit; openrpc: exclude]
 pub struct TfChainClient {
 mut:
 	client &RpcWsClient
 }
 
+[openrpc: exclude]
 pub fn new(mut client RpcWsClient) TfChainClient {
 	return TfChainClient{
 		client: &client

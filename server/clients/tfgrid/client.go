@@ -1,6 +1,6 @@
 package tfgrid
 
-import "github.com/threefoldtech/substrate-client"
+import substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
 
 // Client holds a tfgrid client instance.
 type Client struct {
