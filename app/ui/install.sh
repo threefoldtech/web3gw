@@ -1,3 +1,4 @@
+set -ex
 echo "Starting installation..."
 
 if [[ ! -f "htmx.min.js" ]]
