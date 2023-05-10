@@ -66,12 +66,14 @@ pub fn (mut s StellarClient) bridge_to_eth(args BridgeTransfer) ! {
 	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToEth', [args], default_timeout)!
 }
 
-// bridge_to_bsc bridge to bsc from stellar
-pub fn (mut s StellarClient) bridge_to_bsc(args BridgeTransfer) ! {
-	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToBsc', [args], default_timeout)!
-}
+// Reinstate later
 
-// bridge_to_tfchain bridge to tfchain from stellar
-pub fn (mut s StellarClient) bridge_to_tfchain(args TfchainBridgeTransfer) ! {
-	_ := s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain', [args], default_timeout)!
-}
+// // bridge_to_bsc bridge to bsc from stellar
+// pub fn (mut s StellarClient) bridge_to_bsc(args BridgeTransfer) ! {
+// 	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToBsc', [args], default_timeout)!
+// }
+
+// // bridge_to_tfchain bridge to tfchain from stellar
+// pub fn (mut s StellarClient) bridge_to_tfchain(args TfchainBridgeTransfer) ! {
+// 	_ := s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain', [args], default_timeout)!
+// }

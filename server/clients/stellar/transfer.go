@@ -3,7 +3,6 @@ package stellargoclient
 import (
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"strings"
 
 	"github.com/stellar/go/clients/horizonclient"
@@ -77,29 +76,6 @@ func (c *Client) TransferToEthBridge(destination, amount string) error {
 	return c.Transfer(bridgeAddr, base64.RawStdEncoding.EncodeToString(b), amount)
 }
 
-func (c *Client) TransferToBscBridge(destination, amount string) error {
-	b, err := hex.DecodeString(strings.TrimPrefix(destination, "0x"))
-	if err != nil {
-		return err
-	}
-
-	bridgeAddr, err := c.GetEthBridgeAddress()
-	if err != nil {
-		return err
-	}
-
-	return c.Transfer(bridgeAddr, base64.RawStdEncoding.EncodeToString(b), amount)
-}
-
-func (c *Client) TransferToTfchainBridge(destination, amount string, twinID uint64) error {
-	bridgeAddr, err := c.GetTfchainBridgeAddress()
-	if err != nil {
-		return err
-	}
-
-	return c.Transfer(bridgeAddr, fmt.Sprintf("twin_%d", twinID), amount)
-}
-
 func (c *Client) GetEthBridgeAddress() (string, error) {
 	if c.stellarNetwork == "public" {
 		return stellarPublicNetworkEthBridgeAddress, nil
@@ -108,18 +84,43 @@ func (c *Client) GetEthBridgeAddress() (string, error) {
 	}
 }
 
-func (c *Client) GetBscBridgeAddress() (string, error) {
-	if c.stellarNetwork == "public" {
-		return stellarPublicNetworkBscBridgeAddress, nil
-	} else {
-		return "", errors.New("bsc address not available for networks other than public")
-	}
-}
+// Reinstate later
 
-func (c *Client) GetTfchainBridgeAddress() (string, error) {
-	if c.stellarNetwork == "public" {
-		return stellarPublicNetworkTfchainBridgeAddress, nil
-	} else {
-		return "", errors.New("bsc address not available for networks other than public")
-	}
-}
+// func (c *Client) TransferToBscBridge(destination, amount string) error {
+// 	b, err := hex.DecodeString(strings.TrimPrefix(destination, "0x"))
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	bridgeAddr, err := c.GetEthBridgeAddress()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return c.Transfer(bridgeAddr, base64.RawStdEncoding.EncodeToString(b), amount)
+// }
+
+// func (c *Client) TransferToTfchainBridge(destination, amount string, twinID uint64) error {
+// 	bridgeAddr, err := c.GetTfchainBridgeAddress()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return c.Transfer(bridgeAddr, fmt.Sprintf("twin_%d", twinID), amount)
+// }
+
+// func (c *Client) GetBscBridgeAddress() (string, error) {
+// 	if c.stellarNetwork == "public" {
+// 		return stellarPublicNetworkBscBridgeAddress, nil
+// 	} else {
+// 		return "", errors.New("bsc address not available for networks other than public")
+// 	}
+// }
+
+// func (c *Client) GetTfchainBridgeAddress() (string, error) {
+// 	if c.stellarNetwork == "public" {
+// 		return stellarPublicNetworkTfchainBridgeAddress, nil
+// 	} else {
+// 		return "", errors.New("bsc address not available for networks other than public")
+// 	}
+// }
