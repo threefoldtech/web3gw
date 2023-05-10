@@ -24,6 +24,8 @@ then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         ASSET="$ASSET-linux"
+    elif [[ "$OSTYPE" == "" ]]; then
+        ASSET="$ASSET-linux"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         ASSET="$ASSET-macos"
     fi
