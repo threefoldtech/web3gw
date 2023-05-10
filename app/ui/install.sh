@@ -25,13 +25,12 @@ then
     echo "--Installing tailwind..."
     ASSET="tailwindcss"
 
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        ASSET="$ASSET-linux"
-    elif [[ "$OSTYPE" == "" ]]; then
-        ASSET="$ASSET-linux"
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
         ASSET="$ASSET-macos"
+    else
+        ASSET="$ASSET-linux"        
     fi
+    
     if [[ "$(uname -m)" == "x86_64"* ]]; then
         ASSET="$ASSET-x64"
     elif [[ "$(uname -m)" == "arm64"* ]]; then
