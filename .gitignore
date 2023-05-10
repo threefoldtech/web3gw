@@ -3,4 +3,5 @@ docs
 manual/book
 .vmodules/
 .vscode
+openrpc.json
 *dSYM/

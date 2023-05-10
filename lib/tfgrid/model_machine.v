@@ -40,7 +40,7 @@ pub:
 	description string
 }
 
-struct MachineResult {
+pub struct MachineResult {
 pub:
 	name        string
 	node_id     u32
@@ -158,7 +158,7 @@ pub:
 	add_wireguard_access bool
 }
 
-struct NetworkResult {
+pub struct NetworkResult {
 pub:
 	name     string
 	ip_range string
