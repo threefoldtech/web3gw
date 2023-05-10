@@ -1,6 +1,8 @@
 set -ex
 echo "Starting installation..."
 
+mkdir -p static/js
+
 if [[ ! -f "htmx.min.js" ]]
 then
     echo "--Installing htmx..."
