@@ -31,6 +31,8 @@ then
         ASSET="$ASSET-x64"
     elif [[ "$(uname -m)" == "arm64"* ]]; then
         ASSET="$ASSET-arm64"
+    elif [[ "$(uname -m)" == "aarch64"* ]]; then
+        ASSET="$ASSET-arm64"
     fi
 
     curl -sLO "https://github.com/tailwindlabs/tailwindcss/releases/latest/download/${ASSET}"
