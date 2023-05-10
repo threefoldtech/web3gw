@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
@@ -54,6 +53,7 @@ func (r *Client) GatewayNameDeploy(ctx context.Context, gatewayNameModel Gateway
 		return GatewayNameModel{}, errors.Wrapf(err, "failed to deploy gateway %s", gateway.Name)
 	}
 
+	// TODO: check if this is necessary (why not use gateway.FQDN?)
 	nodeDomain, err := r.client.GetNodeDomain(ctx, gateway.NodeID)
 	if err != nil {
 		return GatewayNameModel{}, errors.Wrapf(err, "failed to get node %d domain", gateway.NodeID)
@@ -85,30 +85,8 @@ func (r *Client) GatewayNameDelete(ctx context.Context, projectName string) erro
 	return nil
 }
 
-func (r *Client) GatewayNameGet(ctx context.Context, modelName string) (GatewayNameModel, error) {
-	projectName := generateProjectName(modelName)
-
-	contracts, err := r.client.GetProjectContracts(ctx, projectName)
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to get project %s contracts", projectName)
-	}
-
-	if len(contracts.NodeContracts) != 1 {
-		return GatewayNameModel{}, fmt.Errorf("node contracts for project %s should be 1, but %d were found", projectName, len(contracts.NodeContracts))
-	}
-
-	if len(contracts.NameContracts) != 1 {
-		return GatewayNameModel{}, fmt.Errorf("name contracts for project %s should be 1, but %d were found", projectName, len(contracts.NameContracts))
-	}
-
-	nodeContractID, err := strconv.ParseUint(contracts.NodeContracts[0].ContractID, 0, 64)
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "could not parse contract %s into uint64", contracts.NodeContracts[0].ContractID)
-	}
-
-	nodeID := contracts.NodeContracts[0].NodeID
-
-	gw, err := r.client.LoadGatewayName(modelName, nodeID, nodeContractID)
+func (c *Client) GatewayNameGet(ctx context.Context, modelName string) (GatewayNameModel, error) {
+	gw, err := c.loadGWName(ctx, modelName)
 	if err != nil {
 		return GatewayNameModel{}, err
 	}

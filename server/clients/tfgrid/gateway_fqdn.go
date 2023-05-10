@@ -2,8 +2,6 @@ package tfgrid
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
@@ -31,9 +29,7 @@ type GatewayFQDNModel struct {
 }
 
 func (r *Client) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel GatewayFQDNModel) (GatewayFQDNModel, error) {
-	projectName := generateProjectName(gatewayFQDNModel.Name)
-
-	if err := r.validateProjectName(ctx, projectName); err != nil {
+	if err := r.validateProjectName(ctx, gatewayFQDNModel.Name); err != nil {
 		return GatewayFQDNModel{}, err
 	}
 
@@ -44,7 +40,7 @@ func (r *Client) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel Gateway
 		Name:           gatewayFQDNModel.Name,
 		TLSPassthrough: gatewayFQDNModel.TLSPassthrough,
 		Description:    gatewayFQDNModel.Description,
-		SolutionType:   projectName,
+		SolutionType:   generateProjectName(gatewayFQDNModel.Name),
 	}
 
 	if err := r.client.DeployGWFQDN(ctx, &gatewayFQDN); err != nil {
@@ -64,26 +60,9 @@ func (r *Client) GatewayFQDNDelete(ctx context.Context, projectName string) erro
 	return nil
 }
 
-func (r *Client) GatewayFQDNGet(ctx context.Context, modelName string) (GatewayFQDNModel, error) {
-	projectName := generateProjectName(modelName)
-
-	contracts, err := r.client.GetProjectContracts(ctx, projectName)
-	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to get project %s contracts", projectName)
-	}
-
-	if len(contracts.NodeContracts) != 1 {
-		return GatewayFQDNModel{}, fmt.Errorf("node contracts for project %s should be 1, but %d were found", projectName, len(contracts.NodeContracts))
-	}
-
-	nodeID := contracts.NodeContracts[0].NodeID
-
-	contractID, err := strconv.ParseUint(contracts.NodeContracts[0].ContractID, 0, 64)
-	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "could not parse contract %s into uint64", contracts.NodeContracts[0].ContractID)
-	}
-
-	gw, err := r.client.LoadGatewayFQDN(modelName, nodeID, contractID)
+func (c *Client) GatewayFQDNGet(ctx context.Context, modelName string) (GatewayFQDNModel, error) {
+	// check if state is not present, get from graphql
+	gw, err := c.loadGWFQDN(ctx, modelName)
 	if err != nil {
 		return GatewayFQDNModel{}, err
 	}

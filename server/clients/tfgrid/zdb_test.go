@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
 )
@@ -60,7 +61,9 @@ func TestZDB(t *testing.T) {
 		clientDeployment := workloads.NewDeployment(model.Name, model.NodeID, projectName, nil, "", nil, zdbs, nil, nil)
 		cl.EXPECT().DeployDeployment(gomock.Any(), &clientDeployment).Return(contractID, nil)
 
-		cl.EXPECT().LoadZDB(modelName, nodeID, contractID).Return(workloads.ZDB{
+		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {contractID}})
+
+		cl.EXPECT().LoadZDB(modelName, nodeID).Return(workloads.ZDB{
 			Name:      modelName,
 			Password:  "pass",
 			Public:    true,
@@ -104,7 +107,9 @@ func TestZDB(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().LoadZDB(modelName, nodeID, contractID).Return(workloads.ZDB{
+		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {contractID}})
+
+		cl.EXPECT().LoadZDB(modelName, nodeID).Return(workloads.ZDB{
 			Name:      "zdb",
 			Password:  "pass",
 			Public:    true,

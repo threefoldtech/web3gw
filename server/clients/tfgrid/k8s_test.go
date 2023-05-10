@@ -8,6 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
@@ -213,7 +214,8 @@ func TestK8s(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().LoadK8s("master", map[uint32][]uint64{1: {1}, 2: {2}}).Return(workloads.K8sCluster{
+		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{1: {1}, 2: {2}})
+		cl.EXPECT().LoadK8s("master", []uint32{1, 2}).Return(workloads.K8sCluster{
 			Master: &workloads.K8sNode{
 				Name:        "master",
 				Node:        1,
@@ -257,7 +259,7 @@ func TestK8s(t *testing.T) {
 		cl.EXPECT().GetNodeFarm(uint32(1)).Return(uint32(1), nil).AnyTimes()
 		cl.EXPECT().GetNodeFarm(uint32(2)).Return(uint32(1), nil).AnyTimes()
 
-		got, err := r.K8sGet(context.Background(), K8sGetInfo{
+		got, err := r.K8sGet(context.Background(), GetClusterParams{
 			ClusterName: clusterName,
 			MasterName:  "master",
 		})
