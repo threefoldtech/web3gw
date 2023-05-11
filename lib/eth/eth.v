@@ -281,5 +281,5 @@ pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !strin
 
 // tft_balance returns the tft balance on ethereum
 pub fn (mut e EthClient) tft_balance() !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetTFTBalance', []string{}, eth.default_timeout)!
+	return e.client.send_json_rpc[[]string, i64]('eth.GetTftBalance', []string{}, eth.default_timeout)!
 }

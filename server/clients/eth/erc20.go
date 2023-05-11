@@ -20,8 +20,8 @@ func (c *Client) GetTokenBalance(contractAddress string) (*big.Int, error) {
 	return token.BalanceOf(&bind.CallOpts{}, c.Address)
 }
 
-func (c *Client) TransferTokens(ctx context.Context, contractAddress, target string, amount int64) (string, error) {
-	token, err := erc20.NewErc20(common.HexToAddress(contractAddress), c.Eth)
+func (c *Client) TransferTokens(ctx context.Context, contractAddress common.Address, target string, amount int64) (string, error) {
+	token, err := erc20.NewErc20(contractAddress, c.Eth)
 	if err != nil {
 		return "", err
 	}
