@@ -271,7 +271,7 @@ pub fn (mut e EthClient) get_fungible_approval_for_all(args ApprovalForFungible)
 
 // transfer_tft_eth transfers tft from an account on ethereum to another
 pub fn (mut e EthClient) tft_eth_transfer(args TftEthTransfer) !string {
-	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.TransferEthTftEth', [args], eth.default_timeout)!
+	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.TransferEthTft', [args], eth.default_timeout)!
 }
 
 // withdraw_eth_tft_to_stellar withdraws eth tft to stellar
