@@ -19,4 +19,4 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 
 ## Adding new examples
 
-Whenever a new script is added it should be added to the CI so that we ensure that the V code always builds. You can use the file [main.v](main.v) as a template. Don't modify it though!
+You can use the file [main.v](main.v) as a template. Don't modify it though! The CI will build all v scripts inside the examples folder. CI should always be green so that we make sure that development builds at all times. 
