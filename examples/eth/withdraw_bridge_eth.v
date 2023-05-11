@@ -19,10 +19,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	print('eth_balance before bridge: ${eth_balance}\n')
+	logger.info('eth_balance before bridge: ${eth_balance}\n')
 
 	balance := eth_client.tft_balance()!
-	print('tft balance before bridge: ${balance}\n')
+	logger.info('tft balance before bridge: ${balance}\n')
 
 	t := eth.TftEthTransfer {
 		destination: destination,
@@ -30,10 +30,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	}
 
 	eth_client.withdraw_eth_tft_to_stellar(t)!
-	print('withdrawn eth to stellar\n')
+	logger.info('withdrawn eth to stellar\n')
 
 	balance := eth_client.tft_balance()!
-	print('tft balance after bridge: ${balance}\n')
+	logger.info('tft balance after bridge: ${balance}\n')
 }
 
 fn main() {
