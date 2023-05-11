@@ -127,7 +127,7 @@ func (c *Client) makeSwap(ctx context.Context, input string, token0 *coreEntitie
 		return "", err
 	}
 
-	//0.01%
+	// 0.03% slippage
 	slippageTolerance := coreEntities.NewPercent(big.NewInt(1), big.NewInt(SlippageAmount))
 	//after 5 minutes
 	d := time.Now().Add(time.Minute * time.Duration(15)).Unix()
