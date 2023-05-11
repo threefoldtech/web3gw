@@ -13,7 +13,6 @@ import (
 	"github.com/daoleno/uniswapv3-sdk/examples/contract"
 	"github.com/daoleno/uniswapv3-sdk/examples/helper"
 	"github.com/daoleno/uniswapv3-sdk/periphery"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog/log"
@@ -175,19 +174,7 @@ func (c *Client) makeSwap(ctx context.Context, input string, token0 *coreEntitie
 	tx := types.NewTransaction(nounc, SwapRouter, swapValue,
 		GasLimit, gasPrice, params.Calldata)
 
-	s, err := c.sendTransaction(tx)
-	if err != nil {
-		return "", err
-	}
-
-	res, err := bind.WaitMined(ctx, c.Eth, tx)
-	if err != nil {
-		return "", err
-	}
-
-	log.Debug().Msgf("Swap tx mined: %s, block %d, gas: %d, status: %d", tx.Hash().Hex(), res.BlockNumber, res.GasUsed, res.Status)
-
-	return s, nil
+	return c.sendTransaction(ctx, tx)
 }
 
 func (c *Client) GetTftTokenContract() (*coreEntities.Token, error) {
