@@ -19,6 +19,19 @@ pub struct Transfer {
 	memo string
 }
 
+[params]
+pub struct BridgeTransfer {
+	amount string
+	destination string
+}
+
+[params]
+pub struct TfchainBridgeTransfer {
+	amount string
+	destination string
+	twin_id u64
+}
+
 
 [noinit; openrpc: exclude]
 pub struct StellarClient {
@@ -47,3 +60,20 @@ pub fn (mut s StellarClient) transer(args Transfer) ! {
 pub fn (mut s StellarClient) balance(address string) ! i64 {
 	return s.client.send_json_rpc[[]string, i64]('stellar.Balance', [address], default_timeout)!
 }
+
+// bridge_to_eth bridge to eth from stellar
+pub fn (mut s StellarClient) bridge_to_eth(args BridgeTransfer) ! {
+	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToEth', [args], default_timeout)!
+}
+
+// Reinstate later
+
+// // bridge_to_bsc bridge to bsc from stellar
+// pub fn (mut s StellarClient) bridge_to_bsc(args BridgeTransfer) ! {
+// 	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToBsc', [args], default_timeout)!
+// }
+
+// // bridge_to_tfchain bridge to tfchain from stellar
+// pub fn (mut s StellarClient) bridge_to_tfchain(args TfchainBridgeTransfer) ! {
+// 	_ := s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain', [args], default_timeout)!
+// }
