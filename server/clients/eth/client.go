@@ -23,6 +23,7 @@ type Client struct {
 const (
 	EthMainnetId = 1
 	EthGoerliId  = 5
+	GasLimit     = 210000
 )
 
 func NewClient(url, secret string) (*Client, error) {

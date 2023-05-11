@@ -21,7 +21,6 @@ import (
 
 const (
 	SlippageAmount = 3000
-	GasLimit       = 210000
 
 	GoerliChainId  = 5
 	MainnetChainId = 1

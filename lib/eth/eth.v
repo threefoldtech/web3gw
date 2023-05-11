@@ -117,12 +117,13 @@ pub struct TftEthTransfer {
 	amount i64
 }
 
-[noinit]
+[noinit; openrpc: exclude]
 pub struct EthClient {
 mut:
 	client &RpcWsClient
 }
 
+[openrpc: exclude]
 pub fn new(mut client RpcWsClient) EthClient {
 	return EthClient{
 		client: &client
