@@ -34,7 +34,7 @@ fn main() {
 	secret := fp.string('secret', `s`, '', 'The secret of your stellar key')
 	network := fp.string('network', `n`, '', 'The network to connect to. Should be testnet or public.')
 
-	amount := fp.string('amount', `a`, '', 'The amount of TFT to transfer')
+	amount := fp.string('amount', `m`, '', 'The amount of TFT to transfer')
 	destination := fp.string('destination', `d`, '', 'The destination ethereum address')
 
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')

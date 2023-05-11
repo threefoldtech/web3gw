@@ -30,7 +30,7 @@ var (
 	GoerliWethContract  = common.HexToAddress("0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6")
 	MainnetWethContract = common.HexToAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
 
-	GoerliTft  = coreEntities.NewToken(GoerliChainId, GoerliEthTftContractAddress, 7, "TFT", "TFT on Ethereum")
+	GoerliTft  = coreEntities.NewToken(GoerliChainId, GoerliTestnetEthTftContractAddress, 7, "TFT", "TFT on Ethereum")
 	GoerliWeth = coreEntities.NewToken(GoerliChainId, GoerliWethContract, 18, "WETH", "Wrapped Ether")
 
 	MainnetTft  = coreEntities.NewToken(MainnetChainId, MainnetEthTftContractAddress, 7, "TFT", "TFT on Ethereum")

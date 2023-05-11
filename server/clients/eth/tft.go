@@ -13,16 +13,24 @@ import (
 )
 
 var (
-	MainnetEthTftContractAddress = common.HexToAddress("0x395E925834996e558bdeC77CD648435d620AfB5b")
-	GoerliEthTftContractAddress  = common.HexToAddress("0xDa38782ce31Fc9861087320ABffBdee64Ed60515")
+	MainnetEthTftContractAddress       = common.HexToAddress("0x395E925834996e558bdeC77CD648435d620AfB5b")
+	GoerliTestnetEthTftContractAddress = common.HexToAddress("0xDa38782ce31Fc9861087320ABffBdee64Ed60515")
 )
 
 func (c *Client) TransferEthTft(ctx context.Context, destination string, amount int64) (string, error) {
-	return c.TransferTokens(ctx, MainnetEthTftContractAddress, destination, amount)
+	tftC, err := c.GetTftTokenContract()
+	if err != nil {
+		return "", err
+	}
+	return c.TransferTokens(ctx, tftC.Address, destination, amount)
 }
 
 func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string, amount int64) (string, error) {
-	tft, err := tft.NewToken(MainnetEthTftContractAddress, c.Eth)
+	tftC, err := c.GetTftTokenContract()
+	if err != nil {
+		return "", err
+	}
+	tft, err := tft.NewToken(tftC.Address, c.Eth)
 	if err != nil {
 		return "", err
 	}
