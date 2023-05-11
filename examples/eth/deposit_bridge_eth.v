@@ -19,13 +19,9 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 	balance := stellar_client.balance("")! // fill in your address
 	logger.info("My balance is: ${balance}")
 
-	t := eth.BridgeTransfer {
-		// Amount in stroops (1 TFT = 10^7 stroops)
-		amount: amount,
-		// Destination is the ethereum address
-		destination: destination,
-	}
-	stellar_client.bridge_to_eth(t)
+	// Amount in stroops (1 TFT = 10^7 stroops)
+	// Destination is the ethereum address
+	stellar_client.bridge_to_eth(amount: amount, destination: destination)!
 }
 
 fn main() {

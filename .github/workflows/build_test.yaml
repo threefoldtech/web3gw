@@ -26,16 +26,9 @@ jobs:
       - name: Build V Client
         run: |
           bash install.sh
-          v examples/main.v
-          v examples/main_btc.v
-          v examples/main_eth.v
-          v examples/main_explorer.v
-          v examples/main_nostr.v
-          v examples/main_stellar.v
-          v examples/main_tfchain.v
-          v examples/main_tfgrid.v
-          v examples/nostr/main_nostr_chat_consumer.v
-          v examples/nostr/main_nostr_chat_publisher.v
+          for main in $(ls examples/**/*.v); do 
+            v $main
+          done
 
       - name: Build Server
         run: |

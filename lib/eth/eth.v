@@ -149,6 +149,10 @@ pub fn (mut e EthClient) height() !u64 {
 	return e.client.send_json_rpc[[]string, u64]('eth.Height', []string{}, eth.default_timeout)!
 }
 
+pub fn (mut e EthClient) address() !string {
+	return e.client.send_json_rpc[[]string, string]('eth.Address', []string{}, eth.default_timeout)!
+}
+
 // ERC20
 
 // token_balance returns balance for the given token contract.
