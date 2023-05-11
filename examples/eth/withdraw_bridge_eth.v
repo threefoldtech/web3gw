@@ -12,7 +12,7 @@ const (
 	goerli_node_url = 'ws://45.156.243.137:8546'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, eth_url string, destination string, amount string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, eth_url string, destination string, amount int) ! {
 	mut eth_client := eth.new(mut client)
 	eth_client.load(url:eth_url, secret: secret)!
 
@@ -24,7 +24,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	mut balance := eth_client.tft_balance()!
 	logger.info('tft balance before bridge: ${balance}\n')
 
-	eth_client.withdraw_eth_tft_to_stellar(destination: destination, amount: amount.int())!
+	eth_client.withdraw_eth_tft_to_stellar(destination: destination, amount: amount)!
 	logger.info('withdrawn eth to stellar\n')
 
 	balance = eth_client.tft_balance()!
@@ -42,7 +42,7 @@ fn main() {
 	eth_url := fp.string('eth', `e`, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	destination := fp.string('destination', `d`, '', 'The destination stellar address to send the TFT to.')
-	amount := fp.string('amount', `m`, '0', 'The amount of TFT to send to the destination address.')
+	amount := fp.int('amount', `m`, 0, 'The amount of TFT to send to the destination address.')
 
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
