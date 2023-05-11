@@ -1,4 +1,4 @@
-set -ex
+#set -ex
 
 rm -rf docs/_docs
 rm -rf docs/_docs/v
@@ -14,11 +14,13 @@ OPENRPC_CLI=~/.vmodules/freeflowuniverse/crystallib/openrpc/cli/cli
 # generate doc for entire api
 $OPENRPC_CLI docgen -t "Web3Proxy JSON-RPC API" -p -o server lib
 
-for file in lib/*
+for client in lib/*
 do
-    # generate individual docs per domain
-    name=${file##*/}
-    $OPENRPC_CLI docgen -t "$name JSON-RPC API" -p -o server/pkg/$name $file
+    if [ -d "$client" ]; then
+        # generate individual docs per domain
+        name=${client##*/}
+        $OPENRPC_CLI docgen -t "$name JSON-RPC API" -p -o server/pkg/$name $client
+    fi
 done
 
 # copy playground to docs dir
