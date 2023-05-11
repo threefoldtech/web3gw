@@ -3,6 +3,7 @@ package stellargoclient
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"strings"
 
 	"github.com/stellar/go/clients/horizonclient"
@@ -11,9 +12,13 @@ import (
 )
 
 const (
-	stellarPublicNetworkEthBridgeAddress     = "GARQ6KUXUCKDPIGI7NPITDN55J23SVR5RJ5RFOOU3ZPLMRJYOQRNMOIJ"
-	stellarPublicNetworkBscBridgeAddress     = "GBFFWXWBZDILJJAMSINHPJEUJKB3H4UYXRWNB4COYQAF7UUQSWSBUXW5"
-	stellarPublicNetworkTfchainBridgeAddress = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
+	// Eth
+	stellarPublicNetworkEthBridgeAddress  = "GARQ6KUXUCKDPIGI7NPITDN55J23SVR5RJ5RFOOU3ZPLMRJYOQRNMOIJ"
+	stellarTestnetNetworkEthBridgeAddress = "GAXPJGADXTP2FXUYASUOE5MQ6SSCEMBU2PPD27ZG55MKKPJRAVASBNJI"
+	// BSC
+	// stellarPublicNetworkBscBridgeAddress = "GBFFWXWBZDILJJAMSINHPJEUJKB3H4UYXRWNB4COYQAF7UUQSWSBUXW5"
+	// Tfchain
+	// stellarPublicNetworkTfchainBridgeAddress = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
 )
 
 func (c *Client) Transfer(destination, memo string, amount string) error {
@@ -73,12 +78,14 @@ func (c *Client) TransferToEthBridge(destination, amount string) error {
 		return err
 	}
 
-	return c.Transfer(bridgeAddr, base64.RawStdEncoding.EncodeToString(b), amount)
+	return c.Transfer(bridgeAddr, fmt.Sprintf("%s=", base64.RawStdEncoding.EncodeToString(b)), amount)
 }
 
 func (c *Client) GetEthBridgeAddress() (string, error) {
 	if c.stellarNetwork == "public" {
 		return stellarPublicNetworkEthBridgeAddress, nil
+	} else if c.stellarNetwork == "testnet" {
+		return stellarTestnetNetworkEthBridgeAddress, nil
 	} else {
 		return "", errors.New("eth bridge address not available for networks other than public")
 	}

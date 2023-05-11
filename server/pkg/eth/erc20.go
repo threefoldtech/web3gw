@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"github.com/LeeSmet/go-jsonrpc"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 )
 
@@ -51,7 +52,7 @@ func (c *Client) TransferTokens(ctx context.Context, conState jsonrpc.State, arg
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferTokens(ctx, args.ContractAddress, args.Destination, args.Amount)
+	return state.Client.TransferTokens(ctx, common.HexToAddress(args.ContractAddress), args.Destination, args.Amount)
 }
 
 // TransferFromTokens transfer tokens from an account to another account (can be executed by anyone that is approved to spend)

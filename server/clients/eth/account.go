@@ -2,6 +2,7 @@ package goethclient
 
 import (
 	"crypto/ecdsa"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -12,7 +13,7 @@ func GenerateKeypair() (*ecdsa.PrivateKey, error) {
 }
 
 func KeyFromSecret(secret string) (*ecdsa.PrivateKey, error) {
-	return crypto.HexToECDSA(secret)
+	return crypto.HexToECDSA(strings.TrimPrefix(secret, "0x"))
 }
 
 func (c *Client) AddressFromKey() common.Address {
