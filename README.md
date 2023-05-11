@@ -12,7 +12,7 @@ Project setup:
 
 The server is implemented in go and is located in [this folder](server/). To build and run the server execute these commands:
 
-```sh
+```shell
 cd server
 go build && ./server --debug
 ```
