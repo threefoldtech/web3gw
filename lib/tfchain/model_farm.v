@@ -2,6 +2,7 @@ module tfchain
 
 // Farm type
 pub struct Farm {
+pub:
 	version                u32
 	id                     u32
 	name                   string
@@ -20,6 +21,7 @@ pub:
 }
 
 pub struct OptionFarmingPoliciesLimit {
+pub:
 	has_value bool
 	as_value  FarmingPoliciesLimit
 }

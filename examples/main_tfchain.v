@@ -15,15 +15,15 @@ const (
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut tfchain_client := tfchain.new(mut client)
 
-	tfchain_client.load(network:.devnet, mnemonic:mnemonic)!
+	tfchain_client.load(network:.testnet, mnemonic:mnemonic)!
 	
 	//tfchain_client.transfer(tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
 	
 	my_balance := tfchain_client.balance("5Ek9gJ3iQFyr1HB5aTpqThqbGk6urv8Rnh9mLj5PD6GA26MS")! // FILL IN ADDRESS
 	logger.info("My balance: ${my_balance}")
 
-	alice_balance := tfchain_client.balance("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY")!
-	logger.info("Alice's balance: ${alice_balance}")
+	//alice_balance := tfchain_client.balance("5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY")!
+	//logger.info("Alice's balance: ${alice_balance}")
 
 	height := tfchain_client.height()!
 	logger.info("Height is ${height}")
@@ -40,7 +40,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 	node_contracts_for_node_15 := tfchain_client.get_node_contracts(15)!
 	logger.info("Node contracts for node 15: ${node_contracts_for_node_15}")
 	
-	for contract_id in node_contracts_for_node_15[..5] {
+	for contract_id in node_contracts_for_node_15[..3] {
 		logger.info("Getting contract ${contract_id}")
 		contract := tfchain_client.get_contract(contract_id)!
 		logger.info("Contract ${contract_id}: ${contract}")
@@ -57,11 +57,13 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 	farm := tfchain_client.get_farm(1)!
 	logger.info("Farm with id 1: ${farm}")
 
-	farm_2 := tfchain_client.get_farm_by_name("Freefarm")!
+	farm_2 := tfchain_client.get_farm_by_name(farm.name)!
 	logger.info("Farm with name Freefarm: ${farm_2}")
 
 	zos_version := tfchain_client.get_zos_version()!
 	logger.info("Zos version is: ${zos_version}")
+
+	tfchain_client.swap_to_stellar(amount: 50000000, target_stellar_address: "GCPVVC4MWKV7ZGQCMHHMALNWVLN2II43RC3FDLCRFCZJBAJCZHNE4VKK")!
 }
 
 fn main() {

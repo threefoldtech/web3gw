@@ -98,6 +98,12 @@ pub struct CreateFarm {
 	public_ips []PublicIPInput
 }
 
+[params]
+pub struct SwapToStellar {
+	target_stellar_address string 
+	amount u64
+}
+
 [noinit; openrpc: exclude]
 pub struct TfChainClient {
 mut:
@@ -301,5 +307,11 @@ pub fn (mut t TfChainClient) batch_cancel_contract(contract_ids []u64) ! {
 // Get the current ZOS version
 pub fn (mut t TfChainClient) get_zos_version() !string {
 	return t.client.send_json_rpc[[]string, string]('tfchain.GetZosVersion', []string{},
+		tfchain.default_timeout)!
+}
+
+// Swap TFT tokens to the provided stellar address
+pub fn (mut t TfChainClient) swap_to_stellar(args SwapToStellar) ! {
+	_ := t.client.send_json_rpc[[]SwapToStellar, string]('tfchain.SwapToStellar', [args],
 		tfchain.default_timeout)!
 }
