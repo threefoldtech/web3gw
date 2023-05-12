@@ -13,7 +13,7 @@ const (
 )
 
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string, secret string, amount string, destination string, twin_id u32) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string, secret string, amount string, twin_id u32) ! {
 	mut stellar_client := stellar.new(mut client)
 
 	stellar_client.load(secret: secret, network: network)!
@@ -23,7 +23,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string, s
 
 	// Amount in stroops (1 TFT = 10^7 stroops)
 	// Destination is the tfchain address
-	stellar_client.bridge_to_tfchain(amount: amount, destination: destination, twin_id: twin_id)!
+	stellar_client.bridge_to_tfchain(amount: amount, twin_id: twin_id)!
 }
 
 
@@ -50,10 +50,6 @@ fn main() {
 		logger.error("Argument amount is required!")
 		exit(1)
 	}
-	destination := fp.string_opt('destination', `d`, 'The destination address on tfchain') or {
-		logger.error("Argument destination is required!")
-		exit(1)
-	}
 	twin_id := fp.int_opt('twinid', `t`, 'Your twin id in tfchain') or {
 		logger.error("Argument twinid is required!")
 		exit(1)
@@ -74,7 +70,7 @@ fn main() {
 		exit(1)
 	}
 	_ := spawn myclient.run()
-	execute_rpcs(mut myclient, mut logger, network, secret, amount, destination, u32(twin_id)) or {
+	execute_rpcs(mut myclient, mut logger, network, secret, amount, u32(twin_id)) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

@@ -42,9 +42,8 @@ type (
 	}
 
 	TfchainBridgeTransfer struct {
-		Amount      string `json:"amount"`
-		Destination string `json:"destination"`
-		TwinId      uint32 `json:"twin_id"`
+		Amount string `json:"amount"`
+		TwinId uint32 `json:"twin_id"`
 	}
 )
 
@@ -153,5 +152,5 @@ func (c *Client) BridgeToTfchain(ctx context.Context, conState jsonrpc.State, ar
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferToTfchainBridge(args.Destination, args.Amount, args.TwinId)
+	return state.Client.TransferToTfchainBridge(args.Amount, args.TwinId)
 }

@@ -28,7 +28,6 @@ pub struct BridgeTransfer {
 [params]
 pub struct TfchainBridgeTransfer {
 	amount string
-	destination string
 	twin_id u32
 }
 

@@ -107,7 +107,7 @@ func (c *Client) GetEthBridgeAddress() (string, error) {
 // 	return c.Transfer(bridgeAddr, base64.RawStdEncoding.EncodeToString(b), amount)
 // }
 
-func (c *Client) TransferToTfchainBridge(destination, amount string, twinID uint32) error {
+func (c *Client) TransferToTfchainBridge(amount string, twinID uint32) error {
 	bridgeAddr, err := c.GetTfchainBridgeAddress()
 	if err != nil {
 		return err
