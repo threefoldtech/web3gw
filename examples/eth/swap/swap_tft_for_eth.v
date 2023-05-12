@@ -19,29 +19,29 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	print('eth_balance before swap: ${eth_balance}\n')
+	logger.info('eth_balance before swap: ${eth_balance}\n')
 
 	balance := eth_client.tft_balance()!
-	print('tft balance before swap: ${balance}\n')
+	logger.info('tft balance before swap: ${balance}\n')
 
 	amount_in := "50"
 
 	// First approve spending by uniswap router!
-	print("approving ${amount_in} tft for spending\n")
+	logger.info("approving ${amount_in} tft for spending\n")
 	t := eth_client.approve_tft_spending(amount_in)!
-	print('tx: ${t}\n')
+	logger.info('tx: ${t}\n')
 
 	quote := eth_client.quote_tft_for_eth(amount_in)!
-	print('will receive: ${quote} eth\n')
+	logger.info('will receive: ${quote} eth\n')
 
 	tx := eth_client.swap_tft_for_eth(amount_in)!
-	print('tx: ${tx}\n')
+	logger.info('tx: ${tx}\n')
 
 	balance_1 := eth_client.tft_balance()!
-	print('tft balance after swap: ${balance_1}\n')
+	logger.info('tft balance after swap: ${balance_1}\n')
 
 	eth_balance = eth_client.balance(address)!
-	print('eth_balance after swap: ${eth_balance}\n')
+	logger.info('eth_balance after swap: ${eth_balance}\n')
 }
 
 fn main() {

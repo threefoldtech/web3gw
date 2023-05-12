@@ -19,24 +19,24 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	print('eth balance before swap: ${eth_balance}\n')
+	logger.info('eth balance before swap: ${eth_balance}\n')
 
 	balance := eth_client.tft_balance()!
-	print('tft balance before swap: ${balance}\n')
+	logger.info('tft balance before swap: ${balance}\n')
 
 	amount_in := "0.0001"
 
 	quote := eth_client.quote_eth_for_tft(amount_in)!
-	print('will receive: ${quote} tft\n')
+	logger.info('will receive: ${quote} tft\n')
 
 	tx := eth_client.swap_eth_for_tft(amount_in)!
-	print('tx: ${tx}\n')
+	logger.info('tx: ${tx}\n')
 
 	balance_1 := eth_client.tft_balance()!
-	print('tft balance after swap: ${balance_1}\n')
+	logger.info('tft balance after swap: ${balance_1}\n')
 
 	eth_balance = eth_client.balance(address)!
-	print('eth balance after swap: ${eth_balance}\n')
+	logger.info('eth balance after swap: ${eth_balance}\n')
 }
 
 fn main() {
