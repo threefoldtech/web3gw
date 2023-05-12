@@ -103,7 +103,7 @@ func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Tran
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferEth(args.Amount, args.Destination)
+	return state.Client.TransferEth(ctx, args.Amount, args.Destination)
 }
 
 // Address of the loaded client

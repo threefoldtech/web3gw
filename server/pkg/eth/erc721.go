@@ -74,7 +74,7 @@ func (c *Client) SafeTransferFungible(ctx context.Context, conState jsonrpc.Stat
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.SafeTransferFungible(args.ContractAddress, args.From, args.To, args.TokenID)
+	return state.Client.SafeTransferFungible(ctx, args.ContractAddress, args.From, args.To, args.TokenID)
 }
 
 // TransferFungible transfers the given fungible token from the given address to the given target address
@@ -84,7 +84,7 @@ func (c *Client) TransferFungible(ctx context.Context, conState jsonrpc.State, a
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferFungible(args.ContractAddress, args.From, args.To, args.TokenID)
+	return state.Client.TransferFungible(ctx, args.ContractAddress, args.From, args.To, args.TokenID)
 }
 
 // SetFungibleApproval approves the given address to spend the given tokenId of the given fungible token
@@ -94,7 +94,7 @@ func (c *Client) SetFungibleApproval(ctx context.Context, conState jsonrpc.State
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.SetFungibleApproval(args.ContractAddress, args.From, args.To, args.Amount)
+	return state.Client.SetFungibleApproval(ctx, args.ContractAddress, args.From, args.To, args.Amount)
 }
 
 // SetFungibleApprovalForAll approves the given address to spend all the given fungible tokens
@@ -104,7 +104,7 @@ func (c *Client) SetFungibleApprovalForAll(ctx context.Context, conState jsonrpc
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.SetFungibleApprovalForAll(args.ContractAddress, args.From, args.To, args.Approved)
+	return state.Client.SetFungibleApprovalForAll(ctx, args.ContractAddress, args.From, args.To, args.Approved)
 }
 
 // GetApprovalForFungible returns whether the given address is approved to spend the given tokenId of the given fungible token

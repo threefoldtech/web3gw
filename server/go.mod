@@ -8,6 +8,8 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5
+	github.com/daoleno/uniswap-sdk-core v0.1.5
+	github.com/daoleno/uniswapv3-sdk v0.4.0
 	github.com/ethereum/go-ethereum v1.11.6
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -174,6 +176,7 @@ require (
 	github.com/rs/cors v1.9.0 // indirect
 	github.com/segmentio/go-loggly v0.5.1-0.20171222203950-eb91657e62b2 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/stellar/go-xdr v0.0.0-20211103144802-8017fc4bdfee // indirect

@@ -5,31 +5,32 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/daoleno/uniswapv3-sdk/examples/helper"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	tft "github.com/threefoldfoundation/tft/bridge/stellar/contracts/tokenv1"
 )
 
-const (
-	PublicEthTftContractAddress        = "0x395E925834996e558bdeC77CD648435d620AfB5b"
-	GoerliTestnetEthTftContractAddress = "0xDa38782ce31Fc9861087320ABffBdee64Ed60515"
+var (
+	MainnetEthTftContractAddress       = common.HexToAddress("0x395E925834996e558bdeC77CD648435d620AfB5b")
+	GoerliTestnetEthTftContractAddress = common.HexToAddress("0xDa38782ce31Fc9861087320ABffBdee64Ed60515")
 )
 
-func (c *Client) TransferTftEth(ctx context.Context, destination string, amount int64) (string, error) {
-	tftContractAddress, err := c.GetTftContractAddress(ctx)
+func (c *Client) TransferEthTft(ctx context.Context, destination string, amount int64) (string, error) {
+	tftC, err := c.GetTftTokenContract()
 	if err != nil {
 		return "", err
 	}
-	return c.TransferTokens(ctx, tftContractAddress, destination, amount)
+	return c.TransferTokens(ctx, tftC.Address, destination, amount)
 }
 
 func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string, amount int64) (string, error) {
-	tftContractAddress, err := c.GetTftContractAddress(ctx)
+	tftC, err := c.GetTftTokenContract()
 	if err != nil {
 		return "", err
 	}
-	tft, err := tft.NewToken(tftContractAddress, c.Eth)
+	tft, err := tft.NewToken(tftC.Address, c.Eth)
 	if err != nil {
 		return "", err
 	}
@@ -44,16 +45,24 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 		return "", err
 	}
 
+	r, err := bind.WaitMined(ctx, c.Eth, tx)
+	if err != nil {
+		log.Err(err).Msg("failed to wait for tft approval")
+		return "", err
+	}
+
+	log.Debug().Msgf("Withdraw tx mined: %s, block %d, gas: %d, status: %d", tx.Hash().Hex(), r.BlockNumber, r.GasUsed, r.Status)
+
 	return tx.Hash().Hex(), nil
 }
 
-func (c *Client) GetTftBalance(ctx context.Context) (*big.Int, error) {
-	tftContractAddress, err := c.GetTftContractAddress(ctx)
+func (c *Client) GetEthTftBalance(ctx context.Context) (*big.Int, error) {
+	tftC, err := c.GetTftTokenContract()
 	if err != nil {
 		return nil, err
 	}
 
-	tft, err := tft.NewToken(tftContractAddress, c.Eth)
+	tft, err := tft.NewToken(tftC.Address, c.Eth)
 	if err != nil {
 		return nil, err
 	}
@@ -66,17 +75,39 @@ func (c *Client) GetTftBalance(ctx context.Context) (*big.Int, error) {
 	}, c.Address)
 }
 
-func (c *Client) GetTftContractAddress(ctx context.Context) (common.Address, error) {
-	chainID, err := c.Eth.NetworkID(ctx)
+func (c *Client) ApproveEthTftSpending(ctx context.Context, input string) (string, error) {
+	tftC, err := c.GetTftTokenContract()
 	if err != nil {
-		return common.Address{}, errors.Wrap(err, "failed to get chainID")
+		return "", err
 	}
 
-	if chainID.Cmp(big.NewInt(1)) == 0 {
-		return common.HexToAddress(PublicEthTftContractAddress), nil
-	} else if chainID.Cmp(big.NewInt(5)) == 0 {
-		return common.HexToAddress(GoerliTestnetEthTftContractAddress), nil
-	} else {
-		return common.Address{}, errors.Errorf("unsupported chainID: %d", chainID)
+	tft, err := tft.NewToken(tftC.Address, c.Eth)
+	if err != nil {
+		return "", err
 	}
+
+	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*1)
+	defer cancel()
+
+	opts, err := c.getDefaultTransactionOpts(ctxWithCancel)
+	if err != nil {
+		return "", err
+	}
+
+	amount := helper.FloatStringToBigInt(input, int(tftC.Decimals()))
+	tx, err := tft.Approve(opts, SwapRouter, amount)
+	if err != nil {
+		log.Err(err).Msg("failed to approve tft spending")
+		return "", err
+	}
+
+	r, err := bind.WaitMined(ctxWithCancel, c.Eth, tx)
+	if err != nil {
+		log.Err(err).Msg("failed to wait for tft approval")
+		return "", err
+	}
+
+	log.Debug().Msgf("Approve spend tx mined: %s, block %d, gas: %d, status: %d", tx.Hash().Hex(), r.BlockNumber, r.GasUsed, r.Status)
+
+	return tx.Hash().Hex(), nil
 }

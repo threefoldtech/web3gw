@@ -1,6 +1,7 @@
 package goethclient
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -34,63 +35,83 @@ func (c *Client) OwnerOfFungible(contractAddress string, token int64) (string, e
 }
 
 // SafeTransferFungible transfers a fungible token from the given address to the given target address
-func (c *Client) SafeTransferFungible(contractAddress, from, to string, tokenId int64) (string, error) {
+func (c *Client) SafeTransferFungible(ctx context.Context, contractAddress, from, to string, tokenId int64) (string, error) {
 	fungible, err := erc721.NewErc721(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
 		return "", err
 	}
 
-	tx, err := fungible.SafeTransferFrom(&bind.TransactOpts{}, common.HexToAddress(from), common.HexToAddress(to), big.NewInt(tokenId))
+	opts, err := c.getDefaultTransactionOpts(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	tx, err := fungible.SafeTransferFrom(opts, common.HexToAddress(from), common.HexToAddress(to), big.NewInt(tokenId))
+	if err != nil {
+		return "", err
+	}
+
+	return tx.Hash().Hex(), nil
 }
 
 // Transfer transfers the given fungible token from the given address to the given target address
-func (c *Client) TransferFungible(contractAddress, from, to string, tokenId int64) (string, error) {
+func (c *Client) TransferFungible(ctx context.Context, contractAddress, from, to string, tokenId int64) (string, error) {
 	fungible, err := erc721.NewErc721(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
 		return "", err
 	}
 
-	tx, err := fungible.TransferFrom(&bind.TransactOpts{}, common.HexToAddress(from), common.HexToAddress(to), big.NewInt(tokenId))
+	opts, err := c.getDefaultTransactionOpts(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	tx, err := fungible.TransferFrom(opts, common.HexToAddress(from), common.HexToAddress(to), big.NewInt(tokenId))
+	if err != nil {
+		return "", err
+	}
+
+	return tx.Hash().Hex(), nil
 }
 
 // SetFungibleApproval approves the given address to spend the given amount of the given fungible token
-func (c *Client) SetFungibleApproval(contractAddress, from, to string, amount int64) (string, error) {
+func (c *Client) SetFungibleApproval(ctx context.Context, contractAddress, from, to string, amount int64) (string, error) {
 	fungible, err := erc721.NewErc721(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
 		return "", err
 	}
 
-	tx, err := fungible.Approve(&bind.TransactOpts{}, common.HexToAddress(to), big.NewInt(amount))
+	opts, err := c.getDefaultTransactionOpts(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	tx, err := fungible.Approve(opts, common.HexToAddress(to), big.NewInt(amount))
+	if err != nil {
+		return "", err
+	}
+
+	return tx.Hash().Hex(), nil
 }
 
 // SetFungibleApprovalForAll approves the given address to spend all the given fungible token
-func (c *Client) SetFungibleApprovalForAll(contractAddress, from, to string, approved bool) (string, error) {
+func (c *Client) SetFungibleApprovalForAll(ctx context.Context, contractAddress, from, to string, approved bool) (string, error) {
 	fungible, err := erc721.NewErc721(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
 		return "", err
 	}
 
-	tx, err := fungible.SetApprovalForAll(&bind.TransactOpts{}, common.HexToAddress(to), approved)
+	opts, err := c.getDefaultTransactionOpts(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	tx, err := fungible.SetApprovalForAll(opts, common.HexToAddress(to), approved)
+	if err != nil {
+		return "", err
+	}
+
+	return tx.Hash().Hex(), nil
 }
 
 // GetApprovalForFungible returns the approval status of the given address for the given fungible token

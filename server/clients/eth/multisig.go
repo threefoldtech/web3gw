@@ -78,7 +78,7 @@ func (c *Client) AddOwner(contractAddress, target string, treshold int64) (strin
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	return tx.Hash().Hex(), nil
 }
 
 func (c *Client) RemoveOwner(contractAddress, target string, treshold int64) (string, error) {
@@ -101,7 +101,7 @@ func (c *Client) RemoveOwner(contractAddress, target string, treshold int64) (st
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	return tx.Hash().Hex(), nil
 }
 
 func (c *Client) ApproveHash(contractAddress, hash string) (string, error) {
@@ -115,7 +115,7 @@ func (c *Client) ApproveHash(contractAddress, hash string) (string, error) {
 		return "", err
 	}
 
-	return c.sendTransaction(tx)
+	return tx.Hash().Hex(), nil
 }
 
 func (c *Client) IsApproved(contractAddress string, hash string) (bool, error) {
@@ -171,7 +171,7 @@ func (c *Client) InitiateMultisigEthTransfer(safeContractAddress, destination st
 		return "", err
 	}
 
-	return c.sendTransaction(msTx)
+	return msTx.Hash().Hex(), nil
 }
 
 func (c *Client) InitiateMultisigTokenTransfer(safeContractAddress, tokenAddress, destination string, amount int64) (string, error) {
@@ -218,5 +218,5 @@ func (c *Client) InitiateMultisigTokenTransfer(safeContractAddress, tokenAddress
 		return "", err
 	}
 
-	return c.sendTransaction(msTx)
+	return msTx.Hash().Hex(), nil
 }

@@ -30,7 +30,7 @@ type (
 
 	ApproveTokenSpending struct {
 		ContractAddress string `json:"contract_address"`
-		Target          string `json:"target"`
+		Spender         string `json:"spender"`
 		Amount          int64  `json:"amount"`
 	}
 )
@@ -72,5 +72,5 @@ func (c *Client) ApproveTokenSpending(ctx context.Context, conState jsonrpc.Stat
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.ApproveTokenSpending(ctx, args.ContractAddress, args.Target, args.Amount)
+	return state.Client.ApproveTokenSpending(ctx, args.ContractAddress, args.Spender, args.Amount)
 }
