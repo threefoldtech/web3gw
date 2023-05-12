@@ -29,7 +29,7 @@ pub struct BridgeTransfer {
 pub struct TfchainBridgeTransfer {
 	amount string
 	destination string
-	twin_id u64
+	twin_id u32
 }
 
 
@@ -73,7 +73,7 @@ pub fn (mut s StellarClient) bridge_to_eth(args BridgeTransfer) ! {
 // 	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToBsc', [args], default_timeout)!
 // }
 
-// // bridge_to_tfchain bridge to tfchain from stellar
-// pub fn (mut s StellarClient) bridge_to_tfchain(args TfchainBridgeTransfer) ! {
-// 	_ := s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain', [args], default_timeout)!
-// }
+// bridge_to_tfchain bridge to tfchain from stellar
+pub fn (mut s StellarClient) bridge_to_tfchain(args TfchainBridgeTransfer) ! {
+ 	_ := s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain', [args], default_timeout)!
+}

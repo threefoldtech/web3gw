@@ -30,7 +30,7 @@ type (
 	}
 	TfchainState struct {
 		client   *substrate.Substrate
-		identity *substrate.Identity
+		identity substrate.Identity
 		network  string
 	}
 
@@ -169,10 +169,19 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 	}
 	state := State(conState)
 	state.client = substrateConnection
-	state.identity = &identity
+	state.identity = identity
 	state.network = args.Network
 
 	return nil
+}
+
+func (c *Client) Address(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.identity.Address(), nil
 }
 
 func (c *Client) Height(ctx context.Context, conState jsonrpc.State) (uint32, error) {
@@ -196,7 +205,7 @@ func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Tran
 		return err
 	}
 
-	return state.client.Transfer(*state.identity, args.Amount, dest)
+	return state.client.Transfer(state.identity, args.Amount, dest)
 }
 
 // Balance of an account for TFT on stellar.
@@ -248,7 +257,7 @@ func (c *Client) CreateTwin(ctx context.Context, conState jsonrpc.State, args Cr
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateTwin(*state.identity, args.Relay, args.Pk)
+	return state.client.CreateTwin(state.identity, args.Relay, args.Pk)
 }
 
 func (c *Client) AcceptTermsAndConditions(ctx context.Context, conState jsonrpc.State, args AcceptTermsAndConditions) error {
@@ -257,7 +266,7 @@ func (c *Client) AcceptTermsAndConditions(ctx context.Context, conState jsonrpc.
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.AcceptTermsAndConditions(*state.identity, args.Link, args.Hash)
+	return state.client.AcceptTermsAndConditions(state.identity, args.Link, args.Hash)
 }
 
 func (c *Client) GetNode(ctx context.Context, conState jsonrpc.State, id uint32) (*substrate.Node, error) {
@@ -302,7 +311,7 @@ func (c *Client) CreateFarm(ctx context.Context, conState jsonrpc.State, args Cr
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateFarm(*state.identity, args.Name, args.PublicIPs)
+	return state.client.CreateFarm(state.identity, args.Name, args.PublicIPs)
 }
 
 func (c *Client) GetContract(ctx context.Context, conState jsonrpc.State, contract_id uint64) (*substrate.Contract, error) {
@@ -347,7 +356,7 @@ func (c *Client) CreateNameContract(ctx context.Context, conState jsonrpc.State,
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateNameContract(*state.identity, name)
+	return state.client.CreateNameContract(state.identity, name)
 }
 
 func (c *Client) CreateNodeContract(ctx context.Context, conState jsonrpc.State, args CreateNodeContract) (uint64, error) {
@@ -356,7 +365,7 @@ func (c *Client) CreateNodeContract(ctx context.Context, conState jsonrpc.State,
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateNodeContract(*state.identity, args.NodeID, args.Body, args.Hash, args.PublicIPs, args.SolutionProviderID)
+	return state.client.CreateNodeContract(state.identity, args.NodeID, args.Body, args.Hash, args.PublicIPs, args.SolutionProviderID)
 }
 
 func (c *Client) CreateRentContract(ctx context.Context, conState jsonrpc.State, args CreateRentContract) (uint64, error) {
@@ -365,7 +374,7 @@ func (c *Client) CreateRentContract(ctx context.Context, conState jsonrpc.State,
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CreateRentContract(*state.identity, args.NodeID, args.SolutionProviderID)
+	return state.client.CreateRentContract(state.identity, args.NodeID, args.SolutionProviderID)
 }
 
 func (c *Client) ServiceContractCreate(ctx context.Context, conState jsonrpc.State, args ServiceContractCreate) (uint64, error) {
@@ -384,7 +393,7 @@ func (c *Client) ServiceContractCreate(ctx context.Context, conState jsonrpc.Sta
 		return 0, err
 	}
 
-	return state.client.ServiceContractCreate(*state.identity, accountIdService, accountIdConsumer)
+	return state.client.ServiceContractCreate(state.identity, accountIdService, accountIdConsumer)
 }
 
 func (c *Client) ServiceContractApprove(ctx context.Context, conState jsonrpc.State, contract_id uint64) error {
@@ -393,7 +402,7 @@ func (c *Client) ServiceContractApprove(ctx context.Context, conState jsonrpc.St
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractApprove(*state.identity, contract_id)
+	return state.client.ServiceContractApprove(state.identity, contract_id)
 }
 
 func (c *Client) ServiceContractBill(ctx context.Context, conState jsonrpc.State, args ServiceContractBill) error {
@@ -402,7 +411,7 @@ func (c *Client) ServiceContractBill(ctx context.Context, conState jsonrpc.State
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractBill(*state.identity, args.ContractID, args.VariableAmount, args.Metadata)
+	return state.client.ServiceContractBill(state.identity, args.ContractID, args.VariableAmount, args.Metadata)
 }
 
 func (c *Client) ServiceContractCancel(ctx context.Context, conState jsonrpc.State, contract_id uint64) error {
@@ -411,7 +420,7 @@ func (c *Client) ServiceContractCancel(ctx context.Context, conState jsonrpc.Sta
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractCancel(*state.identity, contract_id)
+	return state.client.ServiceContractCancel(state.identity, contract_id)
 }
 
 func (c *Client) ServiceContractReject(ctx context.Context, conState jsonrpc.State, contract_id uint64) error {
@@ -420,7 +429,7 @@ func (c *Client) ServiceContractReject(ctx context.Context, conState jsonrpc.Sta
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractReject(*state.identity, contract_id)
+	return state.client.ServiceContractReject(state.identity, contract_id)
 }
 
 func (c *Client) ServiceContractSetFees(ctx context.Context, conState jsonrpc.State, args SetServiceContractFees) error {
@@ -429,7 +438,7 @@ func (c *Client) ServiceContractSetFees(ctx context.Context, conState jsonrpc.St
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractSetFees(*state.identity, args.ContractID, args.BaseFee, args.VariableFee)
+	return state.client.ServiceContractSetFees(state.identity, args.ContractID, args.BaseFee, args.VariableFee)
 }
 
 func (c *Client) ServiceContractSetMetadata(ctx context.Context, conState jsonrpc.State, args ServiceContractSetMetadata) error {
@@ -438,7 +447,7 @@ func (c *Client) ServiceContractSetMetadata(ctx context.Context, conState jsonrp
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ServiceContractSetMetadata(*state.identity, args.ContractID, args.Metadata)
+	return state.client.ServiceContractSetMetadata(state.identity, args.ContractID, args.Metadata)
 }
 
 func (c *Client) CancelContract(ctx context.Context, conState jsonrpc.State, contract_id uint64) error {
@@ -447,7 +456,7 @@ func (c *Client) CancelContract(ctx context.Context, conState jsonrpc.State, con
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.CancelContract(*state.identity, contract_id)
+	return state.client.CancelContract(state.identity, contract_id)
 }
 
 func (c *Client) BatchCancelContract(ctx context.Context, conState jsonrpc.State, contract_ids []uint64) error {
@@ -456,7 +465,7 @@ func (c *Client) BatchCancelContract(ctx context.Context, conState jsonrpc.State
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.BatchCancelContract(*state.identity, contract_ids)
+	return state.client.BatchCancelContract(state.identity, contract_ids)
 }
 
 func (c *Client) GetZosVersion(ctx context.Context, conState jsonrpc.State) (string, error) {
@@ -474,5 +483,5 @@ func (c *Client) SwapToStellar(ctx context.Context, conState jsonrpc.State, args
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.SwapToStellar(*state.identity, args.TargetStellarAddress, *args.Amount)
+	return state.client.SwapToStellar(state.identity, args.TargetStellarAddress, *args.Amount)
 }

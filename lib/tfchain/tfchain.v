@@ -124,6 +124,11 @@ pub fn (mut t TfChainClient) load(args Load) ! {
 		tfchain.default_timeout)!
 }
 
+// Get the SS58 address of your account
+pub fn (mut t TfChainClient) address() !string {
+	return t.client.send_json_rpc[[]string, string]('tfchain.Address', []string{}, tfchain.default_timeout)!
+}
+
 // Transfer some amount to some destination. The destionation should be a SS58 address.
 pub fn (mut t TfChainClient) transfer(args Transfer) ! {
 	_ := t.client.send_json_rpc[[]Transfer, string]('tfchain.Transfer', [args], tfchain.default_timeout)!
