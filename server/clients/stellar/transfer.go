@@ -18,7 +18,7 @@ const (
 	// BSC
 	// stellarPublicNetworkBscBridgeAddress = "GBFFWXWBZDILJJAMSINHPJEUJKB3H4UYXRWNB4COYQAF7UUQSWSBUXW5"
 	// Tfchain
-	// stellarPublicNetworkTfchainBridgeAddress = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
+	stellarPublicNetworkTfchainBridgeAddress = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
 )
 
 func (c *Client) Transfer(destination, memo string, amount string) error {
