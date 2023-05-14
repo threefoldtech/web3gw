@@ -49,7 +49,10 @@ func NewClient() *Client {
 
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, mnemonic string, network string) error {
-	tfgrid_client := tfgridBase.Client{}
+	tfgrid_client := tfgridBase.Client{
+		Projects: make(map[string]tfgridBase.ProjectState),
+	}
+
 	err := tfgrid_client.Login(ctx, tfgridBase.Credentials{
 		Mnemonics: mnemonic,
 		Network:   network,

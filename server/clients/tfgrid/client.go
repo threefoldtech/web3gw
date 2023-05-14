@@ -9,6 +9,6 @@ type Client struct {
 	client   TFGridClient
 	TwinID   uint32
 	Identity substrate.Identity
-	// holds each projects deployments
-	projects map[string]modelState
+	// holds each Projects deployments
+	Projects map[string]ProjectState
 }

@@ -21,14 +21,14 @@ pub fn (mut t TFGridClient) machines_delete(model_name string) ! {
 }
 
 // Add new machine to a machines deployment
-pub fn (mut t TFGridClient) machines_add(params AddMachine) ! {
-	_ := t.client.send_json_rpc[[]AddMachine, string]('tfgrid.MachinesAdd', [params],
+pub fn (mut t TFGridClient) machines_add(params AddMachine) !MachinesResult {
+	return t.client.send_json_rpc[[]AddMachine, MachinesResult]('tfgrid.MachinesAdd', [params],
 		default_timeout)!
 }
 
 // Remove machine from a machines deployment
-pub fn (mut t TFGridClient) machines_remove(params RemoveMachine) ! {
-	_ := t.client.send_json_rpc[[]RemoveMachine, string]('tfgrid.MachinesRemove', [
+pub fn (mut t TFGridClient) machines_remove(params RemoveMachine) !MachinesResult {
+	return t.client.send_json_rpc[[]RemoveMachine, MachinesResult]('tfgrid.MachinesRemove', [
 		params,
 	], default_timeout)!
 }

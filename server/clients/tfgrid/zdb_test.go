@@ -19,7 +19,8 @@ func TestZDB(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		client:   cl,
+		Projects: map[string]ProjectState{},
 	}
 
 	t.Run("zdb_deploy_success", func(t *testing.T) {
@@ -55,13 +56,13 @@ func TestZDB(t *testing.T) {
 			Return(graphql.Contracts{}, nil)
 
 		zdbs := []workloads.ZDB{
-			ZDBFromModel(model),
+			toGridZDB(model),
 		}
 
 		clientDeployment := workloads.NewDeployment(model.Name, model.NodeID, projectName, nil, "", nil, zdbs, nil, nil)
 		cl.EXPECT().DeployDeployment(gomock.Any(), &clientDeployment).Return(contractID, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {contractID}})
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {contractID}})
 
 		cl.EXPECT().LoadZDB(modelName, nodeID).Return(workloads.ZDB{
 			Name:      modelName,
@@ -81,14 +82,14 @@ func TestZDB(t *testing.T) {
 	})
 
 	t.Run("zdb_get_success", func(t *testing.T) {
-		modelName := "zdb"
+		modelName := "zdb2"
 		projectName := generateProjectName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 
 		want := ZDB{
 			NodeID:    nodeID,
-			Name:      "zdb",
+			Name:      modelName,
 			Password:  "pass",
 			Public:    true,
 			Size:      10,
@@ -107,10 +108,10 @@ func TestZDB(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {contractID}})
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {contractID}})
 
 		cl.EXPECT().LoadZDB(modelName, nodeID).Return(workloads.ZDB{
-			Name:      "zdb",
+			Name:      modelName,
 			Password:  "pass",
 			Public:    true,
 			Size:      10,

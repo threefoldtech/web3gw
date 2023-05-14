@@ -2,10 +2,10 @@ package tfgrid
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 
@@ -34,39 +34,46 @@ type GatewayNameModel struct {
 	ContractID     uint64 `json:"contract_id"`
 }
 
-func (r *Client) GatewayNameDeploy(ctx context.Context, gatewayNameModel GatewayNameModel) (GatewayNameModel, error) {
-	projectName := generateProjectName(gatewayNameModel.Name)
-
+func (c *Client) GatewayNameDeploy(ctx context.Context, gw GatewayNameModel) (GatewayNameModel, error) {
 	// validate that no other project is deployed with this name
-	if err := r.validateProjectName(ctx, projectName); err != nil {
+	if err := c.validateProjectName(ctx, gw.Name); err != nil {
 		return GatewayNameModel{}, err
 	}
 
-	if err := r.ensureGatewayNodeIDExist(&gatewayNameModel); err != nil {
+	if err := c.ensureGatewayNodeIDExist(&gw); err != nil {
 		return GatewayNameModel{}, err
 	}
 
-	// deploy gateway
-	gateway := newGWNameProxyFromModel(gatewayNameModel)
+	// deploy gridGW
+	gridGW := toGridGWName(gw)
 
-	if err := r.client.DeployGWName(ctx, &gateway); err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to deploy gateway %s", gateway.Name)
+	if err := c.deployGWName(ctx, &gridGW); err != nil {
+		return GatewayNameModel{}, err
 	}
 
-	// TODO: check if this is necessary (why not use gateway.FQDN?)
-	nodeDomain, err := r.client.GetNodeDomain(ctx, gateway.NodeID)
-	if err != nil {
-		return GatewayNameModel{}, errors.Wrapf(err, "failed to get node %d domain", gateway.NodeID)
-	}
-
-	gatewayNameModel.FQDN = fmt.Sprintf("%s.%s", gateway.Name, nodeDomain)
-	gatewayNameModel.ContractID = gateway.ContractID
-	gatewayNameModel.NameContractID = gateway.NameContractID
-
-	return gatewayNameModel, nil
+	return c.GatewayNameGet(ctx, gw.Name)
 }
 
-func newGWNameProxyFromModel(model GatewayNameModel) workloads.GatewayNameProxy {
+func (c *Client) deployGWName(ctx context.Context, gridGW *workloads.GatewayNameProxy) error {
+	if err := c.client.DeployGWName(ctx, gridGW); err != nil {
+		return errors.Wrapf(err, "failed to deploy gateway %s", gridGW.Name)
+	}
+
+	projectName := generateProjectName(gridGW.Name)
+
+	projectState := map[uint32]state.ContractIDs{
+		gridGW.NodeID: {gridGW.ContractID},
+	}
+
+	c.Projects[projectName] = ProjectState{
+		nodeContracts: projectState,
+		nameContracts: map[uint32]uint64{gridGW.NodeID: gridGW.NameContractID},
+	}
+
+	return nil
+}
+
+func toGridGWName(model GatewayNameModel) workloads.GatewayNameProxy {
 	return workloads.GatewayNameProxy{
 		NodeID:         model.NodeID,
 		Name:           model.Name,
@@ -77,9 +84,9 @@ func newGWNameProxyFromModel(model GatewayNameModel) workloads.GatewayNameProxy 
 	}
 }
 
-func (r *Client) GatewayNameDelete(ctx context.Context, projectName string) error {
-	if err := r.client.CancelProject(ctx, projectName); err != nil {
-		return errors.Wrapf(err, "failed to cancel project %s", projectName)
+func (c *Client) GatewayNameDelete(ctx context.Context, modelName string) error {
+	if err := c.cancelModel(ctx, modelName); err != nil {
+		return errors.Wrapf(err, "failed to cancel gateway %s", modelName)
 	}
 
 	return nil
@@ -91,7 +98,7 @@ func (c *Client) GatewayNameGet(ctx context.Context, modelName string) (GatewayN
 		return GatewayNameModel{}, err
 	}
 
-	ret := GatewayNameToModel(gw)
+	ret := fromGridGWName(gw)
 
 	return ret, nil
 }
@@ -123,7 +130,7 @@ func (r *Client) getGatewayNode() (uint32, error) {
 	return uint32(nodes[rand.Intn(len(nodes))].NodeID), nil
 }
 
-func GatewayNameToModel(gw workloads.GatewayNameProxy) GatewayNameModel {
+func fromGridGWName(gw workloads.GatewayNameProxy) GatewayNameModel {
 	return GatewayNameModel{
 		NodeID:         gw.NodeID,
 		Name:           gw.Name,

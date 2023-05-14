@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
@@ -28,32 +29,50 @@ type GatewayFQDNModel struct {
 	ContractID uint64 `json:"contract_id"`
 }
 
-func (r *Client) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel GatewayFQDNModel) (GatewayFQDNModel, error) {
-	if err := r.validateProjectName(ctx, gatewayFQDNModel.Name); err != nil {
+func (c *Client) GatewayFQDNDeploy(ctx context.Context, gw GatewayFQDNModel) (GatewayFQDNModel, error) {
+	if err := c.validateProjectName(ctx, gw.Name); err != nil {
 		return GatewayFQDNModel{}, err
 	}
 
-	gatewayFQDN := workloads.GatewayFQDNProxy{
-		NodeID:         gatewayFQDNModel.NodeID,
-		Backends:       gatewayFQDNModel.Backends,
-		FQDN:           gatewayFQDNModel.FQDN,
-		Name:           gatewayFQDNModel.Name,
-		TLSPassthrough: gatewayFQDNModel.TLSPassthrough,
-		Description:    gatewayFQDNModel.Description,
-		SolutionType:   generateProjectName(gatewayFQDNModel.Name),
+	gridGW := workloads.GatewayFQDNProxy{
+		NodeID:         gw.NodeID,
+		Backends:       gw.Backends,
+		FQDN:           gw.FQDN,
+		Name:           gw.Name,
+		TLSPassthrough: gw.TLSPassthrough,
+		Description:    gw.Description,
+		SolutionType:   generateProjectName(gw.Name),
 	}
 
-	if err := r.client.DeployGWFQDN(ctx, &gatewayFQDN); err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to deploy gateway fqdn")
+	if err := c.deployGWFQDN(ctx, &gridGW); err != nil {
+		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to deploy gateway %s", gw.Name)
 	}
 
-	gatewayFQDNModel.ContractID = gatewayFQDN.ContractID
+	gw.ContractID = gridGW.ContractID
 
-	return gatewayFQDNModel, nil
+	return gw, nil
 }
 
-func (r *Client) GatewayFQDNDelete(ctx context.Context, projectName string) error {
-	if err := r.client.CancelProject(ctx, projectName); err != nil {
+func (c *Client) deployGWFQDN(ctx context.Context, gridGW *workloads.GatewayFQDNProxy) error {
+	if err := c.client.DeployGWFQDN(ctx, gridGW); err != nil {
+		return err
+	}
+
+	projectName := generateProjectName(gridGW.Name)
+
+	projectState := map[uint32]state.ContractIDs{
+		gridGW.NodeID: {gridGW.ContractID},
+	}
+
+	c.Projects[projectName] = ProjectState{
+		nodeContracts: projectState,
+	}
+
+	return nil
+}
+
+func (c *Client) GatewayFQDNDelete(ctx context.Context, modelName string) error {
+	if err := c.client.CancelProject(ctx, modelName); err != nil {
 		return errors.Wrapf(err, "failed to delete gateway fqdn model contracts")
 	}
 
@@ -61,7 +80,6 @@ func (r *Client) GatewayFQDNDelete(ctx context.Context, projectName string) erro
 }
 
 func (c *Client) GatewayFQDNGet(ctx context.Context, modelName string) (GatewayFQDNModel, error) {
-	// check if state is not present, get from graphql
 	gw, err := c.loadGWFQDN(ctx, modelName)
 	if err != nil {
 		return GatewayFQDNModel{}, err

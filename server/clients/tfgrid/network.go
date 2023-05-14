@@ -2,6 +2,7 @@ package tfgrid
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
@@ -97,4 +98,8 @@ func (c *Client) removeNodeFromNetwork(ctx context.Context, znet *workloads.ZNet
 	}
 
 	return nil
+}
+
+func generateNetworkName(modelName string) string {
+	return fmt.Sprintf("%s_network", modelName)
 }

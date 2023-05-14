@@ -11,18 +11,14 @@ import (
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 )
 
-type modelState struct {
+type ProjectState struct {
 	nodeContracts map[uint32]state.ContractIDs
+	networkState  state.Network
 	// used in gateway names
 	nameContracts map[uint32]uint64
 }
 
-func (c *Client) loadNetwork(modelName string, networkContracts map[uint32]uint64) (workloads.ZNet, error) {
-	networkState := map[uint32]state.ContractIDs{}
-	for nodeID, contractID := range networkContracts {
-		networkState[nodeID] = state.ContractIDs{contractID}
-	}
-
+func (c *Client) loadNetwork(modelName string) (workloads.ZNet, error) {
 	return c.client.LoadNetwork(generateNetworkName(modelName))
 }
 
@@ -34,7 +30,7 @@ func (c *Client) loadK8s(masterName string, nodeContracts map[uint32][]uint64) (
 		nodeIDs = append(nodeIDs, node)
 	}
 
-	c.client.SetNodeDeploymentState(k8sState)
+	c.client.SetContractState(k8sState)
 
 	return c.client.LoadK8s(masterName, nodeIDs)
 }
@@ -80,70 +76,99 @@ func (c *Client) loadGWName(ctx context.Context, modelName string) (workloads.Ga
 	return c.client.LoadGatewayName(modelName, nodeID)
 }
 
-func (c *Client) loadDeployment(modelName string, nodeID uint32, contractID uint64) (workloads.Deployment, error) {
+func (c *Client) loadDeployment(modelName string, nodeID uint32) (workloads.Deployment, error) {
 	return c.client.LoadDeployment(modelName, nodeID)
 }
 
-func (c *Client) loadZDB(modelName string, nodeID uint32, contractID uint64) (workloads.ZDB, error) {
-	return c.client.LoadZDB(modelName, nodeID)
+func (c *Client) loadZDB(ctx context.Context, modelName string) (workloads.ZDB, uint32, error) {
+	modelcontracts, err := c.loadModelContracts(ctx, modelName)
+	if err != nil {
+		return workloads.ZDB{}, 0, errors.Wrapf(err, "failed to get zdb %s contract", modelName)
+	}
+
+	if len(modelcontracts.nodeContracts) != 1 {
+		return workloads.ZDB{}, 0, fmt.Errorf("node contracts for zdb %s should be 1, but %d were found", modelName, len(modelcontracts.nodeContracts))
+	}
+
+	var nodeID uint32
+	for node := range modelcontracts.nodeContracts {
+		nodeID = node
+	}
+
+	zdb, err := c.client.LoadZDB(modelName, nodeID)
+	if err != nil {
+		return workloads.ZDB{}, 0, err
+	}
+
+	return zdb, nodeID, nil
 }
 
-func (c *Client) loadModelContracts(ctx context.Context, modelName string) (modelState, error) {
+func (c *Client) loadModelContracts(ctx context.Context, modelName string) (ProjectState, error) {
 	projectName := generateProjectName(modelName)
-	modState := modelState{}
-	projectState, ok := c.projects[projectName]
-	if ok {
-		modState = projectState
-		c.client.SetContractState(modState.nodeContracts)
-		return modState, nil
+
+	if projectState, ok := c.Projects[projectName]; ok {
+		c.client.SetContractState(projectState.nodeContracts)
+		return projectState, nil
+	}
+
+	newState := ProjectState{
+		nodeContracts: make(map[uint32]state.ContractIDs),
+		networkState:  state.Network{},
+		nameContracts: make(map[uint32]uint64),
 	}
 
 	projectContracts, err := c.client.GetProjectContracts(ctx, projectName)
 	if err != nil {
-		return modelState{}, errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
+		return ProjectState{}, errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
 	}
 
-	nodeContracts := map[uint32]state.ContractIDs{}
 	for _, c := range projectContracts.NodeContracts {
 		contractID, err := strconv.ParseUint(c.ContractID, 10, 64)
 		if err != nil {
-			return modelState{}, err
+			return ProjectState{}, err
 		}
 
-		nodeContracts[c.NodeID] = append(nodeContracts[c.NodeID], contractID)
+		newState.nodeContracts[c.NodeID] = append(newState.nodeContracts[c.NodeID], contractID)
 	}
 
-	c.client.SetContractState(nodeContracts)
-
-	nameContracts := map[uint32]uint64{}
 	for _, c := range projectContracts.NameContracts {
 		contractID, err := strconv.ParseUint(c.ContractID, 10, 64)
 		if err != nil {
-			return modelState{}, err
+			return ProjectState{}, err
 		}
 
-		nameContracts[c.NodeID] = contractID
+		newState.nameContracts[c.NodeID] = contractID
 	}
 
-	return modelState{
-		nodeContracts: nodeContracts,
-		nameContracts: nameContracts,
-	}, nil
+	c.client.SetContractState(newState.nodeContracts)
+
+	c.Projects[projectName] = newState
+
+	return newState, nil
 }
 
-func (c *Client) loadGridMachinesMadel(modelName string, nodeDeployments map[uint32]uint64, networkDeployments map[uint32]uint64) (gridMachinesModel, error) {
-	znet, err := c.loadNetwork(modelName, networkDeployments)
+func (c *Client) loadGridMachinesMadel(ctx context.Context, modelName string) (gridMachinesModel, error) {
+	modelContracts, err := c.loadModelContracts(ctx, modelName)
+	if err != nil {
+		return gridMachinesModel{}, errors.Wrapf(err, "failed to get machines model %s contracts", modelName)
+	}
+
+	if len(modelContracts.nodeContracts) == 0 {
+		return gridMachinesModel{}, fmt.Errorf("found 0 contracts for model %s", modelName)
+	}
+
+	znet, err := c.loadNetwork(modelName)
 	if err != nil {
 		return gridMachinesModel{}, err
 	}
 
-	deployments := map[uint32]workloads.Deployment{}
-	for nodeID, contractID := range nodeDeployments {
-		dl, err := c.loadDeployment(modelName, nodeID, contractID)
+	deployments := map[uint32]*workloads.Deployment{}
+	for nodeID := range modelContracts.nodeContracts {
+		dl, err := c.loadDeployment(modelName, nodeID)
 		if err != nil {
 			return gridMachinesModel{}, errors.Wrap(err, "failed to load deployments")
 		}
-		deployments[nodeID] = dl
+		deployments[nodeID] = &dl
 	}
 
 	return gridMachinesModel{
@@ -169,7 +194,8 @@ func (c *Client) setNetworkState(g *gridMachinesModel) error {
 			if err != nil {
 				return err
 			}
-			nodeUsedIPs[dl.ContractID] = append(nodeUsedIPs[dl.ContractID], byte(id))
+			contractID := dl.NodeDeploymentID[nodeID]
+			nodeUsedIPs[contractID] = append(nodeUsedIPs[contractID], byte(id))
 		}
 		usedIPs[nodeID] = nodeUsedIPs
 	}

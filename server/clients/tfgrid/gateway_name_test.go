@@ -21,7 +21,8 @@ func TestGatewayName(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		client:   cl,
+		Projects: make(map[string]ProjectState),
 	}
 
 	t.Run("gateway_name_deploy_success", func(t *testing.T) {
@@ -61,15 +62,29 @@ func TestGatewayName(t *testing.T) {
 			GetProjectContracts(gomock.Any(), projectName).
 			Return(graphql.Contracts{}, nil)
 
-		gw := newGWNameProxyFromModel(model)
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {contractID}})
+
+		cl.EXPECT().LoadGatewayName(modelName, nodeID).Return(workloads.GatewayNameProxy{
+			NodeID: nodeID,
+			Name:   modelName,
+			Backends: []zos.Backend{
+				"backend1",
+				"b2",
+			},
+			TLSPassthrough: false,
+			Description:    "desc1",
+			FQDN:           fmt.Sprintf("%s.%s", modelName, domain),
+			NameContractID: nameContractID,
+			ContractID:     contractID,
+		}, nil)
+
+		gw := toGridGWName(model)
 
 		cl.EXPECT().DeployGWName(gomock.Any(), &gw).DoAndReturn(func(ctx context.Context, wl *workloads.GatewayNameProxy) error {
 			wl.NameContractID = nameContractID
 			wl.ContractID = contractID
 			return nil
 		})
-
-		cl.EXPECT().GetNodeDomain(context.Background(), nodeID).Return(domain, nil)
 
 		got, err := r.GatewayNameDeploy(context.Background(), model)
 		assert.NoError(t, err)
@@ -78,7 +93,7 @@ func TestGatewayName(t *testing.T) {
 	})
 
 	t.Run("gateway_name_get_success", func(t *testing.T) {
-		modelName := "hamada"
+		modelName := "hamada2"
 		projectName := generateProjectName(modelName)
 		nodeID := uint32(1)
 		nameContractID := uint64(1)
