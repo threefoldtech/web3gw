@@ -118,7 +118,7 @@ func TestMachines(t *testing.T) {
 
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
 		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,
@@ -236,7 +236,7 @@ func TestMachines(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNetworkContracts(map[uint32]state.ContractIDs{nodeID: {networkContractID}})
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {networkContractID, nodeContractID}})
 		cl.EXPECT().LoadNetwork(networkName).Return(workloads.ZNet{
 			Name:        networkName,
 			Nodes:       []uint32{nodeID},
@@ -246,7 +246,6 @@ func TestMachines(t *testing.T) {
 
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
 		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,

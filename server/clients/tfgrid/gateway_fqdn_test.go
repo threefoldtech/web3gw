@@ -20,7 +20,8 @@ func TestGatewayFQDN(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		client:   cl,
+		Projects: make(map[string]ProjectState),
 	}
 
 	t.Run("fqdn_deploy_success", func(t *testing.T) {
@@ -80,7 +81,7 @@ func TestGatewayFQDN(t *testing.T) {
 	})
 
 	t.Run("fqdn_deploy_fail_project_name_not_unique", func(t *testing.T) {
-		modelName := "name1"
+		modelName := "name2"
 		projectName := generateProjectName(modelName)
 		fqdnModel := GatewayFQDNModel{
 			NodeID: 1,
@@ -107,7 +108,7 @@ func TestGatewayFQDN(t *testing.T) {
 	})
 
 	t.Run("fqdn_get_success", func(t *testing.T) {
-		modelName := "name1"
+		modelName := "name3"
 		projectName := generateProjectName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)

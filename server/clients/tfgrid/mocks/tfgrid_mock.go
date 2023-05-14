@@ -82,12 +82,11 @@ func (mr *MockTFGridClientMockRecorder) CancelProject(ctx, projectName interface
 }
 
 // DeployDeployment mocks base method.
-func (m *MockTFGridClient) DeployDeployment(ctx context.Context, d *workloads.Deployment) (uint64, error) {
+func (m *MockTFGridClient) DeployDeployment(ctx context.Context, d *workloads.Deployment) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeployDeployment", ctx, d)
-	ret0, _ := ret[0].(uint64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeployDeployment indicates an expected call of DeployDeployment.
@@ -182,6 +181,34 @@ func (m *MockTFGridClient) FilterNodes(filter types.NodeFilter, pagination types
 func (mr *MockTFGridClientMockRecorder) FilterNodes(filter, pagination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterNodes", reflect.TypeOf((*MockTFGridClient)(nil).FilterNodes), filter, pagination)
+}
+
+// GetContractState mocks base method.
+func (m *MockTFGridClient) GetContractState() map[uint32]state.ContractIDs {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetContractState")
+	ret0, _ := ret[0].(map[uint32]state.ContractIDs)
+	return ret0
+}
+
+// GetContractState indicates an expected call of GetContractState.
+func (mr *MockTFGridClientMockRecorder) GetContractState() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContractState", reflect.TypeOf((*MockTFGridClient)(nil).GetContractState))
+}
+
+// GetNetworkState mocks base method.
+func (m *MockTFGridClient) GetNetworkState(networkName string) state.Network {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNetworkState", networkName)
+	ret0, _ := ret[0].(state.Network)
+	return ret0
+}
+
+// GetNetworkState indicates an expected call of GetNetworkState.
+func (mr *MockTFGridClientMockRecorder) GetNetworkState(networkName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNetworkState", reflect.TypeOf((*MockTFGridClient)(nil).GetNetworkState), networkName)
 }
 
 // GetNode mocks base method.

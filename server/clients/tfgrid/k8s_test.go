@@ -214,7 +214,7 @@ func TestK8s(t *testing.T) {
 			},
 		}, nil)
 
-		cl.EXPECT().SetNodeDeploymentState(map[uint32]state.ContractIDs{1: {1}, 2: {2}})
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{1: {1}, 2: {2}})
 		cl.EXPECT().LoadK8s("master", []uint32{1, 2}).Return(workloads.K8sCluster{
 			Master: &workloads.K8sNode{
 				Name:        "master",

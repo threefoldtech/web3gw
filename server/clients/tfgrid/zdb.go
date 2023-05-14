@@ -2,12 +2,11 @@ package tfgrid
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
-	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	proxyTypes "github.com/threefoldtech/tfgrid-sdk-go/grid-proxy/pkg/types"
 )
@@ -27,77 +26,66 @@ type ZDB struct {
 	IPs       []string `json:"ips"`
 }
 
-func (r *Client) ZDBDeploy(ctx context.Context, zdb ZDB) (ZDB, error) {
-	projectName := generateProjectName(zdb.Name)
-
+func (c *Client) ZDBDeploy(ctx context.Context, zdb ZDB) (ZDB, error) {
 	// validate no workloads with the same name
-	if err := r.validateProjectName(ctx, projectName); err != nil {
+	if err := c.validateProjectName(ctx, zdb.Name); err != nil {
 		return ZDB{}, err
 	}
 
-	if err := r.ensureZDBNodeIDExist(zdb); err != nil {
+	if err := c.ensureZDBNodeIDExist(zdb); err != nil {
 		return ZDB{}, err
 	}
 
-	// deploy
-	zdbs := []workloads.ZDB{
-		ZDBFromModel(zdb),
-	}
-	log.Info().Msgf("Deploying zdb: %+v", zdbs)
+	gridZDB := toGridZDB(zdb)
 
-	clientDeployment := workloads.NewDeployment(zdb.Name, zdb.NodeID, projectName, nil, "", nil, zdbs, nil, nil)
-	contractID, err := r.client.DeployDeployment(ctx, &clientDeployment)
-	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to deploy zdb with name: %s", zdb.Name)
+	if err := c.deployZDB(ctx, &gridZDB, zdb.NodeID); err != nil {
+		return ZDB{}, err
 	}
 
-	z, err := r.loadZDB(zdb.Name, zdb.NodeID, contractID)
-	if err != nil {
-		return ZDB{}, errors.Wrap(err, "failed to load zdb")
-	}
-
-	ret := ZDBToModel(z, zdb.NodeID)
-
-	return ret, nil
+	return c.ZDBGet(ctx, zdb.Name)
 }
 
-func (r *Client) ZDBDelete(ctx context.Context, projectName string) error {
-	if err := r.client.CancelProject(ctx, projectName); err != nil {
-		return errors.Wrapf(err, "Failed to cancel cluster with name: %s", projectName)
+func (c *Client) deployZDB(ctx context.Context, gridZDB *workloads.ZDB, nodeID uint32) error {
+	log.Info().Msgf("Deploying zdb: %+v", *gridZDB)
+
+	dl := workloads.NewDeployment(gridZDB.Name, nodeID, generateProjectName(gridZDB.Name), nil, "", nil, []workloads.ZDB{*gridZDB}, nil, nil)
+	if err := c.client.DeployDeployment(ctx, &dl); err != nil {
+		return errors.Wrapf(err, "failed to deploy zdb with name: %s", gridZDB.Name)
+	}
+
+	projectName := generateProjectName(gridZDB.Name)
+
+	c.Projects[projectName] = ProjectState{
+		nodeContracts: map[uint32]state.ContractIDs{
+			nodeID: {dl.NodeDeploymentID[nodeID]},
+		},
+	}
+
+	return nil
+}
+
+func (c *Client) ZDBDelete(ctx context.Context, modelName string) error {
+	if err := c.cancelModel(ctx, modelName); err != nil {
+		return errors.Wrapf(err, "Failed to cancel zdb with name: %s", modelName)
 	}
 
 	return nil
 }
 
 func (r *Client) ZDBGet(ctx context.Context, modelName string) (ZDB, error) {
-	projectName := generateProjectName(modelName)
+	log.Info().Msgf("retreiving zdb %s", modelName)
 
-	contracts, err := r.client.GetProjectContracts(ctx, projectName)
-	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to get contracts for project: %s", projectName)
-	}
-
-	if len(contracts.NodeContracts) != 1 {
-		return ZDB{}, fmt.Errorf("contracts of project %s should be 1, but %d were found", projectName, len(contracts.NodeContracts))
-	}
-
-	contract := contracts.NodeContracts[0]
-	cid, err := strconv.ParseUint(contract.ContractID, 10, 64)
-	if err != nil {
-		return ZDB{}, errors.Wrapf(err, "failed to parse contract Id: %s", contract.ContractID)
-	}
-
-	zdb, err := r.loadZDB(modelName, contract.NodeID, cid)
+	zdb, nodeID, err := r.loadZDB(ctx, modelName)
 	if err != nil {
 		return ZDB{}, err
 	}
 
-	ret := ZDBToModel(zdb, contract.NodeID)
+	ret := ZDBToModel(zdb, nodeID)
 
 	return ret, nil
 }
 
-func ZDBFromModel(zdb ZDB) workloads.ZDB {
+func toGridZDB(zdb ZDB) workloads.ZDB {
 	return workloads.ZDB{
 		Name:        zdb.Name,
 		Password:    zdb.Password,

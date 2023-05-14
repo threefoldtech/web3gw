@@ -18,7 +18,7 @@ type TFGridClient interface {
 	DeployGWName(ctx context.Context, gw *workloads.GatewayNameProxy) error
 	DeployK8sCluster(ctx context.Context, k8s *workloads.K8sCluster) error
 	DeployNetwork(ctx context.Context, znet *workloads.ZNet) error
-	DeployDeployment(ctx context.Context, d *workloads.Deployment) (uint64, error)
+	DeployDeployment(ctx context.Context, d *workloads.Deployment) error
 	CancelProject(ctx context.Context, projectName string) error
 	GetProjectContracts(ctx context.Context, projectName string) (graphql.Contracts, error)
 	GetNodeClient(nodeID uint32) (*client.NodeClient, error)
@@ -31,6 +31,8 @@ type TFGridClient interface {
 
 	SetContractState(contracts map[uint32]state.ContractIDs)
 	SetNetworkState(networkName string, subnets map[uint32]string, usedIPs state.NodeDeploymentHostIDs)
+	GetContractState() map[uint32]state.ContractIDs
+	GetNetworkState(networkName string) state.Network
 
 	LoadNetwork(networkName string) (workloads.ZNet, error)
 	LoadGatewayFQDN(modelName string, nodeID uint32) (workloads.GatewayFQDNProxy, error)
@@ -84,12 +86,12 @@ func (c *tfgridClient) DeployNetwork(ctx context.Context, znet *workloads.ZNet) 
 
 	return nil
 }
-func (c *tfgridClient) DeployDeployment(ctx context.Context, d *workloads.Deployment) (uint64, error) {
+func (c *tfgridClient) DeployDeployment(ctx context.Context, d *workloads.Deployment) error {
 	if err := c.client.DeploymentDeployer.Deploy(ctx, d); err != nil {
-		return 0, errors.Wrap(err, "failed to deploy deployment")
+		return errors.Wrap(err, "failed to deploy deployment")
 	}
 
-	return d.ContractID, nil
+	return nil
 }
 func (c *tfgridClient) CancelProject(ctx context.Context, projectName string) error {
 	if err := c.client.CancelByProjectName(projectName); err != nil {
@@ -161,6 +163,14 @@ func (c *tfgridClient) SetNetworkState(networkName string, subnets map[uint32]st
 
 func (c *tfgridClient) SetContractState(contracts map[uint32]state.ContractIDs) {
 	c.client.State.CurrentNodeDeployments = contracts
+}
+
+func (c *tfgridClient) GetNetworkState(networkName string) state.Network {
+	return c.client.State.Networks.GetNetwork(networkName)
+}
+
+func (c *tfgridClient) GetContractState() map[uint32]state.ContractIDs {
+	return c.client.State.CurrentNodeDeployments
 }
 
 func (c *tfgridClient) LoadNetwork(networkName string) (workloads.ZNet, error) {
