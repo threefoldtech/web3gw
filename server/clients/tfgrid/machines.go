@@ -159,25 +159,18 @@ func (c *Client) deployMachinesModel(ctx context.Context, model *gridMachinesMod
 		return err
 	}
 
-	log.Info().Msgf("znet deployments: %+v", model.network.NodeDeploymentID)
-
 	if err := c.deployMachinesDeployments(ctx, model); err != nil {
 		return err
 	}
 
-	log.Info().Msgf("model deployments:")
-	for _, dl := range model.deployments {
-		log.Info().Msgf("dep: %+v", dl.NodeDeploymentID)
-	}
-
-	if err := c.updateState(model); err != nil {
+	if err := c.updateLocalState(model); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (c *Client) updateState(g *gridMachinesModel) error {
+func (c *Client) updateLocalState(g *gridMachinesModel) error {
 	nodeContracts := map[uint32]state.ContractIDs{}
 	for nodeID, dl := range g.deployments {
 		nodeContracts[nodeID] = append(nodeContracts[nodeID], dl.ContractID)
@@ -187,16 +180,10 @@ func (c *Client) updateState(g *gridMachinesModel) error {
 		nodeContracts[nodeID] = append(nodeContracts[nodeID], contractID)
 	}
 
-	networkState, err := g.getNetworkState()
-	if err != nil {
-		return err
-	}
-
 	projectName := generateProjectName(g.modelName)
 
 	c.Projects[projectName] = ProjectState{
 		nodeContracts: nodeContracts,
-		networkState:  networkState,
 	}
 
 	return nil
@@ -256,9 +243,9 @@ func (c *Client) deployMachinesDeployments(ctx context.Context, g *gridMachinesM
 		deployment := dl
 		errGroup.Go(func() error {
 			if err := c.client.DeployDeployment(ctx, deployment); err != nil {
-				return errors.Wrap(err, "failed to deploy deployment")
+				return err
 			}
-			log.Info().Msgf("after deploy: %+v", deployment.NodeDeploymentID)
+
 			nodeDeploymentIDs[deployment.NodeID] = deployment.NodeDeploymentID[deployment.NodeID]
 			return nil
 		})
@@ -268,12 +255,9 @@ func (c *Client) deployMachinesDeployments(ctx context.Context, g *gridMachinesM
 		return err
 	}
 
-	log.Info().Msgf("node deployment ids accumulated: %+v", nodeDeploymentIDs)
 	for nodeID, dl := range g.deployments {
 		dl.ContractID = nodeDeploymentIDs[nodeID]
 		dl.NodeDeploymentID = map[uint32]uint64{nodeID: nodeDeploymentIDs[nodeID]}
-
-		log.Info().Msgf("obj deployments: %+v", g.deployments[nodeID].NodeDeploymentID)
 	}
 
 	return nil
@@ -351,10 +335,6 @@ func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 }
 
 func (c *Client) addMachine(ctx context.Context, g *gridMachinesModel, params *AddMachineParams) error {
-	if err := c.setNetworkState(g); err != nil {
-		return errors.Wrap(err, "failed to set network state")
-	}
-
 	if err := c.prepareModelForUpdate(g, params); err != nil {
 		return err
 	}
@@ -419,7 +399,7 @@ func (c *Client) removeMachine(ctx context.Context, g *gridMachinesModel, params
 		}
 	}
 
-	if err := c.updateState(g); err != nil {
+	if err := c.updateLocalState(g); err != nil {
 		return err
 	}
 
