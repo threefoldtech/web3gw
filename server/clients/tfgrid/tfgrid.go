@@ -30,9 +30,6 @@ type TFGridClient interface {
 	GetNodeFarm(nodeID uint32) (uint32, error)
 
 	SetContractState(contracts map[uint32]state.ContractIDs)
-	SetNetworkState(networkName string, subnets map[uint32]string, usedIPs state.NodeDeploymentHostIDs)
-	GetContractState() map[uint32]state.ContractIDs
-	GetNetworkState(networkName string) state.Network
 
 	LoadNetwork(networkName string) (workloads.ZNet, error)
 	LoadGatewayFQDN(modelName string, nodeID uint32) (workloads.GatewayFQDNProxy, error)
@@ -154,23 +151,8 @@ func (c *tfgridClient) GetNodeDomain(ctx context.Context, nodeID uint32) (string
 	return cfg.Domain, nil
 }
 
-func (c *tfgridClient) SetNetworkState(networkName string, subnets map[uint32]string, usedIPs state.NodeDeploymentHostIDs) {
-	c.client.State.Networks = state.NetworkState{networkName: state.Network{
-		Subnets:               subnets,
-		NodeDeploymentHostIDs: usedIPs,
-	}}
-}
-
 func (c *tfgridClient) SetContractState(contracts map[uint32]state.ContractIDs) {
 	c.client.State.CurrentNodeDeployments = contracts
-}
-
-func (c *tfgridClient) GetNetworkState(networkName string) state.Network {
-	return c.client.State.Networks.GetNetwork(networkName)
-}
-
-func (c *tfgridClient) GetContractState() map[uint32]state.ContractIDs {
-	return c.client.State.CurrentNodeDeployments
 }
 
 func (c *tfgridClient) LoadNetwork(networkName string) (workloads.ZNet, error) {

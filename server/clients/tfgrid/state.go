@@ -3,7 +3,6 @@ package tfgrid
 import (
 	"context"
 	"fmt"
-	"net"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -175,35 +174,5 @@ func (c *Client) loadGridMachinesMadel(ctx context.Context, modelName string) (g
 		deployments: deployments,
 	}
 
-	if err := c.setGridClientNetworkState(&g); err != nil {
-		return gridMachinesModel{}, err
-	}
-
 	return g, nil
-}
-
-func (c *Client) setGridClientNetworkState(g *gridMachinesModel) error {
-	subnets := map[uint32]string{}
-	for nodeID, subnet := range g.network.NodesIPRange {
-		subnets[nodeID] = subnet.String()
-	}
-
-	usedIPs := state.NodeDeploymentHostIDs{}
-	for nodeID, dl := range g.deployments {
-		nodeUsedIPs := state.DeploymentHostIDs{}
-		contractID := dl.NodeDeploymentID[nodeID]
-		deploymentUsedIPs := []byte{}
-		for _, vm := range dl.Vms {
-			ip := net.ParseIP(vm.IP).To4()
-			if ip != nil {
-				deploymentUsedIPs = append(deploymentUsedIPs, ip[3])
-			}
-		}
-		nodeUsedIPs[contractID] = deploymentUsedIPs
-		usedIPs[nodeID] = nodeUsedIPs
-	}
-
-	c.client.SetNetworkState(generateNetworkName(g.modelName), subnets, usedIPs)
-
-	return nil
 }
