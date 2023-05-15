@@ -62,8 +62,6 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 
 	zos_version := tfchain_client.get_zos_version()!
 	logger.info("Zos version is: ${zos_version}")
-
-	tfchain_client.swap_to_stellar(amount: 50000000, target_stellar_address: "GCPVVC4MWKV7ZGQCMHHMALNWVLN2II43RC3FDLCRFCZJBAJCZHNE4VKK")!
 }
 
 fn main() {
