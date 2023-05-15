@@ -60,7 +60,11 @@ func TestZDB(t *testing.T) {
 		}
 
 		clientDeployment := workloads.NewDeployment(model.Name, model.NodeID, projectName, nil, "", nil, zdbs, nil, nil)
-		cl.EXPECT().DeployDeployment(gomock.Any(), &clientDeployment).Return(contractID, nil)
+		cl.EXPECT().DeployDeployment(gomock.Any(), &clientDeployment).DoAndReturn(func(ctx context.Context, d *workloads.Deployment) error {
+			d.ContractID = contractID
+			d.NodeDeploymentID = map[uint32]uint64{nodeID: contractID}
+			return nil
+		})
 
 		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {contractID}})
 

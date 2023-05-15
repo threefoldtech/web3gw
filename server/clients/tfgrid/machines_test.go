@@ -21,14 +21,16 @@ func TestMachines(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		client:   cl,
+		Projects: make(map[string]ProjectState),
 	}
 
 	t.Run("machines_deploy_success", func(t *testing.T) {
 		nodeID := uint32(1)
 		modelName := "model1"
 		projectName := generateProjectName(modelName)
-		nodeContractID := uint64(2)
+		networkContratID := uint64(1)
+		deploymentContractID := uint64(2)
 		model := MachinesModel{
 			Name: modelName,
 			Network: Network{
@@ -107,18 +109,30 @@ func TestMachines(t *testing.T) {
 		}
 
 		cl.EXPECT().DeployNetwork(context.Background(), &znet).DoAndReturn(func(ctx context.Context, znet *workloads.ZNet) error {
-			znet.NodeDeploymentID = map[uint32]uint64{1: 1}
+			znet.NodeDeploymentID = map[uint32]uint64{nodeID: networkContratID}
 			return nil
 		})
 
 		model.Network.Name = generateNetworkName(model.Name)
 
 		// TODO: deployment should not be any
-		cl.EXPECT().DeployDeployment(context.Background(), gomock.Any()).Return(nodeContractID, nil)
+		cl.EXPECT().DeployDeployment(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, clientDeployment *workloads.Deployment) error {
+			clientDeployment.ContractID = deploymentContractID
+			clientDeployment.NodeDeploymentID = map[uint32]uint64{nodeID: deploymentContractID}
+			return nil
+		})
 
 		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {deploymentContractID, networkContratID}})
+		cl.EXPECT().LoadNetwork(generateNetworkName(modelName)).Return(workloads.ZNet{
+			Name:             generateNetworkName(model.Name),
+			Nodes:            []uint32{nodeID},
+			IPRange:          ipRange,
+			SolutionType:     projectName,
+			NodeDeploymentID: map[uint32]uint64{nodeID: networkContratID},
+		}, nil)
+
 		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
 			Name:             modelName,
 			NodeID:           nodeID,
@@ -165,7 +179,7 @@ func TestMachines(t *testing.T) {
 
 	t.Run("machines_get_success", func(t *testing.T) {
 		nodeID := uint32(1)
-		modelName := "model1"
+		modelName := "model2"
 		projectName := generateProjectName(modelName)
 		networkName := generateNetworkName(modelName)
 		networkContractID := uint64(1)
