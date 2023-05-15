@@ -10,7 +10,7 @@ import os
 import time
 
 const (
-	default_server_address = 'http://127.0.0.1:8080'
+	default_server_address = 'ws://127.0.0.1:8080'
 )
 
 fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {

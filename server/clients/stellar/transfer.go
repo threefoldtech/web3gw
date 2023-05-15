@@ -18,7 +18,7 @@ const (
 	// BSC
 	// stellarPublicNetworkBscBridgeAddress = "GBFFWXWBZDILJJAMSINHPJEUJKB3H4UYXRWNB4COYQAF7UUQSWSBUXW5"
 	// Tfchain
-	// stellarPublicNetworkTfchainBridgeAddress = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
+	stellarPublicNetworkTfchainBridgeAddress = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
 )
 
 func (c *Client) Transfer(destination, memo string, amount string) error {
@@ -107,14 +107,14 @@ func (c *Client) GetEthBridgeAddress() (string, error) {
 // 	return c.Transfer(bridgeAddr, base64.RawStdEncoding.EncodeToString(b), amount)
 // }
 
-// func (c *Client) TransferToTfchainBridge(destination, amount string, twinID uint64) error {
-// 	bridgeAddr, err := c.GetTfchainBridgeAddress()
-// 	if err != nil {
-// 		return err
-// 	}
+func (c *Client) TransferToTfchainBridge(amount string, twinID uint32) error {
+	bridgeAddr, err := c.GetTfchainBridgeAddress()
+	if err != nil {
+		return err
+	}
 
-// 	return c.Transfer(bridgeAddr, fmt.Sprintf("twin_%d", twinID), amount)
-// }
+	return c.Transfer(bridgeAddr, fmt.Sprintf("twin_%d", twinID), amount)
+}
 
 // func (c *Client) GetBscBridgeAddress() (string, error) {
 // 	if c.stellarNetwork == "public" {
@@ -124,10 +124,10 @@ func (c *Client) GetEthBridgeAddress() (string, error) {
 // 	}
 // }
 
-// func (c *Client) GetTfchainBridgeAddress() (string, error) {
-// 	if c.stellarNetwork == "public" {
-// 		return stellarPublicNetworkTfchainBridgeAddress, nil
-// 	} else {
-// 		return "", errors.New("bsc address not available for networks other than public")
-// 	}
-// }
+func (c *Client) GetTfchainBridgeAddress() (string, error) {
+	if c.stellarNetwork == "public" {
+		return stellarPublicNetworkTfchainBridgeAddress, nil
+	} else {
+		return "", errors.New("bsc address not available for networks other than public")
+	}
+}

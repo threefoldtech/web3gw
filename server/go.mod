@@ -7,7 +7,7 @@ require (
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.5
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12
 	github.com/daoleno/uniswap-sdk-core v0.1.5
 	github.com/daoleno/uniswapv3-sdk v0.4.0
 	github.com/ethereum/go-ethereum v1.11.6
@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230425112357-f35e342c2193
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230511085814-333413419983
 	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.3.0
 	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.3.0
 	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.3.0

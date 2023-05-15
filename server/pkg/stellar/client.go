@@ -42,9 +42,8 @@ type (
 	}
 
 	TfchainBridgeTransfer struct {
-		Amount      string `json:"amount"`
-		Destination string `json:"destination"`
-		TwinId      uint64 `json:"twin_id"`
+		Amount string `json:"amount"`
+		TwinId uint32 `json:"twin_id"`
 	}
 )
 
@@ -146,12 +145,12 @@ func (c *Client) BridgeToEth(ctx context.Context, conState jsonrpc.State, args B
 // 	return state.Client.TransferToBscBridge(args.Destination, args.Amount)
 // }
 
-// // BridgeToTfchain transfers TFT from the loaded account to tfchain bridge and deposits into a twin account.
-// func (c *Client) BridgeToTfchain(ctx context.Context, conState jsonrpc.State, args TfchainBridgeTransfer) error {
-// 	state := State(conState)
-// 	if state.Client == nil {
-// 		return pkg.ErrClientNotConnected{}
-// 	}
+// BridgeToTfchain transfers TFT from the loaded account to tfchain bridge and deposits into a twin account.
+func (c *Client) BridgeToTfchain(ctx context.Context, conState jsonrpc.State, args TfchainBridgeTransfer) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
 
-// 	return state.Client.TransferToTfchainBridge(args.Destination, args.Amount, args.TwinId)
-// }
+	return state.Client.TransferToTfchainBridge(args.Amount, args.TwinId)
+}
