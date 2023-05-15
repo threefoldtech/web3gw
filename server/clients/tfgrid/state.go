@@ -3,8 +3,8 @@ package tfgrid
 import (
 	"context"
 	"fmt"
+	"net"
 	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
@@ -13,7 +13,6 @@ import (
 
 type ProjectState struct {
 	nodeContracts map[uint32]state.ContractIDs
-	networkState  state.Network
 	// used in gateway names
 	nameContracts map[uint32]uint64
 }
@@ -113,7 +112,6 @@ func (c *Client) loadModelContracts(ctx context.Context, modelName string) (Proj
 
 	newState := ProjectState{
 		nodeContracts: make(map[uint32]state.ContractIDs),
-		networkState:  state.Network{},
 		nameContracts: make(map[uint32]uint64),
 	}
 
@@ -171,14 +169,20 @@ func (c *Client) loadGridMachinesMadel(ctx context.Context, modelName string) (g
 		deployments[nodeID] = &dl
 	}
 
-	return gridMachinesModel{
+	g := gridMachinesModel{
 		modelName:   modelName,
 		network:     &znet,
 		deployments: deployments,
-	}, nil
+	}
+
+	if err := c.setGridClientNetworkState(&g); err != nil {
+		return gridMachinesModel{}, err
+	}
+
+	return g, nil
 }
 
-func (c *Client) setNetworkState(g *gridMachinesModel) error {
+func (c *Client) setGridClientNetworkState(g *gridMachinesModel) error {
 	subnets := map[uint32]string{}
 	for nodeID, subnet := range g.network.NodesIPRange {
 		subnets[nodeID] = subnet.String()
@@ -187,16 +191,15 @@ func (c *Client) setNetworkState(g *gridMachinesModel) error {
 	usedIPs := state.NodeDeploymentHostIDs{}
 	for nodeID, dl := range g.deployments {
 		nodeUsedIPs := state.DeploymentHostIDs{}
+		contractID := dl.NodeDeploymentID[nodeID]
+		deploymentUsedIPs := []byte{}
 		for _, vm := range dl.Vms {
-			slices := strings.SplitAfter(vm.IP, ".")
-			hostID := slices[len(slices)-1]
-			id, err := strconv.ParseUint(hostID, 10, 8)
-			if err != nil {
-				return err
+			ip := net.ParseIP(vm.IP).To4()
+			if ip != nil {
+				deploymentUsedIPs = append(deploymentUsedIPs, ip[3])
 			}
-			contractID := dl.NodeDeploymentID[nodeID]
-			nodeUsedIPs[contractID] = append(nodeUsedIPs[contractID], byte(id))
 		}
+		nodeUsedIPs[contractID] = deploymentUsedIPs
 		usedIPs[nodeID] = nodeUsedIPs
 	}
 
