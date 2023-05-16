@@ -12,6 +12,7 @@ import (
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
+	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -348,7 +349,7 @@ func (c *Client) addMachine(ctx context.Context, g *gridMachinesModel, params *A
 
 func (c *Client) prepareModelForUpdate(g *gridMachinesModel, params *AddMachineParams) error {
 	// update network
-	if !doesNetworkIncludeNode(g.network.Nodes, params.Machine.NodeID) {
+	if !slices.Contains(g.network.Nodes, params.Machine.NodeID) {
 		g.network.Nodes = append(g.network.Nodes, params.Machine.NodeID)
 	}
 
