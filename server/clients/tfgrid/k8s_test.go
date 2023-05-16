@@ -114,7 +114,7 @@ func TestK8s(t *testing.T) {
 		cl.EXPECT().DeployNetwork(gomock.Any(), &znet).Return(nil)
 
 		model.NetworkName = generateNetworkName(model.Name)
-		k8s := newK8sClusterFromModel(model)
+		k8s := toGridK8s(model)
 		cl.EXPECT().DeployK8sCluster(gomock.Any(), &k8s).DoAndReturn(func(ctx context.Context, wl *workloads.K8sCluster) error {
 			wl.Master.ComputedIP = "ip4"
 			wl.Master.ComputedIP6 = "ip6"
