@@ -14,7 +14,7 @@ import (
 
 /* ***** Types ***** */
 
-// clusterCluster struct for k8s cluster
+// K8sCluster struct for k8s cluster
 type K8sCluster struct {
 	Name        string    `json:"name"`
 	Master      *K8sNode  `json:"master"`
@@ -82,7 +82,7 @@ func (c *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster,
 		nodes = append(nodes, worker.NodeID)
 	}
 
-	znet, err := c.deployNetwork(ctx, cluster.Name, nodes, "10.1.0.0/16", false)
+	znet, err := c.deployNetwork(ctx, cluster.Name, nodes, "10.1.0.0/16", cluster.AddWGAccess)
 	if err != nil {
 		return K8sCluster{}, errors.Wrap(err, "failed to deploy network")
 	}
@@ -99,7 +99,7 @@ func (c *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster,
 	}
 
 	// update state for both network and cluster
-	updateState(c, &k8s, znet, generateProjectName(cluster.Name))
+	c.updateState(&k8s, znet, generateProjectName(cluster.Name))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: cluster.Name,
@@ -123,23 +123,19 @@ func (c *Client) K8sGet(ctx context.Context, params GetClusterParams) (K8sCluste
 	log.Info().Msgf("Getting k8s cluster with name %s", params.ClusterName)
 
 	// load the cluster contracts
-	clusterContracts, err := c.loadModelContracts(ctx, params.ClusterName)
+	contracts, err := c.getClusterNodeContracts(ctx, params.ClusterName)
 	if err != nil {
-		return K8sCluster{}, errors.Wrapf(err, "failed to get cluster %s contracts", params.ClusterName)
-	}
-
-	if len(clusterContracts.nodeContracts) == 0 {
-		return K8sCluster{}, fmt.Errorf("found 0 contracts for cluster %s", params.ClusterName)
+		return K8sCluster{}, err
 	}
 
 	// update state from the created contracts & load info from the grid
-	cluster, err := c.loadK8s(params.MasterName, clusterContracts.nodeContracts)
+	cluster, err := c.loadK8s(params.MasterName, contracts)
 	if err != nil {
 		return K8sCluster{}, errors.Wrapf(err, "failed to load kubernetes cluster %s", params.MasterName)
 	}
 
 	// get farms to construct the cluster node object
-	nodeFarms, err := getNodeFarmsIDs(c.client, &cluster)
+	nodeFarms, err := c.getNodeFarmsIDs(&cluster)
 	if err != nil {
 		return K8sCluster{}, errors.Wrapf(err, "failed to get node farms ids")
 	}
@@ -153,13 +149,9 @@ func (c *Client) K8sGet(ctx context.Context, params GetClusterParams) (K8sCluste
 func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sCluster, error) {
 	log.Info().Msgf("Adding worker %s", params.Worker.Name)
 
-	clusterContracts, err := c.loadModelContracts(ctx, params.ClusterName)
+	_, err := c.getClusterNodeContracts(ctx, params.ClusterName)
 	if err != nil {
-		return K8sCluster{}, errors.Wrapf(err, "failed to get kubernetes cluster %s contracts", params.ClusterName)
-	}
-
-	if len(clusterContracts.nodeContracts) == 0 {
-		return K8sCluster{}, fmt.Errorf("found 0 contracts for cluster %s", params.ClusterName)
+		return K8sCluster{}, err
 	}
 
 	znet, err := c.loadNetwork(params.ClusterName)
@@ -188,7 +180,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 	}
 
 	// update state for both network and cluster
-	updateState(c, &cluster, &znet, generateProjectName(params.ClusterName))
+	c.updateState(&cluster, &znet, generateProjectName(params.ClusterName))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: params.ClusterName,
@@ -200,13 +192,9 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams) (K8sCluster, error) {
 	log.Info().Msgf("removing worker %s", worker.WorkerName)
 
-	k8sContracts, err := c.loadModelContracts(ctx, worker.ClusterName)
+	contracts, err := c.getClusterNodeContracts(ctx, worker.ClusterName)
 	if err != nil {
-		return K8sCluster{}, errors.Wrapf(err, "failed to get kubernetes cluster %s contracts", worker.ClusterName)
-	}
-
-	if len(k8sContracts.nodeContracts) == 0 {
-		return K8sCluster{}, fmt.Errorf("found 0 contracts for cluster %s", worker.ClusterName)
+		return K8sCluster{}, err
 	}
 
 	znet, err := c.loadNetwork(worker.ClusterName)
@@ -214,7 +202,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 		return K8sCluster{}, errors.Wrapf(err, "failed to load network for cluster %s", worker.ClusterName)
 	}
 
-	cluster, err := c.loadK8s(worker.MasterName, k8sContracts.nodeContracts)
+	cluster, err := c.loadK8s(worker.MasterName, contracts)
 	if err != nil {
 		return K8sCluster{}, errors.Wrap(err, "failed to load kubernetes cluster")
 	}
@@ -240,7 +228,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 	}
 
 	// update state for both network and cluster
-	updateState(c, &cluster, &znet, generateProjectName(worker.ClusterName))
+	c.updateState(&cluster, &znet, generateProjectName(worker.ClusterName))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: worker.ClusterName,
@@ -383,10 +371,10 @@ func fromGridK8sNode(node workloads.K8sNode, nodeFarms map[uint32]uint32) K8sNod
 }
 
 // get farmsIds for the nodes where the cluster nodes are deployed
-func getNodeFarmsIDs(c TFGridClient, cluster *workloads.K8sCluster) (map[uint32]uint32, error) {
+func (c *Client) getNodeFarmsIDs(cluster *workloads.K8sCluster) (map[uint32]uint32, error) {
 	nodeFarms := map[uint32]uint32{}
 
-	farm, err := c.GetNodeFarm(cluster.Master.Node)
+	farm, err := c.client.GetNodeFarm(cluster.Master.Node)
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +382,7 @@ func getNodeFarmsIDs(c TFGridClient, cluster *workloads.K8sCluster) (map[uint32]
 	nodeFarms[cluster.Master.Node] = farm
 
 	for _, w := range cluster.Workers {
-		farm, err := c.GetNodeFarm(w.Node)
+		farm, err := c.client.GetNodeFarm(w.Node)
 		if err != nil {
 			return nil, err
 		}
@@ -416,7 +404,7 @@ func getWorkerIndex(cluster *workloads.K8sCluster, workerName string) (int, erro
 }
 
 // update the localState
-func updateState(c *Client, cluster *workloads.K8sCluster, znet *workloads.ZNet, projectName string) {
+func (c *Client) updateState(cluster *workloads.K8sCluster, znet *workloads.ZNet, projectName string) {
 	nodeContracts := map[uint32]state.ContractIDs{}
 	for nodeID, contract := range cluster.NodeDeploymentID {
 		nodeContracts[nodeID] = append(nodeContracts[nodeID], contract)
@@ -429,4 +417,16 @@ func updateState(c *Client, cluster *workloads.K8sCluster, znet *workloads.ZNet,
 	c.Projects[projectName] = ProjectState{
 		nodeContracts: nodeContracts,
 	}
+}
+
+func (c *Client) getClusterNodeContracts(ctx context.Context, clusterName string) (map[uint32]state.ContractIDs, error) {
+	clusterContracts, err := c.loadModelContracts(ctx, clusterName)
+	if err != nil {
+		return map[uint32]state.ContractIDs{}, errors.Wrapf(err, "failed to get cluster %s contracts", clusterName)
+	}
+
+	if len(clusterContracts.nodeContracts) == 0 {
+		return map[uint32]state.ContractIDs{}, fmt.Errorf("found 0 contracts for cluster %s", clusterName)
+	}
+	return clusterContracts.nodeContracts, nil
 }
