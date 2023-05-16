@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
+	"golang.org/x/exp/slices"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -68,19 +69,10 @@ func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []ui
 	return &znet, nil
 }
 
-func doesNetworkIncludeNode(networkNodes []uint32, nodeID uint32) bool {
-	for _, node := range networkNodes {
-		if node == nodeID {
-			return true
-		}
-	}
-
-	return false
-}
-
 func (c *Client) ensureNodeBelongsToNetwork(ctx context.Context, znet *workloads.ZNet, nodeID uint32) error {
 	log.Info().Msgf("ensuring node in network: %+v", znet)
-	if !doesNetworkIncludeNode(znet.Nodes, nodeID) {
+
+	if !slices.Contains(znet.Nodes, nodeID) {
 		znet.Nodes = append(znet.Nodes, nodeID)
 		err := c.client.DeployNetwork(ctx, znet)
 		if err != nil {

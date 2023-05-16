@@ -9,11 +9,12 @@ import (
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
+	"golang.org/x/exp/slices"
 )
 
 /* ***** Types ***** */
 
-// K8sCluster struct for k8s cluster
+// clusterCluster struct for k8s cluster
 type K8sCluster struct {
 	Name        string    `json:"name"`
 	Master      *K8sNode  `json:"master"`
@@ -86,6 +87,7 @@ func (c *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster,
 		return K8sCluster{}, errors.Wrap(err, "failed to deploy network")
 	}
 
+	// assign the computed values
 	cluster.NetworkName = znet.Name
 
 	// map to workloads.k8sCluster
@@ -97,20 +99,7 @@ func (c *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster,
 	}
 
 	// update state for both network and cluster
-	nodeContracts := map[uint32]state.ContractIDs{}
-	for nodeID, contract := range k8s.NodeDeploymentID {
-		nodeContracts[nodeID] = append(nodeContracts[nodeID], contract)
-	}
-
-	for nodeId, contract := range znet.NodeDeploymentID {
-		nodeContracts[nodeId] = append(nodeContracts[nodeId], contract)
-	}
-
-	projectName := generateProjectName(cluster.Name)
-
-	c.Projects[projectName] = ProjectState{
-		nodeContracts: nodeContracts,
-	}
+	updateState(c, &k8s, znet, generateProjectName(cluster.Name))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: cluster.Name,
@@ -129,7 +118,7 @@ func (c *Client) K8sDelete(ctx context.Context, clusterName string) error {
 	return nil
 }
 
-// K8sGet retreives a kubernetes cluster specified by the cluster name
+// K8sGet retrieves a kubernetes cluster specified by the cluster name
 func (c *Client) K8sGet(ctx context.Context, params GetClusterParams) (K8sCluster, error) {
 	log.Info().Msgf("Getting k8s cluster with name %s", params.ClusterName)
 
@@ -142,8 +131,6 @@ func (c *Client) K8sGet(ctx context.Context, params GetClusterParams) (K8sCluste
 	if len(clusterContracts.nodeContracts) == 0 {
 		return K8sCluster{}, fmt.Errorf("found 0 contracts for cluster %s", params.ClusterName)
 	}
-
-	fmt.Println("Loading....", params.MasterName, clusterContracts.nodeContracts)
 
 	// update state from the created contracts & load info from the grid
 	cluster, err := c.loadK8s(params.MasterName, clusterContracts.nodeContracts)
@@ -182,8 +169,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 
 	nodeIds := znet.Nodes
 
-	// use slice.Contains
-	if !doesNetworkIncludeNode(znet.Nodes, params.Worker.NodeID) {
+	if !slices.Contains(znet.Nodes, params.Worker.NodeID) {
 		znet.Nodes = append(znet.Nodes, params.Worker.NodeID)
 		err = c.client.DeployNetwork(ctx, &znet)
 		if err != nil {
@@ -191,14 +177,10 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 		}
 	}
 
-	fmt.Println("Loading....", params.MasterName, znet.Nodes, nodeIds)
-
 	cluster, err := c.client.LoadK8s(params.MasterName, nodeIds)
 	if err != nil {
 		return K8sCluster{}, errors.Wrap(err, "failed to load kubernetes cluster")
 	}
-
-	fmt.Println("Loaded....")
 
 	cluster.Workers = append(cluster.Workers, toGridK8sNode(params.Worker))
 	if err := c.client.DeployK8sCluster(ctx, &cluster); err != nil {
@@ -206,20 +188,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 	}
 
 	// update state for both network and cluster
-	nodeContracts := map[uint32]state.ContractIDs{}
-	for nodeID, contract := range cluster.NodeDeploymentID {
-		nodeContracts[nodeID] = append(nodeContracts[nodeID], contract)
-	}
-
-	for nodeId, contract := range znet.NodeDeploymentID {
-		nodeContracts[nodeId] = append(nodeContracts[nodeId], contract)
-	}
-
-	projectName := generateProjectName(params.ClusterName)
-
-	c.Projects[projectName] = ProjectState{
-		nodeContracts: nodeContracts,
-	}
+	updateState(c, &cluster, &znet, generateProjectName(params.ClusterName))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: params.ClusterName,
@@ -259,26 +228,9 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 
 	cluster.Workers = append(cluster.Workers[:workerIdx], cluster.Workers[workerIdx+1:]...)
 
-	// nodeIDs := []uint32{}
-	// for _, worker := range cluster.Workers {
-	// 	nodeIDs = append(nodeIDs, worker.Node)
-	// }
-	// nodeIDs = append(nodeIDs, cluster.Master.Node)
-
 	if err := c.client.DeployK8sCluster(ctx, &cluster); err != nil {
 		return K8sCluster{}, err
 	}
-
-	// TODO: check if there is no other worker on workerNodeID before updating network
-	// for idx, nodeID := range znet.Nodes {
-	// 	if nodeID == workerNodeID {
-	// 		znet.Nodes = append(znet.Nodes[:idx], znet.Nodes[idx+1:]...)
-	// 		break
-	// 	}
-	// }
-	// if doesNetworkIncludeNode(znet.Nodes, workerNodeID) {
-
-	// }
 
 	// if the node doesn't have other workers remove
 	if _, ok := cluster.NodeDeploymentID[workerNodeID]; !ok {
@@ -288,20 +240,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 	}
 
 	// update state for both network and cluster
-	nodeContracts := map[uint32]state.ContractIDs{}
-	for nodeID, contract := range cluster.NodeDeploymentID {
-		nodeContracts[nodeID] = append(nodeContracts[nodeID], contract)
-	}
-
-	for nodeId, contract := range znet.NodeDeploymentID {
-		nodeContracts[nodeId] = append(nodeContracts[nodeId], contract)
-	}
-
-	projectName := generateProjectName(worker.ClusterName)
-
-	c.Projects[projectName] = ProjectState{
-		nodeContracts: nodeContracts,
-	}
+	updateState(c, &cluster, &znet, generateProjectName(worker.ClusterName))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: worker.ClusterName,
@@ -474,4 +413,20 @@ func getWorkerIndex(cluster *workloads.K8sCluster, workerName string) (int, erro
 	}
 
 	return 0, fmt.Errorf("failed to find a worker with name %s", workerName)
+}
+
+// update the localState
+func updateState(c *Client, cluster *workloads.K8sCluster, znet *workloads.ZNet, projectName string) {
+	nodeContracts := map[uint32]state.ContractIDs{}
+	for nodeID, contract := range cluster.NodeDeploymentID {
+		nodeContracts[nodeID] = append(nodeContracts[nodeID], contract)
+	}
+
+	for nodeId, contract := range znet.NodeDeploymentID {
+		nodeContracts[nodeId] = append(nodeContracts[nodeId], contract)
+	}
+
+	c.Projects[projectName] = ProjectState{
+		nodeContracts: nodeContracts,
+	}
 }
