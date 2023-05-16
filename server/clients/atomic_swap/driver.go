@@ -198,6 +198,7 @@ func (d *Driver) handleBuyMessage(ctx context.Context, sender string, req MsgBuy
 	data, err := json.Marshal(msg)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not encode accept msg")
+		return
 	}
 
 	d.stage = DriverStageAcceptedBuy
@@ -215,6 +216,9 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 		log.Debug().Msg("Ignore message which is not intended for this swap")
 		return
 	}
+
+	log.Info().Msg("Seller accepted our buy offer")
+
 	// seller accepted our buy, so initiate the atomic swap.
 	// we have ETH and want to buy TFT on stellar, so set up the eth
 	// part of the swap
@@ -252,7 +256,8 @@ func (d *Driver) handleBuyAcceptMessage(ctx context.Context, sender string, req 
 	}
 	data, err := json.Marshal(msg)
 	if err != nil {
-		log.Error().Err(err).Msg("Can not encode accept msg")
+		log.Error().Err(err).Msg("Can not encode initiate eth message")
+		return
 	}
 
 	d.secretHash = output.SecretHash
@@ -272,6 +277,8 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 		log.Debug().Msg("Ignore message which is not intended for this swap")
 		return
 	}
+
+	log.Info().Msg("Received initiate eth message")
 
 	// Buyer initiated an Eth atomic swap, so first check and see if that is correct
 	// Note that at this point, the seller does not have an sct yet
@@ -370,9 +377,10 @@ func (d *Driver) handleInitiateEthMessage(ctx context.Context, sender string, re
 	data, err := json.Marshal(msg)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not encode accept msg")
+		return
 	}
 
-	d.stage = DriverStageSetupSwap
+	d.stage = DriverStageParticipateSwap
 
 	if err := d.nostr.PublishDirectMessage(ctx, sender, []string{"s", d.saleId}, string(data)); err != nil {
 		log.Error().Err(err).Msg("Can not send buy accepted message")
@@ -464,6 +472,7 @@ func (d *Driver) handleParticipateStellarMessage(ctx context.Context, sender str
 	data, err := json.Marshal(msg)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not encode accept msg")
+		return
 	}
 
 	d.stage = DriverStageClaimSwap
@@ -500,7 +509,7 @@ func handleMessage(driver *Driver) {
 	defer cancel()
 
 	for evt := range driver.msges {
-		log.Debug().Str("sender", evt.PubKey).Msg("Got swap driver message")
+		log.Warn().Int("Stage", driver.stage).Str("Sender", evt.PubKey).Msg("Got swap driver message")
 		switch driver.stage {
 		case DriverStageOpenSale:
 			msg := MsgBuy{}

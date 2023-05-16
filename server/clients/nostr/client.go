@@ -206,7 +206,7 @@ func (c *Client) PublishRecommendServer(ctx context.Context, tags []string, cont
 
 // / PublishDirectMessage publishes a direct message for a given peer identified by the given pubkey on the connected relays
 func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags []string, content string) error {
-	log.Debug().Str("receiver", receiver).Msg("Sending direct message")
+	log.Debug().Str("Receiver", receiver).Msg("Sending direct message")
 	ss, err := nip04.ComputeSharedSecret(receiver, c.sk)
 	if err != nil {
 		return errors.Wrap(err, "could not compute shared secret for receiver")
