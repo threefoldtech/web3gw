@@ -27,7 +27,9 @@ func (c *Client) deployZnet(ctx context.Context, znet *workloads.ZNet) error {
 	return nil
 }
 
-func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []uint32, IPRange string, WGAccess bool, projectName string) (*workloads.ZNet, error) {
+func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []uint32, IPRange string, WGAccess bool) (*workloads.ZNet, error) {
+	projectName := generateProjectName(modelName)
+
 	nodeList := []uint32{}
 	nodeSet := map[uint32]struct{}{}
 	for _, node := range nodes {

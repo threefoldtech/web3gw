@@ -20,15 +20,11 @@ func (c *Client) loadNetwork(modelName string) (workloads.ZNet, error) {
 	return c.client.LoadNetwork(generateNetworkName(modelName))
 }
 
-func (c *Client) loadK8s(masterName string, nodeContracts map[uint32][]uint64) (workloads.K8sCluster, error) {
-	k8sState := map[uint32]state.ContractIDs{}
+func (c *Client) loadK8s(masterName string, nodeContracts map[uint32]state.ContractIDs) (workloads.K8sCluster, error) {
 	nodeIDs := []uint32{}
-	for node, contracts := range nodeContracts {
-		k8sState[node] = contracts
+	for node := range nodeContracts {
 		nodeIDs = append(nodeIDs, node)
 	}
-
-	c.client.SetContractState(k8sState)
 
 	return c.client.LoadK8s(masterName, nodeIDs)
 }
