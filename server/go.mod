@@ -5,9 +5,10 @@ go 1.20
 require (
 	github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb
 	github.com/btcsuite/btcd v0.23.3
-	github.com/btcsuite/btcd/btcec/v2 v2.2.0
+	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
+	github.com/btcsuite/btcwallet/walletdb v1.3.5
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12
 	github.com/daoleno/uniswap-sdk-core v0.1.5
 	github.com/daoleno/uniswapv3-sdk v0.4.0
@@ -17,6 +18,7 @@ require (
 	github.com/hsanjuan/ipfs-lite v1.7.0
 	github.com/ipfs/go-cid v0.4.1
 	github.com/libp2p/go-libp2p v0.27.1
+	github.com/lightninglabs/neutrino v0.15.0
 	github.com/multiformats/go-multiaddr v0.9.0
 	github.com/nbd-wtf/go-nostr v0.16.11
 	github.com/pkg/errors v0.9.1
@@ -37,6 +39,7 @@ require (
 require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/SaveTheRbtz/generic-sync-map-go v0.0.0-20220414055132-a37292614db8 // indirect
+	github.com/aead/siphash v1.0.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
@@ -118,6 +121,7 @@ require (
 	github.com/jbenet/go-base58 v0.0.0-20150317085156-6237cf65f3a6 // indirect
 	github.com/jbenet/go-temp-err-catcher v0.1.0 // indirect
 	github.com/jbenet/goprocess v0.1.4 // indirect
+	github.com/kkdai/bstream v0.0.0-20161212061736-f391b8402d23 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/koron/go-ssdp v0.0.4 // indirect
