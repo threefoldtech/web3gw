@@ -40,7 +40,7 @@ jobs:
 
       - name: Generate documentation
         run: |
-          bash doc.sh
+          v run doc.vsh https://threefoldtech.github.io/web3_proxy
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

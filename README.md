@@ -37,7 +37,12 @@ Follow the steps [here](server/) to add the client to the json rpc 2.0 server an
 
 ## Documentation
 
-To generate the documentation for the project, run `bash doc.sh`. This builds mdbook documentation in html format from content in manual folder in /docs. This overwrites prebuilt content in docs if any. To save your changes to the generated documentation, simply commit your changes in the manual/src folder. The CI workflow will regenerate the documentation on github pages upon pushing / merging changes to the development branch.
+To generate the documentation for the project, run `v run doc.vsh`. This builds: 
+- MDBook Documentation in html format from content in manual folder in `docs`. 
+- OpenRPC Documents for the JSON-RPC API's at `docs/openrpc`.
+- OpenRPC Playground for the JSON-RPC API's at `docs/playground`.
+
+Running this command overwrites prebuilt content in docs if any. To save your changes to the generated documentation, simply commit your changes in the manual/src folder. The CI workflow will regenerate the documentation on github pages upon pushing / merging changes to the development branch.
 
 **While /docs is already in .gitignore, please avoid pushing generated docs.**
 
