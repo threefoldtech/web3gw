@@ -29,7 +29,7 @@ require (
 	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.5.0
 	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.5.0
 	github.com/threefoldtech/zos v0.5.6-0.20230426125942-0ea2f91b21f5
-	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 	golang.org/x/net v0.9.0
 	golang.org/x/sync v0.2.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
@@ -206,7 +206,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
-	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
