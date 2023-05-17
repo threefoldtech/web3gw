@@ -29,6 +29,11 @@ jobs:
         with:
           check-latest: true
 
+      - name: Configure node version
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
       - name: Checkout
         uses: actions/checkout@v3
 
