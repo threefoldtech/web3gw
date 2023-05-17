@@ -199,7 +199,7 @@ func (r *Client) MachinesDelete(ctx context.Context, modelName string) error {
 }
 
 func (c *Client) MachinesGet(ctx context.Context, modelName string) (MachinesModel, error) {
-	gridMachinesModel, err := c.loadGridMachinesMadel(ctx, modelName)
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, modelName)
 	if err != nil {
 		return MachinesModel{}, errors.Wrapf(err, "failed to load machines model %s deployments", modelName)
 	}
@@ -210,7 +210,7 @@ func (c *Client) MachinesGet(ctx context.Context, modelName string) (MachinesMod
 func (c *Client) MachineAdd(ctx context.Context, params AddMachineParams) (MachinesModel, error) {
 	log.Info().Msgf("adding machine %s", params.Machine.Name)
 
-	gridMachinesModel, err := c.loadGridMachinesMadel(ctx, params.ModelName)
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
 	if err != nil {
 		return MachinesModel{}, err
 	}
@@ -225,7 +225,7 @@ func (c *Client) MachineAdd(ctx context.Context, params AddMachineParams) (Machi
 func (c *Client) MachineRemove(ctx context.Context, params RemoveMachineParams) (MachinesModel, error) {
 	log.Info().Msgf("removeing machine %s", params.MachineName)
 
-	gridMachinesModel, err := c.loadGridMachinesMadel(ctx, params.ModelName)
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
 	if err != nil {
 		return MachinesModel{}, err
 	}

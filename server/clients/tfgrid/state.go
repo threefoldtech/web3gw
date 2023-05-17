@@ -140,7 +140,7 @@ func (c *Client) loadModelContracts(ctx context.Context, modelName string) (Proj
 	return newState, nil
 }
 
-func (c *Client) loadGridMachinesMadel(ctx context.Context, modelName string) (gridMachinesModel, error) {
+func (c *Client) loadGridMachinesModel(ctx context.Context, modelName string) (gridMachinesModel, error) {
 	modelContracts, err := c.loadModelContracts(ctx, modelName)
 	if err != nil {
 		return gridMachinesModel{}, errors.Wrapf(err, "failed to get machines model %s contracts", modelName)
