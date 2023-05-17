@@ -21,14 +21,9 @@ fn new(path string) ! {
 
 fn build_manual() ! {
 	println('Building manual')
-	if exists('docs/_docs') {
-		rmdir_all('docs/_docs')!
-	}
-	sh('
-		pushd manual
-		bash run.sh
-		popd
-	')
+	new('docs/_docs')!
+	manual_dir := dir(@FILE) + '/manual'
+	sh('bash $manual_dir/run.sh')
 }
 
 fn build_openrpc_docs() ! {
