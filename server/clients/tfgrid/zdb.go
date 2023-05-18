@@ -49,7 +49,7 @@ func (c *Client) deployZDB(ctx context.Context, gridZDB *workloads.ZDB, nodeID u
 	log.Info().Msgf("Deploying zdb: %+v", *gridZDB)
 
 	dl := workloads.NewDeployment(gridZDB.Name, nodeID, generateProjectName(gridZDB.Name), nil, "", nil, []workloads.ZDB{*gridZDB}, nil, nil)
-	if err := c.client.DeployDeployment(ctx, &dl); err != nil {
+	if err := c.GridClient.DeployDeployment(ctx, &dl); err != nil {
 		return errors.Wrapf(err, "failed to deploy zdb with name: %s", gridZDB.Name)
 	}
 
@@ -132,7 +132,7 @@ func (r *Client) getNodeForZdb(size uint64) (uint32, error) {
 		FreeHRU: &size,
 	}
 
-	nodes, count, err := r.client.FilterNodes(options, proxyTypes.Limit{})
+	nodes, count, err := r.GridClient.FilterNodes(options, proxyTypes.Limit{})
 	if err != nil || count == 0 {
 		return 0, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
 	}

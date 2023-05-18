@@ -21,7 +21,7 @@ func (c *Client) deployZnet(ctx context.Context, znet *workloads.ZNet) error {
 		znet.ExternalSK = privateKey
 	}
 
-	if err := c.client.DeployNetwork(ctx, znet); err != nil {
+	if err := c.GridClient.DeployNetwork(ctx, znet); err != nil {
 		return errors.Wrap(err, "failed to deploy network")
 	}
 
@@ -61,7 +61,7 @@ func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []ui
 		znet.ExternalSK = privateKey
 	}
 
-	err = r.client.DeployNetwork(ctx, &znet)
+	err = r.GridClient.DeployNetwork(ctx, &znet)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to deploy network")
 	}
@@ -74,7 +74,7 @@ func (c *Client) ensureNodeBelongsToNetwork(ctx context.Context, znet *workloads
 
 	if !slices.Contains(znet.Nodes, nodeID) {
 		znet.Nodes = append(znet.Nodes, nodeID)
-		err := c.client.DeployNetwork(ctx, znet)
+		err := c.GridClient.DeployNetwork(ctx, znet)
 		if err != nil {
 			return errors.Wrap(err, "failed to deploy network")
 		}
@@ -87,7 +87,7 @@ func (c *Client) removeNodeFromNetwork(ctx context.Context, znet *workloads.ZNet
 	for idx, node := range znet.Nodes {
 		if node == nodeID {
 			znet.Nodes = append(znet.Nodes[:idx], znet.Nodes[idx+1:]...)
-			return c.client.DeployNetwork(ctx, znet)
+			return c.GridClient.DeployNetwork(ctx, znet)
 		}
 	}
 

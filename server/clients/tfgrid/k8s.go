@@ -94,7 +94,7 @@ func (c *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster,
 	k8s := toGridK8s(cluster)
 
 	// Deploy workload
-	if err := c.client.DeployK8sCluster(ctx, &k8s); err != nil {
+	if err := c.GridClient.DeployK8sCluster(ctx, &k8s); err != nil {
 		return K8sCluster{}, errors.Wrapf(err, "Failed to deploy K8s Cluster")
 	}
 
@@ -163,19 +163,19 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 
 	if !slices.Contains(znet.Nodes, params.Worker.NodeID) {
 		znet.Nodes = append(znet.Nodes, params.Worker.NodeID)
-		err = c.client.DeployNetwork(ctx, &znet)
+		err = c.GridClient.DeployNetwork(ctx, &znet)
 		if err != nil {
 			return K8sCluster{}, errors.Wrap(err, "failed to deploy network")
 		}
 	}
 
-	cluster, err := c.client.LoadK8s(params.MasterName, nodeIds)
+	cluster, err := c.GridClient.LoadK8s(params.MasterName, nodeIds)
 	if err != nil {
 		return K8sCluster{}, errors.Wrap(err, "failed to load kubernetes cluster")
 	}
 
 	cluster.Workers = append(cluster.Workers, toGridK8sNode(params.Worker))
-	if err := c.client.DeployK8sCluster(ctx, &cluster); err != nil {
+	if err := c.GridClient.DeployK8sCluster(ctx, &cluster); err != nil {
 		return K8sCluster{}, errors.Wrap(err, "failed to update kubernetes cluster")
 	}
 
@@ -216,7 +216,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 
 	cluster.Workers = append(cluster.Workers[:workerIdx], cluster.Workers[workerIdx+1:]...)
 
-	if err := c.client.DeployK8sCluster(ctx, &cluster); err != nil {
+	if err := c.GridClient.DeployK8sCluster(ctx, &cluster); err != nil {
 		return K8sCluster{}, err
 	}
 
@@ -374,7 +374,7 @@ func fromGridK8sNode(node workloads.K8sNode, nodeFarms map[uint32]uint32) K8sNod
 func (c *Client) getNodeFarmsIDs(cluster *workloads.K8sCluster) (map[uint32]uint32, error) {
 	nodeFarms := map[uint32]uint32{}
 
-	farm, err := c.client.GetNodeFarm(cluster.Master.Node)
+	farm, err := c.GridClient.GetNodeFarm(cluster.Master.Node)
 	if err != nil {
 		return nil, err
 	}
@@ -382,7 +382,7 @@ func (c *Client) getNodeFarmsIDs(cluster *workloads.K8sCluster) (map[uint32]uint
 	nodeFarms[cluster.Master.Node] = farm
 
 	for _, w := range cluster.Workers {
-		farm, err := c.client.GetNodeFarm(w.Node)
+		farm, err := c.GridClient.GetNodeFarm(w.Node)
 		if err != nil {
 			return nil, err
 		}

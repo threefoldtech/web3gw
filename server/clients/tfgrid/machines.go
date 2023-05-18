@@ -243,7 +243,7 @@ func (c *Client) deployMachinesDeployments(ctx context.Context, g *gridMachinesM
 	for _, dl := range g.deployments {
 		deployment := dl
 		errGroup.Go(func() error {
-			if err := c.client.DeployDeployment(ctx, deployment); err != nil {
+			if err := c.GridClient.DeployDeployment(ctx, deployment); err != nil {
 				return err
 			}
 
@@ -273,7 +273,7 @@ func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
 
 	for _, dl := range g.deployments {
 		model.Name = dl.Name
-		farmID, err := c.client.GetNodeFarm(dl.NodeID)
+		farmID, err := c.GridClient.GetNodeFarm(dl.NodeID)
 		if err != nil {
 			return MachinesModel{}, err
 		}
@@ -411,7 +411,7 @@ func (c *Client) removeMachineFromModel(ctx context.Context, g *gridMachinesMode
 	dl := g.deployments[machine.NodeID]
 
 	if len(dl.Vms) == 1 {
-		if err := c.client.CancelDeployment(ctx, dl); err != nil {
+		if err := c.GridClient.CancelDeployment(ctx, dl); err != nil {
 			return err
 		}
 
@@ -420,7 +420,7 @@ func (c *Client) removeMachineFromModel(ctx context.Context, g *gridMachinesMode
 	}
 
 	removeMachineFromDeployment(dl, machine)
-	if err := c.client.DeployDeployment(ctx, dl); err != nil {
+	if err := c.GridClient.DeployDeployment(ctx, dl); err != nil {
 		return err
 	}
 

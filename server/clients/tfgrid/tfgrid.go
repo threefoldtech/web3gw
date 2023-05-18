@@ -40,6 +40,8 @@ type TFGridClient interface {
 
 	CancelDeployment(ctx context.Context, dl *workloads.Deployment) error
 	CancelContract(ctx context.Context, contractID uint64) error
+
+	Close()
 }
 
 type tfgridClient struct {
@@ -185,6 +187,10 @@ func (c *tfgridClient) CancelDeployment(ctx context.Context, dl *workloads.Deplo
 
 func (c *tfgridClient) CancelContract(ctx context.Context, contractID uint64) error {
 	return c.client.SubstrateConn.CancelContract(c.client.Identity, contractID)
+}
+
+func (c *tfgridClient) Close() {
+	c.client.Close()
 }
 
 func generateProjectName(modelName string) (projectName string) {

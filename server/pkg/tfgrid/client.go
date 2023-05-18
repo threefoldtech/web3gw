@@ -43,10 +43,6 @@ func NewClient() *Client {
 	}
 }
 
-// func generateProjectName(modelName string) (projectName string) {
-// 	return fmt.Sprintf("%s.web3proxy", modelName)
-// }
-
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, mnemonic string, network string) error {
 	tfgrid_client := tfgridBase.Client{
@@ -247,4 +243,15 @@ func (c *Client) FilterNodes(ctx context.Context, filters tfgridBase.FilterOptio
 	}
 
 	return state.cl.FilterNodes(ctx, filters)
+}
+
+func (c *Client) Logout(ctx context.Context) error {
+	st, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || st.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	st.cl.GridClient.Close()
+
+	return nil
 }
