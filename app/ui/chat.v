@@ -1,28 +1,27 @@
 module main
-// 
+
+//
 // import os
-// import vweb
-// import time
-// // import threefoldtech.chat
-// import freeflowuniverse.crystallib.pathlib
+import vweb
+import json
+import encoding.base64
+import net.urllib
 
-// interface IChatBot {
-// 	respond(string) string
-// }
+pub fn (mut app App) chat() vweb.Result {
+	return $vweb.html()
+}
 
-// struct Chat {
-//     vweb.Context
-// mut:
-// 	bot IChatBot
-// }
+struct Prompt {
+	prompt string
+}
 
-// pub fn (mut chat Chat) hi() vweb.Result {
-// 	return chat.html('hello')
-// }
+['/chat/message'; POST]
+pub fn (mut app App) message() vweb.Result {
+	action := urllib.query_unescape(app.req.data.trim_string_left('prompt=')) or { panic(err) }
+	response := respond(action)
+	return app.text(response)
+}
 
-// [POST]
-// pub fn (mut chat Chat) message() vweb.Result {
-// 	message := 'hey'
-// 	resp := chat.bot.respond(message)
-// 	return $vweb.html()
-// }
+fn respond(action string) string {
+	return action
+}
