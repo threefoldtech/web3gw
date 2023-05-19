@@ -551,8 +551,8 @@ github.com/alexedwards/argon2id v0.0.0-20230305115115-4b3c3280a736 h1:qZaEtLxnqY
 github.com/alexedwards/argon2id v0.0.0-20230305115115-4b3c3280a736/go.mod h1:mTeFRcTdnpzOlRjMoFYC/80HwVUreupyAiqPkCZQOXc=
 github.com/alexflint/go-filemutex v0.0.0-20171022225611-72bdc8eae2ae/go.mod h1:CgnQgUtFrFz9mxFNtED3jI5tLDjKlOM+oUF/sTk6ps0=
 github.com/alexflint/go-filemutex v1.1.0/go.mod h1:7P4iRhttt/nUvUOrYIhcpMzv2G6CY9UnI16Z+UJqRyk=
-github.com/alichaddad/sftpgo/v2 v2.0.0-20230427100133-194c1f97aa3c h1:N7DhqjGIwhKJLnjNS95oWlex/Crx7csTXNwJJisQTik=
-github.com/alichaddad/sftpgo/v2 v2.0.0-20230427100133-194c1f97aa3c/go.mod h1:Z8jBBUeRgJnR93iz18huj5sFU2aLMNPQnGE6QNrYcRI=
+github.com/alichaddad/sftpgo/v2 v2.0.0-20230516112941-b33f3eab118d h1:TENENoYCUlIyiH3o9mS9aDdvJ8wpo1MFM+4PVy4At58=
+github.com/alichaddad/sftpgo/v2 v2.0.0-20230516112941-b33f3eab118d/go.mod h1:Z8jBBUeRgJnR93iz18huj5sFU2aLMNPQnGE6QNrYcRI=
 github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=

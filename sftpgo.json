@@ -237,7 +237,7 @@
     },
     "password_caching": true,
     "update_mode": 0,
-    "create_default_admin": false,
+    "create_default_admin": true,
     "naming_rules": 1,
     "is_shared": 0,
     "node": {
@@ -250,7 +250,7 @@
   "httpd": {
     "bindings": [
       {
-        "port": 8080,
+        "port": 8060,
         "address": "",
         "enable_web_admin": true,
         "enable_web_client": true,
@@ -328,8 +328,8 @@
         }
       }
     ],
-    "templates_path": "/home/chaddad/threefoldtech/sftpgo/templates",
-    "static_files_path": "static",
+    "templates_path": "/sftpgo/templates",
+    "static_files_path": "/sftpgo/static",
     "openapi_path": "openapi",
     "web_root": "",
     "certificate_file": "",
@@ -337,7 +337,7 @@
     "ca_certificates": [],
     "ca_revocation_lists": [],
     "signing_passphrase": "",
-    "token_validation": 0,
+    "token_validation": 1,
     "max_upload_file_size": 1048576000,
     "cors": {
       "enabled": false,
