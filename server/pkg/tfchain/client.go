@@ -3,13 +3,17 @@ package tfchain
 import (
 	"context"
 	"errors"
+	"io"
 	"math/big"
+	"net/http"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/cosmos/go-bip39"
 	substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
+	"golang.org/x/crypto/blake2b"
 )
 
 const (
@@ -19,6 +23,9 @@ const (
 	tfchainTestnet = "wss://tfchain.test.grid.tf"
 	tfchainQanet   = "wss://tfchain.qa.grid.tf"
 	tfchainDevnet  = "wss://tfchain.dev.grid.tf"
+
+	activationURL          = "https://activation.grid.tf/activation/activate"
+	termsAndConditionsLink = "https://library.threefold.me/info/legal/#/tfgrid/terms_conditions_tfgrid3"
 )
 
 type (
@@ -148,6 +155,54 @@ func tfchainNetworkFromNetworkString(ntwrk string) (string, error) {
 	}
 
 	return "", errors.New("unsupported network")
+}
+
+func (c *Client) CreateAccount(ctx context.Context, conState jsonrpc.State, network string) (string, error) {
+	entropy, err := bip39.NewEntropy(256)
+	if err != nil {
+		return "", err
+	}
+
+	mnemonic, err := bip39.NewMnemonic(entropy)
+	if err != nil {
+		return "", err
+	}
+
+	identity, err := substrate.NewIdentityFromSr25519Phrase(mnemonic)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.Get(termsAndConditionsLink)
+	if err != nil {
+		return "", err
+	}
+
+	documentData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	termsAndConditionsHash := blake2b.Sum256(documentData)
+	if err != nil {
+		return "", err
+	}
+
+	url, err := tfchainNetworkFromNetworkString(network)
+	if err != nil {
+		return "", err
+	}
+
+	mgr := substrate.NewManager(url)
+	substrateConnection, err := mgr.Substrate()
+	if err != nil {
+		return "", err
+	}
+	_, err = substrateConnection.EnsureAccount(identity, activationURL, termsAndConditionsLink, string(termsAndConditionsHash[:]))
+	if err != nil {
+		return "", err
+	}
+	return mnemonic, nil
 }
 
 // Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given mnemonic

@@ -117,6 +117,10 @@ pub fn new(mut client RpcWsClient) TfChainClient {
 	}
 }
 
+pub fn (mut t TfChainClient) create_account(network string) !string {
+	return t.client.send_json_rpc[[]string, string]('tfchain.CreateAccount', [network], tfchain.default_timeout)!
+}
+
 // Load your mnemonic with this call. Choose the network while doing so. The network should be one of:
 // mainnet, testnet, qanet, devnet 
 pub fn (mut t TfChainClient) load(args Load) ! {
