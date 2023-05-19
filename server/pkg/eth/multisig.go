@@ -2,7 +2,6 @@ package eth
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -45,13 +44,18 @@ func (c *Client) GetMultisigOwners(ctx context.Context, conState jsonrpc.State, 
 }
 
 // GetMultisigThreshold fetches the treshold for a multisig contract
-func (c *Client) GetMultisigThreshold(ctx context.Context, conState jsonrpc.State, contractAddress string) (*big.Int, error) {
+func (c *Client) GetMultisigThreshold(ctx context.Context, conState jsonrpc.State, contractAddress string) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return nil, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.GetThreshold(contractAddress)
+	threshold, err := state.Client.GetThreshold(contractAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return threshold.String(), nil
 }
 
 // AddMultisigOwner adds an owner to a multisig contract

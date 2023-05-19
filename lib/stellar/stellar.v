@@ -2,6 +2,8 @@ module stellar
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
+import math.unsigned { Uint128, uint128_from_dec_str }
+
 const (
 	default_timeout = 500000
 )
@@ -50,14 +52,16 @@ pub fn (mut s StellarClient) load(args Load) ! {
 	_ := s.client.send_json_rpc[[]Load, string]('stellar.Load', [args], stellar.default_timeout)!
 }
 
-// Transfer an amount of TFT from the loaded account to the destination.
-pub fn (mut s StellarClient) transfer(args Transfer) ! {
-	_ := s.client.send_json_rpc[[]Transfer, string]('stellar.Transfer', [args], stellar.default_timeout)!
+// Get the public address of the loaded stellar secret
+pub fn (mut s StellarClient) address() !string {
+	return s.client.send_json_rpc[[]string, string]('stellar.Address', []string{}, default_timeout)!
 }
 
+
 // Balance of an account for TFT on stellar.
-pub fn (mut s StellarClient) balance(address string) !i64 {
-	return s.client.send_json_rpc[[]string, i64]('stellar.Balance', [address], stellar.default_timeout)!
+pub fn (mut s StellarClient) balance(address string) ! Uint128 {
+	balance := s.client.send_json_rpc[[]string, string]('stellar.Balance', [address], default_timeout)!
+	return uint128_from_dec_str(balance)
 }
 
 // bridge_to_eth bridge to eth from stellar

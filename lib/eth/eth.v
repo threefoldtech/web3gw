@@ -2,6 +2,8 @@ module eth
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
+import math.unsigned { Uint128, uint128_from_dec_str }
+
 const (
 	default_timeout = 500000
 )
@@ -141,9 +143,9 @@ pub fn (mut e EthClient) transer(args Transfer) !string {
 	return e.client.send_json_rpc[[]Transfer, string]('eth.Transfer', [args], eth.default_timeout)!
 }
 
-// balance returns eth balance for the given address.
-pub fn (mut e EthClient) balance(address string) !string {
-	return e.client.send_json_rpc[[]string, string]('eth.Balance', [address], eth.default_timeout)!
+pub fn (mut e EthClient) balance(address string) !Uint128 {
+	balance := e.client.send_json_rpc[[]string, string]('eth.Balance', [address], eth.default_timeout)!
+	return uint128_from_dec_str(balance)
 }
 
 // height returns the current block height.
@@ -162,9 +164,9 @@ pub fn (mut e EthClient) get_hex_seed() !string {
 }
 
 // token_balance returns balance for the given token contract.
-pub fn (mut e EthClient) token_balance(contractAddress string) !string {
-	return e.client.send_json_rpc[[]string, string]('eth.GetTokenBalance', [
-		contractAddress,
+pub fn (mut e EthClient) token_balance(contractAddress string) !Uint128 {
+	balance := e.client.send_json_rpc[[]string, string]('eth.GetTokenBalance', [contractAddress], eth.default_timeout)!
+	return uint128_from_dec_str(balance)
 	], eth.default_timeout)!
 }
 
@@ -194,11 +196,10 @@ pub fn (mut e EthClient) get_multisig_owners(contractAddress string) ![]string {
 	], eth.default_timeout)!
 }
 
-// get_multisig_threshold returns the threshold of the given multisig contract.
-pub fn (mut e EthClient) get_multisig_threshold(contractAddress string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetMultisigThreshold', [
-		contractAddress,
-	], eth.default_timeout)!
+pub fn (mut e EthClient) get_multisig_threshold(contractAddress string) !Uint128 {
+	threshold := e.client.send_json_rpc[[]string, string]('eth.GetMultisigThreshold', [contractAddress],
+		eth.default_timeout)!
+	return uint128_from_dec_str(threshold)
 }
 
 // add_multisig_owner adds a new owner to the given multisig contract.
@@ -237,9 +238,10 @@ pub fn (mut e EthClient) initiate_multisig_token_transfer(args InitiateMultisigT
 }
 
 // get_fungible_balance returns the balance of the given fungible token.
-pub fn (mut e EthClient) get_fungible_balance(args GetFungibleBalance) !i64 {
-	return e.client.send_json_rpc[[]GetFungibleBalance, i64]('eth.GetFungibleBalance',
+pub fn (mut e EthClient) get_fungible_balance(args GetFungibleBalance) !Uint128 {
+	balance := e.client.send_json_rpc[[]GetFungibleBalance, string]('eth.GetFungibleBalance', [args],
 		[args], eth.default_timeout)!
+	return uint128_from_dec_str(balance)
 }
 
 // onwer_of_fungible returns the owner of the given fungible token.
@@ -299,9 +301,9 @@ pub fn (mut e EthClient) bridge_to_stellar(args TftEthTransfer) !string {
 }
 
 // get_tft_eth_balance returns the tft balance on ethereum
-pub fn (mut e EthClient) get_tft_eth_balance() !string {
-	return e.client.send_json_rpc[[]string, string]('eth.GetEthTftBalance', []string{},
-		eth.default_timeout)!
+pub fn (mut e EthClient) tft_balance() !Uint128 {
+	balance := e.client.send_json_rpc[[]string, string]('eth.GetEthTftBalance', []string{}, eth.default_timeout)!
+	return uint128_from_dec_str(balance)
 }
 
 // approve_eth_tft_spending approves the given amount of TFT to be swapped

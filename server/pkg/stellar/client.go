@@ -101,6 +101,16 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 	return nil
 }
 
+// Get the public address of the loaded stellar secret
+func (c *Client) Address(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.Address(), nil
+}
+
 // Transer an amount of TFT from the loaded account to the destination.
 func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) error {
 	state := State(conState)
@@ -112,18 +122,18 @@ func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Tran
 }
 
 // Balance of an account for TFT on stellar.
-func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (int64, error) {
+func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return 0, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	balance, err := state.Client.GetBalance(address)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	return balance.Int64(), nil
+	return balance.String(), nil
 }
 
 // BridgeToEth transfers TFT from the loaded account to eth bridge and deposits into the destination ethereum account.

@@ -2,7 +2,6 @@ package eth
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -48,13 +47,18 @@ type (
 )
 
 // GetFungibleBalance returns the balance of the given address for the given fungible token contract
-func (c *Client) GetFungibleBalance(ctx context.Context, conState jsonrpc.State, args GetFungibleBalance) (*big.Int, error) {
+func (c *Client) GetFungibleBalance(ctx context.Context, conState jsonrpc.State, args GetFungibleBalance) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return nil, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.GetFungibleBalance(args.ContractAddress, args.Target)
+	balance, err := state.Client.GetFungibleBalance(args.ContractAddress, args.Target)
+	if err != nil {
+		return "", err
+	}
+
+	return balance.String(), nil
 }
 
 // OwnerOfFungible returns the owner of the given fungible token
