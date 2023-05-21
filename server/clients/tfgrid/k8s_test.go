@@ -21,7 +21,7 @@ func TestK8s(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		GridClient: cl,
 	}
 
 	t.Run("k8s_deploy_success", func(t *testing.T) {

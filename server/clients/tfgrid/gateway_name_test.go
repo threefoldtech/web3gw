@@ -21,8 +21,8 @@ func TestGatewayName(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client:   cl,
-		Projects: make(map[string]ProjectState),
+		GridClient: cl,
+		Projects:   make(map[string]ProjectState),
 	}
 
 	t.Run("gateway_name_deploy_success", func(t *testing.T) {
