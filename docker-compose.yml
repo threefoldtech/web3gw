@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        SFTPGOBRANCH: dev
+        SFTPGOBRANCH: development
     ports:
     - 8060:8060
     environment:

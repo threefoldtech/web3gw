@@ -24,7 +24,7 @@ WORKDIR /var/lib/sftpgo
 RUN apk add git
 
 # specify branch
-RUN git clone https://github.com/alichaddad/sftpgo.git -b ${SFTPGOBRANCH} /sftpgo
+RUN git clone https://github.com/freeflowuniverse/aydo -b ${SFTPGOBRANCH} /sftpgo
 
 EXPOSE 8080 8060
 
