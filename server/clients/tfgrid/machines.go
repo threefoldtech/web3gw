@@ -291,7 +291,7 @@ func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
 }
 
 // Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
-func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
+func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
 	// all units unified in bytes
 
 	workloads := []*PlannedReservation{}
@@ -317,7 +317,7 @@ func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 		})
 	}
 
-	err := r.AssignNodes(ctx, workloads)
+	err := c.AssignNodes(ctx, workloads)
 	if err != nil {
 		return err
 	}
@@ -533,6 +533,53 @@ func generateGridMount(diskName string, mountPoint string) workloads.Mount {
 	}
 }
 
+func generateGridQSFS(qsfs *QSFS, qsfsName string) workloads.QSFS {
+	metaBackends := []workloads.Backend{}
+	for _, b := range qsfs.Metadata.Backends {
+		metaBackends = append(metaBackends, workloads.Backend{
+			Address:   b.Address,
+			Namespace: b.Namespace,
+			Password:  b.Password,
+		})
+	}
+
+	groups := []workloads.Group{}
+	for _, group := range qsfs.Groups {
+		bs := workloads.Backends{}
+		for _, b := range group.Backends {
+			bs = append(bs, workloads.Backend{
+				Address:   b.Address,
+				Namespace: b.Namespace,
+				Password:  b.Password,
+			})
+		}
+		groups = append(groups, workloads.Group{Backends: bs})
+	}
+
+	return workloads.QSFS{
+		Name:                 qsfsName,
+		Description:          qsfs.Description,
+		Cache:                qsfs.Cache,
+		MinimalShards:        qsfs.MinimalShards,
+		ExpectedShards:       qsfs.ExpectedShards,
+		RedundantGroups:      qsfs.RedundantGroups,
+		RedundantNodes:       qsfs.RedundantNodes,
+		MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
+		EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
+		EncryptionKey:        qsfs.EncryptionKey,
+		CompressionAlgorithm: qsfs.CompressionAlgorithm,
+		Metadata: workloads.Metadata{
+			Type:                qsfs.Metadata.Type,
+			Prefix:              qsfs.Metadata.Prefix,
+			EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
+			EncryptionKey:       qsfs.Metadata.EncryptionKey,
+			Backends:            metaBackends,
+		},
+		Groups:          groups,
+		MetricsEndpoint: qsfs.MetricsEndpoint,
+	}
+}
+
 func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
 	disks := []workloads.Disk{}
 	qsfss := []workloads.QSFS{}
@@ -546,50 +593,9 @@ func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM
 	}
 
 	for idx, qsfs := range machine.QSFSs {
-		metaBackends := []workloads.Backend{}
-		for _, b := range qsfs.Metadata.Backends {
-			metaBackends = append(metaBackends, workloads.Backend{
-				Address:   b.Address,
-				Namespace: b.Namespace,
-				Password:  b.Password,
-			})
-		}
-
-		groups := []workloads.Group{}
-		for _, group := range qsfs.Groups {
-			bs := workloads.Backends{}
-			for _, b := range group.Backends {
-				bs = append(bs, workloads.Backend{
-					Address:   b.Address,
-					Namespace: b.Namespace,
-					Password:  b.Password,
-				})
-			}
-			groups = append(groups, workloads.Group{Backends: bs})
-		}
-
-		qsfss = append(qsfss, workloads.QSFS{
-			Name:                 generateQSFSName(machine.Name, idx),
-			Description:          qsfs.Description,
-			Cache:                qsfs.Cache,
-			MinimalShards:        qsfs.MinimalShards,
-			ExpectedShards:       qsfs.ExpectedShards,
-			RedundantGroups:      qsfs.RedundantGroups,
-			RedundantNodes:       qsfs.RedundantNodes,
-			MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
-			EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
-			EncryptionKey:        qsfs.EncryptionKey,
-			CompressionAlgorithm: qsfs.CompressionAlgorithm,
-			Metadata: workloads.Metadata{
-				Type:                qsfs.Metadata.Type,
-				Prefix:              qsfs.Metadata.Prefix,
-				EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
-				EncryptionKey:       qsfs.Metadata.EncryptionKey,
-				Backends:            metaBackends,
-			},
-			Groups:          groups,
-			MetricsEndpoint: qsfs.MetricsEndpoint,
-		})
+		qsfsName := generateQSFSName(machine.Name, idx)
+		qsfss = append(qsfss, generateGridQSFS(&qsfs, qsfsName))
+		mounts = append(mounts, generateGridMount(qsfsName, qsfs.MountPoint))
 	}
 
 	for _, zlog := range machine.Zlogs {
