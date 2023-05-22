@@ -1,0 +1,56 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+    <!-- Replace with your content -->
+    <div class="py-4">
+    <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for domain in domains
+        <li class="col-span-1 bg-white rounded-lg shadow">
+            <div class="w-full flex items-center justify-between p-6 space-x-6">
+            <div class="flex-1 truncate">
+                <div class="flex items-center space-x-3">
+                <h3 class="text-gray-900 text-sm leading-5 font-medium truncate">@domain.name</h3>
+                <span class="flex-shrink-0 inline-block px-2 py-0.5 text-teal-800 text-xs leading-4 font-medium bg-teal-100 rounded-full">@domain.category</span>
+                </div>
+                <p class="mt-1 text-gray-500 text-sm leading-5 truncate">@domain.description</p>
+            </div>
+            <img class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" src="@domain.image_url" alt="" />
+            </div>
+            <div class="border-t border-gray-200">
+            <div class="-mt-px flex">
+                <div class="w-0 flex-1 flex border-r border-gray-200">
+                <a
+                    hx-get="@domain.manual_url" 
+                    hx-trigger="click" 
+                    hx-target="main" 
+                    hx-push-url="true"
+                    class="cursor-pointer relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm leading-5 text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 transition ease-in-out duration-150">
+                <!-- Heroicon name: inbox -->
+                <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-300 group-focus:text-gray-300 transition ease-in-out duration-150" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                    <span class="ml-3">Manual</span>
+                </a>
+                </div>
+                <div class="-ml-px w-0 flex-1 flex">
+                <a
+                    hx-get="@domain.playground_url" 
+                    hx-trigger="click" 
+                    hx-target="main" 
+                    hx-push-url="true"
+                    class="cursor-pointer relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm leading-5 text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 transition ease-in-out duration-150">
+                    <!-- Heroicon name: chart-bar -->
+                    <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-300 group-focus:text-gray-300 transition ease-in-out duration-150" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span class="ml-3">Playground</span>
+                </a>
+                </div>
+            </div>
+            </div>
+        </li>
+        @end
+        </ul>
+    </div>
+    <!-- /End replace -->
+</div>
+
+        

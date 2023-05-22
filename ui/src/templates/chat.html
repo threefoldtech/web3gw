@@ -1,0 +1,38 @@
+<div class="grid grid-cols-2 gap-4 m-8">
+    <div class="bg-white shadow sm:rounded-lg"> 
+            <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                 Console Panel
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
+                  Communicate with the 3Bot via prompts.
+                </p>
+              </div>
+              <div class="px-4 py-5 sm:p-6">
+          <form hx-post="/chat/message" hx-target="#response-field" class="mt-5 sm:flex sm:items-center">
+            <div class="max-w-xs w-full">
+              <label for="email" class="sr-only">Email</label>
+              <div class="relative rounded-md shadow-sm">
+                <textarea id="prompt" name="prompt" class="form-input block w-full sm:text-sm sm:leading-5" placeholder="!!!client.action"></textarea>
+              </div>
+            </div>
+            <span class="mt-3 inline-flex rounded-md shadow-sm sm:mt-0 sm:ml-3 sm:w-auto">
+              <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition ease-in-out duration-150 sm:w-auto sm:text-sm sm:leading-5">
+                Send
+              </button>
+            </span>
+        </form>
+        </div>
+      </div>
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Response Panel
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
+            3Bot's response to prompt.
+          </p>
+        </div>
+        <div id="response-field" class="p-8"></div>
+      </div>
+</div>
