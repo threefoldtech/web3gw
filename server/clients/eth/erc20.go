@@ -2,7 +2,6 @@ package goethclient
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/daoleno/uniswapv3-sdk/examples/helper"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -12,18 +11,18 @@ import (
 	"github.com/threefoldtech/web3_proxy/server/clients/eth/erc20"
 )
 
-func (c *Client) GetTokenBalance(contractAddress string) (*big.Int, error) {
+func (c *Client) GetTokenBalance(contractAddress string) (string, error) {
 	token, err := erc20.NewErc20(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	b, err := token.BalanceOf(&bind.CallOpts{}, c.Address)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return helper.IntDivDecimal(b, EthDecimals), nil
+	return WeiToString(b), nil
 }
 
 func (c *Client) TransferTokens(ctx context.Context, contractAddress common.Address, target string, amount string) (string, error) {

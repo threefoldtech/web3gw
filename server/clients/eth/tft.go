@@ -2,7 +2,6 @@ package goethclient
 
 import (
 	"context"
-	"math/big"
 	"time"
 
 	"github.com/daoleno/uniswapv3-sdk/examples/helper"
@@ -89,15 +88,15 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 	return tx.Hash().Hex(), nil
 }
 
-func (c *Client) GetEthTftBalance(ctx context.Context) (*big.Int, error) {
+func (c *Client) GetEthTftBalance(ctx context.Context) (string, error) {
 	tftC, err := c.GetTftTokenContract()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	tft, err := tft.NewToken(tftC.Address, c.Eth)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Second*10)
@@ -107,10 +106,12 @@ func (c *Client) GetEthTftBalance(ctx context.Context) (*big.Int, error) {
 		Context: ctxWithCancel,
 	}, c.Address)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return helper.IntDivDecimal(b, TftDecimals), nil
+	log.Debug().Msgf("TFT balance: %s", b.String())
+
+	return TftUnitsToString(b), nil
 }
 
 func (c *Client) ApproveEthTftSpending(ctx context.Context, input string) (string, error) {

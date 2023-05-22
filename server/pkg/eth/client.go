@@ -72,18 +72,18 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 }
 
 // Balance of an address
-func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (int64, error) {
+func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return 0, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	balance, err := state.Client.GetBalance(address)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	return balance.Int64(), nil
+	return balance, nil
 }
 
 // Height of the chain for the connected rpc remote

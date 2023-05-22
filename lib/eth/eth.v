@@ -140,8 +140,8 @@ pub fn (mut e EthClient) transer(args Transfer) !string {
 	return e.client.send_json_rpc[[]Transfer, string]('eth.Transfer', [args], eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) balance(address string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.Balance', [address], eth.default_timeout)!
+pub fn (mut e EthClient) balance(address string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.Balance', [address], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) height() !u64 {
@@ -159,8 +159,8 @@ pub fn (mut e EthClient) get_hex_seed() !string {
 // ERC20
 
 // token_balance returns balance for the given token contract.
-pub fn (mut e EthClient) token_balance(contractAddress string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetTokenBalance', [contractAddress], eth.default_timeout)!
+pub fn (mut e EthClient) token_balance(contractAddress string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.GetTokenBalance', [contractAddress], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) token_transer(args TokenTransfer) !string {
@@ -283,8 +283,8 @@ pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !strin
 }
 
 // tft_balance returns the tft balance on ethereum
-pub fn (mut e EthClient) tft_balance() !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.GetEthTftBalance', []string{}, eth.default_timeout)!
+pub fn (mut e EthClient) tft_balance() !string {
+	return e.client.send_json_rpc[[]string, string]('eth.GetEthTftBalance', []string{}, eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) approve_tft_spending(amount string) !string {

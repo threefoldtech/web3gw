@@ -30,7 +30,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, eth_url string) !
 	// To verify that the server is using the same keypair we can check the address
 	eth_client.load(url: eth_url, secret: "0x$hex_seed")!
 	address = eth_client.address()!
-	logger.info('address: ${address}')
+	logger.info('reloaded client with address: ${address}')
 }
 
 fn main() {

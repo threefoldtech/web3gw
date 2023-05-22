@@ -2,7 +2,6 @@ package eth
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -33,10 +32,10 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, conState jsonrpc.S
 	return state.Client.WithdrawEthTftToStellar(ctx, args.Destination, args.Amount)
 }
 
-func (c *Client) GetEthTftBalance(ctx context.Context, conState jsonrpc.State) (*big.Int, error) {
+func (c *Client) GetEthTftBalance(ctx context.Context, conState jsonrpc.State) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return nil, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.Client.GetEthTftBalance(ctx)
