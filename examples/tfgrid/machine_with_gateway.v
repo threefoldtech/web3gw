@@ -107,7 +107,7 @@ fn get_machine_ip(machine tfgrid.MachineResult) !string {
 	return error('machine ${machine.name} neither has a public ipv4, nor a ygg ip')
 }
 
-fn get_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_gateways_name string, mut logger log.Logger) !MachinesWithGatewaysResult {
+fn get_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_gateways_name string) !MachinesWithGatewaysResult {
 	machines_model := client.machines_get(machines_with_gateways_name)!
 
 	mut result := MachinesWithGatewaysResult{
@@ -117,7 +117,7 @@ fn get_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_gate
 
 	for machine in machines_model.machines {
 		gw := client.gateways_get_name(generate_gateway_name(machine.name)) or {
-			logger.debug('did not find gateway for vm ${machine.name}')
+			// TODO: error should idicate whether the grid client did not find gateway with this name, or some other error
 			continue
 		}
 
