@@ -153,6 +153,10 @@ pub fn (mut e EthClient) address() !string {
 	return e.client.send_json_rpc[[]string, string]('eth.Address', []string{}, eth.default_timeout)!
 }
 
+pub fn (mut e EthClient) get_hex_seed() !string {
+	return e.client.send_json_rpc[[]string, string]('eth.GetHexSeed', []string{}, eth.default_timeout)!
+}
+
 // ERC20
 
 // token_balance returns balance for the given token contract.

@@ -114,5 +114,13 @@ func (c *Client) Address(ctx context.Context, conState jsonrpc.State) (string, e
 	}
 
 	return state.Client.AddressFromKey().String(), nil
+}
 
+func (c *Client) GetHexSeed(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.GetHexSeed(), nil
 }

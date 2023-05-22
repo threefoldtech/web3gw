@@ -2,6 +2,7 @@ package goethclient
 
 import (
 	"crypto/ecdsa"
+	"encoding/hex"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -24,4 +25,8 @@ func (c *Client) AddressFromKey() common.Address {
 	}
 
 	return crypto.PubkeyToAddress(*publicKeyECDSA)
+}
+
+func (c *Client) GetHexSeed() string {
+	return hex.EncodeToString(crypto.FromECDSA(c.Key))
 }
