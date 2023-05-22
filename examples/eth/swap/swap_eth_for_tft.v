@@ -19,13 +19,18 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, am
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	logger.info('eth balance before swap: ${eth_balance}\n')
+	logger.info('\nEth balance before swap: ${eth_balance}\n')
 
 	balance := eth_client.tft_balance()!
 	logger.info('tft balance before swap: ${balance}\n')
 
 	quote := eth_client.quote_eth_for_tft(amount_in)!
-	logger.info('will receive: ${quote} tft\n')
+
+	input := os.input('Do you want to swap ${amount_in} eth for ${quote} tft? (y/n)')
+	if input != 'y' {
+		logger.info('Aborting swap\n')
+		return
+	}
 
 	tx := eth_client.swap_eth_for_tft(amount_in)!
 	logger.info('tx: ${tx}\n')

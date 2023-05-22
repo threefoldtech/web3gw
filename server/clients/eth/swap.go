@@ -38,39 +38,39 @@ var (
 	SwapRouter = common.HexToAddress(helper.ContractV3SwapRouterV1)
 )
 
-func (c *Client) QuoteEthForTft(ctx context.Context, amount string) (int64, error) {
+func (c *Client) QuoteEthForTft(ctx context.Context, amount string) (string, error) {
 	tft, err := c.GetTftTokenContract()
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	weth, err := c.GetWethTokenContract()
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return c.quoteTokens(ctx, amount, weth, tft)
 }
 
-func (c *Client) QuoteTftForEth(ctx context.Context, amount string) (int64, error) {
+func (c *Client) QuoteTftForEth(ctx context.Context, amount string) (string, error) {
 	tft, err := c.GetTftTokenContract()
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	weth, err := c.GetWethTokenContract()
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	return c.quoteTokens(ctx, amount, tft, weth)
 }
 
-func (c *Client) quoteTokens(ctx context.Context, input string, token0 *coreEntities.Token, token1 *coreEntities.Token) (int64, error) {
+func (c *Client) quoteTokens(ctx context.Context, input string, token0 *coreEntities.Token, token1 *coreEntities.Token) (string, error) {
 	quoterContract, err := contract.NewUniswapv3Quoter(common.HexToAddress(helper.ContractV3Quoter), c.Eth)
 	if err != nil {
 		log.Err(err).Msg("failed to create quoter contract")
-		return 0, err
+		return "", err
 	}
 	// 0.03% slippage
 	fee := big.NewInt(SlippageAmount)
@@ -84,12 +84,12 @@ func (c *Client) quoteTokens(ctx context.Context, input string, token0 *coreEnti
 		fee, amountIn, sqrtPriceLimitX96)
 	if err != nil {
 		log.Err(err).Msg("failed to call quoteExactInputSingle")
-		return 0, err
+		return "", err
 	}
 
 	log.Debug().Msgf("Quote: input: %s, output: %s", input, out[0].(*big.Int).String())
 
-	return out[0].(*big.Int).Int64(), nil
+	return CurrencyToString(out[0].(*big.Int), int(token1.Decimals())), nil
 }
 
 func (c *Client) SwapEthForTft(ctx context.Context, amountIn string) (string, error) {

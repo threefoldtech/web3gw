@@ -17,6 +17,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	eth_client.load(url:eth_url, secret: secret)!
 
 	address := eth_client.address()!
+	logger.info('address: ${address}\n')
 
 	mut eth_balance := eth_client.balance(address)!
 	logger.info('eth_balance before bridge: ${eth_balance}\n')

@@ -16,3 +16,9 @@ func TftUnitsToString(units *big.Int) string {
 	w = new(big.Float).Quo(w, big.NewFloat(math.Pow10(TftDecimals)))
 	return w.String()
 }
+
+func CurrencyToString(units *big.Int, decimals int) string {
+	w := new(big.Float).SetInt(units)
+	w = new(big.Float).Quo(w, big.NewFloat(math.Pow10(decimals)))
+	return w.String()
+}

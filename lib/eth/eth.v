@@ -291,16 +291,16 @@ pub fn (mut e EthClient) approve_tft_spending(amount string) !string {
 	return e.client.send_json_rpc[[]string, string]('eth.ApproveEthTftSpending', [amount], eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) quote_eth_for_tft(amountIn string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.QuoteEthForTft', [amountIn], eth.default_timeout)!
+pub fn (mut e EthClient) quote_eth_for_tft(amountIn string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.QuoteEthForTft', [amountIn], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) swap_eth_for_tft(amountIn string) !string {
 	return e.client.send_json_rpc[[]string, string]('eth.SwapEthForTft', [amountIn], eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) quote_tft_for_eth(amountIn string) !i64 {
-	return e.client.send_json_rpc[[]string, i64]('eth.QuoteTftForEth', [amountIn], eth.default_timeout)!
+pub fn (mut e EthClient) quote_tft_for_eth(amountIn string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.QuoteTftForEth', [amountIn], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) swap_tft_for_eth(amountIn string) !string {

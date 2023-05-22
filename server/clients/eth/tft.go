@@ -29,7 +29,7 @@ func (c *Client) TransferEthTft(ctx context.Context, destination string, amount 
 		return "", err
 	}
 
-	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*1)
+	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*10)
 	defer cancel()
 
 	opts, err := c.getDefaultTransactionOpts(ctxWithCancel)
@@ -72,6 +72,7 @@ func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string
 	}
 
 	amountIn := helper.FloatStringToBigInt(amount, TftDecimals)
+	log.Info().Msgf("Withdrawing %s TFT to %s", amount, destination)
 	tx, err := tft.Withdraw(opts, amountIn, destination, "stellar")
 	if err != nil {
 		return "", err
@@ -125,7 +126,7 @@ func (c *Client) ApproveEthTftSpending(ctx context.Context, input string) (strin
 		return "", err
 	}
 
-	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*1)
+	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*10)
 	defer cancel()
 
 	opts, err := c.getDefaultTransactionOpts(ctxWithCancel)
