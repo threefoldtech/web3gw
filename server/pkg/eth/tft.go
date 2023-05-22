@@ -11,7 +11,7 @@ import (
 type (
 	TftEthTransfer struct {
 		Destination string `json:"destination"`
-		Amount      int64  `json:"amount"`
+		Amount      string `json:"amount"`
 	}
 )
 

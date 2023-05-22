@@ -24,7 +24,7 @@ type (
 	}
 
 	Transfer struct {
-		Amount      int64  `json:"amount"`
+		Amount      string `json:"amount"`
 		Destination string `json:"destination"`
 	}
 )

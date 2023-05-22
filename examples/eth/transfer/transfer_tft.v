@@ -8,33 +8,24 @@ import log
 import os
 
 const (
-	default_server_address = 'http://127.0.0.1:8080'
+	default_server_address = 'ws://127.0.0.1:8080'
 	goerli_node_url = 'ws://45.156.243.137:8546'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, amount_in string, eth_url string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, destination string, amount string, eth_url string) ! {
 	mut eth_client := eth.new(mut client)
 	eth_client.load(url: eth_url, secret: secret)!
 
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	logger.info('eth balance before swap: ${eth_balance}\n')
+	logger.info('eth balance: ${eth_balance}\n')
 
-	balance := eth_client.tft_balance()!
-	logger.info('tft balance before swap: ${balance}\n')
+	mut balance := eth_client.tft_balance()!
+	logger.info('tft balance: ${balance}\n')
 
-	quote := eth_client.quote_eth_for_tft(amount_in)!
-	logger.info('will receive: ${quote} tft\n')
-
-	tx := eth_client.swap_eth_for_tft(amount_in)!
-	logger.info('tx: ${tx}\n')
-
-	balance_1 := eth_client.tft_balance()!
-	logger.info('tft balance after swap: ${balance_1}\n')
-
-	eth_balance = eth_client.balance(address)!
-	logger.info('eth balance after swap: ${eth_balance}\n')
+	mut res := eth_client.tft_eth_transfer(destination: destination, amount: amount)!
+	logger.info('transfer result: ${res}\n')
 }
 
 fn main() {
@@ -47,7 +38,8 @@ fn main() {
 	// eth_url defaults to Goerli node 
 	eth_url := fp.string('eth', `e`, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
-	amount := fp.string('amount', `m`, '0.0001', 'The amount of eth to swap for tft.')
+	destination := fp.string('destination', `d`, '', 'The destination address to send the transaction to.')
+	amount := fp.string('amount', `m`, '0', 'The amount of tft to send.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
 		eprintln(err)
@@ -67,7 +59,7 @@ fn main() {
 	_ := spawn myclient.run()
 	
 	
-	execute_rpcs(mut myclient, mut logger, secret, amount, eth_url) or {
+	execute_rpcs(mut myclient, mut logger, secret, destination, eth_url) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

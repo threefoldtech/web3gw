@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/daoleno/uniswapv3-sdk/examples/helper"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
@@ -17,10 +18,15 @@ func (c *Client) GetTokenBalance(contractAddress string) (*big.Int, error) {
 		return nil, err
 	}
 
-	return token.BalanceOf(&bind.CallOpts{}, c.Address)
+	b, err := token.BalanceOf(&bind.CallOpts{}, c.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	return helper.IntDivDecimal(b, EthDecimals), nil
 }
 
-func (c *Client) TransferTokens(ctx context.Context, contractAddress common.Address, target string, amount int64) (string, error) {
+func (c *Client) TransferTokens(ctx context.Context, contractAddress common.Address, target string, amount string) (string, error) {
 	token, err := erc20.NewErc20(contractAddress, c.Eth)
 	if err != nil {
 		return "", err
@@ -31,7 +37,8 @@ func (c *Client) TransferTokens(ctx context.Context, contractAddress common.Addr
 		return "", errors.Wrap(err, "failed to get default transaction opts")
 	}
 
-	tx, err := token.Transfer(opts, common.HexToAddress(target), big.NewInt(amount))
+	amountIn := helper.FloatStringToBigInt(amount, EthDecimals)
+	tx, err := token.Transfer(opts, common.HexToAddress(target), amountIn)
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +54,7 @@ func (c *Client) TransferTokens(ctx context.Context, contractAddress common.Addr
 	return tx.Hash().Hex(), nil
 }
 
-func (c *Client) ApproveTokenSpending(ctx context.Context, contractAddress, spender string, amount int64) (string, error) {
+func (c *Client) ApproveTokenSpending(ctx context.Context, contractAddress, spender string, amount string) (string, error) {
 	token, err := erc20.NewErc20(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
 		return "", err
@@ -58,7 +65,8 @@ func (c *Client) ApproveTokenSpending(ctx context.Context, contractAddress, spen
 		return "", errors.Wrap(err, "failed to get default transaction opts")
 	}
 
-	tx, err := token.Approve(opts, common.HexToAddress(spender), big.NewInt(amount))
+	amountIn := helper.FloatStringToBigInt(amount, EthDecimals)
+	tx, err := token.Approve(opts, common.HexToAddress(spender), amountIn)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +82,7 @@ func (c *Client) ApproveTokenSpending(ctx context.Context, contractAddress, spen
 	return tx.Hash().Hex(), nil
 }
 
-func (c *Client) TransferFromTokens(ctx context.Context, contractAddress, from, to string, amount int64) (string, error) {
+func (c *Client) TransferFromTokens(ctx context.Context, contractAddress, from, to string, amount string) (string, error) {
 	token, err := erc20.NewErc20(common.HexToAddress(contractAddress), c.Eth)
 	if err != nil {
 		return "", err
@@ -85,7 +93,8 @@ func (c *Client) TransferFromTokens(ctx context.Context, contractAddress, from, 
 		return "", errors.Wrap(err, "failed to get default transaction opts")
 	}
 
-	tx, err := token.TransferFrom(opts, common.HexToAddress(from), common.HexToAddress(to), big.NewInt(amount))
+	amountIn := helper.FloatStringToBigInt(amount, EthDecimals)
+	tx, err := token.TransferFrom(opts, common.HexToAddress(from), common.HexToAddress(to), amountIn)
 	if err != nil {
 		return "", err
 	}

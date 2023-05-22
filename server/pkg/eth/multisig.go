@@ -23,7 +23,7 @@ type (
 	InitiateMultisigEthTransfer struct {
 		ContractAddress string `json:"contract_address"`
 		Destination     string `json:"destination"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 
 	InitiateMultisigTokenTransfer struct {

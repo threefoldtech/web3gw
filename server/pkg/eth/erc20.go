@@ -18,20 +18,20 @@ type (
 	TokenTransfer struct {
 		ContractAddress string `json:"contract_address"`
 		Destination     string `json:"destination"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 
 	TokenTransferFrom struct {
 		ContractAddress string `json:"contract_address"`
 		From            string `json:"from"`
 		Destination     string `json:"destination"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 
 	ApproveTokenSpending struct {
 		ContractAddress string `json:"contract_address"`
 		Spender         string `json:"spender"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 )
 

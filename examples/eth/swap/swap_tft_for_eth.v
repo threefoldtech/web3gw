@@ -12,7 +12,7 @@ const (
 	goerli_node_url = 'ws://45.156.243.137:8546'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, eth_url string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, amount_in string, eth_url string) ! {
 	mut eth_client := eth.new(mut client)
 	eth_client.load(url:eth_url, secret: secret)!
 
@@ -23,8 +23,6 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 
 	balance := eth_client.tft_balance()!
 	logger.info('tft balance before swap: ${balance}\n')
-
-	amount_in := "50"
 
 	// First approve spending by uniswap router!
 	logger.info("approving ${amount_in} tft for spending\n")
@@ -54,6 +52,7 @@ fn main() {
 	// eth_url defaults to Goerli node 
 	eth_url := fp.string('eth', `e`, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
+	amount := fp.string('amount', `m`, '0', 'The amount of TFT to swap for ETH.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
 		eprintln(err)
@@ -73,7 +72,7 @@ fn main() {
 	_ := spawn myclient.run()
 	
 	
-	execute_rpcs(mut myclient, mut logger, secret, eth_url) or {
+	execute_rpcs(mut myclient, mut logger, secret, amount, eth_url) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}

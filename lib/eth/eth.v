@@ -15,14 +15,14 @@ pub struct Load {
 [params]
 pub struct Transfer {
 	destination string
-	amount i64
+	amount string
 }
 
 [params]
 pub struct TokenTransfer {
 	contract_address string
 	destination string
-	amount i64
+	amount string
 }
 
 [params]
@@ -30,14 +30,14 @@ pub struct TokenTransferFrom {
 	contract_address string
 	from string
 	destination string
-	amount i64
+	amount string
 }
 
 [params]
 pub struct ApproveTokenSpending {
 	contract_address string
 	spender          string
-	amount          i64
+	amount          string
 }
 
 [params]
@@ -57,7 +57,7 @@ pub struct ApproveHash {
 pub struct InitiateMultisigEthTransfer  {
 	contract_address string
 	destination string
-	amount i64
+	amount string
 }
 
 [params]
@@ -65,7 +65,7 @@ pub struct InitiateMultisigTokenTransfer {
 	contract_address string
 	token_address string
 	destination string
-	amount i64
+	amount string
 }
 
 [params]
@@ -114,7 +114,7 @@ pub struct ApprovalForFungible{
 [params]
 pub struct TftEthTransfer {
 	destination string
-	amount i64
+	amount string
 }
 
 [noinit; openrpc: exclude]
@@ -137,8 +137,7 @@ pub fn (mut e EthClient) load(args Load) ! {
 }
 
 pub fn (mut e EthClient) transer(args Transfer) !string {
-	return e.client.send_json_rpc[[]Transfer, string]('eth.Transfer', [args],
-		eth.default_timeout)!
+	return e.client.send_json_rpc[[]Transfer, string]('eth.Transfer', [args], eth.default_timeout)!
 }
 
 pub fn (mut e EthClient) balance(address string) !i64 {
