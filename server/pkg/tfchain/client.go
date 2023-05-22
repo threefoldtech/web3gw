@@ -2,11 +2,16 @@ package tfchain
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
+	"io"
 	"math/big"
+	"net/http"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/cosmos/go-bip39"
 	substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/web3_proxy/server/pkg/state"
@@ -19,6 +24,17 @@ const (
 	tfchainTestnet = "wss://tfchain.test.grid.tf"
 	tfchainQanet   = "wss://tfchain.qa.grid.tf"
 	tfchainDevnet  = "wss://tfchain.dev.grid.tf"
+
+	activationURLMainnet = "https://activation.grid.tf/activation/activate"
+	activationURLTestnet = "https://activation.test.grid.tf/activation/activate"
+	activationURLQanet   = "https://activation.qa.grid.tf/activation/activate"
+	activationURLDevnet  = "https://activation.dev.grid.tf/activation/activate"
+
+	termsAndConditionsLink = "https://library.threefold.me/info/legal/#/tfgrid/terms_conditions_tfgrid3"
+
+	termsUser     = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/terms_conditions_griduser.md"
+	privacyPolicy = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/privacypolicy.md"
+	disclaimer    = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/disclaimer.md"
 )
 
 type (
@@ -136,29 +152,139 @@ func NewClient() *Client {
 	}
 }
 
-func tfchainNetworkFromNetworkString(ntwrk string) (string, error) {
-	if ntwrk == "mainnet" {
+func tfchainNetworkFromNetworkString(network string) (string, error) {
+	if network == "mainnet" {
 		return tfchainMainnet, nil
-	} else if ntwrk == "testnet" {
+	} else if network == "testnet" {
 		return tfchainTestnet, nil
-	} else if ntwrk == "qanet" {
+	} else if network == "qanet" {
 		return tfchainQanet, nil
-	} else if ntwrk == "devnet" {
+	} else if network == "devnet" {
 		return tfchainDevnet, nil
 	}
 
 	return "", errors.New("unsupported network")
 }
 
-// Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given mnemonic
-func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
-	url, err := tfchainNetworkFromNetworkString(args.Network)
+func activationURLFromNetwork(network string) (string, error) {
+	if network == "mainnet" {
+		return activationURLMainnet, nil
+	} else if network == "testnet" {
+		return activationURLTestnet, nil
+	} else if network == "qanet" {
+		return activationURLQanet, nil
+	} else if network == "devnet" {
+		return activationURLDevnet, nil
+	}
+
+	return "", errors.New("unsupported network")
+}
+
+func getTermsAndConditionsHash() (string, error) {
+	resp, err := http.Get(termsUser)
 	if err != nil {
-		return err
+		return "", err
+	}
+
+	termsUserData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err = http.Get(disclaimer)
+	if err != nil {
+		return "", err
+	}
+
+	disclaimerData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err = http.Get(privacyPolicy)
+	if err != nil {
+		return "", err
+	}
+
+	privacyPolicyData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	termsUserData = append(termsUserData, disclaimerData...)
+	termsUserData = append(termsUserData, privacyPolicyData...)
+
+	termsAndConditionsHash := md5.Sum(termsUserData)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(termsAndConditionsHash[:]), nil
+}
+
+func getSubstrateConnectionFromNetwork(network string) (*substrate.Substrate, error) {
+	url, err := tfchainNetworkFromNetworkString(network)
+	if err != nil {
+		return nil, err
 	}
 
 	mgr := substrate.NewManager(url)
-	substrateConnection, err := mgr.Substrate()
+	return mgr.Substrate()
+}
+
+func generateMnemonic() (string, error) {
+	entropy, err := bip39.NewEntropy(256)
+	if err != nil {
+		return "", err
+	}
+
+	return bip39.NewMnemonic(entropy)
+}
+
+// Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given mnemonic
+
+func (c *Client) CreateAccount(ctx context.Context, conState jsonrpc.State, network string) (string, error) {
+	mnemonic, err := generateMnemonic()
+	if err != nil {
+		return "", err
+	}
+
+	identity, err := substrate.NewIdentityFromSr25519Phrase(mnemonic)
+	if err != nil {
+		return "", err
+	}
+
+	termsAndConditionsHash, err := getTermsAndConditionsHash()
+	if err != nil {
+		return "", err
+	}
+
+	activationURL, err := activationURLFromNetwork(network)
+	if err != nil {
+		return "", err
+	}
+
+	substrateConnection, err := getSubstrateConnectionFromNetwork(network)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = substrateConnection.EnsureAccount(identity, activationURL, termsAndConditionsLink, termsAndConditionsHash)
+	if err != nil {
+		return "", err
+	}
+
+	state := State(conState)
+	state.client = substrateConnection
+	state.identity = identity
+	state.network = network
+
+	return mnemonic, nil
+}
+
+// Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given mnemonic
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
+	substrateConnection, err := getSubstrateConnectionFromNetwork(args.Network)
 	if err != nil {
 		return err
 	}
@@ -209,23 +335,23 @@ func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Tran
 }
 
 // Balance of an account for TFT on stellar.
-func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (int64, error) {
+func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address string) (string, error) {
 	state := State(conState)
 	if state.client == nil {
-		return 0, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	accountId, err := substrate.FromAddress(address)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	balance, err := state.client.GetBalance(accountId)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	return balance.Free.Int64(), nil
+	return balance.Free.String(), nil
 }
 
 func (c *Client) GetTwin(ctx context.Context, conState jsonrpc.State, id uint32) (*substrate.Twin, error) {

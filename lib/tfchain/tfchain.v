@@ -2,6 +2,8 @@ module tfchain
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
+import math.unsigned { Uint128, uint128_from_dec_str }
+
 const (
 	default_timeout = 500000
 )
@@ -117,6 +119,12 @@ pub fn new(mut client RpcWsClient) TfChainClient {
 	}
 }
 
+// Generate a mnemonic, create an account on the required network and activate it. 
+// This will also load the key in the session so all consecutive calls will be using the generated mnemonic. 
+pub fn (mut t TfChainClient) create_account(network string) !string {
+	return t.client.send_json_rpc[[]string, string]('tfchain.CreateAccount', [network], tfchain.default_timeout)!
+}
+
 // Load your mnemonic with this call. Choose the network while doing so. The network should be one of:
 // mainnet, testnet, qanet, devnet 
 pub fn (mut t TfChainClient) load(args Load) ! {
@@ -135,8 +143,9 @@ pub fn (mut t TfChainClient) transfer(args Transfer) ! {
 }
 
 // Ask for the balance of an entity using this call. The address should be a SS58 address.
-pub fn (mut t TfChainClient) balance(address string) !i64 {
-	return t.client.send_json_rpc[[]string, i64]('tfchain.Balance', [address], tfchain.default_timeout)!
+pub fn (mut t TfChainClient) balance(address string) !Uint128 {
+	balance := t.client.send_json_rpc[[]string, string]('tfchain.Balance', [address], tfchain.default_timeout)!
+	return uint128_from_dec_str(balance)
 }
 
 // Get the current height of the chain. 
