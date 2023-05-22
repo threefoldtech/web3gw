@@ -17,6 +17,12 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string) !
 	mut tfchain_client := tfchain.new(mut client)
 	mnemonic := tfchain_client.create_account(network)!
 	logger.info("Account created with mnemonic:\n------------\n${mnemonic}\n------------\n KEEP THIS SAFE!")
+
+
+	my_address := tfchain_client.address()!
+
+	balance := tfchain_client.balance(my_address)!
+	logger.info("Your balance is ${balance}")
 }
 
 

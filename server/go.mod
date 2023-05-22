@@ -8,6 +8,7 @@ require (
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/daoleno/uniswap-sdk-core v0.1.5
 	github.com/daoleno/uniswapv3-sdk v0.4.0
 	github.com/ethereum/go-ethereum v1.11.6
@@ -50,7 +51,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/crackcomm/go-gitignore v0.0.0-20170627025303-887ab5e44cc3 // indirect
 	github.com/cskr/pubsub v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
