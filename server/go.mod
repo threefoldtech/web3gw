@@ -24,10 +24,10 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230509101146-8e43c43597cd
-	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.5.0
-	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.5.0
-	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.5.0
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230511085814-333413419983
+	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.5.1-0.20230518165637-340e58336257
+	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.5.1-0.20230518165637-340e58336257
+	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.5.1-0.20230518165637-340e58336257
 	github.com/threefoldtech/zos v0.5.6-0.20230426125942-0ea2f91b21f5
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 	golang.org/x/net v0.9.0
