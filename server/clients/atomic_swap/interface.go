@@ -9,9 +9,9 @@ type (
 	// BuyChain holds all logic regarding the chain used to pay for TFT
 	BuyChain interface {
 		// InitPayment initializes a payment transaction on the chain
-		InitPayment(ctx context.Context, tftAmount uint, tftPrice float64) (any, error)
+		InitPayment(ctx context.Context, tftAmount uint64, tftPrice uint64, destination string) (any, SwapSecret, SwapSecretHash, error)
 		// ValidateInitPaymentResult validates the result of an init payment call
-		ValidateInitPaymentResult(ctx context.Context, initResult any, details NegotiatedTrade) error
+		ValidateInitPaymentResult(ctx context.Context, initResult any, details NegotiatedTrade) (SwapSecretHash, error)
 		// Claim payment on chain
 		Claim(ctx context.Context, initResult any, secret SwapSecret) error
 	}
@@ -29,9 +29,9 @@ type (
 	// NegotiatedTrade holds data both parties agreed on in a trade
 	NegotiatedTrade struct {
 		// Amount of TFT
-		Amount uint
-		// Price of 1 TFT
-		Price uint
+		Amount uint64 `json:"amount"`
+		// Price of 1 TFT in the smallest unit of the buying currency
+		Price uint64 `json:"price"`
 	}
 
 	// SwapSecret generated for an atomic swap
