@@ -1,4 +1,4 @@
-## Chat
+# Chat example
 
 To run the chat example, open 2 terminal windows. In one window run the consumer (this will start streaming for direct messages on a nostr relay):
 

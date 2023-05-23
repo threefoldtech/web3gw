@@ -1,4 +1,4 @@
-## Publish and subscribe to messages
+# Publish and subscribe to messages example
 
 To run the pubsub example
 
