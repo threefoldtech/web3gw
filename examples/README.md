@@ -1,5 +1,13 @@
 # Examples
 
+Before running examples make sure the server is running:
+
+```shell
+cd ../server
+go build && ./server --debug
+```
+
+
 See the subfolder for all examples available for implemented clients.
 
 ## Adding new examples
