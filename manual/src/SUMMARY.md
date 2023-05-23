@@ -31,3 +31,4 @@
   - [btc](examples/btc/examples.md)
     - [todo](examples/btc/todo.md)
   - [Metrics](examples/metrics/metrics.md)
+  - [sftpgo-sal](examples/sftpgo/sal.md)

@@ -6,7 +6,6 @@ import net.http
 pub struct SFTPGoClient {
 pub mut:
 	url string
-	jwt string
 	header http.Header
 }
 
@@ -18,16 +17,17 @@ pub:
 }
 
 pub fn new(args SFTPGOClientArgs) SFTPGoClient {
+	header := construct_header(args.jwt)
 	return SFTPGoClient{
 		url: args.url,
-		jwt: args.jwt
+		header: header
 	}
 }
 
-pub fn (mut cl SFTPGoClient) construct_header() http.Header{
+pub fn construct_header(jwt string) http.Header{
 	header_config := http.HeaderConfig{
 		key: http.CommonHeader.authorization
-		value: 'bearer ${cl.jwt}'
+		value: 'bearer ${jwt}'
 	}
 	return http.new_header(header_config)
 }
