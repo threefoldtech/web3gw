@@ -2,7 +2,6 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import threefoldtech.threebot.stellar
-
 import flag
 import log
 import os
@@ -16,8 +15,8 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 
 	stellar_client.load(secret: secret, network: network)!
 
-	balance := stellar_client.balance("")! // fill in your address
-	logger.info("My balance is: ${balance}")
+	balance := stellar_client.balance('')! // fill in your address
+	logger.info('Stellar tft balance: ${balance}\n')
 
 	// Amount in stroops (1 TFT = 10^7 stroops)
 	// Destination is the ethereum address

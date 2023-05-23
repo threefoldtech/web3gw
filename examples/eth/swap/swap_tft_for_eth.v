@@ -2,19 +2,18 @@ module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import threefoldtech.threebot.eth
-
 import flag
 import log
 import os
 
 const (
 	default_server_address = 'http://127.0.0.1:8080'
-	goerli_node_url = 'ws://45.156.243.137:8546'
+	goerli_node_url        = 'ws://45.156.243.137:8546'
 )
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, amount_in string, eth_url string) ! {
 	mut eth_client := eth.new(mut client)
-	eth_client.load(url:eth_url, secret: secret)!
+	eth_client.load(url: eth_url, secret: secret)!
 
 	address := eth_client.address()!
 
@@ -26,14 +25,14 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, am
 
 	quote := eth_client.quote_tft_for_eth(amount_in)!
 
-	input := os.input("Are you sure you want to swap ${amount_in} tft for ${quote} eth? (y/n): ")
+	input := os.input('Are you sure you want to swap ${amount_in} tft for ${quote} eth? (y/n): ')
 	if input != 'y' {
 		logger.info('Aborting swap\n')
 		return
 	}
 
 	// First approve spending by uniswap router!
-	logger.info("approving ${amount_in} tft for spending\n")
+	logger.info('approving ${amount_in} tft for spending\n')
 	t := eth_client.approve_tft_spending(amount_in)!
 	logger.info('tx: ${t}\n')
 
@@ -44,7 +43,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, am
 	logger.info('tft balance after swap: ${balance_1}\n')
 
 	eth_balance = eth_client.balance(address)!
-	logger.info('eth_balance after swap: ${eth_balance}\n')
+	logger.info('eth_balance after swap: ${eth_balance}')
 }
 
 fn main() {
@@ -54,7 +53,7 @@ fn main() {
 	fp.description('')
 	fp.skip_executable()
 	secret := fp.string('secret', `s`, '', 'The secret to use for eth.')
-	// eth_url defaults to Goerli node 
+	// eth_url defaults to Goerli node
 	eth_url := fp.string('eth', `e`, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	amount := fp.string('amount', `m`, '0', 'The amount of TFT to swap for ETH.')
@@ -75,10 +74,9 @@ fn main() {
 	}
 
 	_ := spawn myclient.run()
-	
-	
+
 	execute_rpcs(mut myclient, mut logger, secret, amount, eth_url) or {
-		logger.error("Failed executing calls: $err")
+		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
 }
