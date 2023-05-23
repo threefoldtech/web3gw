@@ -310,13 +310,13 @@ fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! 
 	client.zos_deployment_delete(request)!
 }
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string, network string) ! {
 	mut tfgrid_client := tfgrid.new(mut client)
 
 	// ADD YOUR CALLS HERE
 	tfgrid_client.load(tfgrid.Credentials{
 		mnemonic: mnemonic // FILL IN YOUR MNEMONIC HERE
-		network: 'dev'
+		network: network
 	})!
 
 	// test_machines_ops(mut tfgrid_client, mut logger) or {
@@ -362,6 +362,7 @@ fn main() {
 	fp.description('')
 	fp.skip_executable()
 	mnemonic := fp.string('mnemonic', `m`, '', 'The mnemonic to be used to call any function')
+	network := fp.string('network', `n`, 'dev', 'Chain network to be used')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
@@ -382,7 +383,7 @@ fn main() {
 	_ := spawn myclient.run()
 	
 	
-	execute_rpcs(mut myclient, mut logger, mnemonic) or {
+	execute_rpcs(mut myclient, mut logger, mnemonic, network) or {
 		logger.error("Failed executing calls: $err")
 		exit(1)
 	}
