@@ -1,8 +1,8 @@
 ## [**Web3 Proxy**](README.md)
 
-- [Client](client/client.md)
-- [TFGrid](client/tfgrid.md)
 - [Server](server/server.md)
+- [Playground](playground/playground.md)
+- [RPC](rpc/rpc.md)
 - [Examples](examples/examples.md)
     - [tfgrid](examples/tfgrid/examples.md)
         - [todo](examples/tfgrid/todo.md)
