@@ -2,7 +2,11 @@
 
 [Sftpgo](https://github.com/drakkan/sftpgo) is a SFTP web server with HTTP and webdav support. This server is integrated in web3 proxy, providing a simple to use web client that allows users to manage and share their files.
 
-The integration is done through our own fork of the project found [here](https://github.com/freeflowuniverse/aydo). This integration build on what is already available and add additional features like allowing editing of office documents through the web client and improving syntax highlighting for selected languages.
+The integration is done through our own fork of the project found [here](https://github.com/freeflowuniverse/aydo). This integration build on what is already available and add additional features, the following have been added so far:
+
+- Allowing editing of office documents through the web client via OnlyOffice document server integration
+- Adding syntax highlighting in the code editor for Golang, Vlang, Yaml and Markdown.
+- Implementing a HTTP client to the SFTPGO API using Vlang
 
 ## Enabling the server
 
