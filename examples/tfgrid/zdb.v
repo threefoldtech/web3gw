@@ -59,9 +59,8 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	mut tfgrid_client := tfgrid.new(mut client)
+	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	// ADD YOUR CALLS HERE
 	tfgrid_client.load(tfgrid.Credentials{
 		mnemonic: mnemonic
 		network: 'dev'
