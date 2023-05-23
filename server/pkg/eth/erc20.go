@@ -2,7 +2,6 @@ package eth
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/ethereum/go-ethereum/common"
@@ -18,28 +17,28 @@ type (
 	TokenTransfer struct {
 		ContractAddress string `json:"contract_address"`
 		Destination     string `json:"destination"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 
 	TokenTransferFrom struct {
 		ContractAddress string `json:"contract_address"`
 		From            string `json:"from"`
 		Destination     string `json:"destination"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 
 	ApproveTokenSpending struct {
 		ContractAddress string `json:"contract_address"`
 		Spender         string `json:"spender"`
-		Amount          int64  `json:"amount"`
+		Amount          string `json:"amount"`
 	}
 )
 
 // GetTokenBalance fetches the balance for an erc20 compatible contract
-func (c *Client) GetTokenBalance(ctx context.Context, conState jsonrpc.State, contractAddress string) (*big.Int, error) {
+func (c *Client) GetTokenBalance(ctx context.Context, conState jsonrpc.State, contractAddress string) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return nil, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.Client.GetTokenBalance(contractAddress)

@@ -7,10 +7,10 @@ import (
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 )
 
-func (c *Client) QuoteEthForTft(ctx context.Context, conState jsonrpc.State, amountIn string) (int64, error) {
+func (c *Client) QuoteEthForTft(ctx context.Context, conState jsonrpc.State, amountIn string) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return 0, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.Client.QuoteEthForTft(ctx, amountIn)
@@ -25,10 +25,10 @@ func (c *Client) SwapEthForTft(ctx context.Context, conState jsonrpc.State, amou
 	return state.Client.SwapEthForTft(ctx, amountIn)
 }
 
-func (c *Client) QuoteTftForEth(ctx context.Context, conState jsonrpc.State, amountIn string) (int64, error) {
+func (c *Client) QuoteTftForEth(ctx context.Context, conState jsonrpc.State, amountIn string) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return 0, pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.Client.QuoteTftForEth(ctx, amountIn)

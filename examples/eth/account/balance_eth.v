@@ -1,27 +1,25 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.stellar
-
+import threefoldtech.threebot.eth
 import flag
 import log
 import os
 
 const (
-	default_server_address = 'http://127.0.0.1:8080'
+	default_server_address = 'ws://127.0.0.1:8080'
+	goerli_node_url        = 'ws://45.156.243.137:8546'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, network string, amount string, destination string) ! {
-	mut stellar_client := stellar.new(mut client)
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, eth_url string) ! {
+	mut eth_client := eth.new(mut client)
+	eth_client.load(url: eth_url, secret: secret)!
 
-	stellar_client.load(secret: secret, network: network)!
+	address := eth_client.address()!
+	logger.info('address: ${address}\n')
 
-	balance := stellar_client.balance("")! // fill in your address
-	logger.info("My balance is: ${balance}")
-
-	// Amount in stroops (1 TFT = 10^7 stroops)
-	// Destination is the ethereum address
-	stellar_client.bridge_to_eth(amount: amount, destination: destination)!
+	mut eth_balance := eth_client.balance(address)!
+	logger.info('eth balance: ${eth_balance}')
 }
 
 fn main() {
@@ -30,15 +28,11 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
+	secret := fp.string('secret', `s`, '', 'The secret to use for eth.')
+	// eth_url defaults to Goerli node
+	eth_url := fp.string('eth', `e`, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
-	secret := fp.string('secret', `s`, '', 'The secret of your stellar key')
-	network := fp.string('network', `n`, '', 'The network to connect to. Should be testnet or public.')
-
-	amount := fp.string('amount', `m`, '', 'The amount of TFT to transfer')
-	destination := fp.string('destination', `d`, '', 'The destination ethereum address')
-
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
-
 	_ := fp.finalize() or {
 		eprintln(err)
 		println(fp.usage())
@@ -56,7 +50,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, secret, network, amount, destination) or {
+	execute_rpcs(mut myclient, mut logger, secret, eth_url) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}

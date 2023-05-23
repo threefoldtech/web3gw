@@ -132,7 +132,7 @@ func (c *Client) IsApproved(contractAddress string, hash string) (bool, error) {
 	return h.Int64() == 1, nil
 }
 
-func (c *Client) InitiateMultisigEthTransfer(safeContractAddress, destination string, amount int64) (string, error) {
+func (c *Client) InitiateMultisigEthTransfer(safeContractAddress, destination string, amount string) (string, error) {
 	ms, err := gnosis.NewGnosis(common.HexToAddress(safeContractAddress), c.Eth)
 	if err != nil {
 		return "", err
