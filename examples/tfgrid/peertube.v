@@ -115,5 +115,5 @@ fn get_peertube(mut client tfgrid.TFGridClient, peertube_name string) !PeertubeR
 }
 
 fn generate_peertube_machine_name(peertube_name string) string {
-	return '${peertube_name}_machine'
+	return '${peertube_name}_peertube_machine'
 }

@@ -119,5 +119,5 @@ fn get_taiga(mut client tfgrid.TFGridClient, taiga_name string) !TaigaResult {
 }
 
 fn generate_taiga_machine_name(taiga_name string) string {
-	return '${taiga_name}_machine'
+	return '${taiga_name}_taiga_machine'
 }
