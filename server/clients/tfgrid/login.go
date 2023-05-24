@@ -13,7 +13,7 @@ type Credentials struct {
 }
 
 func (r *Client) Login(ctx context.Context, credentials Credentials) error {
-	newClient, err := deployer.NewTFPluginClient(credentials.Mnemonics, "sr25519", credentials.Network, "", "", "", 10, true, false)
+	newClient, err := deployer.NewTFPluginClient(credentials.Mnemonics, "sr25519", credentials.Network, "", "", "", 10, true)
 	if err != nil {
 		return errors.Wrap(err, "failed to get tf plugin client")
 	}

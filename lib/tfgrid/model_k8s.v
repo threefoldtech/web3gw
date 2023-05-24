@@ -48,13 +48,25 @@ pub struct K8sNodeResult {
 	ygg_ip       string
 }
 
-// NOTE: not implemented
-// pub struct AddK8sNode {
-// 	node K8sNode
-// 	cluster_name string
-// }
+// GetK8sParams defines the params needed to get a k8s cluster
+pub struct GetK8sParams {
+pub:
+	cluster_name string // cluster name
+	master_name  string // master node's name
+}
 
-// pub struct RemoveK8sNode {
-// 	cluster_name string
-// 	node_name string
-// }
+// AddK8sWorker defines the params needed to add a new worker to an existing cluster
+pub struct AddK8sWorker {
+pub:
+	worker       K8sNode // the new worker
+	cluster_name string  // cluster name
+	master_name  string  // master node's name
+}
+
+// RemoveK8sWorker defines the params needed to remove a worker from an existing cluster
+pub struct RemoveK8sWorker {
+pub:
+	cluster_name string // cluster name
+	worker_name  string // worker name
+	master_name  string // master node's name
+}

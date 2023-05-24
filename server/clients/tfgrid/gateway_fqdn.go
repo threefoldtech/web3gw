@@ -2,10 +2,9 @@ package tfgrid
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
@@ -30,87 +29,75 @@ type GatewayFQDNModel struct {
 	ContractID uint64 `json:"contract_id"`
 }
 
-func (r *Client) GatewayFQDNDeploy(ctx context.Context, gatewayFQDNModel GatewayFQDNModel, projectName string) (GatewayFQDNModel, error) {
-	if err := r.validateProjectName(ctx, projectName); err != nil {
+func (c *Client) GatewayFQDNDeploy(ctx context.Context, gw GatewayFQDNModel) (GatewayFQDNModel, error) {
+	if err := c.validateProjectName(ctx, gw.Name); err != nil {
 		return GatewayFQDNModel{}, err
 	}
 
-	gatewayFQDN := workloads.GatewayFQDNProxy{
-		NodeID:         gatewayFQDNModel.NodeID,
-		Backends:       gatewayFQDNModel.Backends,
-		FQDN:           gatewayFQDNModel.FQDN,
-		Name:           gatewayFQDNModel.Name,
-		TLSPassthrough: gatewayFQDNModel.TLSPassthrough,
-		Description:    gatewayFQDNModel.Description,
-		SolutionType:   projectName,
+	gridGW := workloads.GatewayFQDNProxy{
+		NodeID:         gw.NodeID,
+		Backends:       gw.Backends,
+		FQDN:           gw.FQDN,
+		Name:           gw.Name,
+		TLSPassthrough: gw.TLSPassthrough,
+		Description:    gw.Description,
+		SolutionType:   generateProjectName(gw.Name),
 	}
 
-	if err := r.client.DeployGWFQDN(ctx, &gatewayFQDN); err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to deploy gateway fqdn")
+	if err := c.deployGWFQDN(ctx, &gridGW); err != nil {
+		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to deploy gateway %s", gw.Name)
 	}
 
-	gatewayFQDNModel.ContractID = gatewayFQDN.ContractID
+	gw.ContractID = gridGW.ContractID
 
-	return gatewayFQDNModel, nil
+	return gw, nil
 }
 
-func (r *Client) GatewayFQDNDelete(ctx context.Context, projectName string) error {
-	if err := r.client.CancelProject(ctx, projectName); err != nil {
+func (c *Client) deployGWFQDN(ctx context.Context, gridGW *workloads.GatewayFQDNProxy) error {
+	if err := c.client.DeployGWFQDN(ctx, gridGW); err != nil {
+		return err
+	}
+
+	projectName := generateProjectName(gridGW.Name)
+
+	projectState := map[uint32]state.ContractIDs{
+		gridGW.NodeID: {gridGW.ContractID},
+	}
+
+	c.Projects[projectName] = ProjectState{
+		nodeContracts: projectState,
+	}
+
+	return nil
+}
+
+func (c *Client) GatewayFQDNDelete(ctx context.Context, modelName string) error {
+	if err := c.client.CancelProject(ctx, modelName); err != nil {
 		return errors.Wrapf(err, "failed to delete gateway fqdn model contracts")
 	}
 
 	return nil
 }
 
-func (r *Client) GatewayFQDNGet(ctx context.Context, projectName string) (GatewayFQDNModel, error) {
-	contracts, err := r.client.GetProjectContracts(ctx, projectName)
+func (c *Client) GatewayFQDNGet(ctx context.Context, modelName string) (GatewayFQDNModel, error) {
+	gw, err := c.loadGWFQDN(ctx, modelName)
 	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to get project %s contracts", projectName)
+		return GatewayFQDNModel{}, err
 	}
 
-	if len(contracts.NodeContracts) != 1 {
-		return GatewayFQDNModel{}, fmt.Errorf("node contracts for project %s should be 1, but %d were found", projectName, len(contracts.NodeContracts))
-	}
+	ret := GatewayFQDNToModel(gw)
 
-	nodeID := contracts.NodeContracts[0].NodeID
+	return ret, nil
+}
 
-	nodeClient, err := r.client.GetNodeClient(nodeID)
-	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
-	}
-
-	nodeContractID, err := strconv.ParseUint(contracts.NodeContracts[0].ContractID, 0, 64)
-	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "could not parse contract %s into uint64", contracts.NodeContracts[0].ContractID)
-	}
-
-	dl, err := nodeClient.DeploymentGet(ctx, nodeContractID)
-	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "failed to get deployment with contract id %d", nodeContractID)
-	}
-
-	if len(dl.Workloads) != 1 {
-		return GatewayFQDNModel{}, errors.Wrapf(err, "deployment should include only one gateway workload, but %d were found", len(dl.Workloads))
-	}
-
-	wl := &dl.Workloads[0]
-	dataI, err := wl.WorkloadData()
-	if err != nil {
-		return GatewayFQDNModel{}, errors.Wrap(err, "failed to get workload data")
-	}
-
-	data, ok := dataI.(*zos.GatewayFQDNProxy)
-	if !ok {
-		return GatewayFQDNModel{}, fmt.Errorf("could not create gateway fqdn proxy workload from data %v", dataI)
-	}
-
+func GatewayFQDNToModel(gw workloads.GatewayFQDNProxy) GatewayFQDNModel {
 	return GatewayFQDNModel{
-		NodeID:         nodeID,
-		Name:           wl.Name.String(),
-		TLSPassthrough: data.TLSPassthrough,
-		Backends:       data.Backends,
-		FQDN:           data.FQDN,
-		Description:    wl.Description,
-		ContractID:     nodeContractID,
-	}, nil
+		NodeID:         gw.NodeID,
+		Backends:       gw.Backends,
+		FQDN:           gw.FQDN,
+		Name:           gw.Name,
+		TLSPassthrough: gw.TLSPassthrough,
+		Description:    gw.Description,
+		ContractID:     gw.ContractID,
+	}
 }

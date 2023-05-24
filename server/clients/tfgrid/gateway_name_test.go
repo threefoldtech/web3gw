@@ -2,16 +2,15 @@ package tfgrid
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
-	client "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
-	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
@@ -22,28 +21,34 @@ func TestGatewayName(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		client:   cl,
+		Projects: make(map[string]ProjectState),
 	}
 
 	t.Run("gateway_name_deploy_success", func(t *testing.T) {
-		projectName := "project1"
+		modelName := "hamada"
+		projectName := generateProjectName(modelName)
+		nodeID := uint32(1)
+		nameContractID := uint64(1)
+		contractID := uint64(2)
+		domain := "name.com"
 		want := GatewayNameModel{
-			NodeID: 1,
-			Name:   "hamada",
+			NodeID: nodeID,
+			Name:   modelName,
 			Backends: []zos.Backend{
 				"backend1",
 				"b2",
 			},
 			TLSPassthrough: false,
 			Description:    "desc1",
-			FQDN:           "hamada.name.com",
-			NameContractID: 1,
-			ContractID:     2,
+			FQDN:           fmt.Sprintf("%s.%s", modelName, domain),
+			NameContractID: nameContractID,
+			ContractID:     contractID,
 		}
 
 		model := GatewayNameModel{
-			NodeID: 1,
-			Name:   "hamada",
+			NodeID: nodeID,
+			Name:   modelName,
 			Backends: []zos.Backend{
 				"backend1",
 				"b2",
@@ -57,50 +62,54 @@ func TestGatewayName(t *testing.T) {
 			GetProjectContracts(gomock.Any(), projectName).
 			Return(graphql.Contracts{}, nil)
 
-		gw := newGWNameProxyFromModel(model, projectName)
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {contractID}})
 
-		cl.EXPECT().DeployGWName(gomock.Any(), &gw).DoAndReturn(func(ctx context.Context, wl *workloads.GatewayNameProxy) error {
-			wl.NameContractID = 1
-			wl.ContractID = 2
-			return nil
-		})
-
-		rmbClient := mocks.NewMockClient(ctrl)
-		nodeClient := client.NewNodeClient(uint32(1), rmbClient, 10)
-		cl.EXPECT().GetNodeClient(uint32(1)).Return(nodeClient, nil)
-
-		cfg := client.PublicConfig{
-			Domain: "name.com",
-		}
-		rmbClient.
-			EXPECT().
-			Call(gomock.Any(), gomock.Any(), "zos.network.public_config_get", gomock.Any(), gomock.Any()).
-			DoAndReturn(func(ctx context.Context, twin uint32, fn string, data, result interface{}) error {
-				var res *client.PublicConfig = result.(*client.PublicConfig)
-				*res = cfg
-				return nil
-			})
-		got, err := r.GatewayNameDeploy(context.Background(), model, projectName)
-		assert.NoError(t, err)
-
-		assert.Equal(t, want, got)
-	})
-
-	t.Run("gateway_name_get_success", func(t *testing.T) {
-		projectName := "project1"
-		nodeID := uint32(1)
-		nameContractID := uint64(1)
-		nodeContractID := uint64(2)
-		want := GatewayNameModel{
-			NodeID: 1,
-			Name:   "hamada",
+		cl.EXPECT().LoadGatewayName(modelName, nodeID).Return(workloads.GatewayNameProxy{
+			NodeID: nodeID,
+			Name:   modelName,
 			Backends: []zos.Backend{
 				"backend1",
 				"b2",
 			},
 			TLSPassthrough: false,
 			Description:    "desc1",
-			FQDN:           "hamada.name.com",
+			FQDN:           fmt.Sprintf("%s.%s", modelName, domain),
+			NameContractID: nameContractID,
+			ContractID:     contractID,
+		}, nil)
+
+		gw := toGridGWName(model)
+
+		cl.EXPECT().DeployGWName(gomock.Any(), &gw).DoAndReturn(func(ctx context.Context, wl *workloads.GatewayNameProxy) error {
+			wl.NameContractID = nameContractID
+			wl.ContractID = contractID
+			return nil
+		})
+
+		got, err := r.GatewayNameDeploy(context.Background(), model)
+		assert.NoError(t, err)
+
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("gateway_name_get_success", func(t *testing.T) {
+		modelName := "hamada2"
+		projectName := generateProjectName(modelName)
+		nodeID := uint32(1)
+		nameContractID := uint64(1)
+		nodeContractID := uint64(2)
+		domain := "name.com"
+
+		want := GatewayNameModel{
+			NodeID: nodeID,
+			Name:   modelName,
+			Backends: []zos.Backend{
+				"backend1",
+				"b2",
+			},
+			TLSPassthrough: false,
+			Description:    "desc1",
+			FQDN:           fmt.Sprintf("%s.%s", modelName, domain),
 			NameContractID: nameContractID,
 			ContractID:     nodeContractID,
 		}
@@ -120,44 +129,22 @@ func TestGatewayName(t *testing.T) {
 			},
 		}, nil)
 
-		result := zos.GatewayProxyResult{
-			FQDN: want.FQDN,
-		}
-		resultBytes, err := json.Marshal(result)
-		assert.NoError(t, err)
-
-		rmbClient := mocks.NewMockClient(ctrl)
-		workload := gridtypes.Workload{
-			Version: 0,
-			Name:    "name1",
-			Type:    zos.GatewayNameProxyType,
-			Data: gridtypes.MustMarshal(zos.GatewayNameProxy{
-				Name: want.Name,
-				GatewayBase: zos.GatewayBase{
-					TLSPassthrough: want.TLSPassthrough,
-					Backends:       want.Backends,
-				},
-			}),
-			Description: want.Description,
-			Result: gridtypes.Result{
-				Created: gridtypes.Now(),
-				State:   gridtypes.StateOk,
-				Data:    json.RawMessage(resultBytes),
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {nodeContractID}})
+		cl.EXPECT().LoadGatewayName(modelName, nodeID).Return(workloads.GatewayNameProxy{
+			NodeID: nodeID,
+			Name:   modelName,
+			Backends: []zos.Backend{
+				"backend1",
+				"b2",
 			},
-		}
-		resDeployment := workloads.NewGridDeployment(1, []gridtypes.Workload{workload})
-		dl := gridtypes.Deployment{}
-		rmbClient.EXPECT().Call(gomock.Any(), gomock.Any(), "zos.deployment.get", gomock.Any(), &dl).
-			DoAndReturn(func(ctx context.Context, twin uint32, fn string, data, result interface{}) error {
-				var res *gridtypes.Deployment = result.(*gridtypes.Deployment)
-				*res = resDeployment
-				return nil
-			})
+			TLSPassthrough: false,
+			Description:    "desc1",
+			FQDN:           fmt.Sprintf("%s.%s", modelName, domain),
+			NameContractID: nameContractID,
+			ContractID:     nodeContractID,
+		}, nil)
 
-		nodeClient := client.NewNodeClient(nodeID, rmbClient, 10)
-		cl.EXPECT().GetNodeClient(nodeID).Return(nodeClient, nil)
-
-		got, err := r.GatewayNameGet(context.Background(), projectName)
+		got, err := r.GatewayNameGet(context.Background(), modelName)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)
