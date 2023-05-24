@@ -21,6 +21,7 @@ pub struct ContractsRequestParams {
 }
 
 pub struct NodesResult  {
+pub:
 	nodes      []Node 
 	total_count int  
 }
@@ -43,76 +44,77 @@ pub struct ContractsResult  {
 
 // available options for filtering nodes
 pub struct NodeFilter {
-	status             string
-	free_mru           u64    [json: 'freeMru']
-	free_hru           u64    [json: 'freeHru']
-	free_sru           u64    [json: 'freeSru']
-	total_mru          u64    [json: 'totalMru']
-	total_hru          u64    [json: 'totalHru']
-	total_sru          u64    [json: 'totalSru']
-	total_cru          u64    [json: 'totalCru']
-	country            string
-	country_contains   string [json: 'countryContains']
-	city               string
-	city_contains      string [json: 'cityContains']
-	farm_name          string [json: 'farmName']
-	farm_name_contains string
-	farm_ids           []u64  [json: 'farmIds']
-	free_ips           u64    [json: 'freeIps']
-	ipv4               bool
-	ipv6               bool
-	domain             bool
-	dedicated          bool
-	rentable           bool
-	rented             bool
-	rented_by          u64    [json: 'rentedBy']
-	available_for      u64    [json: 'availableFor']
-	node_id            u64    [json: 'nodeId']
-	twin_id            u64
+	status             ?string
+	free_mru           ?u64    [json: 'freeMru']
+	free_hru           ?u64    [json: 'freeHru']
+	free_sru           ?u64    [json: 'freeSru']
+	total_mru          ?u64    [json: 'totalMru']
+	total_hru          ?u64    [json: 'totalHru']
+	total_sru          ?u64    [json: 'totalSru']
+	total_cru          ?u64    [json: 'totalCru']
+	country            ?string
+	country_contains   ?string [json: 'countryContains']
+	city               ?string
+	city_contains      ?string [json: 'cityContains']
+	farm_name          ?string [json: 'farmName']
+	farm_name_contains ?string
+	farm_ids           ?[]u64  [json: 'farmIds']
+	free_ips           ?u64    [json: 'freeIps']
+	ipv4               ?bool
+	ipv6               ?bool
+	domain             ?bool
+	dedicated          ?bool
+	rentable           ?bool
+	rented             ?bool
+	rented_by          ?u64    [json: 'rentedBy']
+	available_for      ?u64    [json: 'availableFor']
+	node_id            ?u64    [json: 'nodeId']
+	twin_id            ?u64
 }
 
 // available options for filtering farms
 pub struct FarmFilter {
-	free_ips           u64    [json: 'freeIps']
-	total_ips          u64    [json: 'totalIps']
-	stellar_address    string [json: 'stellarAddress']
-	pricing_policy_id  u64
-	farm_id            u64    [json: 'farmId']
-	twin_id            u64    [json: 'twinId']
-	name               string
-	name_contains      string [json: 'nameContains']
-	certification_type string [json: 'certificationType']
-	dedicated          bool
+	free_ips           ?u64    [json: 'freeIps']
+	total_ips          ?u64    [json: 'totalIps']
+	stellar_address    ?string [json: 'stellarAddress']
+	pricing_policy_id  ?u64
+	farm_id            ?u64    [json: 'farmId']
+	twin_id            ?u64    [json: 'twinId']
+	name               ?string
+	name_contains      ?string [json: 'nameContains']
+	certification_type ?string [json: 'certificationType']
+	dedicated          ?bool
 }
 
 // available options for filtering twins
 pub struct TwinFilter {
-	twin_id    u64    [json: 'TwinID']
-	account_id string [json: 'AccountID']
-	relay      string
-	public_key string [json: 'PublicKey']
+	twin_id    ?u64    [json: 'TwinID']
+	account_id ?string [json: 'AccountID']
+	relay      ?string
+	public_key ?string [json: 'PublicKey']
 }
 
 // available options for filtering contracts
 pub struct ContractFilter {
-	contract_id          u64    [json: 'ContractID']
-	twin_id              u64    [json: 'TwinID']
-	node_id              u64    [json: 'NodeID']
-	type_                string [json: 'Type']
-	state                string [json: 'State']
-	name                 string [json: 'Name']
-	number_of_public_ips u64    [json: 'NumberOfPublicIps']
-	deployment_data      string [json: 'DeploymentData']
-	deployment_hash      string [json: 'DeploymentHash']
+	contract_id          ?u64    [json: 'ContractID']
+	twin_id              ?u64    [json: 'TwinID']
+	node_id              ?u64    [json: 'NodeID']
+	type_                ?string [json: 'Type']
+	state                ?string [json: 'State']
+	name                 ?string [json: 'Name']
+	number_of_public_ips ?u64    [json: 'NumberOfPublicIps']
+	deployment_data      ?string [json: 'DeploymentData']
+	deployment_hash      ?string [json: 'DeploymentHash']
 }
 
 // filter statistics based on grid node status
 pub struct StatsFilter {
-	status string
+	status ?string
 }
 
 // grid node info
 pub struct Node {
+pub:
 	id                 string       [json: 'id']
 	node_id            int          [json: 'nodeId']
 	farm_id            int          [json: 'farmId']
@@ -168,6 +170,7 @@ pub struct CapacityResult {
 }
 
 pub struct PublicConfig {
+pub:
 	domain string
 	gw4    string
 	gw6    string

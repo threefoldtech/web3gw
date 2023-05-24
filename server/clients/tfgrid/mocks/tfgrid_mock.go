@@ -183,34 +183,6 @@ func (mr *MockTFGridClientMockRecorder) FilterNodes(filter, pagination interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterNodes", reflect.TypeOf((*MockTFGridClient)(nil).FilterNodes), filter, pagination)
 }
 
-// GetContractState mocks base method.
-func (m *MockTFGridClient) GetContractState() map[uint32]state.ContractIDs {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetContractState")
-	ret0, _ := ret[0].(map[uint32]state.ContractIDs)
-	return ret0
-}
-
-// GetContractState indicates an expected call of GetContractState.
-func (mr *MockTFGridClientMockRecorder) GetContractState() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContractState", reflect.TypeOf((*MockTFGridClient)(nil).GetContractState))
-}
-
-// GetNetworkState mocks base method.
-func (m *MockTFGridClient) GetNetworkState(networkName string) state.Network {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNetworkState", networkName)
-	ret0, _ := ret[0].(state.Network)
-	return ret0
-}
-
-// GetNetworkState indicates an expected call of GetNetworkState.
-func (mr *MockTFGridClientMockRecorder) GetNetworkState(networkName interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNetworkState", reflect.TypeOf((*MockTFGridClient)(nil).GetNetworkState), networkName)
-}
-
 // GetNode mocks base method.
 func (m *MockTFGridClient) GetNode(nodeID uint32) (types.NodeWithNestedCapacity, error) {
 	m.ctrl.T.Helper()
@@ -400,16 +372,4 @@ func (m *MockTFGridClient) SetContractState(contracts map[uint32]state.ContractI
 func (mr *MockTFGridClientMockRecorder) SetContractState(contracts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetContractState", reflect.TypeOf((*MockTFGridClient)(nil).SetContractState), contracts)
-}
-
-// SetNetworkState mocks base method.
-func (m *MockTFGridClient) SetNetworkState(networkName string, subnets map[uint32]string, usedIPs state.NodeDeploymentHostIDs) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetNetworkState", networkName, subnets, usedIPs)
-}
-
-// SetNetworkState indicates an expected call of SetNetworkState.
-func (mr *MockTFGridClientMockRecorder) SetNetworkState(networkName, subnets, usedIPs interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNetworkState", reflect.TypeOf((*MockTFGridClient)(nil).SetNetworkState), networkName, subnets, usedIPs)
 }

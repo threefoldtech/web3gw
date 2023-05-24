@@ -120,6 +120,7 @@ fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 
 	res = client.k8s_get(tfgrid.GetK8sParams{
 		cluster_name: cluster_name
+		worker_name: 'w1'
 		master_name: 'master'
 	})!
 	logger.info('${res}')
