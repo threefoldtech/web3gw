@@ -90,7 +90,17 @@ func (s *StellarDriver) ValidateTFTTranser(ctx context.Context, initTransferResu
 
 // ClaimTFT implements SellChain
 func (s *StellarDriver) ClaimTFT(ctx context.Context, initTransferResult any, secret SwapSecret) error {
-	return errors.New("TODO")
+	initResult, ok := initTransferResult.(InitTFTTransferResult)
+	if !ok {
+		return errors.New("TFT transfer init result is not of proper type")
+	}
+	kp := s.stellar.KeyPair()
+	_, err := stellar.Redeem(s.networkPassphrase, &kp, initResult.HoldingAccount, secret[:], s.horizonClient)
+	if err != nil {
+		return errors.Wrap(err, "failed to redeem stellar contract")
+	}
+
+	return nil
 }
 
 // Parse the stellar testnet TFT asset
