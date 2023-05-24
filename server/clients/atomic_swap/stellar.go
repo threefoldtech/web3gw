@@ -22,9 +22,9 @@ type (
 	}
 
 	// ParticipateOutput generated when initiating TFT transfer
-	ParticipateOutput struct {
-		HoldingAccount string
-		RefundTx       string
+	InitTFTTransferResult struct {
+		HoldingAccount string `json:"holdingAccount"`
+		RefundTx       string `json:"refundTx"`
 	}
 )
 
@@ -35,7 +35,7 @@ func (s *StellarDriver) InitTFTTransfer(ctx context.Context, details NegotiatedT
 	if err != nil {
 		return nil, errors.Wrap(err, "could not participate on stellar side")
 	}
-	return ParticipateOutput{
+	return InitTFTTransferResult{
 		HoldingAccount: participateOutput.HoldingAccountAddress,
 		RefundTx:       participateOutput.RefundTransaction,
 	}, nil
