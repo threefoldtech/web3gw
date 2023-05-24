@@ -20,10 +20,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, de
 	mut eth_balance := eth_client.balance(address)!
 	logger.info('eth balance: ${eth_balance}\n')
 
-	mut balance := eth_client.tft_balance()!
+	mut balance := eth_client.get_tft_eth_balance()!
 	logger.info('tft balance: ${balance}\n')
 
-	mut res := eth_client.tft_eth_transfer(destination: destination, amount: amount)!
+	mut res := eth_client.transfer_eth_tft(destination: destination, amount: amount)!
 	logger.info('transfer result: ${res}')
 }
 
