@@ -31,12 +31,6 @@ type (
 	}
 )
 
-var (
-	ErrCorruptRefundTx      = errors.New("could not decode refund transaction")
-	ErrCorruptContractValue = errors.New("could not parse contract value, this is an internal coding error")
-	ErrWrongSecret          = errors.New("wrong secret hash in contract")
-)
-
 // InitTFTTransfer implements SellChain
 func (s *StellarDriver) InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash, destination string) (any, error) {
 	kp := s.stellar.KeyPair()

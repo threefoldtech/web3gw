@@ -3,6 +3,8 @@ package atomicswap
 import (
 	"context"
 	"crypto/sha256"
+
+	"github.com/pkg/errors"
 )
 
 type (
@@ -38,4 +40,17 @@ type (
 	SwapSecret [32]byte
 	// SwapSecretHash is the sha256 hash of the swap secret used in a trade
 	SwapSecretHash [sha256.Size]byte
+)
+
+var (
+	// ErrTxUnconfirmed indicates the transaction is not confirmed after waiting for some amount of time
+	ErrTxUnconfirmed          = errors.New("transaction is not confirmed after waiting")
+	ErrContractUndervalued    = errors.New("contract has less than expected value")
+	ErrWrongContract          = errors.New("call is for wrong contract")
+	ErrDifferentSwapReceiver  = errors.New("swap is for a different receiver")
+	ErrWrongRefundAddress     = errors.New("contract refund address is wrong")
+	ErrContractExpiresTooSoon = errors.New("contract expires too soon")
+	ErrCorruptRefundTx        = errors.New("could not decode refund transaction")
+	ErrCorruptContractValue   = errors.New("could not parse contract value, this is an internal coding error")
+	ErrWrongSecret            = errors.New("wrong secret hash in contract")
 )
