@@ -1,3 +1,3 @@
-# Client
+# RPC methods
 
 Coming soon...
