@@ -32,8 +32,8 @@ fn build_openrpc_docs() ! {
 	sh('v ~/.vmodules/freeflowuniverse/crystallib/openrpc/cli')
 	cli := '~/.vmodules/freeflowuniverse/crystallib/openrpc/cli/cli'
 	sh('$cli docgen -t "Web3Proxy JSON-RPC API" -p -o docs/openrpc lib')
-	lib_path := pathlib.get('lib')
-	clients := lib_path.dir_list()!
+	mut lib_path := pathlib.get('lib')
+	clients := lib_path.dir_list(recursive: true)!
 	for client in clients {
 		client_name := client.path.all_after_last('/')
 		sh('mkdir docs/openrpc/$client_name')
