@@ -2,9 +2,12 @@ package atomicswap
 
 import (
 	"context"
+	"encoding/hex"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/txnbuild"
 	"github.com/threefoldtech/atomicswap/stellar"
@@ -28,6 +31,12 @@ type (
 	}
 )
 
+var (
+	ErrCorruptRefundTx      = errors.New("could not decode refund transaction")
+	ErrCorruptContractValue = errors.New("could not parse contract value, this is an internal coding error")
+	ErrWrongSecret          = errors.New("wrong secret hash in contract")
+)
+
 // InitTFTTransfer implements SellChain
 func (s *StellarDriver) InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash, destination string) (any, error) {
 	kp := s.stellar.KeyPair()
@@ -42,8 +51,47 @@ func (s *StellarDriver) InitTFTTransfer(ctx context.Context, details NegotiatedT
 }
 
 // ValidateTFTTranser implements SellChain
-func (s *StellarDriver) ValidateTFTTranser(ctx context.Context, initTransferResult any, sharedSecret SwapSecretHash) error {
-	return errors.New("TODO")
+func (s *StellarDriver) ValidateTFTTranser(ctx context.Context, initTransferResult any, details NegotiatedTrade, sharedSecret SwapSecretHash) error {
+	initResult, ok := initTransferResult.(InitTFTTransferResult)
+	if !ok {
+		return errors.New("TFT transfer init result is not of proper type")
+	}
+
+	refundTx := txnbuild.Transaction{}
+	if err := (&refundTx).UnmarshalText([]byte(initResult.RefundTx)); err != nil {
+		return ErrCorruptRefundTx
+	}
+	auditOutput, err := stellar.AuditContract(s.networkPassphrase, refundTx, initResult.HoldingAccount, s.asset, s.horizonClient)
+	if err != nil {
+		return errors.Wrap(err, "could not audit stellar contract")
+	}
+
+	contractValue, err := strconv.ParseFloat(auditOutput.ContractValue, 64)
+	if err != nil {
+		return ErrCorruptContractValue
+	}
+
+	// if the seller wants to give us more TFT than agreed, we will shamelessly accept
+	if contractValue < float64(details.Amount) {
+		return ErrContractUndervalued
+	}
+
+	// Make sure we are the receiver
+	if auditOutput.RecipientAddress != s.stellar.Address() {
+		return ErrDifferentSwapReceiver
+	}
+
+	// Verify that the secret is properly set
+	if auditOutput.SecretHash != hex.EncodeToString(sharedSecret[:]) {
+		return ErrWrongSecret
+	}
+
+	if time.Unix(auditOutput.Locktime, 0).Before(time.Now().Add(time.Hour * 1)) {
+		log.Warn().Msg("Contract doesn't leave at least 1 hour to complete, ignore")
+		return ErrContractExpiresTooSoon
+	}
+
+	return nil
 }
 
 // ClaimTFT implements SellChain
