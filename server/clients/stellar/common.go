@@ -54,6 +54,10 @@ func GetHorizonClient(stellarNetwork string) *horizonclient.Client {
 	}
 }
 
+func (c *Client) GetHorizonClient() *horizonclient.Client {
+	return GetHorizonClient(c.stellarNetwork)
+}
+
 // GetTftAsset returns the tft asset for the stellar network
 func (c *Client) GetTftAsset() txnbuild.CreditAsset {
 	if c.stellarNetwork == "testnet" {
