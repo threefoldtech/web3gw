@@ -154,6 +154,11 @@ func (e *EthDriver) ValidateInitPaymentResult(ctx context.Context, initResult an
 }
 
 // Claim implements BuyChain
-func (e *EthDriver) Claim(ctx context.Context, initResult any, secret SwapSecret) error {
-	return errors.New("TODO")
+func (e *EthDriver) Claim(ctx context.Context, initResult any, secretHash SwapSecretHash, secret SwapSecret) (string, error) {
+	redeemOutput, err := eth.Redeem(ctx, *e.sct, secretHash, secret)
+	if err != nil {
+		return "", errors.Wrap(err, "could not redeem contract")
+	}
+
+	return redeemOutput.RedeemTxHash.Hex(), nil
 }
