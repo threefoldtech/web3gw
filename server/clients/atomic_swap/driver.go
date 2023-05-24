@@ -546,11 +546,3 @@ func handleMessage(driver *Driver) {
 		}
 	}
 }
-
-func mustStellarTestnetTftAsset() txnbuild.Asset {
-	a, err := txnbuild.ParseAssetString("TFT:GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3")
-	if err != nil {
-		panic(err)
-	}
-	return a
-}
