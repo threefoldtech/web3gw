@@ -18,8 +18,8 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string, s
 
 	stellar_client.load(secret: secret, network: network)!
 
-	balance := stellar_client.balance("")!
-	logger.info("My balance is: ${balance}")
+	balance := stellar_client.balance('')!
+	logger.info('Stellar tft balance: ${balance}\n')
 
 	// Amount in stroops (1 TFT = 10^7 stroops)
 	// Destination is the tfchain address
@@ -38,32 +38,39 @@ fn main() {
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }
 	})
-	network := fp.string_opt('network', `n`, 'The network to choose on stellar') or {
-		logger.error("Argument network is required!")
-		exit(1)
-	}
-	secret := fp.string_opt('secret', `s`, 'Your secret on stellar') or {
-		logger.error("Argument secret is required!")
-		exit(1)
-	}
-	amount := fp.string_opt('amount', `a`, 'The amount to bridge') or {
-		logger.error("Argument amount is required!")
-		exit(1)
-	}
-	twin_id := fp.int_opt('twinid', `t`, 'Your twin id in tfchain') or {
-		logger.error("Argument twinid is required!")
-		exit(1)
-	}	
-	if twin_id <= 0 {
-		logger.error("Invalid twinid, it must be greater than 0!")	
-		exit(1)
-	}
-	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
+	network := fp.string('network', `n`, '', 'The network to choose on stellar')
+	secret := fp.string('secret', `s`, '', 'Your secret on stellar')
+	amount := fp.string('amount', `a`, '', 'The amount to bridge')
+	twin_id := fp.int('twinid', `t`, 0, 'Your twin id in tfchain')
+	address := fp.string('address', `d`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	_ := fp.finalize() or {
 		eprintln(err)
 		println(fp.usage())
 		exit(1)
 	}
+
+	mut failed_parsing := false
+	if network == "" {
+		logger.error("Argument network is required!")
+		failed_parsing = true
+	}
+	if twin_id <= 0 {
+		logger.error("Invalid twinid, it must be greater than 0!")	
+		failed_parsing = true
+	}
+	if secret == '' {
+		logger.error("Argument secret is required!")
+		failed_parsing = true
+	}
+	if amount == '' {
+		logger.error("Amount is invalid, it should be greater than 0!")
+		failed_parsing = true
+	}
+	if failed_parsing {
+		println(fp.usage())
+		exit(1)
+	}
+
 
 	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
 		logger.error('Failed creating rpc websocket client: ${err}')

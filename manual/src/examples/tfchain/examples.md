@@ -8,4 +8,5 @@ cd examples/tfchain
 ```
 
 
-- [todo](./todo.md)
+- [account](./account.md)
+- [bridge](./bridge.md)
