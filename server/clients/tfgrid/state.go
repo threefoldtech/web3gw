@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 )
@@ -159,8 +160,11 @@ func (c *Client) loadGridMachinesModel(ctx context.Context, modelName string) (g
 	for nodeID := range modelContracts.nodeContracts {
 		dl, err := c.loadDeployment(modelName, nodeID)
 		if err != nil {
-			return gridMachinesModel{}, errors.Wrap(err, "failed to load deployments")
+			// no deployment found on this node, we should continue looking for other deployments
+			log.Debug().Msgf("no deployment found on node %d", nodeID)
+			continue
 		}
+
 		deployments[nodeID] = &dl
 	}
 

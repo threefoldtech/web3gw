@@ -291,7 +291,7 @@ func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
 }
 
 // Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
-func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
+func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
 	// all units unified in bytes
 
 	workloads := []*PlannedReservation{}
@@ -317,7 +317,7 @@ func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 		})
 	}
 
-	err := r.AssignNodes(ctx, workloads)
+	err := c.AssignNodes(ctx, workloads)
 	if err != nil {
 		return err
 	}
@@ -533,6 +533,53 @@ func generateGridMount(diskName string, mountPoint string) workloads.Mount {
 	}
 }
 
+func generateGridQSFS(qsfs *QSFS, qsfsName string) workloads.QSFS {
+	metaBackends := []workloads.Backend{}
+	for _, b := range qsfs.Metadata.Backends {
+		metaBackends = append(metaBackends, workloads.Backend{
+			Address:   b.Address,
+			Namespace: b.Namespace,
+			Password:  b.Password,
+		})
+	}
+
+	groups := []workloads.Group{}
+	for _, group := range qsfs.Groups {
+		bs := workloads.Backends{}
+		for _, b := range group.Backends {
+			bs = append(bs, workloads.Backend{
+				Address:   b.Address,
+				Namespace: b.Namespace,
+				Password:  b.Password,
+			})
+		}
+		groups = append(groups, workloads.Group{Backends: bs})
+	}
+
+	return workloads.QSFS{
+		Name:                 qsfsName,
+		Description:          qsfs.Description,
+		Cache:                qsfs.Cache,
+		MinimalShards:        qsfs.MinimalShards,
+		ExpectedShards:       qsfs.ExpectedShards,
+		RedundantGroups:      qsfs.RedundantGroups,
+		RedundantNodes:       qsfs.RedundantNodes,
+		MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
+		EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
+		EncryptionKey:        qsfs.EncryptionKey,
+		CompressionAlgorithm: qsfs.CompressionAlgorithm,
+		Metadata: workloads.Metadata{
+			Type:                qsfs.Metadata.Type,
+			Prefix:              qsfs.Metadata.Prefix,
+			EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
+			EncryptionKey:       qsfs.Metadata.EncryptionKey,
+			Backends:            metaBackends,
+		},
+		Groups:          groups,
+		MetricsEndpoint: qsfs.MetricsEndpoint,
+	}
+}
+
 func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
 	disks := []workloads.Disk{}
 	qsfss := []workloads.QSFS{}
@@ -546,50 +593,9 @@ func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM
 	}
 
 	for idx, qsfs := range machine.QSFSs {
-		metaBackends := []workloads.Backend{}
-		for _, b := range qsfs.Metadata.Backends {
-			metaBackends = append(metaBackends, workloads.Backend{
-				Address:   b.Address,
-				Namespace: b.Namespace,
-				Password:  b.Password,
-			})
-		}
-
-		groups := []workloads.Group{}
-		for _, group := range qsfs.Groups {
-			bs := workloads.Backends{}
-			for _, b := range group.Backends {
-				bs = append(bs, workloads.Backend{
-					Address:   b.Address,
-					Namespace: b.Namespace,
-					Password:  b.Password,
-				})
-			}
-			groups = append(groups, workloads.Group{Backends: bs})
-		}
-
-		qsfss = append(qsfss, workloads.QSFS{
-			Name:                 generateQSFSName(machine.Name, idx),
-			Description:          qsfs.Description,
-			Cache:                qsfs.Cache,
-			MinimalShards:        qsfs.MinimalShards,
-			ExpectedShards:       qsfs.ExpectedShards,
-			RedundantGroups:      qsfs.RedundantGroups,
-			RedundantNodes:       qsfs.RedundantNodes,
-			MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
-			EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
-			EncryptionKey:        qsfs.EncryptionKey,
-			CompressionAlgorithm: qsfs.CompressionAlgorithm,
-			Metadata: workloads.Metadata{
-				Type:                qsfs.Metadata.Type,
-				Prefix:              qsfs.Metadata.Prefix,
-				EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
-				EncryptionKey:       qsfs.Metadata.EncryptionKey,
-				Backends:            metaBackends,
-			},
-			Groups:          groups,
-			MetricsEndpoint: qsfs.MetricsEndpoint,
-		})
+		qsfsName := generateQSFSName(machine.Name, idx)
+		qsfss = append(qsfss, generateGridQSFS(&qsfs, qsfsName))
+		mounts = append(mounts, generateGridMount(qsfsName, qsfs.MountPoint))
 	}
 
 	for _, zlog := range machine.Zlogs {
@@ -739,6 +745,90 @@ func generateQSFSName(machineName string, id int) string {
 	return fmt.Sprintf("%s_qsfs_%d", machineName, id)
 }
 
+func (m *MachinesModel) findMachine(machineName string) (*Machine, error) {
+	for idx, machine := range m.Machines {
+		if machine.Name == machineName {
+			return &m.Machines[idx], nil
+		}
+	}
+
+	return nil, fmt.Errorf("failed to find machine %s in model %s", machineName, m.Name)
+}
+
+func (g *gridMachinesModel) getNetworkState() (state.Network, error) {
+	subnets := map[uint32]string{}
+	for nodeID, subnet := range g.network.NodesIPRange {
+		subnets[nodeID] = subnet.String()
+	}
+
+	usedIPs := state.NodeDeploymentHostIDs{}
+	for nodeID, dl := range g.deployments {
+		nodeUsedIPs := state.DeploymentHostIDs{}
+		for _, vm := range dl.Vms {
+			slices := strings.SplitAfter(vm.IP, ".")
+			hostID := slices[len(slices)-1]
+			id, err := strconv.ParseUint(hostID, 10, 8)
+			if err != nil {
+				return state.Network{}, err
+			}
+			contractID := dl.NodeDeploymentID[nodeID]
+			nodeUsedIPs[contractID] = append(nodeUsedIPs[contractID], byte(id))
+		}
+		usedIPs[nodeID] = nodeUsedIPs
+	}
+
+	return state.Network{
+		Subnets:               subnets,
+		NodeDeploymentHostIDs: usedIPs,
+	}, nil
+}
+
+func (c *Client) updateDeployment(ctx context.Context, oldDeployments map[uint32]uint64, params *AddMachineParams) error {
+	dl, err := c.prepareDeploymentForUpdate(oldDeployments, params)
+	if err != nil {
+		return err
+	}
+
+	if err := c.client.DeployDeployment(ctx, &dl); err != nil {
+		return errors.Wrap(err, "failed to deploy")
+	}
+
+	oldDeployments[dl.NodeID] = dl.ContractID
+
+	return nil
+}
+
+func (c *Client) prepareDeploymentForUpdate(oldDeployments map[uint32]uint64, params *AddMachineParams) (workloads.Deployment, error) {
+	networkName := generateNetworkName(params.ModelName)
+	vm, disks, qsfss := extractMachineWorkloads(&params.Machine, networkName)
+
+	if _, ok := oldDeployments[params.Machine.NodeID]; ok {
+		// there is an old deployment on this node; load and update this deployment.
+		dl, err := c.loadDeployment(params.ModelName, params.Machine.NodeID)
+		if err != nil {
+			return workloads.Deployment{}, errors.Wrap(err, "failed to load deployments")
+		}
+
+		dl.Vms = append(dl.Vms, vm)
+		dl.QSFS = append(dl.QSFS, qsfss...)
+		dl.Disks = append(dl.Disks, disks...)
+
+		return dl, nil
+	}
+
+	return workloads.NewDeployment(
+		params.ModelName,
+		params.Machine.NodeID,
+		generateProjectName(params.ModelName),
+		nil,
+		networkName,
+		disks,
+		nil,
+		[]workloads.VM{vm},
+		qsfss), nil
+
+}
+
 func removeMachineFromDeployment(dl *workloads.Deployment, machine *Machine) {
 	removeVMFromDeployment(dl, machine.Name)
 	removeDisksFromDeployment(dl, machine.Disks)
@@ -778,42 +868,4 @@ func removeQSFSSFromDeployment(dl *workloads.Deployment, qsfss []QSFS) {
 			}
 		}
 	}
-}
-
-func (m *MachinesModel) findMachine(machineName string) (*Machine, error) {
-	for idx, machine := range m.Machines {
-		if machine.Name == machineName {
-			return &m.Machines[idx], nil
-		}
-	}
-
-	return nil, fmt.Errorf("failed to find machine %s in model %s", machineName, m.Name)
-}
-
-func (g *gridMachinesModel) getNetworkState() (state.Network, error) {
-	subnets := map[uint32]string{}
-	for nodeID, subnet := range g.network.NodesIPRange {
-		subnets[nodeID] = subnet.String()
-	}
-
-	usedIPs := state.NodeDeploymentHostIDs{}
-	for nodeID, dl := range g.deployments {
-		nodeUsedIPs := state.DeploymentHostIDs{}
-		for _, vm := range dl.Vms {
-			slices := strings.SplitAfter(vm.IP, ".")
-			hostID := slices[len(slices)-1]
-			id, err := strconv.ParseUint(hostID, 10, 8)
-			if err != nil {
-				return state.Network{}, err
-			}
-			contractID := dl.NodeDeploymentID[nodeID]
-			nodeUsedIPs[contractID] = append(nodeUsedIPs[contractID], byte(id))
-		}
-		usedIPs[nodeID] = nodeUsedIPs
-	}
-
-	return state.Network{
-		Subnets:               subnets,
-		NodeDeploymentHostIDs: usedIPs,
-	}, nil
 }

@@ -125,7 +125,7 @@ func (c *Client) K8sGet(ctx context.Context, params GetClusterParams) (K8sCluste
 	// load the cluster contracts
 	contracts, err := c.getClusterNodeContracts(ctx, params.ClusterName)
 	if err != nil {
-		return K8sCluster{}, err
+		return K8sCluster{}, errors.Wrapf(err, "failed to load kubernetes cluster %s", params.ClusterName)
 	}
 
 	// update state from the created contracts & load info from the grid
