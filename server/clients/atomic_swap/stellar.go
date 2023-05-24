@@ -2,22 +2,43 @@ package atomicswap
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/txnbuild"
+	"github.com/threefoldtech/atomicswap/stellar"
 	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
 )
 
 type (
 	// StellarDriver implements stellar specific atomic swap logic
 	StellarDriver struct {
-		stellar *stellargoclient.Client
+		stellar       *stellargoclient.Client
+		horizonClient *horizonclient.Client
+
+		networkPassphrase string
+		asset             txnbuild.Asset
+	}
+
+	// ParticipateOutput generated when initiating TFT transfer
+	ParticipateOutput struct {
+		HoldingAccount string
+		RefundTx       string
 	}
 )
 
 // InitTFTTransfer implements SellChain
-func (s *StellarDriver) InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash) (any, error) {
-	return nil, errors.New("TODO")
+func (s *StellarDriver) InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash, destination string) (any, error) {
+	kp := s.stellar.KeyPair()
+	participateOutput, err := stellar.Participate(s.networkPassphrase, &kp, destination, strconv.FormatUint(uint64(details.Amount), 10), sharedSecret[:], s.asset, s.horizonClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not participate on stellar side")
+	}
+	return ParticipateOutput{
+		HoldingAccount: participateOutput.HoldingAccountAddress,
+		RefundTx:       participateOutput.RefundTransaction,
+	}, nil
 }
 
 // ValidateTFTTranser implements SellChain
