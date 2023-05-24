@@ -10,7 +10,7 @@ pub:
 	org_id   int = 2
 	network string
 	farm_id    int
-	node_id string
+	node_id int
 }
 
 pub struct Node{
@@ -29,7 +29,6 @@ pub fn get_metrics_url(args MetricsURLArgs) !string{
 	'testing' : 'https://gridproxy.test.grid.tf'
 	'production' : 'https://gridproxy.grid.tf'
 	}
-
 	url := urls[args.network] or { panic('grid proxy url not found') }
 
 	header_config := http.HeaderConfig{
@@ -51,6 +50,7 @@ pub fn get_metrics_url(args MetricsURLArgs) !string{
 	}
 	twin_resp := twin_req.do()!
 	twins := json.decode([]Twin, twin_resp.body)!
+	
 	if twins.len < 1 {
 		panic("twin object node found")
 	}

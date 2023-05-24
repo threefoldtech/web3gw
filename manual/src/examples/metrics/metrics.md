@@ -1,23 +1,13 @@
 # Metrics
 
-## Get metrics url of a node
+This example shows how to get metrics url for a specific node
 
-- To get a metrics url for a specific node you first need to create MetricsURLArgs instance as follows
+To run the metrics example
 
-```
-args := metrics.MetricsURLArgs{
-    network: "development",
-    farm_id:1,
-    node_id: "11"
-}
+- `-t`: network, should be development, testing or production
+- `-f`: farm id
+- `-n`: node id
 
-```
-
-- Then call get_metrics_url function passing this struct to it
-
-```
-url := metrics.get_metrics_url(args) or {
-    println("failed to construct metrics url for this node")
-    return
-}
+```sh
+v -cg run metrics.v -t development -f 1 -n 11
 ```

@@ -11,7 +11,6 @@
     - [Gateway Name](examples/tfgrid/gateway_name.md)
     - [Gateway FQDN](examples/tfgrid/gateway_fqdn.md)
     - [ZOS Node Calls](examples/tfgrid/zos_calls.md)
-    - [Metrics](examples/metrics/metrics.md)
   - [eth](examples/eth/examples.md)
     - [account](examples/eth/account.md)
     - [transfer](examples/eth/transfer.md)
@@ -31,3 +30,4 @@
     - [bridge](examples/tfchain/bridge.md)
   - [btc](examples/btc/examples.md)
     - [todo](examples/btc/todo.md)
+  - [Metrics](examples/metrics/metrics.md)
