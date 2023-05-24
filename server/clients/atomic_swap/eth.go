@@ -40,14 +40,6 @@ var (
 	sepoliaContractAddress = common.HexToAddress("0x17f54245073bfed168a51c3d13b536e39e406063")
 	// contract address on the goerli network
 	goerliContractAddress = common.HexToAddress("0x8420c8271d602F6D0B190856Cea8E74D09A0d3cF")
-
-	// ErrTxUnconfirmed indicates the transaction is not confirmed after waiting for some amount of time
-	ErrTxUnconfirmed          = errors.New("transaction is not confirmed after waiting")
-	ErrContractUndervalued    = errors.New("contract has less than expected value")
-	ErrWrongContract          = errors.New("call is for wrong contract")
-	ErrDifferentSwapReceiver  = errors.New("swap is for a different receiver")
-	ErrWrongRefundAddress     = errors.New("contract refund address is wrong")
-	ErrContractExpiresTooSoon = errors.New("contract expires too soon")
 )
 
 // newEthDriver creates a new eth driver
