@@ -19,7 +19,7 @@ type (
 	// SellChain holds all logic regarding the chain on which TFT are sold
 	SellChain interface {
 		// InitTFTTransfer locks TFT's in the contract
-		InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash) (any, error)
+		InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash, destination string) (any, error)
 		// ValidateTFTTranser validates the locked TFT's
 		ValidateTFTTranser(ctx context.Context, initTransferResult any, sharedSecret SwapSecretHash) error
 		// ClaimTFT claims the locked TFT's
