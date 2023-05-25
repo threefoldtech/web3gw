@@ -66,6 +66,9 @@ func State(conState jsonrpc.State) *AtomicSwapState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *AtomicSwapState) Close() {}
+
 func (c *Client) Load(ctx context.Context, conState jsonrpc.State) error {
 	nostrState := nostrpkg.State(conState)
 	if nostrState.Client == nil {

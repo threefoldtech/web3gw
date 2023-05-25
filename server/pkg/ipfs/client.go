@@ -46,6 +46,9 @@ func State(conState jsonrpc.State) *ipfsState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *ipfsState) Close() {}
+
 func NewClient(peer *ipfslite.Peer) *Client {
 	return &Client{peer: peer}
 }

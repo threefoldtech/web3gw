@@ -42,6 +42,9 @@ func State(conState jsonrpc.State) *NostrState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *NostrState) Close() {}
+
 // NewClient creates a new client
 func NewClient() *Client {
 	return &Client{

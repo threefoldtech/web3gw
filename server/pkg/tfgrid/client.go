@@ -65,6 +65,9 @@ func State(conState jsonrpc.State) *tfgridState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *tfgridState) Close() {}
+
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic string, network string) error {
 	state := State(conState)

@@ -52,6 +52,9 @@ const (
 	StellarID = "stellar"
 )
 
+// Close implements jsonrpc.Closer
+func (s *StellarState) Close() {}
+
 // Error implements the error interface
 func (e ErrUnknownNetwork) Error() string {
 	return "only 'public' and 'testnet' networks are supported"
