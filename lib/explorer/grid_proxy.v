@@ -57,8 +57,8 @@ pub fn (mut e ExplorerClient) twins(params TwinsRequestParams) !TwinsResult {
 }
 
 // Gets the node with the provided id. The result object contains data relevant to the node (resources, farm, etc.)
-pub fn (mut e ExplorerClient) node(node_id u32) ![]NodeWithNestedCapacity {
-	return e.client.send_json_rpc[[]u32, []NodeWithNestedCapacity]('explorer.Node', [
+pub fn (mut e ExplorerClient) node(node_id u32) !NodeWithNestedCapacity {
+	return e.client.send_json_rpc[[]u32, NodeWithNestedCapacity]('explorer.Node', [
 		node_id,
 	], explorer.default_timeout)!
 }
