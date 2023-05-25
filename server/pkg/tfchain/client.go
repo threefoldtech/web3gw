@@ -127,6 +127,7 @@ type (
 )
 
 func (t *TfchainState) Close() error {
+	t.client.Close()
 	return nil
 }
 
