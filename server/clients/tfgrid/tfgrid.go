@@ -194,6 +194,5 @@ func generateProjectName(modelName string) (projectName string) {
 }
 
 func (c *tfgridClient) Close() {
-	// TODO: close grid client connections.
-	// (https://github.com/threefoldtech/tfgrid-sdk-go/pull/150)
+	c.client.Close()
 }
