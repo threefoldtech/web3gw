@@ -1,59 +1,55 @@
 module metrics
-import net.http
-import json
-
+// import net.http
+// import json
+import log
+import threefoldtech.threebot.explorer
 
 
 [params]
 pub struct MetricsURLArgs {
 pub:
-	org_id   int = 2
-	network string
-	farm_id    int
-	node_id int
+	org_id   u32 = 2
+	network  string
+	farm_id  u32
+	node_id  u32
 }
 
 pub struct Node{
-	twin_id int [json: twinId]
+	twin_id u64 [json: twinId]
 }
 
 pub struct Twin {
 	account_id string [json: accountId]
 }
-
-pub fn get_metrics_url(args MetricsURLArgs) !string{
-
-	urls := {
-	'development': 'https://gridproxy.dev.grid.tf'
-	'qa': 'https://gridproxy.qa.grid.tf'
-	'testing' : 'https://gridproxy.test.grid.tf'
-	'production' : 'https://gridproxy.grid.tf'
-	}
-	url := urls[args.network] or { panic('grid proxy url not found') }
-
-	header_config := http.HeaderConfig{
-		key: http.CommonHeader.content_type
-		value: 'application/json'
-	}
-	req := http.Request{
-		method: http.Method.get
-		header: http.new_header(header_config)
-		url: '${url}/nodes/${args.node_id}'
-	}
-	resp := req.do()!
-	node := json.decode(Node, resp.body)!
-
-	twin_req := http.Request{
-		method: http.Method.get
-		header: http.new_header(header_config)
-		url: '${url}/twins?twin_id=${node.twin_id}'
-	}
-	twin_resp := twin_req.do()!
-	twins := json.decode([]Twin, twin_resp.body)!
+const (
+	envs = {
+		'dev': 'development',
+		'qa': 'qa'
+		'test': 'testing',
+		'main': 'production'
 	
-	if twins.len < 1 {
+	}
+)
+
+pub fn get_metrics_url(args MetricsURLArgs, mut explorer_cl explorer.ExplorerClient, mut logger log.Logger) !string{
+
+	env := envs[args.network] or {panic('env not found')}
+
+	node := explorer_cl.node(args.node_id) or {
+		logger.error('failed to get node: ${err}')
+		exit(1)
+	}
+
+	twin_filters := explorer.TwinFilter{
+		twin_id: node.twin_id
+	}
+	params := explorer.TwinsRequestParams{
+		filters: twin_filters
+	}
+	res := explorer_cl.twins(params)!
+	if res.twins.len < 1{
 		panic("twin object node found")
 	}
-
-	return "https://metrics.grid.tf/d/rYdddlPWkfqwf/zos-host-metrics?orgId=${args.org_id}&refresh=30s&var-network=${args.network}&var-farm=${args.farm_id}&var-node=${twins[0].account_id}&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B" 
+	
+	return "https://metrics.grid.tf/d/rYdddlPWkfqwf/zos-host-metrics?orgId=${args.org_id}&refresh=30s&var-network=${env}&var-farm=${args.farm_id}&var-node=${res.twins[0].account_id}&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B" 
 }

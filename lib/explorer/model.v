@@ -31,8 +31,9 @@ pub struct FarmsResult  {
 }
 
 pub struct TwinsResult  {
-	twins      []Twin 
-	total_count int  
+	pub:
+		twins      []Twin 
+		total_count int  
 }
 
 pub struct ContractsResult  {
@@ -116,7 +117,7 @@ pub struct Node {
 	id                 string       [json: 'id']
 	node_id            int          [json: 'nodeId']
 	farm_id            int          [json: 'farmId']
-	twin_id            int          [json: 'twinId']
+	twin_id            u64          [json: 'twinId']
 	country            string       [json: 'country']
 	grid_version       int          [json: 'gridVersion']
 	city               string       [json: 'city']
@@ -138,33 +139,34 @@ pub struct Node {
 
 // grid node with nested capacity object
 pub struct NodeWithNestedCapacity {
-	id                string
-	node_id           int    [json: 'nodeId']
-	farm_id           int    [json: 'farmId']
-	twin_id           int    [json: 'twinId']
-	country           string
-	grid_version      int
-	city              string
-	uptime            i64
-	created           i64
-	farming_policy_id int
-	updated_at        i64
+	pub:
+		id                string     [json: 'id']
+		node_id           int        [json: 'nodeId']
+		farm_id           int        [json: 'farmId']
+		twin_id           u64        [json: 'twinId']
+		country           string     [json: 'country']
+		grid_version      int        [json: 'gridVersion']
+		city              string     [json: 'city']
+		uptime            i64        [json: 'uptime']
+		created           i64        [json: 'created']
+		farming_policy_id int        [json: 'farmingPolicyId']
+		updated_at        i64        [json: 'updatedAt']
 
-	capacity      CapacityResult
-	location      Location
-	public_config PublicConfig
+		capacity      CapacityResult [json: 'capacity']
+		location      Location       [json: 'location']
+		public_config PublicConfig   [json: 'publicConfig']
 
-	status             string
-	certification_type string
-	dedicated          bool
-	rent_contract_id   u32
-	rented_by_twin_id  u32
-	serial_number      string
+		status             string    [json: 'status']
+		certification_type string    [json: 'certificationType']
+		dedicated          bool      [json: 'dedicated']
+		rent_contract_id   u32       [json: 'rentContractId']
+		rented_by_twin_id  u32       [json: 'rentedByTwinId']
+		serial_number      string    [json: 'serialNumber']
 }
 
 pub struct CapacityResult {
-	total Capacity
-	used  Capacity
+	total_resources Capacity [json: 'total_resources']
+	used_resources  Capacity [json: 'used_resources']
 }
 
 pub struct PublicConfig {
@@ -198,10 +200,11 @@ pub struct Limit {
 
 // Twin info
 pub struct Twin {
-	twin_id    u64    [json: 'twinId']
-	account_id string [json: 'accountId']
-	relay      string [json: 'relay']
-	public_key string [json: 'publicKey']
+	pub:
+		twin_id    u64    [json: 'twinId']
+		account_id string [json: 'accountId']
+		relay      string [json: 'relay']
+		public_key string [json: 'publicKey']
 }
 
 // Counters for grid statistics
