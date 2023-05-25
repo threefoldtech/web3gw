@@ -50,7 +50,7 @@ func main() {
 
 	flag.BoolVar(&enableIpfs, "ipfs", false, "Enable IPFS")
 	flag.BoolVar(&debug, "debug", false, "sets debug level log output")
-	flag.StringVar(&sftpConfigDir, "sftp-config-dir", "", "enable SFTP server")
+	flag.StringVar(&sftpConfigDir, "sftp-config-dir", "", "directory that includes sftpgo config file and will host sftpgo generated files")
 
 	flag.Parse()
 
