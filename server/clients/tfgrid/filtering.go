@@ -272,6 +272,9 @@ func (r *Client) HasFarmerBot(ctx context.Context, farmID uint32) bool {
 	params := []Params{}
 
 	farmerTwinID, err := r.GetFarmerTwinIDByFarmID(farmID)
+	if err != nil {
+		return false
+	}
 
 	sourceTwinID := r.TwinID
 
@@ -329,7 +332,7 @@ func (r *Client) checkFarmAvailability(farmId uint64, workload PlannedReservatio
 
 // Searching for node for each workload considering the reserved capacity by workloads in the same deployment.
 // Assign the NodeID if found one or return it with NodeID: 0
-func (r *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservation) error {
+func (c *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservation) error {
 	reservedCapacity := make(map[uint32]PlannedReservation)
 	reservedIps := make(map[uint32]int) // farmID -> numberOfPublicIps
 
@@ -351,42 +354,56 @@ func (r *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservatio
 			ctx2, cancel := context.WithTimeout(ctx, 3*time.Second)
 			defer cancel()
 
-			// TODO: store the result to reduce the number of calls
-			hasFarmerBot := r.HasFarmerBot(ctx2, options.FarmID)
+			hasFarmerBot := c.HasFarmerBot(ctx2, options.FarmID)
 
-			if options.FarmID != 0 && hasFarmerBot {
-				log.Info().Msg("Calling farmerbot")
-				nodes, err = r.FilterNodesWithFarmerBot(ctx, options)
-
-			} else {
+			if !hasFarmerBot || options.FarmID == 0 {
 				log.Info().Msg("Calling gridproxy")
-				nodes, err = r.FilterNodesWithGridProxy(ctx, options)
-			}
-
-			if err != nil || len(nodes) == 0 {
-				return errors.Errorf("Failed to find node on farm %+v", options.FarmID)
-			}
-
-			var farmIsValid bool
-			if options.PublicIpsCount > 0 {
-				farmIsValid = r.checkFarmAvailability(uint64(options.FarmID), *workload, reservedIps)
-				if !farmIsValid {
-					return errors.Errorf("no publicIps available")
+				nodes, err = c.FilterNodesWithGridProxy(ctx, options)
+				if err != nil {
+					return errors.Wrap(err, "failed to filter nodes")
 				}
-				reservedIps[options.FarmID]++
-			}
 
-			selectedNodeId := uint32(0)
-			for _, nodeId := range nodes {
-				nodeIsValid := r.checkNodeAvailability(nodeId, *workload, reservedCapacity)
-				if nodeIsValid && farmIsValid {
-					selectedNodeId = nodeId
-					break
+				if len(nodes) == 0 {
+					return fmt.Errorf("failed to find an elibile node satisfying specs")
 				}
+
+				if options.PublicIpsCount > 0 {
+					farmIsValid := c.checkFarmAvailability(uint64(options.FarmID), *workload, reservedIps)
+					if !farmIsValid {
+						return fmt.Errorf("failed to find free public ips on farm %d", options.FarmID)
+					}
+					reservedIps[options.FarmID]++
+				}
+
+				selectedNodeId := uint32(0)
+				for _, nodeId := range nodes {
+					nodeIsValid := c.checkNodeAvailability(nodeId, *workload, reservedCapacity)
+					if nodeIsValid {
+						selectedNodeId = nodeId
+						break
+					}
+				}
+
+				if selectedNodeId == 0 {
+					return fmt.Errorf("failed to find an elibile node satisfying specs")
+				}
+
+				workload.NodeID = selectedNodeId
+
+				continue
 			}
 
-			workload.NodeID = selectedNodeId
+			log.Info().Msg("Calling farmerbot")
+			nodes, err = c.FilterNodesWithFarmerBot(ctx, options)
+			if err != nil {
+				return errors.Wrap(err, "failed to filter nodes using farmerbot")
+			}
 
+			if len(nodes) == 0 {
+				return fmt.Errorf("failed to find an elibile node satisfying specs")
+			}
+
+			workload.NodeID = nodes[0]
 		}
 
 		// update the reservedCapacity for the workload node with the resources. `either user provide NodeID or set by the filter`

@@ -42,7 +42,10 @@ fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	logger.info('${res}')
 
 	// get
-	res_2 := client.k8s_get(project_name)!
+	res_2 := client.k8s_get(tfgrid.GetK8sParams{
+		cluster_name: project_name
+		master_name: 'master'
+	})!
 	logger.info('${res_2}')
 
 	// delete

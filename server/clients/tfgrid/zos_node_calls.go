@@ -35,6 +35,10 @@ func (r *Client) ZOSDeploymentDeploy(ctx context.Context, nodeID uint32, dl grid
 		return errors.Wrap(err, "failed to sign deployment")
 	}
 
+	if err := dl.Valid(); err != nil {
+		return errors.Wrap(err, "failed to validate deployment")
+	}
+
 	return nodeClient.DeploymentDeploy(ctx, dl)
 }
 

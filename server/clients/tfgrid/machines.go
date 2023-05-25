@@ -7,18 +7,20 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
+	"golang.org/x/exp/slices"
+	"golang.org/x/sync/errgroup"
 )
 
 // Machines model ensures that each node has one deployment that includes all workloads
 type MachinesModel struct {
-	Name        string    `json:"name"`     // this is the model name, should be unique
-	Network     Network   `json:"network"`  // network specs
-	Machines    []Machine `json:"machines"` // machines specs
-	Metadata    string    `json:"metadata"`
-	Description string    `json:"description"`
+	Name     string    `json:"name"`     // this is the model name, should be unique
+	Network  Network   `json:"network"`  // network specs
+	Machines []Machine `json:"machines"` // machines specs
 }
 
 type Network struct {
@@ -28,6 +30,16 @@ type Network struct {
 	// computed
 	Name            string `json:"name"` // network name will be (projectname.network)
 	WireguardConfig string `json:"wireguard_config"`
+}
+
+type AddMachineParams struct {
+	ModelName string  `json:"model_name"`
+	Machine   Machine `json:"machine"`
+}
+
+type RemoveMachineParams struct {
+	ModelName   string `json:"model_name"`
+	MachineName string `json:"machine_name"`
 }
 
 type Machine struct {
@@ -114,82 +126,336 @@ type Groups []Group
 // Backends is a list of backends
 type Backends []Backend
 
-// nodes should always be provided
-func (r *Client) MachinesDeploy(ctx context.Context, model MachinesModel, projectName string) (MachinesModel, error) {
-	/*
-		- validate incoming deployment
-			- project name has to be unique
-		- construct network deployer
-			- get nodes from all machines
-			- build network deployer using these nodes
-		- deploy network
-		- construct deployment deployer
-		- deploy deployment
-		- construct machines model and return it
-	*/
+type gridMachinesModel struct {
+	modelName   string
+	network     *workloads.ZNet
+	deployments map[uint32]*workloads.Deployment
+}
 
+// nodes should always be provided
+func (c *Client) MachinesDeploy(ctx context.Context, model MachinesModel) (MachinesModel, error) {
 	// validation
-	if err := r.validateProjectName(ctx, projectName); err != nil {
+	if err := c.validateProjectName(ctx, model.Name); err != nil {
 		return MachinesModel{}, err
 	}
 
-	if err := r.assignNodesIDsForMachines(ctx, &model); err != nil {
+	if err := c.assignNodesIDsForMachines(ctx, &model); err != nil {
 		return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
 	}
 
-	// deploy network
-	nodes := []uint32{}
-	for _, machine := range model.Machines {
-		nodes = append(nodes, machine.NodeID)
-	}
-
-	znet, err := r.deployNetwork(ctx, model.Name, nodes, model.Network.IPRange, model.Network.AddWireguardAccess, projectName)
+	gridMachinesModel, err := toGridMachinesModel(&model)
 	if err != nil {
 		return MachinesModel{}, err
 	}
 
-	// deploy deployment
-	nodeDeploymentID, err := r.deployMachinesWorkloads(ctx, &model, projectName)
-	if err != nil {
-		// TODO: if error happens midway, all created contracts should be deleted
+	if err := c.deployMachinesModel(ctx, &gridMachinesModel); err != nil {
 		return MachinesModel{}, err
 	}
 
-	net := Network{
-		Name:               znet.Name,
-		AddWireguardAccess: znet.AddWGAccess,
-		IPRange:            znet.IPRange.String(),
-		WireguardConfig:    znet.AccessWGConfig,
-	}
-
-	// construct result
-	resModel, err := r.constructMachinesModelFromContracts(ctx, nodeDeploymentID, model.Name, net)
-	if err != nil {
-		return MachinesModel{}, err
-	}
-
-	return resModel, nil
+	return c.MachinesGet(ctx, model.Name)
 }
 
-func (m *MachinesModel) generateDiskNames() {
-	for _, machine := range m.Machines {
-		for idx := range machine.Disks {
-			machine.Disks[idx].Name = generateDiskName(machine.Name, idx)
+func (c *Client) deployMachinesModel(ctx context.Context, model *gridMachinesModel) error {
+	if err := c.deployZnet(ctx, model.network); err != nil {
+		return err
+	}
+
+	if err := c.deployMachinesDeployments(ctx, model); err != nil {
+		return err
+	}
+
+	if err := c.updateLocalState(model); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) updateLocalState(g *gridMachinesModel) error {
+	nodeContracts := map[uint32]state.ContractIDs{}
+	for nodeID, dl := range g.deployments {
+		nodeContracts[nodeID] = append(nodeContracts[nodeID], dl.ContractID)
+	}
+
+	for nodeID, contractID := range g.network.NodeDeploymentID {
+		nodeContracts[nodeID] = append(nodeContracts[nodeID], contractID)
+	}
+
+	projectName := generateProjectName(g.modelName)
+
+	c.Projects[projectName] = ProjectState{
+		nodeContracts: nodeContracts,
+	}
+
+	return nil
+}
+
+func (r *Client) MachinesDelete(ctx context.Context, modelName string) error {
+	if err := r.cancelModel(ctx, modelName); err != nil {
+		return errors.Wrapf(err, "failed to cancel model %s contracts", modelName)
+	}
+
+	return nil
+}
+
+func (c *Client) MachinesGet(ctx context.Context, modelName string) (MachinesModel, error) {
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, modelName)
+	if err != nil {
+		return MachinesModel{}, errors.Wrapf(err, "failed to load machines model %s deployments", modelName)
+	}
+
+	return c.toMachinesModel(&gridMachinesModel)
+}
+
+func (c *Client) MachineAdd(ctx context.Context, params AddMachineParams) (MachinesModel, error) {
+	log.Debug().Msgf("adding machine %s", params.Machine.Name)
+
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
+	if err != nil {
+		return MachinesModel{}, err
+	}
+
+	if err := c.addMachine(ctx, &gridMachinesModel, &params); err != nil {
+		return MachinesModel{}, errors.Wrapf(err, "failed to add machine %s", params.Machine.Name)
+	}
+
+	return c.MachinesGet(ctx, params.ModelName)
+}
+
+func (c *Client) MachineRemove(ctx context.Context, params RemoveMachineParams) (MachinesModel, error) {
+	log.Debug().Msgf("removeing machine %s", params.MachineName)
+
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
+	if err != nil {
+		return MachinesModel{}, err
+	}
+
+	if err := c.removeMachine(ctx, &gridMachinesModel, &params); err != nil {
+		return MachinesModel{}, errors.Wrapf(err, "failed to remove machine from model %s", params.ModelName)
+	}
+
+	return c.MachinesGet(ctx, params.ModelName)
+}
+
+func (c *Client) deployMachinesDeployments(ctx context.Context, g *gridMachinesModel) error {
+	errGroup := errgroup.Group{}
+	nodeDeploymentIDs := map[uint32]uint64{}
+	for _, dl := range g.deployments {
+		deployment := dl
+		errGroup.Go(func() error {
+			if err := c.client.DeployDeployment(ctx, deployment); err != nil {
+				return err
+			}
+
+			nodeDeploymentIDs[deployment.NodeID] = deployment.NodeDeploymentID[deployment.NodeID]
+			return nil
+		})
+	}
+
+	if err := errGroup.Wait(); err != nil {
+		return err
+	}
+
+	for nodeID, dl := range g.deployments {
+		dl.ContractID = nodeDeploymentIDs[nodeID]
+		dl.NodeDeploymentID = map[uint32]uint64{nodeID: nodeDeploymentIDs[nodeID]}
+	}
+
+	return nil
+}
+
+func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
+	model := MachinesModel{
+		Name:     g.modelName,
+		Network:  fromGridNetwork(g.network),
+		Machines: []Machine{},
+	}
+
+	for _, dl := range g.deployments {
+		model.Name = dl.Name
+		farmID, err := c.client.GetNodeFarm(dl.NodeID)
+		if err != nil {
+			return MachinesModel{}, err
+		}
+
+		disks := getDiskMap(dl)
+		qsfss := getQSFSMap(dl)
+
+		for _, vm := range dl.Vms {
+			machine := toGridVM(dl.NodeID, &vm, disks, farmID, qsfss)
+			model.Machines = append(model.Machines, machine)
 		}
 	}
+
+	return model, nil
 }
 
-func (r *Client) deployMachinesWorkloads(ctx context.Context, model *MachinesModel, projectName string) (map[uint32]uint64, error) {
-	model.generateDiskNames()
+// Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
+func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
+	// all units unified in bytes
 
-	nodeMachineMap := map[uint32][]*Machine{}
-	for idx, machine := range model.Machines {
-		nodeMachineMap[machine.NodeID] = append(nodeMachineMap[machine.NodeID], &model.Machines[idx])
+	workloads := []*PlannedReservation{}
+
+	for idx := range machines.Machines {
+		neededSRU := 0
+		neededHRU := 0
+		for _, disk := range machines.Machines[idx].Disks {
+			neededSRU += disk.SizeGB * int(gridtypes.Gigabyte)
+		}
+		for _, qsfs := range machines.Machines[idx].QSFSs {
+			neededHRU += int(qsfs.Cache) * int(gridtypes.Gigabyte)
+		}
+		neededSRU += machines.Machines[idx].RootfsSize * int(gridtypes.Megabyte)
+
+		workloads = append(workloads, &PlannedReservation{
+			WorkloadName: machines.Machines[idx].Name,
+			MRU:          uint64(machines.Machines[idx].Memory * int(gridtypes.Megabyte)),
+			SRU:          uint64(neededSRU),
+			HRU:          uint64(neededHRU),
+			FarmID:       machines.Machines[idx].FarmID,
+			NodeID:       machines.Machines[idx].NodeID,
+		})
 	}
 
-	nodeDeploymentID := map[uint32]uint64{}
+	err := c.AssignNodes(ctx, workloads)
+	if err != nil {
+		return err
+	}
 
-	networkName := generateNetworkName(model.Name)
+	for idx := range machines.Machines {
+		if machines.Machines[idx].NodeID == 0 {
+			for _, workload := range workloads {
+				if workload.WorkloadName == machines.Machines[idx].Name {
+					machines.Machines[idx].NodeID = uint32(workload.NodeID)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (c *Client) addMachine(ctx context.Context, g *gridMachinesModel, params *AddMachineParams) error {
+	if err := c.prepareModelForUpdate(g, params); err != nil {
+		return err
+	}
+
+	if err := c.deployMachinesModel(ctx, g); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) prepareModelForUpdate(g *gridMachinesModel, params *AddMachineParams) error {
+	// update network
+	if !slices.Contains(g.network.Nodes, params.Machine.NodeID) {
+		g.network.Nodes = append(g.network.Nodes, params.Machine.NodeID)
+	}
+
+	// update deployment
+	vm, disks, qsfss := extractMachineWorkloads(&params.Machine, g.network.Name)
+
+	if dl, ok := g.deployments[params.Machine.NodeID]; ok && dl != nil {
+		dl.Vms = append(dl.Vms, vm)
+		dl.QSFS = append(dl.QSFS, qsfss...)
+		dl.Disks = append(dl.Disks, disks...)
+		return nil
+	}
+
+	newDl := workloads.NewDeployment(
+		params.ModelName,
+		params.Machine.NodeID,
+		generateProjectName(params.ModelName),
+		nil,
+		g.network.Name,
+		disks,
+		nil,
+		[]workloads.VM{vm},
+		qsfss)
+
+	g.deployments[params.Machine.NodeID] = &newDl
+
+	return nil
+}
+
+func (c *Client) removeMachine(ctx context.Context, g *gridMachinesModel, params *RemoveMachineParams) error {
+	model, err := c.toMachinesModel(g)
+	if err != nil {
+		return err
+	}
+
+	machine, err := model.findMachine(params.MachineName)
+	if err != nil {
+		return err
+	}
+
+	if err := c.removeMachineFromModel(ctx, g, machine); err != nil {
+		return err
+	}
+
+	if _, ok := g.deployments[machine.NodeID]; !ok {
+		if err := c.removeNodeFromNetwork(ctx, g.network, machine.NodeID); err != nil {
+			return err
+		}
+	}
+
+	if err := c.updateLocalState(g); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) removeMachineFromModel(ctx context.Context, g *gridMachinesModel, machine *Machine) error {
+	dl := g.deployments[machine.NodeID]
+
+	if len(dl.Vms) == 1 {
+		if err := c.client.CancelDeployment(ctx, dl); err != nil {
+			return err
+		}
+
+		delete(g.deployments, machine.NodeID)
+		return nil
+	}
+
+	removeMachineFromDeployment(dl, machine)
+	if err := c.client.DeployDeployment(ctx, dl); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func toGridMachinesModel(model *MachinesModel) (gridMachinesModel, error) {
+	dls := toGridDeployments(model.Machines, model.Name)
+
+	nodeIDs := []uint32{}
+	for node := range dls {
+		nodeIDs = append(nodeIDs, node)
+	}
+
+	znet, err := toGridZnet(&model.Network, nodeIDs, model.Name)
+	if err != nil {
+		return gridMachinesModel{}, err
+	}
+
+	return gridMachinesModel{
+		modelName:   model.Name,
+		network:     &znet,
+		deployments: dls,
+	}, nil
+}
+
+func toGridDeployments(machines []Machine, modelName string) map[uint32]*workloads.Deployment {
+	dls := map[uint32]*workloads.Deployment{}
+
+	nodeMachineMap := map[uint32][]*Machine{}
+	for idx, machine := range machines {
+		nodeMachineMap[machine.NodeID] = append(nodeMachineMap[machine.NodeID], &machines[idx])
+	}
+
+	networkName := generateNetworkName(modelName)
 
 	for nodeID, machines := range nodeMachineMap {
 		vms := []workloads.VM{}
@@ -197,25 +463,124 @@ func (r *Client) deployMachinesWorkloads(ctx context.Context, model *MachinesMod
 		disks := []workloads.Disk{}
 
 		for _, machine := range machines {
-			nodeVM, nodeDisks, nodeQSFSs := r.extractWorkloads(machine, networkName)
-			vms = append(vms, nodeVM)
-			QSFSs = append(QSFSs, nodeQSFSs...)
-			disks = append(disks, nodeDisks...)
+			vm, machineDisks, machineQsfss := extractMachineWorkloads(machine, networkName)
+			vms = append(vms, vm)
+			QSFSs = append(QSFSs, machineQsfss...)
+			disks = append(disks, machineDisks...)
 		}
 
-		clientDeployment := workloads.NewDeployment(model.Name, nodeID, projectName, nil, networkName, disks, nil, vms, QSFSs)
-		contractID, err := r.client.DeployDeployment(ctx, &clientDeployment)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to deploy")
-		}
+		clientDeployment := workloads.NewDeployment(modelName, nodeID, generateProjectName(modelName), nil, networkName, disks, nil, vms, QSFSs)
 
-		nodeDeploymentID[nodeID] = contractID
+		dls[nodeID] = &clientDeployment
 	}
 
-	return nodeDeploymentID, nil
+	return dls
 }
 
-func (r *Client) extractWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
+func toGridZnet(network *Network, nodeIDs []uint32, modelName string) (workloads.ZNet, error) {
+	IPRange, err := gridtypes.ParseIPNet(network.IPRange)
+	if err != nil {
+		return workloads.ZNet{}, errors.Wrapf(err, "failed to parse network ip range %s", network.IPRange)
+	}
+	return workloads.ZNet{
+		Name:         generateNetworkName(modelName),
+		Nodes:        nodeIDs,
+		IPRange:      IPRange,
+		AddWGAccess:  network.AddWireguardAccess,
+		SolutionType: generateProjectName(modelName),
+	}, nil
+}
+
+func fromGridNetwork(znet *workloads.ZNet) Network {
+	return Network{
+		AddWireguardAccess: znet.AddWGAccess,
+		IPRange:            znet.IPRange.String(),
+		Name:               znet.Name,
+		WireguardConfig:    znet.AccessWGConfig,
+	}
+}
+
+func getDiskMap(dl *workloads.Deployment) map[string]workloads.Disk {
+	diskMap := map[string]workloads.Disk{}
+	for _, disk := range dl.Disks {
+		diskMap[disk.Name] = disk
+	}
+
+	return diskMap
+}
+
+func getQSFSMap(dl *workloads.Deployment) map[string]workloads.QSFS {
+	qsfsMap := map[string]workloads.QSFS{}
+	for _, qsfs := range dl.QSFS {
+		qsfsMap[qsfs.Name] = qsfs
+	}
+
+	return qsfsMap
+}
+
+func generateGridDisk(disk *Disk, diskName string) workloads.Disk {
+	return workloads.Disk{
+		Name:        diskName,
+		SizeGB:      disk.SizeGB,
+		Description: disk.Description,
+	}
+}
+
+func generateGridMount(diskName string, mountPoint string) workloads.Mount {
+	return workloads.Mount{
+		DiskName:   diskName,
+		MountPoint: mountPoint,
+	}
+}
+
+func generateGridQSFS(qsfs *QSFS, qsfsName string) workloads.QSFS {
+	metaBackends := []workloads.Backend{}
+	for _, b := range qsfs.Metadata.Backends {
+		metaBackends = append(metaBackends, workloads.Backend{
+			Address:   b.Address,
+			Namespace: b.Namespace,
+			Password:  b.Password,
+		})
+	}
+
+	groups := []workloads.Group{}
+	for _, group := range qsfs.Groups {
+		bs := workloads.Backends{}
+		for _, b := range group.Backends {
+			bs = append(bs, workloads.Backend{
+				Address:   b.Address,
+				Namespace: b.Namespace,
+				Password:  b.Password,
+			})
+		}
+		groups = append(groups, workloads.Group{Backends: bs})
+	}
+
+	return workloads.QSFS{
+		Name:                 qsfsName,
+		Description:          qsfs.Description,
+		Cache:                qsfs.Cache,
+		MinimalShards:        qsfs.MinimalShards,
+		ExpectedShards:       qsfs.ExpectedShards,
+		RedundantGroups:      qsfs.RedundantGroups,
+		RedundantNodes:       qsfs.RedundantNodes,
+		MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
+		EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
+		EncryptionKey:        qsfs.EncryptionKey,
+		CompressionAlgorithm: qsfs.CompressionAlgorithm,
+		Metadata: workloads.Metadata{
+			Type:                qsfs.Metadata.Type,
+			Prefix:              qsfs.Metadata.Prefix,
+			EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
+			EncryptionKey:       qsfs.Metadata.EncryptionKey,
+			Backends:            metaBackends,
+		},
+		Groups:          groups,
+		MetricsEndpoint: qsfs.MetricsEndpoint,
+	}
+}
+
+func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
 	disks := []workloads.Disk{}
 	qsfss := []workloads.QSFS{}
 	mounts := []workloads.Mount{}
@@ -223,61 +588,14 @@ func (r *Client) extractWorkloads(machine *Machine, networkName string) (workloa
 
 	for idx, disk := range machine.Disks {
 		diskName := generateDiskName(machine.Name, idx)
-		disks = append(disks, workloads.Disk{
-			Name:        diskName,
-			SizeGB:      disk.SizeGB,
-			Description: disk.Description,
-		})
-		mounts = append(mounts, workloads.Mount{
-			DiskName:   diskName,
-			MountPoint: disk.MountPoint,
-		})
+		disks = append(disks, generateGridDisk(&disk, diskName))
+		mounts = append(mounts, generateGridMount(diskName, disk.MountPoint))
 	}
 
 	for idx, qsfs := range machine.QSFSs {
-		metaBackends := []workloads.Backend{}
-		for _, b := range qsfs.Metadata.Backends {
-			metaBackends = append(metaBackends, workloads.Backend{
-				Address:   b.Address,
-				Namespace: b.Namespace,
-				Password:  b.Password,
-			})
-		}
-		groups := []workloads.Group{}
-		for _, group := range qsfs.Groups {
-			bs := workloads.Backends{}
-			for _, b := range group.Backends {
-				bs = append(bs, workloads.Backend{
-					Address:   b.Address,
-					Namespace: b.Namespace,
-					Password:  b.Password,
-				})
-			}
-			groups = append(groups, workloads.Group{Backends: bs})
-		}
-
-		qsfss = append(qsfss, workloads.QSFS{
-			Name:                 generateQSFSName(machine.Name, idx),
-			Description:          qsfs.Description,
-			Cache:                qsfs.Cache,
-			MinimalShards:        qsfs.MinimalShards,
-			ExpectedShards:       qsfs.ExpectedShards,
-			RedundantGroups:      qsfs.RedundantGroups,
-			RedundantNodes:       qsfs.RedundantNodes,
-			MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
-			EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
-			EncryptionKey:        qsfs.EncryptionKey,
-			CompressionAlgorithm: qsfs.CompressionAlgorithm,
-			Metadata: workloads.Metadata{
-				Type:                qsfs.Metadata.Type,
-				Prefix:              qsfs.Metadata.Prefix,
-				EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
-				EncryptionKey:       qsfs.Metadata.EncryptionKey,
-				Backends:            metaBackends,
-			},
-			Groups:          groups,
-			MetricsEndpoint: qsfs.MetricsEndpoint,
-		})
+		qsfsName := generateQSFSName(machine.Name, idx)
+		qsfss = append(qsfss, generateGridQSFS(&qsfs, qsfsName))
+		mounts = append(mounts, generateGridMount(qsfsName, qsfs.MountPoint))
 	}
 
 	for _, zlog := range machine.Zlogs {
@@ -307,208 +625,31 @@ func (r *Client) extractWorkloads(machine *Machine, networkName string) (workloa
 	return vm, disks, qsfss
 }
 
-func (r *Client) MachinesDelete(ctx context.Context, projectName string) error {
-	if err := r.client.CancelProject(ctx, projectName); err != nil {
-		return errors.Wrapf(err, "failed to cancel contracts")
-	}
-
-	return nil
-}
-
-func (r *Client) MachinesGet(ctx context.Context, modelName string, projectName string) (MachinesModel, error) {
-	contracts, err := r.client.GetProjectContracts(ctx, projectName)
-	if err != nil {
-		return MachinesModel{}, errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
-	}
-
-	if len(contracts.NodeContracts) == 0 {
-		return MachinesModel{}, fmt.Errorf("found 0 contracts for project %s", projectName)
-	}
-
-	nodeDeploymentID := map[uint32]uint64{}
-	for _, c := range contracts.NodeContracts {
-		contractID, err := strconv.Atoi(c.ContractID)
-		if err != nil {
-			return MachinesModel{}, errors.Wrapf(err, "failed to parse contract with id (%s)", c.ContractID)
-		}
-		nodeDeploymentID[c.NodeID] = uint64(contractID)
-	}
-	net := Network{
-		Name: generateNetworkName(modelName),
-	}
-
-	model, err := r.constructMachinesModelFromContracts(ctx, nodeDeploymentID, modelName, net)
-	if err != nil {
-		return MachinesModel{}, errors.Wrapf(err, "failed to construct model for project")
-	}
-
-	return model, nil
-}
-
-func (r *Client) constructMachinesModelFromContracts(ctx context.Context, nodeDeploymentID map[uint32]uint64, modelName string, net Network) (MachinesModel, error) {
-	model := MachinesModel{
-		Name:    modelName,
-		Network: net,
-	}
-	for nodeID, contractID := range nodeDeploymentID {
-
-		nodeClient, err := r.client.GetNodeClient(nodeID)
-		if err != nil {
-			return MachinesModel{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
-		}
-
-		dl, err := nodeClient.DeploymentGet(ctx, contractID)
-		if err != nil {
-			return MachinesModel{}, errors.Wrapf(err, "failed to get deployment with contract id %d", contractID)
-		}
-
-		machineMap := map[string]*Machine{}
-		machineMountPoints := map[string]string{}
-		// first get machines and znet
-		for idx := range dl.Workloads {
-			if dl.Workloads[idx].Type == zos.ZMachineType {
-				vm, err := workloads.NewVMFromWorkload(&dl.Workloads[idx], &dl)
-				if err != nil {
-					return MachinesModel{}, errors.Wrapf(err, "failed to parse vm %s data", dl.Workloads[idx].Name)
-				}
-
-				machine := machineFromVM(&vm)
-				machine.NodeID = nodeID
-				machineMap[machine.Name] = &machine
-
-				for _, mp := range vm.Mounts {
-					machineMountPoints[mp.DiskName] = mp.MountPoint
-				}
-			}
-
-			if dl.Workloads[idx].Type == zos.NetworkType && model.Network.IPRange == "" {
-				net, err := workloads.NewNetworkFromWorkload(dl.Workloads[idx], nodeID)
-				if err != nil {
-					return MachinesModel{}, errors.Wrapf(err, "failed to parse network %s data", dl.Workloads[idx].Name)
-				}
-
-				model.Network.IPRange = net.IPRange.String()
-			}
-		}
-
-		// get disks and qsfss
-		for idx := range dl.Workloads {
-			if dl.Workloads[idx].Type == zos.ZMountType {
-				disk, err := workloads.NewDiskFromWorkload(&dl.Workloads[idx])
-				if err != nil {
-					return MachinesModel{}, errors.Wrapf(err, "failed to parse disk %s data", dl.Workloads[idx].Name)
-				}
-
-				machineName, err := getMachineNameFromMount(disk.Name)
-				if err != nil {
-					return MachinesModel{}, errors.Wrapf(err, "failed to extract machine name from disk with name %s", disk.Name)
-				}
-
-				machine, ok := machineMap[machineName]
-				if !ok {
-					return MachinesModel{}, errors.Wrapf(err, "disk (%s) is not mounted on any machine", disk.Name)
-				}
-
-				machine.Disks = append(machine.Disks, Disk{
-					Name:        disk.Name,
-					SizeGB:      disk.SizeGB,
-					Description: disk.Description,
-					MountPoint:  machineMountPoints[disk.Name],
-				})
-			} else if dl.Workloads[idx].Type == zos.QuantumSafeFSType {
-				qsfs, err := workloads.NewQSFSFromWorkload(&dl.Workloads[idx])
-				if err != nil {
-					return MachinesModel{}, errors.Wrapf(err, "failed to parse qsfs %s data", qsfs.Name)
-				}
-
-				machineName, err := getMachineNameFromMount(qsfs.Name)
-				if err != nil {
-					return MachinesModel{}, errors.Wrapf(err, "failed to extract machine name from qsfs with name %s", qsfs.Name)
-				}
-
-				machine, ok := machineMap[machineName]
-				if !ok {
-					return MachinesModel{}, errors.Wrapf(err, "qsfs (%s) is not mounted on any machine", qsfs.Name)
-				}
-
-				metaBackends := []Backend{}
-				for _, b := range qsfs.Metadata.Backends {
-					metaBackends = append(metaBackends, Backend{
-						Address:   b.Address,
-						Namespace: b.Namespace,
-						Password:  b.Password,
-					})
-				}
-
-				groups := []Group{}
-				for _, group := range qsfs.Groups {
-					bs := Backends{}
-					for _, b := range group.Backends {
-						bs = append(bs, Backend{
-							Address:   b.Address,
-							Namespace: b.Namespace,
-							Password:  b.Password,
-						})
-					}
-					groups = append(groups, Group{Backends: bs})
-				}
-
-				machine.QSFSs = append(machine.QSFSs, QSFS{
-					MountPoint:           machineMountPoints[machineName],
-					Description:          qsfs.Description,
-					Cache:                qsfs.Cache,
-					MinimalShards:        qsfs.MinimalShards,
-					ExpectedShards:       qsfs.ExpectedShards,
-					RedundantGroups:      qsfs.RedundantGroups,
-					RedundantNodes:       qsfs.RedundantNodes,
-					MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
-					EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
-					EncryptionKey:        qsfs.EncryptionKey,
-					CompressionAlgorithm: qsfs.CompressionAlgorithm,
-					Metadata: Metadata{
-						Type:                qsfs.Metadata.Type,
-						Prefix:              qsfs.Metadata.Prefix,
-						EncryptionAlgorithm: qsfs.Metadata.EncryptionAlgorithm,
-						EncryptionKey:       qsfs.Metadata.EncryptionKey,
-						Backends:            metaBackends,
-					},
-					Groups:          groups,
-					Name:            qsfs.Name,
-					MetricsEndpoint: qsfs.MetricsEndpoint,
-				})
-
-			}
-		}
-
-		machines := []Machine{}
-		for _, m := range machineMap {
-			machines = append(machines, *m)
-		}
-
-		model.Machines = append(model.Machines, machines...)
-	}
-
-	return model, nil
-}
-
-func getMachineNameFromMount(name string) (string, error) {
-	// disk or qsfs name should be in the form: vmname_disk/qsfs_X
-	s := strings.Split(name, "_")
-	if len(s) == 0 {
-		return "", fmt.Errorf("workload name is invalid")
-	}
-	return s[0], nil
-}
-
-func machineFromVM(vm *workloads.VM) Machine {
+func toGridVM(nodeID uint32, vm *workloads.VM, diskMap map[string]workloads.Disk, farmID uint32, qsfsMap map[string]workloads.QSFS) Machine {
 	zlogs := []Zlog{}
 	for _, zlog := range vm.Zlogs {
 		zlogs = append(zlogs, Zlog{
 			Output: zlog.Output,
 		})
 	}
+
+	var disks []Disk
+	var qsfss []QSFS
+	for _, mount := range vm.Mounts {
+		disk, ok := diskMap[mount.DiskName]
+		if ok {
+			disks = append(disks, fromGridDisk(disk, mount.MountPoint))
+			continue
+		}
+
+		qsfs, ok := qsfsMap[mount.DiskName]
+		if ok {
+			qsfss = append(qsfss, fromGridQSFS(qsfs, mount.MountPoint))
+		}
+	}
+
 	machine := Machine{
-		NodeID:      0,
+		NodeID:      nodeID,
 		Name:        vm.Name,
 		Flist:       vm.Flist,
 		PublicIP:    vm.PublicIP,
@@ -525,12 +666,75 @@ func machineFromVM(vm *workloads.VM) Machine {
 		WGIP:        vm.IP,
 		YggIP:       vm.YggIP,
 		Zlogs:       zlogs,
+		Disks:       disks,
+		FarmID:      farmID,
+		QSFSs:       qsfss,
 	}
+
 	return machine
 }
 
-func generateNetworkName(modelName string) string {
-	return fmt.Sprintf("%s_network", modelName)
+func fromGridDisk(disk workloads.Disk, mountpoint string) Disk {
+	return Disk{
+		MountPoint:  mountpoint,
+		SizeGB:      disk.SizeGB,
+		Description: disk.Description,
+		Name:        disk.Name,
+	}
+}
+
+func fromGridQSFS(qsfs workloads.QSFS, mountpoint string) QSFS {
+	return QSFS{
+		MountPoint:           mountpoint,
+		Description:          qsfs.Description,
+		Cache:                qsfs.Cache,
+		MinimalShards:        qsfs.MinimalShards,
+		ExpectedShards:       qsfs.ExpectedShards,
+		RedundantGroups:      qsfs.RedundantGroups,
+		RedundantNodes:       qsfs.RedundantNodes,
+		MaxZDBDataDirSize:    qsfs.MaxZDBDataDirSize,
+		EncryptionAlgorithm:  qsfs.EncryptionAlgorithm,
+		EncryptionKey:        qsfs.EncryptionKey,
+		CompressionAlgorithm: qsfs.CompressionAlgorithm,
+		Metadata:             fromGridMetadata(qsfs.Metadata),
+		Groups:               fromGridGroups(qsfs.Groups),
+		Name:                 qsfs.Name,
+		MetricsEndpoint:      qsfs.MetricsEndpoint,
+	}
+}
+
+func fromGridMetadata(metadata workloads.Metadata) Metadata {
+	return Metadata{
+		Type:                metadata.Type,
+		Prefix:              metadata.Prefix,
+		EncryptionAlgorithm: metadata.Prefix,
+		EncryptionKey:       metadata.EncryptionKey,
+		Backends:            fromGridBackends(metadata.Backends),
+	}
+}
+
+func fromGridBackends(backends workloads.Backends) Backends {
+	ret := Backends{}
+	for _, b := range backends {
+		ret = append(ret, Backend{
+			Address:   b.Address,
+			Namespace: b.Namespace,
+			Password:  b.Password,
+		})
+	}
+
+	return ret
+}
+
+func fromGridGroups(groups workloads.Groups) Groups {
+	ret := Groups{}
+	for _, g := range groups {
+		ret = append(ret, Group{
+			Backends: fromGridBackends(g.Backends),
+		})
+	}
+
+	return ret
 }
 
 func generateDiskName(machineName string, id int) string {
@@ -541,47 +745,127 @@ func generateQSFSName(machineName string, id int) string {
 	return fmt.Sprintf("%s_qsfs_%d", machineName, id)
 }
 
-// Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
-func (r *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
-	// all units unified in bytes
-
-	workloads := []*PlannedReservation{}
-
-	for idx := range machines.Machines {
-		neededSRU := 0
-		neededHRU := 0
-		for _, disk := range machines.Machines[idx].Disks {
-			neededSRU += disk.SizeGB * int(gridtypes.Gigabyte)
+func (m *MachinesModel) findMachine(machineName string) (*Machine, error) {
+	for idx, machine := range m.Machines {
+		if machine.Name == machineName {
+			return &m.Machines[idx], nil
 		}
-		for _, qsfs := range machines.Machines[idx].QSFSs {
-			neededHRU += int(qsfs.Cache) * int(gridtypes.Gigabyte)
-		}
-		neededSRU += machines.Machines[idx].RootfsSize * int(gridtypes.Megabyte)
-
-		workloads = append(workloads, &PlannedReservation{
-			WorkloadName: machines.Machines[idx].Name,
-			MRU:          uint64(machines.Machines[idx].Memory * int(gridtypes.Megabyte)),
-			SRU:          uint64(neededSRU),
-			HRU:          uint64(neededHRU),
-			FarmID:       machines.Machines[idx].FarmID,
-			NodeID:       machines.Machines[idx].NodeID,
-		})
 	}
 
-	err := r.AssignNodes(ctx, workloads)
+	return nil, fmt.Errorf("failed to find machine %s in model %s", machineName, m.Name)
+}
+
+func (g *gridMachinesModel) getNetworkState() (state.Network, error) {
+	subnets := map[uint32]string{}
+	for nodeID, subnet := range g.network.NodesIPRange {
+		subnets[nodeID] = subnet.String()
+	}
+
+	usedIPs := state.NodeDeploymentHostIDs{}
+	for nodeID, dl := range g.deployments {
+		nodeUsedIPs := state.DeploymentHostIDs{}
+		for _, vm := range dl.Vms {
+			slices := strings.SplitAfter(vm.IP, ".")
+			hostID := slices[len(slices)-1]
+			id, err := strconv.ParseUint(hostID, 10, 8)
+			if err != nil {
+				return state.Network{}, err
+			}
+			contractID := dl.NodeDeploymentID[nodeID]
+			nodeUsedIPs[contractID] = append(nodeUsedIPs[contractID], byte(id))
+		}
+		usedIPs[nodeID] = nodeUsedIPs
+	}
+
+	return state.Network{
+		Subnets:               subnets,
+		NodeDeploymentHostIDs: usedIPs,
+	}, nil
+}
+
+func (c *Client) updateDeployment(ctx context.Context, oldDeployments map[uint32]uint64, params *AddMachineParams) error {
+	dl, err := c.prepareDeploymentForUpdate(oldDeployments, params)
 	if err != nil {
 		return err
 	}
 
-	for idx := range machines.Machines {
-		if machines.Machines[idx].NodeID == 0 {
-			for _, workload := range workloads {
-				if workload.WorkloadName == machines.Machines[idx].Name {
-					machines.Machines[idx].NodeID = uint32(workload.NodeID)
-				}
+	if err := c.client.DeployDeployment(ctx, &dl); err != nil {
+		return errors.Wrap(err, "failed to deploy")
+	}
+
+	oldDeployments[dl.NodeID] = dl.ContractID
+
+	return nil
+}
+
+func (c *Client) prepareDeploymentForUpdate(oldDeployments map[uint32]uint64, params *AddMachineParams) (workloads.Deployment, error) {
+	networkName := generateNetworkName(params.ModelName)
+	vm, disks, qsfss := extractMachineWorkloads(&params.Machine, networkName)
+
+	if _, ok := oldDeployments[params.Machine.NodeID]; ok {
+		// there is an old deployment on this node; load and update this deployment.
+		dl, err := c.loadDeployment(params.ModelName, params.Machine.NodeID)
+		if err != nil {
+			return workloads.Deployment{}, errors.Wrap(err, "failed to load deployments")
+		}
+
+		dl.Vms = append(dl.Vms, vm)
+		dl.QSFS = append(dl.QSFS, qsfss...)
+		dl.Disks = append(dl.Disks, disks...)
+
+		return dl, nil
+	}
+
+	return workloads.NewDeployment(
+		params.ModelName,
+		params.Machine.NodeID,
+		generateProjectName(params.ModelName),
+		nil,
+		networkName,
+		disks,
+		nil,
+		[]workloads.VM{vm},
+		qsfss), nil
+
+}
+
+func removeMachineFromDeployment(dl *workloads.Deployment, machine *Machine) {
+	removeVMFromDeployment(dl, machine.Name)
+	removeDisksFromDeployment(dl, machine.Disks)
+	removeQSFSSFromDeployment(dl, machine.QSFSs)
+}
+
+func removeVMFromDeployment(dl *workloads.Deployment, machineName string) {
+	for idx := range dl.Vms {
+		if dl.Vms[idx].Name == machineName {
+			dl.Vms = append(dl.Vms[:idx], dl.Vms[idx+1:]...)
+			break
+		}
+	}
+}
+
+func removeDisksFromDeployment(dl *workloads.Deployment, disks []Disk) {
+	for _, disk := range disks {
+		for i := 0; i < len(dl.Disks); i++ {
+			last := len(dl.Disks) - 1
+			if dl.Disks[i].Name == disk.Name {
+				dl.Disks[i], dl.Disks[last] = dl.Disks[last], dl.Disks[i]
+				dl.Disks = dl.Disks[:last]
+				i--
 			}
 		}
 	}
+}
 
-	return nil
+func removeQSFSSFromDeployment(dl *workloads.Deployment, qsfss []QSFS) {
+	for _, qsfs := range qsfss {
+		for i := 0; i < len(dl.QSFS); i++ {
+			last := len(dl.QSFS) - 1
+			if dl.QSFS[i].Name == qsfs.Name {
+				dl.QSFS[i], dl.QSFS[last] = dl.QSFS[last], dl.QSFS[i]
+				dl.QSFS = dl.QSFS[:last]
+				i--
+			}
+		}
+	}
 }

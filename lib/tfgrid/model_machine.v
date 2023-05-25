@@ -35,7 +35,7 @@ pub:
 	rootfs_size u64 // in MBs
 	zlogs       []Zlog
 	disks       []Disk
-	qsfs        []QSFS
+	qsfss        []QSFS
 	env_vars    map[string]string // ex: { "SSH_KEY": ".." }
 	description string
 }
@@ -55,7 +55,7 @@ pub:
 	rootfs_size u64
 	zlogs       []Zlog
 	disks       []DiskResult
-	qsfs        []QSFSResult
+	qsfss        []QSFSResult
 	env_vars    map[string]string
 	description string
 	// computed
@@ -86,9 +86,7 @@ pub:
 [params]
 pub struct QSFS {
 pub:
-	name             string [required]
 	mountpoint       string [required]
-	qsfs_zdbs_name   string [required]
 	encryption_key   string [required]
 	cache            u32    [required]
 	minimal_shards   u32    [required]
@@ -107,9 +105,7 @@ pub:
 
 pub struct QSFSResult {
 pub:
-	name             string
 	mountpoint       string
-	qsfs_zdbs_name   string
 	encryption_key   string
 	cache            u32
 	minimal_shards   u32
@@ -125,6 +121,7 @@ pub:
 	max_zdb_data_dir_size u32
 	groups                []Group
 	// computed
+	name             string
 	metrics_endpoint string
 }
 
@@ -166,15 +163,17 @@ pub:
 	wireguard_config string
 }
 
-// struct AddMachine {
-// 	machine Machine
-// 	project_name string
-// }
+pub struct AddMachine {
+pub:
+	machine    Machine
+	model_name string
+}
 
-// struct RemoveMachine {
-// 	machine_name string
-// 	project_name string
-// }
+pub struct RemoveMachine {
+pub:
+	machine_name string
+	model_name   string
+}
 
 pub struct MachinesGet {
 	model_name   string

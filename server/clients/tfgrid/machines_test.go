@@ -3,18 +3,15 @@ package tfgrid
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"net"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
-	client "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
+	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
-	"github.com/threefoldtech/zos/pkg/gridtypes/zos"
 )
 
 func TestMachines(t *testing.T) {
@@ -24,21 +21,25 @@ func TestMachines(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client: cl,
+		client:   cl,
+		Projects: make(map[string]ProjectState),
 	}
 
 	t.Run("machines_deploy_success", func(t *testing.T) {
-		projectName := "project1"
-		rmbClient := mocks.NewMockClient(ctrl)
+		nodeID := uint32(1)
+		modelName := "model1"
+		projectName := generateProjectName(modelName)
+		networkContratID := uint64(1)
+		deploymentContractID := uint64(2)
 		model := MachinesModel{
-			Name: "model1",
+			Name: modelName,
 			Network: Network{
 				IPRange:            "10.1.0.0/16",
 				AddWireguardAccess: false,
 			},
 			Machines: []Machine{
 				{
-					NodeID:    1,
+					NodeID:    nodeID,
 					Name:      "vm1",
 					PublicIP:  true,
 					Planetary: true,
@@ -59,7 +60,7 @@ func TestMachines(t *testing.T) {
 		}
 
 		want := MachinesModel{
-			Name: "model1",
+			Name: modelName,
 			Network: Network{
 				AddWireguardAccess: false,
 				IPRange:            "10.1.0.0/16",
@@ -67,8 +68,9 @@ func TestMachines(t *testing.T) {
 			},
 			Machines: []Machine{
 				{
-					NodeID:    1,
+					NodeID:    nodeID,
 					Name:      "vm1",
+					FarmID:    1,
 					PublicIP:  true,
 					Planetary: true,
 					Zlogs: []Zlog{
@@ -101,126 +103,88 @@ func TestMachines(t *testing.T) {
 
 		znet := workloads.ZNet{
 			Name:         generateNetworkName(model.Name),
-			Nodes:        []uint32{1},
+			Nodes:        []uint32{nodeID},
 			IPRange:      ipRange,
 			SolutionType: projectName,
 		}
 
-		cl.EXPECT().DeployNetwork(gomock.Any(), &znet).Return(nil)
+		cl.EXPECT().DeployNetwork(context.Background(), &znet).DoAndReturn(func(ctx context.Context, znet *workloads.ZNet) error {
+			znet.NodeDeploymentID = map[uint32]uint64{nodeID: networkContratID}
+			return nil
+		})
 
 		model.Network.Name = generateNetworkName(model.Name)
 
 		// TODO: deployment should not be any
-		contractID := uint64(1)
-		cl.EXPECT().DeployDeployment(gomock.Any(), gomock.Any()).Return(contractID, nil)
+		cl.EXPECT().DeployDeployment(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, clientDeployment *workloads.Deployment) error {
+			clientDeployment.ContractID = deploymentContractID
+			clientDeployment.NodeDeploymentID = map[uint32]uint64{nodeID: deploymentContractID}
+			return nil
+		})
 
-		nodeClient := client.NewNodeClient(1, rmbClient, 10)
-		cl.EXPECT().GetNodeClient(uint32(1)).Return(nodeClient, nil)
-		vmRes := zos.ZMachineResult{
-			YggIP: "4.4.4.4",
-		}
+		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		vmResultBytes, err := json.Marshal(vmRes)
-		assert.NoError(t, err)
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {deploymentContractID, networkContratID}})
+		cl.EXPECT().LoadNetwork(generateNetworkName(modelName)).Return(workloads.ZNet{
+			Name:             generateNetworkName(model.Name),
+			Nodes:            []uint32{nodeID},
+			IPRange:          ipRange,
+			SolutionType:     projectName,
+			NodeDeploymentID: map[uint32]uint64{nodeID: networkContratID},
+		}, nil)
 
-		pubIPRes := zos.PublicIPResult{
-			IP: gridtypes.MustParseIPNet("1.1.1.1/16"),
-		}
-		pubIPBytes, err := json.Marshal(pubIPRes)
-		assert.NoError(t, err)
-		depWorkloads := []gridtypes.Workload{
-			{
-				Version: 0,
-				Name:    gridtypes.Name(model.Machines[0].Name),
-				Type:    zos.ZMachineType,
-				Data: gridtypes.MustMarshal(zos.ZMachine{
-
-					Network: zos.MachineNetwork{
-						PublicIP: gridtypes.Name(fmt.Sprintf("%sip", model.Machines[0].Name)),
-						Interfaces: []zos.MachineInterface{
-							{
-								Network: gridtypes.Name(generateNetworkName(model.Name)),
-								IP:      net.ParseIP("1.1.1.1"),
-							},
-						},
-						Planetary: true,
-					},
-					ComputeCapacity: zos.MachineCapacity{
-						CPU:    uint8(model.Machines[0].CPU),
-						Memory: gridtypes.Unit(uint(model.Machines[0].Memory)) * gridtypes.Megabyte,
-					},
-					Entrypoint: model.Machines[0].Entrypoint,
-					Mounts: []zos.MachineMount{
+		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
+			Name:             modelName,
+			NodeID:           nodeID,
+			SolutionType:     projectName,
+			SolutionProvider: nil,
+			NetworkName:      generateNetworkName(modelName),
+			Disks: []workloads.Disk{
+				{
+					SizeGB: 10,
+					Name:   generateDiskName("vm1", 0),
+				},
+			},
+			Vms: []workloads.VM{
+				{
+					Name:      "vm1",
+					PublicIP:  true,
+					Planetary: true,
+					Zlogs: []workloads.Zlog{
 						{
-							Name:       gridtypes.Name(generateDiskName(model.Machines[0].Name, 0)),
-							Mountpoint: model.Machines[0].Disks[0].MountPoint,
+							Output: "hamada",
 						},
 					},
-					Env: model.Machines[0].EnvVars,
-				}),
-				Result: gridtypes.Result{
-					Created: gridtypes.Now(),
-					State:   gridtypes.StateOk,
-					Data:    json.RawMessage(vmResultBytes),
-				},
-			},
-			{
-				Version: 0,
-				Name:    gridtypes.Name(fmt.Sprintf("%sip", model.Machines[0].Name)),
-				Type:    zos.PublicIPType,
-				Data: gridtypes.MustMarshal(zos.PublicIP{
-					V4: model.Machines[0].PublicIP,
-				}),
-				Result: gridtypes.Result{
-					Created: gridtypes.Now(),
-					State:   gridtypes.StateOk,
-					Data:    json.RawMessage(pubIPBytes),
-				},
-			},
-			{
-				Name:        gridtypes.Name(generateDiskName(model.Machines[0].Name, 0)),
-				Version:     0,
-				Type:        zos.ZMountType,
-				Description: "",
-				Data: gridtypes.MustMarshal(zos.ZMount{
-					Size: gridtypes.Unit(model.Machines[0].Disks[0].SizeGB) * gridtypes.Gigabyte,
-				}),
-			},
-			{
-				Version: 0,
-				Name:    gridtypes.Name(model.Machines[0].Name),
-				Type:    zos.ZLogsType,
-				Data: gridtypes.MustMarshal(zos.ZLogs{
-					ZMachine: gridtypes.Name(model.Machines[0].Name),
-					Output:   "hamada",
-				}),
-				Result: gridtypes.Result{
-					Created: gridtypes.Now(),
-					State:   gridtypes.StateOk,
-				},
-			},
-		}
-		zosDeployment := workloads.NewGridDeployment(1, depWorkloads)
-		dl := gridtypes.Deployment{}
-		rmbClient.EXPECT().Call(gomock.Any(), gomock.Any(), "zos.deployment.get", gomock.Any(), &dl).
-			DoAndReturn(func(ctx context.Context, twin uint32, fn string, data, result interface{}) error {
-				var res *gridtypes.Deployment = result.(*gridtypes.Deployment)
-				*res = zosDeployment
-				return nil
-			})
 
-		got, err := r.MachinesDeploy(context.Background(), model, projectName)
+					EnvVars:    map[string]string{"hello": "world"},
+					ComputedIP: "1.1.1.1/16",
+					YggIP:      "4.4.4.4",
+					IP:         "1.1.1.1",
+					Mounts: []workloads.Mount{
+						{
+							DiskName:   generateDiskName("vm1", 0),
+							MountPoint: "point1",
+						},
+					},
+				},
+			},
+			ContractID: 2,
+		}, nil)
+
+		got, err := r.MachinesDeploy(context.Background(), model)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("machines_get_success", func(t *testing.T) {
-		projectName := "project1"
-		modelName := "model1"
+		nodeID := uint32(1)
+		modelName := "model2"
+		projectName := generateProjectName(modelName)
 		networkName := generateNetworkName(modelName)
+		networkContractID := uint64(1)
+		nodeContractID := uint64(2)
 		vmName := "vm1"
-		rmbClient := mocks.NewMockClient(ctrl)
 
 		want := MachinesModel{
 			Name: modelName,
@@ -231,7 +195,8 @@ func TestMachines(t *testing.T) {
 			},
 			Machines: []Machine{
 				{
-					NodeID:    1,
+					NodeID:    nodeID,
+					FarmID:    1,
 					Name:      vmName,
 					CPU:       2,
 					Memory:    10,
@@ -253,123 +218,90 @@ func TestMachines(t *testing.T) {
 					YggIP:       "4.4.4.4",
 					WGIP:        "1.1.1.1",
 					Entrypoint:  "entry point",
+					EnvVars:     map[string]string{"hello": "world"},
 				},
 			},
 		}
+
+		networkDeploymentData, err := json.Marshal(workloads.DeploymentData{
+			Type: "network",
+			Name: networkName,
+		})
+		assert.NoError(t, err)
+
+		nodesDeploymentData, err := json.Marshal(workloads.DeploymentData{
+			Type: "vm",
+			Name: modelName,
+		})
+		assert.NoError(t, err)
 
 		cl.EXPECT().GetProjectContracts(gomock.Any(), projectName).Return(graphql.Contracts{
 			NodeContracts: []graphql.Contract{
 				{
-					ContractID: "1",
-					NodeID:     1,
+					ContractID:     "1",
+					NodeID:         nodeID,
+					DeploymentData: string(networkDeploymentData),
+				},
+				{
+					ContractID:     "2",
+					NodeID:         nodeID,
+					DeploymentData: string(nodesDeploymentData),
 				},
 			},
 		}, nil)
 
-		nodeClient := client.NewNodeClient(1, rmbClient, 10)
-		cl.EXPECT().GetNodeClient(uint32(1)).Return(nodeClient, nil)
-		vmRes := zos.ZMachineResult{
-			YggIP: "4.4.4.4",
-		}
+		cl.EXPECT().SetContractState(map[uint32]state.ContractIDs{nodeID: {networkContractID, nodeContractID}})
+		cl.EXPECT().LoadNetwork(networkName).Return(workloads.ZNet{
+			Name:        networkName,
+			Nodes:       []uint32{nodeID},
+			AddWGAccess: false,
+			IPRange:     gridtypes.MustParseIPNet("10.1.0.0/16"),
+		}, nil)
 
-		vmResultBytes, err := json.Marshal(vmRes)
-		assert.NoError(t, err)
+		cl.EXPECT().GetNodeFarm(nodeID).Return(uint32(1), nil)
 
-		pubIPRes := zos.PublicIPResult{
-			IP: gridtypes.MustParseIPNet("1.1.1.1/16"),
-		}
-		pubIPBytes, err := json.Marshal(pubIPRes)
-		assert.NoError(t, err)
-		depWorkloads := []gridtypes.Workload{
-			{
-				Version: 0,
-				Name:    gridtypes.Name(vmName),
-				Type:    zos.ZMachineType,
-				Data: gridtypes.MustMarshal(zos.ZMachine{
-
-					Network: zos.MachineNetwork{
-						PublicIP: gridtypes.Name(fmt.Sprintf("%sip", vmName)),
-						Interfaces: []zos.MachineInterface{
-							{
-								Network: gridtypes.Name(generateNetworkName(modelName)),
-								IP:      net.ParseIP("1.1.1.1"),
-							},
-						},
-						Planetary: true,
-					},
-					ComputeCapacity: zos.MachineCapacity{
-						CPU:    uint8(2),
-						Memory: gridtypes.Unit(uint(10)) * gridtypes.Megabyte,
-					},
-					Entrypoint: "entry point",
-					Mounts: []zos.MachineMount{
+		cl.EXPECT().LoadDeployment(modelName, nodeID).Return(workloads.Deployment{
+			Name:             modelName,
+			NodeID:           nodeID,
+			SolutionType:     projectName,
+			SolutionProvider: nil,
+			NetworkName:      networkName,
+			Disks: []workloads.Disk{
+				{
+					SizeGB: 10,
+					Name:   generateDiskName("vm1", 0),
+				},
+			},
+			Vms: []workloads.VM{
+				{
+					Name:      "vm1",
+					PublicIP:  true,
+					Planetary: true,
+					Zlogs: []workloads.Zlog{
 						{
-							Name:       gridtypes.Name(generateDiskName(vmName, 0)),
-							Mountpoint: "point1",
+							Output: "hamada",
 						},
 					},
-				}),
-				Result: gridtypes.Result{
-					Created: gridtypes.Now(),
-					State:   gridtypes.StateOk,
-					Data:    json.RawMessage(vmResultBytes),
-				},
-			},
-			{
-				Version: 0,
-				Name:    gridtypes.Name(fmt.Sprintf("%sip", vmName)),
-				Type:    zos.PublicIPType,
-				Data: gridtypes.MustMarshal(zos.PublicIP{
-					V4: true,
-				}),
-				Result: gridtypes.Result{
-					Created: gridtypes.Now(),
-					State:   gridtypes.StateOk,
-					Data:    json.RawMessage(pubIPBytes),
-				},
-			},
-			{
-				Name:        gridtypes.Name(generateDiskName(vmName, 0)),
-				Version:     0,
-				Type:        zos.ZMountType,
-				Description: "",
-				Data: gridtypes.MustMarshal(zos.ZMount{
-					Size: gridtypes.Unit(10) * gridtypes.Gigabyte,
-				}),
-			},
-			{
-				Version: 0,
-				Name:    gridtypes.Name(vmName),
-				Type:    zos.ZLogsType,
-				Data: gridtypes.MustMarshal(zos.ZLogs{
-					ZMachine: gridtypes.Name(vmName),
-					Output:   "hamada",
-				}),
-				Result: gridtypes.Result{
-					Created: gridtypes.Now(),
-					State:   gridtypes.StateOk,
-				},
-			},
-			{
-				Version: 0,
-				Name:    gridtypes.Name(networkName),
-				Type:    zos.NetworkType,
-				Data: gridtypes.MustMarshal(zos.Network{
-					NetworkIPRange: gridtypes.MustParseIPNet("10.1.0.0/16"),
-				}),
-			},
-		}
-		zosDeployment := workloads.NewGridDeployment(1, depWorkloads)
-		assert.NoError(t, err)
-		dl := gridtypes.Deployment{}
-		rmbClient.EXPECT().Call(gomock.Any(), gomock.Any(), "zos.deployment.get", gomock.Any(), &dl).
-			DoAndReturn(func(ctx context.Context, twin uint32, fn string, data, result interface{}) error {
-				var res *gridtypes.Deployment = result.(*gridtypes.Deployment)
-				*res = zosDeployment
-				return nil
-			})
 
-		got, err := r.MachinesGet(context.Background(), modelName, projectName)
+					EnvVars:    map[string]string{"hello": "world"},
+					ComputedIP: "1.1.1.1/16",
+					YggIP:      "4.4.4.4",
+					IP:         "1.1.1.1",
+					Mounts: []workloads.Mount{
+						{
+							DiskName:   generateDiskName("vm1", 0),
+							MountPoint: "point1",
+						},
+					},
+					CPU:        2,
+					Memory:     10,
+					Entrypoint: "entry point",
+				},
+			},
+			ContractID: nodeContractID,
+		}, nil)
+
+		got, err := r.MachinesGet(context.Background(), modelName)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)

@@ -20,13 +20,16 @@ pub fn (mut t TFGridClient) machines_delete(model_name string) ! {
 	], default_timeout)!
 }
 
-// NOTE: not implemented
-// // Add new machine to a machines deployment
-// pub fn machines_add_machine(mut client RpcWsClient, params AddMachine) !MachinesResult {
-// 	return t.client.send_json_rpc[[]AddMachine, MachinesResult]('tfgrid.MachinesAdd', [params], default_timeout)!
-// }
+// Add new machine to a machines deployment
+pub fn (mut t TFGridClient) machines_add(params AddMachine) !MachinesResult {
+	return t.client.send_json_rpc[[]AddMachine, MachinesResult]('tfgrid.MachinesAdd',
+		[params], default_timeout)!
+}
 
-// // // Delete machine from a machines deployment
-// pub fn machines_delete_machine(mut client RpcWsClient, params RemoveMachine) !MachinesResult {
-// 	return t.client.send_json_rpc[[]RemoveMachine, MachinesResult]('tfgrid.MachinesRemove', [params], default_timeout)!
-// }
+// Remove machine from a machines deployment
+pub fn (mut t TFGridClient) machines_remove(params RemoveMachine) !MachinesResult {
+	return t.client.send_json_rpc[[]RemoveMachine, MachinesResult]('tfgrid.MachinesRemove',
+		[
+		params,
+	], default_timeout)!
+}
