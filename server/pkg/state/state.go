@@ -14,7 +14,10 @@ const (
 	keyStaleMark = time.Second * 300
 )
 
-type State interface{}
+type State interface {
+	// Close works as the destructor of State
+	Close() error
+}
 
 // state and metadata to manage it
 type stateMeta[S State] struct {
@@ -82,8 +85,10 @@ func NewStateManager[S State]() *StateManager[S] {
 					}
 					if meta.accessed < time.Now().Unix()-int64(keyStaleMark.Seconds()) {
 						log.Debug().Msgf("Removing stale key", key)
+						_ = meta.state.Close()
 						sm.conStates.Delete(key)
 					}
+
 					return true
 				})
 			case <-sm.closeChan:

@@ -31,7 +31,7 @@ const (
 type (
 	// Client exposing tfgrid methods
 	Client struct {
-		state *state.StateManager[tfgridState]
+		state *state.StateManager[*tfgridState]
 	}
 
 	tfgridState struct {
@@ -42,7 +42,7 @@ type (
 // NewClient creates a new Client ready for use
 func NewClient() *Client {
 	return &Client{
-		state: state.NewStateManager[tfgridState](),
+		state: state.NewStateManager[*tfgridState](),
 	}
 }
 
@@ -66,13 +66,15 @@ func State(conState jsonrpc.State) *tfgridState {
 }
 
 // Close implements jsonrpc.Closer
-func (s *tfgridState) Close() {}
+func (s *tfgridState) Close() {
+	s.cl.GridClient.Close()
+}
 
 // Load an identity for the tfgrid with the given network
 func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic string, network string) error {
 	state := State(conState)
 	if state.cl != nil {
-		// TODO: close current client
+		state.Close()
 	}
 
 	tfgrid_client := tfgridBase.Client{
@@ -270,4 +272,15 @@ func (c *Client) FilterNodes(ctx context.Context, conState jsonrpc.State, filter
 	}
 
 	return state.cl.FilterNodes(ctx, filters)
+}
+
+func (c *Client) Logout(ctx context.Context) error {
+	st, ok := c.state.Get(state.IDFromContext(ctx))
+	if !ok || st.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	st.cl.GridClient.Close()
+
+	return nil
 }

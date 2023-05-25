@@ -26,7 +26,7 @@ type PoolMetrics struct {
 
 func (r *Client) ZOSDeploymentDeploy(ctx context.Context, nodeID uint32, dl gridtypes.Deployment) error {
 
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -44,7 +44,7 @@ func (r *Client) ZOSDeploymentDeploy(ctx context.Context, nodeID uint32, dl grid
 
 func (r *Client) ZOSDeploymentGet(ctx context.Context, nodeID uint32, contractID uint64) (gridtypes.Deployment, error) {
 
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return gridtypes.Deployment{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -59,7 +59,7 @@ func (r *Client) ZOSDeploymentGet(ctx context.Context, nodeID uint32, contractID
 
 func (r *Client) ZOSDeploymentDelete(ctx context.Context, nodeID uint32, contractID uint64) error {
 
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -74,7 +74,7 @@ func (r *Client) ZOSDeploymentDelete(ctx context.Context, nodeID uint32, contrac
 
 func (r *Client) ZOSDeploymentUpdate(ctx context.Context, nodeID uint32, dl gridtypes.Deployment) error {
 
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -92,7 +92,7 @@ func (r *Client) ZOSDeploymentUpdate(ctx context.Context, nodeID uint32, dl grid
 }
 
 func (r *Client) ZOSDeploymentChanges(ctx context.Context, nodeID uint32, contractID uint64) ([]gridtypes.Workload, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -106,7 +106,7 @@ func (r *Client) ZOSDeploymentChanges(ctx context.Context, nodeID uint32, contra
 }
 
 func (r *Client) ZOSStatisticsGet(ctx context.Context, nodeID uint32) (Statistics, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return Statistics{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -123,7 +123,7 @@ func (r *Client) ZOSStatisticsGet(ctx context.Context, nodeID uint32) (Statistic
 }
 
 func (r *Client) ZOSNetworkListWGPorts(ctx context.Context, nodeID uint32) ([]uint16, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -137,7 +137,7 @@ func (r *Client) ZOSNetworkListWGPorts(ctx context.Context, nodeID uint32) ([]ui
 }
 
 func (r *Client) ZOSNetworkInterfaces(ctx context.Context, nodeID uint32) (map[string][]net.IP, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -151,7 +151,7 @@ func (r *Client) ZOSNetworkInterfaces(ctx context.Context, nodeID uint32) (map[s
 }
 
 func (r *Client) ZOSNetworkPublicConfigGet(ctx context.Context, nodeID uint32) (client.PublicConfig, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return client.PublicConfig{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -165,7 +165,7 @@ func (r *Client) ZOSNetworkPublicConfigGet(ctx context.Context, nodeID uint32) (
 }
 
 func (r *Client) ZOSSystemDMI(ctx context.Context, nodeID uint32) (dmi.DMI, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return dmi.DMI{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -179,7 +179,7 @@ func (r *Client) ZOSSystemDMI(ctx context.Context, nodeID uint32) (dmi.DMI, erro
 }
 
 func (r *Client) ZOSSystemHypervisor(ctx context.Context, nodeID uint32) (string, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -193,7 +193,7 @@ func (r *Client) ZOSSystemHypervisor(ctx context.Context, nodeID uint32) (string
 }
 
 func (r *Client) ZOSVersion(ctx context.Context, nodeID uint32) (client.Version, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return client.Version{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -207,7 +207,7 @@ func (r *Client) ZOSVersion(ctx context.Context, nodeID uint32) (client.Version,
 }
 
 func (r *Client) ZOSStoragePools(ctx context.Context, nodeID uint32) (pools []client.PoolMetrics, err error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -221,7 +221,7 @@ func (r *Client) ZOSStoragePools(ctx context.Context, nodeID uint32) (pools []cl
 }
 
 func (r *Client) ZosHasPublicIPv6(ctx context.Context, nodeID uint32) (bool, error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -235,7 +235,7 @@ func (r *Client) ZosHasPublicIPv6(ctx context.Context, nodeID uint32) (bool, err
 }
 
 func (r *Client) ZOSNetworkListAllInterfaces(ctx context.Context, nodeID uint32) (result map[string]client.Interface, err error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -249,7 +249,7 @@ func (r *Client) ZOSNetworkListAllInterfaces(ctx context.Context, nodeID uint32)
 }
 
 func (r *Client) ZOSNetworkSetPublicExitDevice(ctx context.Context, nodeID uint32, iface string) error {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}
@@ -263,7 +263,7 @@ func (r *Client) ZOSNetworkSetPublicExitDevice(ctx context.Context, nodeID uint3
 }
 
 func (r *Client) ZOSNetworkGetPublicExitDevice(ctx context.Context, nodeID uint32) (exit client.ExitDevice, err error) {
-	nodeClient, err := r.client.GetNodeClient(nodeID)
+	nodeClient, err := r.GridClient.GetNodeClient(nodeID)
 	if err != nil {
 		return client.ExitDevice{}, errors.Wrapf(err, "failed to get node %d client", nodeID)
 	}

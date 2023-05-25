@@ -19,8 +19,8 @@ func TestZDB(t *testing.T) {
 	cl := mocks.NewMockTFGridClient(ctrl)
 
 	r := Client{
-		client:   cl,
-		Projects: map[string]ProjectState{},
+		GridClient: cl,
+		Projects:   map[string]ProjectState{},
 	}
 
 	t.Run("zdb_deploy_success", func(t *testing.T) {

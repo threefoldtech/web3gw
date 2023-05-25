@@ -181,7 +181,7 @@ func BuildFarmerBotAction(farmerTwinID uint32, sourceTwinID uint32, args []Args,
 
 func (r *Client) GetFarmerTwinIDByFarmID(farmID uint32) (uint32, error) {
 	farmid := uint64(farmID)
-	farms, _, err := r.client.FilterFarms(proxyTypes.FarmFilter{
+	farms, _, err := r.GridClient.FilterFarms(proxyTypes.FarmFilter{
 		FarmID: &farmid,
 	}, proxyTypes.Limit{
 		Size: 1,
@@ -225,7 +225,7 @@ func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 
 	var output FarmerBotAction
 
-	err = r.client.RMBCall(ctx, farmerTwinID, FarmerBotRMBFunction, data, &output)
+	err = r.GridClient.RMBCall(ctx, farmerTwinID, FarmerBotRMBFunction, data, &output)
 	if err != nil {
 		return []uint32{}, errors.Wrapf(err, "Failed calling farmerbot on farm %d", options.FarmID)
 	}
@@ -247,7 +247,7 @@ func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) ([]uint32, error) {
 	proxyFilters := BuildGridProxyFilters(options, uint64(r.TwinID))
 
-	nodes, _, err := r.client.FilterNodes(proxyFilters, proxyTypes.Limit{})
+	nodes, _, err := r.GridClient.FilterNodes(proxyFilters, proxyTypes.Limit{})
 	if err != nil || len(nodes) == 0 {
 		return []uint32{}, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
 	}
@@ -282,14 +282,14 @@ func (r *Client) HasFarmerBot(ctx context.Context, farmID uint32) bool {
 
 	var output FarmerBotAction
 
-	err = r.client.RMBCall(ctx, farmerTwinID, FarmerBotRMBFunction, data, &output)
+	err = r.GridClient.RMBCall(ctx, farmerTwinID, FarmerBotRMBFunction, data, &output)
 
 	return err == nil
 }
 
 func (r *Client) checkNodeAvailability(nodeId uint32, workload PlannedReservation, reservedCapacity map[uint32]PlannedReservation) bool {
 	// get node info
-	node, err := r.client.GetNode(nodeId)
+	node, err := r.GridClient.GetNode(nodeId)
 	if err != nil {
 		return false
 	}
@@ -312,7 +312,7 @@ func (r *Client) checkNodeAvailability(nodeId uint32, workload PlannedReservatio
 
 func (r *Client) checkFarmAvailability(farmId uint64, workload PlannedReservation, reservedIps map[uint32]int) bool {
 	// get farm info
-	farms, _, err := r.client.FilterFarms(proxyTypes.FarmFilter{
+	farms, _, err := r.GridClient.FilterFarms(proxyTypes.FarmFilter{
 		FarmID: &farmId,
 	}, proxyTypes.Limit{
 		Size: 1,

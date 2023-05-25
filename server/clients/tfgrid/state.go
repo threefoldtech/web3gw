@@ -18,7 +18,7 @@ type ProjectState struct {
 }
 
 func (c *Client) loadNetwork(modelName string) (workloads.ZNet, error) {
-	return c.client.LoadNetwork(generateNetworkName(modelName))
+	return c.GridClient.LoadNetwork(generateNetworkName(modelName))
 }
 
 func (c *Client) loadK8s(masterName string, nodeContracts map[uint32]state.ContractIDs) (workloads.K8sCluster, error) {
@@ -27,7 +27,7 @@ func (c *Client) loadK8s(masterName string, nodeContracts map[uint32]state.Contr
 		nodeIDs = append(nodeIDs, node)
 	}
 
-	return c.client.LoadK8s(masterName, nodeIDs)
+	return c.GridClient.LoadK8s(masterName, nodeIDs)
 }
 
 func (c *Client) loadGWFQDN(ctx context.Context, modelName string) (workloads.GatewayFQDNProxy, error) {
@@ -46,7 +46,7 @@ func (c *Client) loadGWFQDN(ctx context.Context, modelName string) (workloads.Ga
 		nodeID = node
 	}
 
-	return c.client.LoadGatewayFQDN(modelName, nodeID)
+	return c.GridClient.LoadGatewayFQDN(modelName, nodeID)
 }
 
 func (c *Client) loadGWName(ctx context.Context, modelName string) (workloads.GatewayNameProxy, error) {
@@ -68,11 +68,11 @@ func (c *Client) loadGWName(ctx context.Context, modelName string) (workloads.Ga
 		nodeID = node
 	}
 
-	return c.client.LoadGatewayName(modelName, nodeID)
+	return c.GridClient.LoadGatewayName(modelName, nodeID)
 }
 
 func (c *Client) loadDeployment(modelName string, nodeID uint32) (workloads.Deployment, error) {
-	return c.client.LoadDeployment(modelName, nodeID)
+	return c.GridClient.LoadDeployment(modelName, nodeID)
 }
 
 func (c *Client) loadZDB(ctx context.Context, modelName string) (workloads.ZDB, uint32, error) {
@@ -90,7 +90,7 @@ func (c *Client) loadZDB(ctx context.Context, modelName string) (workloads.ZDB, 
 		nodeID = node
 	}
 
-	zdb, err := c.client.LoadZDB(modelName, nodeID)
+	zdb, err := c.GridClient.LoadZDB(modelName, nodeID)
 	if err != nil {
 		return workloads.ZDB{}, 0, err
 	}
@@ -102,7 +102,7 @@ func (c *Client) loadModelContracts(ctx context.Context, modelName string) (Proj
 	projectName := generateProjectName(modelName)
 
 	if projectState, ok := c.Projects[projectName]; ok {
-		c.client.SetContractState(projectState.nodeContracts)
+		c.GridClient.SetContractState(projectState.nodeContracts)
 		return projectState, nil
 	}
 
@@ -111,7 +111,7 @@ func (c *Client) loadModelContracts(ctx context.Context, modelName string) (Proj
 		nameContracts: make(map[uint32]uint64),
 	}
 
-	projectContracts, err := c.client.GetProjectContracts(ctx, projectName)
+	projectContracts, err := c.GridClient.GetProjectContracts(ctx, projectName)
 	if err != nil {
 		return ProjectState{}, errors.Wrapf(err, "failed to retreive contracts with project name %s", projectName)
 	}
@@ -134,7 +134,7 @@ func (c *Client) loadModelContracts(ctx context.Context, modelName string) (Proj
 		newState.nameContracts[c.NodeID] = contractID
 	}
 
-	c.client.SetContractState(newState.nodeContracts)
+	c.GridClient.SetContractState(newState.nodeContracts)
 
 	c.Projects[projectName] = newState
 

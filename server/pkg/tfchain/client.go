@@ -47,7 +47,7 @@ type (
 	ErrUnknownNetwork struct{}
 	// Client exposing stellar methods
 	Client struct {
-		state *state.StateManager[TfchainState]
+		state *state.StateManager[*TfchainState]
 	}
 	TfchainState struct {
 		client   *substrate.Substrate
@@ -126,6 +126,10 @@ type (
 	}
 )
 
+func (t *TfchainState) Close() error {
+	return nil
+}
+
 // Error implements the error interface
 func (e ErrUnknownNetwork) Error() string {
 	return "only 'public' and 'testnet' networks are supported"
@@ -156,7 +160,7 @@ func (s *TfchainState) Close() {}
 // NewClient creates a new Client ready for use
 func NewClient() *Client {
 	return &Client{
-		state: state.NewStateManager[TfchainState](),
+		state: state.NewStateManager[*TfchainState](),
 	}
 }
 
