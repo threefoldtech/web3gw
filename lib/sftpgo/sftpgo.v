@@ -5,21 +5,21 @@ import net.http
 [noinit]
 pub struct SFTPGoClient {
 pub mut:
-	url string
+	address string
 	header http.Header
 }
 
 [params]
 pub struct SFTPGOClientArgs {
 pub:
-	url    string = 'http://localhost:8080/api/v2'
+	address    string = 'http://localhost:8080/api/v2'
 	jwt string 
 }
 
 pub fn new(args SFTPGOClientArgs) SFTPGoClient {
 	header := construct_header(args.jwt)
 	return SFTPGoClient{
-		url: args.url,
+		address: args.address,
 		header: header
 	}
 }
