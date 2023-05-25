@@ -6,4 +6,4 @@ First go to the `examples/sftpgo` directory:
 cd examples/sftpgo
 ```
 
-- [Metrics](./sftpgo.md)
+- [Users](./users.md)
