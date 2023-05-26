@@ -43,7 +43,7 @@ func (c *Client) GetEthTftBalance(ctx context.Context, conState jsonrpc.State) (
 		return "", err
 	}
 
-	return tftBalance.String(), nil
+	return tftBalance, nil
 }
 
 func (c *Client) ApproveEthTftSpending(ctx context.Context, conState jsonrpc.State, amount string) (string, error) {

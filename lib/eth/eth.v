@@ -143,9 +143,8 @@ pub fn (mut e EthClient) transer(args Transfer) !string {
 	return e.client.send_json_rpc[[]Transfer, string]('eth.Transfer', [args], eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) balance(address string) !Uint128 {
-	balance := e.client.send_json_rpc[[]string, string]('eth.Balance', [address], eth.default_timeout)!
-	return uint128_from_dec_str(balance)
+pub fn (mut e EthClient) balance(address string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.Balance', [address], eth.default_timeout)!
 }
 
 // height returns the current block height.
@@ -164,10 +163,8 @@ pub fn (mut e EthClient) get_hex_seed() !string {
 }
 
 // token_balance returns balance for the given token contract.
-pub fn (mut e EthClient) token_balance(contractAddress string) !Uint128 {
-	balance := e.client.send_json_rpc[[]string, string]('eth.GetTokenBalance', [contractAddress], eth.default_timeout)!
-	return uint128_from_dec_str(balance)
-	], eth.default_timeout)!
+pub fn (mut e EthClient) token_balance(contractAddress string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.GetTokenBalance', [contractAddress], eth.default_timeout)!
 }
 
 // token_transfer transfers tokens to the given address.
@@ -239,7 +236,7 @@ pub fn (mut e EthClient) initiate_multisig_token_transfer(args InitiateMultisigT
 
 // get_fungible_balance returns the balance of the given fungible token.
 pub fn (mut e EthClient) get_fungible_balance(args GetFungibleBalance) !Uint128 {
-	balance := e.client.send_json_rpc[[]GetFungibleBalance, string]('eth.GetFungibleBalance', [args],
+	balance := e.client.send_json_rpc[[]GetFungibleBalance, string]('eth.GetFungibleBalance',
 		[args], eth.default_timeout)!
 	return uint128_from_dec_str(balance)
 }

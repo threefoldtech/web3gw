@@ -86,7 +86,7 @@ func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address st
 		return "", err
 	}
 
-	return balance.String(), nil
+	return balance, nil
 }
 
 // Height of the chain for the connected rpc remote
