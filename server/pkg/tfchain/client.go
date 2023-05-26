@@ -30,6 +30,11 @@ const (
 	activationURLQanet   = "https://activation.qa.grid.tf/activation/activate"
 	activationURLDevnet  = "https://activation.dev.grid.tf/activation/activate"
 
+	relayURLMainnet = "relay.grid.tf"
+	relayURLTestnet = "relay.test.grid.tf"
+	relayURLQanet   = "relay.qa.grid.tf"
+	relayURLDevnet  = "relay.dev.grid.tf"
+
 	termsAndConditionsLink = "https://library.threefold.me/info/legal/#/tfgrid/terms_conditions_tfgrid3"
 
 	termsUser     = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/terms_conditions_griduser.md"
@@ -165,7 +170,6 @@ func tfchainNetworkFromNetworkString(network string) (string, error) {
 	} else if network == "devnet" {
 		return tfchainDevnet, nil
 	}
-
 	return "", errors.New("unsupported network")
 }
 
@@ -179,7 +183,19 @@ func activationURLFromNetwork(network string) (string, error) {
 	} else if network == "devnet" {
 		return activationURLDevnet, nil
 	}
+	return "", errors.New("unsupported network")
+}
 
+func relayURLFromNetwork(network string) (string, error) {
+	if network == "mainnet" {
+		return relayURLMainnet, nil
+	} else if network == "testnet" {
+		return relayURLTestnet, nil
+	} else if network == "qanet" {
+		return relayURLQanet, nil
+	} else if network == "devnet" {
+		return relayURLDevnet, nil
+	}
 	return "", errors.New("unsupported network")
 }
 
@@ -273,6 +289,16 @@ func (c *Client) CreateAccount(ctx context.Context, conState jsonrpc.State, netw
 	}
 
 	_, err = substrateConnection.EnsureAccount(identity, activationURL, termsAndConditionsLink, termsAndConditionsHash)
+	if err != nil {
+		return "", err
+	}
+
+	relayURL, err := relayURLFromNetwork(network)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = substrateConnection.CreateTwin(identity, relayURL, identity.PublicKey())
 	if err != nil {
 		return "", err
 	}
