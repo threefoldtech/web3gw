@@ -38,34 +38,34 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	logger.info('eth balance before swap: ${eth_balance}\n')
+	logger.info('eth balance before swap: ${eth_balance}')
 	
 	mut eth_tft_balance := eth_client.tft_balance()!
-	logger.info('tft balance before swap: ${eth_tft_balance}\n')
+	logger.info('tft balance before swap: ${eth_tft_balance}')
 	
 	/*
 	amount_in := "0.0001"
 
 	quote := eth_client.quote_eth_for_tft(amount_in)!
-	logger.info('will receive: ${quote} tft\n')
+	logger.info('will receive: ${quote} tft')
 
 	tx := eth_client.swap_eth_for_tft(amount_in)!
-	logger.info('tx: ${tx}\n')
+	logger.info('tx: ${tx}')
 	*/
 	quote := 183943396
 	
 	/*
 	eth_tft_balance = eth_client.tft_balance()!
-	logger.info('tft balance after swap: ${eth_tft_balance}\n')
+	logger.info('tft balance after swap: ${eth_tft_balance}')
 
 	eth_balance = eth_client.balance(address)!
-	logger.info('eth balance after swap: ${eth_balance}\n')
+	logger.info('eth balance after swap: ${eth_balance}')
 
 	eth_client.withdraw_eth_tft_to_stellar(destination: args.stellar_address, amount: quote)!
-	logger.info('withdrawn eth to stellar\n')
+	logger.info('withdrawn eth to stellar')
 
 	eth_tft_balance = eth_client.tft_balance()!
-	logger.info('tft balance after bridge: ${eth_tft_balance}\n')
+	logger.info('tft balance after bridge: ${eth_tft_balance}')
 	*/
 	stellar_address := stellar_client.address()!
 
