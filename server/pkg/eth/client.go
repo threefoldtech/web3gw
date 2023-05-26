@@ -57,6 +57,9 @@ func State(conState jsonrpc.State) *EthState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *EthState) Close() {}
+
 // Load a client, connecting to the rpc endpoint at the given URL and loading a keypair from the given secret
 func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
 	cl, err := goethclient.NewClient(args.Url, args.Secret)

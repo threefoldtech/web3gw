@@ -145,6 +145,9 @@ func State(conState jsonrpc.State) *TfchainState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *TfchainState) Close() {}
+
 // NewClient creates a new Client ready for use
 func NewClient() *Client {
 	return &Client{

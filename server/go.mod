@@ -3,7 +3,7 @@ module github.com/threefoldtech/web3_proxy/server
 go 1.20
 
 require (
-	github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb
+	github.com/LeeSmet/go-jsonrpc v0.0.0-20230525114004-084cdb6d9fe8
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2

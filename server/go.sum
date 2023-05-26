@@ -13,6 +13,8 @@ github.com/ChainSafe/go-schnorrkel v1.0.0/go.mod h1:dpzHYVxLZcp8pjlV+O+UR8K0Hp/z
 github.com/DataDog/zstd v1.5.5 h1:oWf5W7GtOLgp6bciQYDmhHHjdhYkALu6S/5Ni9ZgSvQ=
 github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb h1:/2hRGzqujnvMJQ1x3pB8ZpwO6/pNsR3BjbB+Q4o9054=
 github.com/LeeSmet/go-jsonrpc v0.0.0-20230421090739-7ea9777273cb/go.mod h1:iLgTxMgzjJVm4Op6Ws8qXUgjPojQIrcXi3X4oIkllkU=
+github.com/LeeSmet/go-jsonrpc v0.0.0-20230525114004-084cdb6d9fe8 h1:J9EEAsHuO3ASS1cLEmqX+m+CcTJypBz9z3UeyZFpEO0=
+github.com/LeeSmet/go-jsonrpc v0.0.0-20230525114004-084cdb6d9fe8/go.mod h1:iLgTxMgzjJVm4Op6Ws8qXUgjPojQIrcXi3X4oIkllkU=
 github.com/SaveTheRbtz/generic-sync-map-go v0.0.0-20220414055132-a37292614db8 h1:Xa6tp8DPDhdV+k23uiTC/GrAYOe4IdyJVKtob4KW3GA=
 github.com/SaveTheRbtz/generic-sync-map-go v0.0.0-20220414055132-a37292614db8/go.mod h1:ihkm1viTbO/LOsgdGoFPBSvzqvx7ibvkMzYp3CgtHik=
 github.com/VictoriaMetrics/fastcache v1.12.1 h1:i0mICQuojGDL3KblA7wUNlY5lOK6a4bwt3uRKnkZU40=

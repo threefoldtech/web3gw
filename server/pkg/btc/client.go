@@ -115,6 +115,9 @@ func State(conState jsonrpc.State) *btcState {
 	return ns
 }
 
+// Close implements jsonrpc.Closer
+func (s *btcState) Close() {}
+
 func NewClient() *Client {
 	return &Client{}
 }
