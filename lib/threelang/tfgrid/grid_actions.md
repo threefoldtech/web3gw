@@ -8,3 +8,6 @@
 - [Presearch Actions](./presearch.md)
 - [Peertube Actions](./peertube.md)
 - [Taiga Actions](./taiga.md)
+- [Discourse Actions](./discourse.md)
+- [Funkwhale Actions](./funkwhale.md)
+- [Machines With Gateways Actions](./vms_with_gw.md)
