@@ -96,7 +96,7 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic stri
 
 func (c *Client) MachinesDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.MachinesModel) (tfgridBase.MachinesModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -105,7 +105,7 @@ func (c *Client) MachinesDeploy(ctx context.Context, conState jsonrpc.State, mod
 
 func (c *Client) MachinesGet(ctx context.Context, conState jsonrpc.State, modelName string) (tfgridBase.MachinesModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -114,7 +114,7 @@ func (c *Client) MachinesGet(ctx context.Context, conState jsonrpc.State, modelN
 
 func (c *Client) MachinesDelete(ctx context.Context, conState jsonrpc.State, modelName string) error {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -123,7 +123,7 @@ func (c *Client) MachinesDelete(ctx context.Context, conState jsonrpc.State, mod
 
 func (c *Client) MachinesAdd(ctx context.Context, conState jsonrpc.State, machine tfgridBase.AddMachineParams) (tfgridBase.MachinesModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -132,7 +132,7 @@ func (c *Client) MachinesAdd(ctx context.Context, conState jsonrpc.State, machin
 
 func (c *Client) MachinesRemove(ctx context.Context, conState jsonrpc.State, removeMachine tfgridBase.RemoveMachineParams) (tfgridBase.MachinesModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -141,7 +141,7 @@ func (c *Client) MachinesRemove(ctx context.Context, conState jsonrpc.State, rem
 
 func (c *Client) K8sDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.K8sCluster) (tfgridBase.K8sCluster, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -150,7 +150,7 @@ func (c *Client) K8sDeploy(ctx context.Context, conState jsonrpc.State, model tf
 
 func (c *Client) K8sGet(ctx context.Context, conState jsonrpc.State, k8sGetInfo tfgridBase.GetClusterParams) (tfgridBase.K8sCluster, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -159,7 +159,7 @@ func (c *Client) K8sGet(ctx context.Context, conState jsonrpc.State, k8sGetInfo 
 
 func (c *Client) K8sDelete(ctx context.Context, conState jsonrpc.State, modelName string) error {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -168,7 +168,7 @@ func (c *Client) K8sDelete(ctx context.Context, conState jsonrpc.State, modelNam
 
 func (c *Client) AddK8sWorker(ctx context.Context, conState jsonrpc.State, workerInfo tfgridBase.AddWorkerParams) (tfgridBase.K8sCluster, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -177,7 +177,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, conState jsonrpc.State, worke
 
 func (c *Client) RemoveK8sWorker(ctx context.Context, conState jsonrpc.State, removeWorkerInfo tfgridBase.RemoveWorkerParams) (tfgridBase.K8sCluster, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.K8sCluster{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -186,7 +186,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, conState jsonrpc.State, re
 
 func (c *Client) ZDBDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.ZDB) (tfgridBase.ZDB, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.ZDB{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -195,7 +195,7 @@ func (c *Client) ZDBDeploy(ctx context.Context, conState jsonrpc.State, model tf
 
 func (c *Client) ZDBGet(ctx context.Context, conState jsonrpc.State, modelName string) (tfgridBase.ZDB, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.ZDB{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -204,7 +204,7 @@ func (c *Client) ZDBGet(ctx context.Context, conState jsonrpc.State, modelName s
 
 func (c *Client) ZDBDelete(ctx context.Context, conState jsonrpc.State, modelName string) error {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -213,7 +213,7 @@ func (c *Client) ZDBDelete(ctx context.Context, conState jsonrpc.State, modelNam
 
 func (c *Client) GatewayNameDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.GatewayNameModel) (tfgridBase.GatewayNameModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.GatewayNameModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -222,7 +222,7 @@ func (c *Client) GatewayNameDeploy(ctx context.Context, conState jsonrpc.State, 
 
 func (c *Client) GatewayNameGet(ctx context.Context, conState jsonrpc.State, modelName string) (tfgridBase.GatewayNameModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.GatewayNameModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -231,7 +231,7 @@ func (c *Client) GatewayNameGet(ctx context.Context, conState jsonrpc.State, mod
 
 func (c *Client) GatewayNameDelete(ctx context.Context, conState jsonrpc.State, modelName string) error {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -240,7 +240,7 @@ func (c *Client) GatewayNameDelete(ctx context.Context, conState jsonrpc.State, 
 
 func (c *Client) GatewayFQDNDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.GatewayFQDNModel) (tfgridBase.GatewayFQDNModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.GatewayFQDNModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -249,7 +249,7 @@ func (c *Client) GatewayFQDNDeploy(ctx context.Context, conState jsonrpc.State, 
 
 func (c *Client) GatewayFQDNGet(ctx context.Context, conState jsonrpc.State, modelName string) (tfgridBase.GatewayFQDNModel, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return tfgridBase.GatewayFQDNModel{}, pkg.ErrClientNotConnected{}
 	}
 
@@ -258,7 +258,7 @@ func (c *Client) GatewayFQDNGet(ctx context.Context, conState jsonrpc.State, mod
 
 func (c *Client) GatewayFQDNDelete(ctx context.Context, conState jsonrpc.State, modelName string) error {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
@@ -267,7 +267,7 @@ func (c *Client) GatewayFQDNDelete(ctx context.Context, conState jsonrpc.State, 
 
 func (c *Client) FilterNodes(ctx context.Context, conState jsonrpc.State, filters tfgridBase.FilterOptions) ([]uint32, error) {
 	state := State(conState)
-	if state.cl != nil {
+	if state.cl == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 

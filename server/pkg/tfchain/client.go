@@ -126,11 +126,6 @@ type (
 	}
 )
 
-func (t *TfchainState) Close() error {
-	t.client.Close()
-	return nil
-}
-
 // Error implements the error interface
 func (e ErrUnknownNetwork) Error() string {
 	return "only 'public' and 'testnet' networks are supported"
@@ -156,7 +151,9 @@ func State(conState jsonrpc.State) *TfchainState {
 }
 
 // Close implements jsonrpc.Closer
-func (s *TfchainState) Close() {}
+func (s *TfchainState) Close() {
+	s.client.Close()
+}
 
 // NewClient creates a new Client ready for use
 func NewClient() *Client {

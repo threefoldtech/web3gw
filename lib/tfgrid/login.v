@@ -13,7 +13,3 @@ pub fn (mut t TFGridClient) load(credentials Credentials) ! {
 		default_timeout)!
 }
 
-pub fn (mut t TFGridClient) logout() ! {
-	_ := t.client.send_json_rpc[[]string, string]('tfgrid.Logout', []string{},
-		default_timeout)!
-}
