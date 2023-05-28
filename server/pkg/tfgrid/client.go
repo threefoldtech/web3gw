@@ -37,6 +37,11 @@ type (
 	tfgridState struct {
 		cl *tfgridBase.Client
 	}
+
+	Load struct {
+		Mnemonic string `json:"mnemonic"`
+		Network  string `json:"network"`
+	}
 )
 
 // NewClient creates a new Client ready for use
@@ -71,7 +76,7 @@ func (s *tfgridState) Close() {
 }
 
 // Load an identity for the tfgrid with the given network
-func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic string, network string) error {
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
 	state := State(conState)
 	if state.cl != nil {
 		state.Close()
@@ -82,8 +87,8 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic stri
 	}
 
 	err := tfgrid_client.Login(ctx, tfgridBase.Credentials{
-		Mnemonics: mnemonic,
-		Network:   network,
+		Mnemonics: args.Mnemonic,
+		Network:   args.Network,
 	})
 	if err != nil {
 		return err
