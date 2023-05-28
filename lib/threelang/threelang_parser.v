@@ -3,7 +3,7 @@ module threelang
 import freeflowuniverse.crystallib.markdowndocs { Action, new, NewDocArgs }
 import freeflowuniverse.crystallib.params { Params }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.threelang.tfgrid { GridProcessor, Process }
+import threefoldtech.threebot.threelang.gridprocessor { GridProcessor, Process }
 import threefoldtech.threebot.threelang.tfchain { ChainProcessor }
 import log
 
@@ -31,11 +31,8 @@ const (
 
 // parse takes an md file path as input, preprocesses it, returns a ThreeLangParser instance
 pub fn parse(args NewDocArgs) !ThreeLangParser {
-	mut g := &GridProcessor{
-		projects: map[string]Process{}
-	}
 	mut t := ThreeLangParser{
-		grid_processor: g
+		grid_processor: gridprocessor.new()
 		chain_processor: ChainProcessor{}
 	}
 

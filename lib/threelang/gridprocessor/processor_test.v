@@ -1,4 +1,4 @@
-module tfgrid
+module gridprocessor
 
 import freeflowuniverse.crystallib.params { Param, Params }
 
