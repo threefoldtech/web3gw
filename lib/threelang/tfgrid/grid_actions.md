@@ -5,3 +5,6 @@
 - [Gateway Name Actions](./gateway_name.md)
 - [Gateway FQDN Actions](./gateway_fqdn.md)
 - [ZDB Actions](./zdb.md)
+- [Presearch Actions](./presearch.md)
+- [Peertube Actions](./peertube.md)
+- [Taiga Actions](./taiga.md)
