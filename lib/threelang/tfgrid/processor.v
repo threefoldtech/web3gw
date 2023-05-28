@@ -11,10 +11,6 @@ mut:
 	projects    map[string]Process
 }
 
-struct Project {
-	op GridOp
-}
-
 pub interface Process {
 mut:
 	// execute performs the specified operation
@@ -69,7 +65,6 @@ fn (mut g GridProcessor) execute(mut rpc_client &RpcWsClient) ! {
 		mnemonic: g.credentials.mnemonic
 		network: g.credentials.network
 	})!
-	println('logged in')
 
 	for _, mut process in g.projects{
 		process.execute(mut tfgrid_client)!

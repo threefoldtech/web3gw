@@ -82,15 +82,17 @@ pub fn (mut t ThreeLangParser) execute() ! {
 	// create a websocket connection, pass it to all processors
 
 	mut logger := log.Logger(&log.Log{
-		level: .info
+		level: .debug
 	})
 
 	mut rpc_client := rpcwebsocket.new_rpcwsclient(threelang.default_server_address, &logger) or {
 		return error('failed to create rpc websocket client: ${err}')
 	}
 
+	_ := spawn rpc_client.run()
+
 	t.grid_processor.execute(mut rpc_client)!
-	// t.chain_processor.execute(mut rpc_client)!
+	t.chain_processor.execute(mut rpc_client)!
 }
 
 // parse_action_name validates action name, splits it into 3 parts (module, namespace, operation)

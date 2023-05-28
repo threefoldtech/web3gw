@@ -1,10 +1,10 @@
 module threelang
 
-fn test_parse_content() {
+fn test_parse_content() !{
 	mut t := parse(
 		content: '
 !!tfgrid.login
-	mnemonic: route visual hundred rabbit wet crunch ice castle milk model inherit outside
+	mnemonic: \'INSERT YOUR MNEMONICS\'
 	network: dev
 
 !!tfgrid.gateway_name.create 
