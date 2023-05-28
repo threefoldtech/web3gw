@@ -1,6 +1,7 @@
 package stellargoclient
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
 )
@@ -15,6 +16,9 @@ type Client struct {
 // stellarNetwork can be "testnet" or "public"
 // if stellarNetwork is not "testnet" or "public" it will default to "testnet"
 func NewClient(secret, stellarNetwork string) (*Client, error) {
+
+	log.Debug().Msgf("Creating stellar client for the %s network", stellarNetwork)
+
 	cl := &Client{
 		stellarNetwork: stellarNetwork,
 		horizon:        GetHorizonClient(stellarNetwork),

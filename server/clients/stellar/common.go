@@ -16,12 +16,13 @@ const (
 )
 
 var TestnetTft = txnbuild.CreditAsset{Code: TFT, Issuer: TESTNET_ISSUER}
-var MainnetTft = txnbuild.CreditAsset{Code: TFT, Issuer: TESTNET_ISSUER}
+var MainnetTft = txnbuild.CreditAsset{Code: TFT, Issuer: MAINNET_ISSUER}
 
 var TestnetTftAsset = base.Asset{Type: "credit_alphanum4", Code: TFT, Issuer: TESTNET_ISSUER}
-var MainnetTftAsset = base.Asset{Type: "credit_alphanum4", Code: TFT, Issuer: TESTNET_ISSUER}
+var MainnetTftAsset = base.Asset{Type: "credit_alphanum4", Code: TFT, Issuer: MAINNET_ISSUER}
 
 // hasTftTrustline checks if the account has a trustline for the TFT asset
+// TODO: This only works for testnet
 func hasTftTrustline(hAccount horizon.Account) bool {
 	hasTftTrustline := false
 	for _, b := range hAccount.Balances {
