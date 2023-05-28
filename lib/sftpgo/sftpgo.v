@@ -13,23 +13,14 @@ pub mut:
 pub struct SFTPGOClientArgs {
 pub:
 	address    string = 'http://localhost:8080/api/v2'
-	jwt string 
+	key string 
 }
 
-pub fn new(args SFTPGOClientArgs) SFTPGoClient {
-	header := construct_header(args.jwt)
+pub fn new(args SFTPGOClientArgs) !SFTPGoClient {
+	header := http.new_custom_header_from_map({'X-SFTPGO-API-KEY': args.key})!
 	return SFTPGoClient{
 		address: args.address,
 		header: header
 	}
 }
-
-pub fn construct_header(jwt string) http.Header{
-	header_config := http.HeaderConfig{
-		key: http.CommonHeader.authorization
-		value: 'bearer ${jwt}'
-	}
-	return http.new_header(header_config)
-}
-
 

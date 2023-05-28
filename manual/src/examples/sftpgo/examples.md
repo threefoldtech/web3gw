@@ -7,3 +7,6 @@ cd examples/sftpgo
 ```
 
 - [Users](./users.md)
+- [Roles](./roles.md)
+- [Folders](./folders.md)
+- [Events](./events.md)

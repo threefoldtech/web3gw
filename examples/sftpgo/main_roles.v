@@ -71,7 +71,7 @@ fn main(){
 	fp.description('')
 	fp.skip_executable()
 	address := fp.string('address', `a`, '${default_server_address}', 'address of sftpgo server. default ${default_server_address}')
-	jwt := fp.string('jwt', `j`, '', 'the JWT token generated from the sftpgo server')
+	key := fp.string('apikey', `k`, '', 'the API key generated from the sftpgo server')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
 		eprintln(err)
@@ -81,9 +81,12 @@ fn main(){
 
 	args := sftpgo.SFTPGOClientArgs{
 		address: address,
-		jwt: jwt
+		key: key
 	}
-	mut cl := sftpgo.new(args)
+	mut cl := sftpgo.new(args) or {
+		println(err)
+		exit(1)
+	}
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }
 	})
