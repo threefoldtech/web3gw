@@ -21,12 +21,11 @@ var MainnetTft = txnbuild.CreditAsset{Code: TFT, Issuer: MAINNET_ISSUER}
 var TestnetTftAsset = base.Asset{Type: "credit_alphanum4", Code: TFT, Issuer: TESTNET_ISSUER}
 var MainnetTftAsset = base.Asset{Type: "credit_alphanum4", Code: TFT, Issuer: MAINNET_ISSUER}
 
-// hasTftTrustline checks if the account has a trustline for the TFT asset
-// TODO: This only works for testnet
-func hasTftTrustline(hAccount horizon.Account) bool {
+// hasTrustline checks if the account has a trustline a specific asset
+func hasTrustline(hAccount horizon.Account, asset base.Asset) bool {
 	hasTftTrustline := false
 	for _, b := range hAccount.Balances {
-		if b.Asset == TestnetTftAsset {
+		if b.Asset == asset {
 			hasTftTrustline = true
 			break
 		}

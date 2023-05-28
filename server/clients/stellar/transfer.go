@@ -28,25 +28,24 @@ func (c *Client) Transfer(destination, memo string, amount string) error {
 		return errors.Wrap(err, "account does not exist")
 	}
 
-	if !hasTftTrustline(hAccount) {
-		return errors.New("source account does not have trustline")
+	if !hasTrustline(hAccount, c.GetTftBaseAsset()) {
+		return errors.New("source account does not have trustline for TFT")
 	}
 
 	destAccountRequest := horizonclient.AccountRequest{AccountID: destination}
 	destHAccount, err := c.horizon.AccountDetail(destAccountRequest)
 	if err != nil {
-		return errors.Wrap(err, "account does not exist")
+		return errors.Wrap(err, "destination account does not exist")
 	}
 
-	if !hasTftTrustline(destHAccount) {
-		return errors.New("destination account does not have trustline")
+	if !hasTrustline(destHAccount, c.GetTftBaseAsset()) {
+		return errors.New("destination account does not have trustline for TFT")
 	}
 
 	transferTx := txnbuild.Payment{
-		Destination:   destination,
-		Amount:        amount,
-		Asset:         c.GetTftAsset(),
-		SourceAccount: c.kp.Address(),
+		Destination: destination,
+		Amount:      amount,
+		Asset:       c.GetTftAsset(),
 	}
 
 	params := txnbuild.TransactionParams{
@@ -54,11 +53,14 @@ func (c *Client) Transfer(destination, memo string, amount string) error {
 		IncrementSequenceNum: true,
 		Operations:           []txnbuild.Operation{&transferTx},
 		BaseFee:              txnbuild.MinBaseFee,
-		Memo:                 txnbuild.MemoText(memo),
 		Preconditions: txnbuild.Preconditions{
 			TimeBounds: txnbuild.NewInfiniteTimeout(),
 		},
 	}
+	if memo != "" {
+		params.Memo = txnbuild.MemoText(memo)
+	}
+
 	tx, err := txnbuild.NewTransaction(params)
 	if err != nil {
 		return err
