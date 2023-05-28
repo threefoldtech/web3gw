@@ -87,3 +87,10 @@
   - helper actions should have proper references to which main actions they belong to. in our example a disk should have a reference to which project it belongs to, and which vm it should be attached to.
   - later parts of the action may be specified by each module's parser
 - after the 3bot parser is done with parsing, a user could execute all it's main actions (or maybe specific ones)
+
+
+### Our problems
+
+- execute should return string
+- investigate how to process executions concurrently (using spawn)
+- 

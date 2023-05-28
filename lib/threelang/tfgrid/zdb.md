@@ -11,10 +11,9 @@
   - password [required]
   - size [required]
     - size of the ZDB in GB
-  - mode [optional]
-    - mode of the ZDB ('seq', or 'user')
 - arguments:
   - public
+  - user_mode
 
 ## Read Operation
 
