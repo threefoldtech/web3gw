@@ -15,7 +15,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, de
 
 	stellar_client.load(secret: secret, network: network)!
 
-	stellar_client.transer(destination: destination, amount: amount)!
+	stellar_client.transfer(destination: destination, amount: amount)!
 }
 
 fn main() {
