@@ -1,9 +1,9 @@
 module threelang
 
-import freeflowuniverse.crystallib.markdowndocs { Action, new, NewDocArgs }
+import freeflowuniverse.crystallib.markdowndocs { Action, NewDocArgs, new }
 import freeflowuniverse.crystallib.params { Params }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.threelang.gridprocessor { GridProcessor, Process }
+import threefoldtech.threebot.threelang.gridprocessor
 import threefoldtech.threebot.threelang.tfchain { ChainProcessor }
 import log
 
@@ -14,12 +14,13 @@ mut:
 	// other modules parsers
 }
 
+// Processor is an interface for all tfgrid modules to implement
+// each module should be able to store an action through the add_action method
+// then execute the action through the execute method
 interface Processor {
 mut:
-	// add_action should validate the provided action, properly add it to the processor
 	add_action(namespace string, operation string, params Params) !
-	// execute should perform all operations handled by this processor
-	execute(mut rpc_client &RpcWsClient) !
+	execute(mut rpc_client RpcWsClient) !
 }
 
 const (
@@ -59,13 +60,13 @@ fn (mut t ThreeLangParser) delegate(action Action) ! {
 
 	mod := action_name[0]
 	ns := action_name[1]
-	op := if action_name.len == 3 {action_name[2]} else {''}
+	op := if action_name.len == 3 { action_name[2] } else { '' }
 
 	match mod {
-		tfgrid_module {
+		threelang.tfgrid_module {
 			t.grid_processor.add_action(ns, op, action.params)!
 		}
-		tfchain_module {
+		threelang.tfchain_module {
 			t.chain_processor.add_action(ns, op, action.params)!
 		}
 		else {
