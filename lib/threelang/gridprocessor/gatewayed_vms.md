@@ -1,15 +1,16 @@
 # Machines with Gateways Namespace
 
-- To deploy a number of virtual machines on the same network with a domain name refer to a running server on the machines, use the `vms_with_gws` namespace.
+- To deploy a number of virtual machines on the same network with a domain name refer to a running server on the machines, use the `gatewayed_vms` namespace.
 
 ## Create Operation
 
-- action name: !!tfgrid.vms_with_gws.create
+- action name: !!tfgrid.gatewayed_vms.create
 - parameters:
   - model_name [required]
   - farm_id [optional]
     - if 0, machines could span multiple nodes on different farms
-  - number_of_machines [required]
+  - number_of_machines [optional]
+    - default is one
     - a number in the range [1, 252]
   - capacity [required]
     - a string in ['small', 'medium', 'large'] indicating the capacity of the machines
@@ -27,12 +28,12 @@
 
 ## Read Operation
 
-- action name: !!tfgrid.vms_with_gws.read
+- action name: !!tfgrid.gatewayed_vms.read
 - parameters:
   - model_name [required]
 
 ## Delete Operation
 
-- action_name: !!tfgrid.vms_with_gws.delete
+- action_name: !!tfgrid.gatewayed_vms.delete
 - parameters:
   - model_name [required]
