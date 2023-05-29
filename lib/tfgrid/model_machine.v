@@ -35,7 +35,7 @@ pub:
 	rootfs_size u64 // in MBs
 	zlogs       []Zlog
 	disks       []Disk
-	qsfss        []QSFS
+	qsfss       []QSFS
 	env_vars    map[string]string // ex: { "SSH_KEY": ".." }
 	description string
 }
@@ -55,7 +55,7 @@ pub:
 	rootfs_size u64
 	zlogs       []Zlog
 	disks       []DiskResult
-	qsfss        []QSFSResult
+	qsfss       []QSFSResult
 	env_vars    map[string]string
 	description string
 	// computed

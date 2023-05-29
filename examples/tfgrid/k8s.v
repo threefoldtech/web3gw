@@ -1,92 +1,74 @@
 module main
 
-import freeflowuniverse.crystallib.rpcwebsocket
 import threefoldtech.threebot.tfgrid
-import flag
 import log
-import os
-import time
-
-const (
-	default_server_address = 'ws://127.0.0.1:8080'
-)
 
 fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
-	project_name := 'testK8sOps2'
+	cluster_name := 'testK8sOps'
 
-	// deploy
-	master := tfgrid.K8sNode{
-		name: 'master'
-		node_id: 33
-		cpu: 1
-		memory: 1024
-	}
-
-	mut workers := []tfgrid.K8sNode{}
-	workers << tfgrid.K8sNode{
-		name: 'w1'
-		node_id: 33
-		cpu: 1
-		memory: 1024
-	}
-
-	cluster := tfgrid.K8sCluster{
-		name: project_name
+	mut res := client.k8s_deploy(tfgrid.K8sCluster{
+		name: cluster_name
 		token: 'token6'
 		ssh_key: 'SSH-Key'
-		master: master
-		workers: workers
-	}
-
-	res := client.k8s_deploy(cluster)!
+		master: tfgrid.K8sNode{
+			name: 'master'
+			node_id: 2
+			cpu: 1
+			memory: 1024
+		}
+		workers: [
+			tfgrid.K8sNode{
+				name: 'w1'
+				node_id: 2
+				cpu: 1
+				memory: 1024
+			},
+		]
+	})!
 	logger.info('${res}')
 
-	// get
-	res_2 := client.k8s_get(tfgrid.GetK8sParams{
-		cluster_name: project_name
+	defer {
+		client.k8s_delete(cluster_name) or { logger.error('failed to delete cluster: ${err}') }
+	}
+
+	res = client.k8s_get(tfgrid.GetK8sParams{
+		cluster_name: cluster_name
 		master_name: 'master'
 	})!
-	logger.info('${res_2}')
+	logger.info('${res}')
 
-	// delete
-	client.k8s_delete(project_name)!
+	res = client.k8s_add_worker(tfgrid.AddK8sWorker{
+		cluster_name: cluster_name
+		worker: tfgrid.K8sNode{
+			name: 'w3'
+			node_id: 3
+			cpu: 1
+			memory: 1024
+		}
+		master_name: 'master'
+	})!
+	logger.info('${res}')
+
+	res = client.k8s_remove_worker(tfgrid.RemoveK8sWorker{
+		cluster_name: cluster_name
+		worker_name: 'w1'
+		master_name: 'master'
+	})!
+	logger.info('${res}')
 }
 
 fn main() {
-	mut fp := flag.new_flag_parser(os.args)
-	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
-	fp.limit_free_args(0, 0)!
-	fp.description('')
-	fp.skip_executable()
-	mnemonic := fp.string('mnemonic', `m`, '', 'The mnemonic to be used to call any function')
-	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
-	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
-	_ := fp.finalize() or {
-		eprintln(err)
-		println(fp.usage())
-		exit(1)
+	mut logger := log.Log{
+		level: .info
 	}
 
-	mut logger := log.Logger(&log.Log{
-		level: if debug_log { .debug } else { .info }
-	})
-
-	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
-		logger.error('Failed creating rpc websocket client: ${err}')
+	mut tfgrid_client, _ := tfgrid.cli(mut logger) or {
+		logger.error('failed to initialize tfgrid client: ${err}')
 		exit(1)
 	}
-
-	_ := spawn myclient.run()
-
-	mut tfgrid_client := tfgrid.new(mut myclient)
-
-	tfgrid_client.load(tfgrid.Credentials{
-		mnemonic: mnemonic
-		network: 'dev'
-	})!
 
 	test_k8s_ops(mut tfgrid_client, mut logger) or {
-		logger.error('Failed executing k8s ops: ${err}')
+		logger.error('${err}')
 		exit(1)
 	}
 }
