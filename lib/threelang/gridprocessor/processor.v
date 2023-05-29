@@ -2,24 +2,22 @@ module gridprocessor
 
 import freeflowuniverse.crystallib.params { Params }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.tfgrid {TFGridClient}
+import threefoldtech.threebot.tfgrid { TFGridClient }
 
-type Builder = fn(grid_op GridOp, param_map map[string]string, args_set map[string]bool)!
+type Builder = fn (grid_op GridOp, param_map map[string]string, args_set map[string]bool) !(string, Process)
 
 // GridProcessor should handle processing all tfgrid related actions
-[heap]
 pub struct GridProcessor {
 mut:
-	credentials Credentials
-	projects    map[string]Process
-	namespaces map[int]Builder
+	credentials     ?Credentials
+	projects        map[string][]Process
+	process_builder map[int]Builder
 }
 
-
+// Process is an interface for all tfgrid operations
 pub interface Process {
 mut:
-	// execute performs the specified operation
-	execute(mut client &TFGridClient) !
+	execute(mut client TFGridClient) !
 }
 
 pub enum GridNS {
@@ -42,19 +40,18 @@ pub enum GridOp {
 	read
 	update
 	delete
-
 	login
 }
 
-pub fn new() GridProcessor{
+pub fn new() GridProcessor {
 	mut g := GridProcessor{
-		projects: map[string]Process{}
-		namespaces: map[int]Builder{}
+		projects: map[string][]Process{}
+		process_builder: map[int]Builder{}
+		credentials: none
 	}
-	
-	g.namespaces[int(GridNS.gateway_name)] = g.build_gateway_name_process
-	g.namespaces[int(GridNS.login)] = g.login
-	// record other namespaces
+
+	g.process_builder[int(GridNS.gateway_name)] = build_gateway_name_process
+	// record other solutions
 
 	return g
 }
@@ -66,32 +63,39 @@ fn (mut g GridProcessor) add_action(ns string, op string, action_params Params) 
 	param_map := get_param_map(action_params)
 	args_set := get_argument_set(action_params)
 
-	// builder := g.namespaces[int(grid_ns)]
-
-	// builder(grid_op, param_map, args_set)!
 	match grid_ns {
-		.gateway_name {
-			g.build_gateway_name_process(grid_op, param_map, args_set)!
-		}
 		.login {
-			g.login(grid_op, param_map, args_set)!
+			g.credentials = get_credentials(grid_op, param_map, args_set)!
+		}
+		.construct {
+			// for customizability
 		}
 		// other namespaces
-		else {}
+		else {
+			process_builder := g.process_builder[int(grid_ns)]
+
+			project, process := process_builder(grid_op, param_map, args_set)!
+
+			g.projects[project] << process
+		}
 	}
 }
 
-fn (mut g GridProcessor) execute(mut rpc_client &RpcWsClient) ! {
-	println('cred: ${g.credentials}')
-	mut tf_cl := tfgrid.new(mut rpc_client)
+fn (mut g GridProcessor) execute(mut rpc_client RpcWsClient) ! {
+	mut tfgrid_client := tfgrid.new(mut rpc_client)
 
-	tf_cl.load(tfgrid.Credentials{
-		mnemonic: g.credentials.mnemonic
-		network: g.credentials.network
+	cred := g.credentials or { return error('Unauthorized. You must add a login action') }
+
+	tfgrid_client.load(tfgrid.Credentials{
+		mnemonic: cred.mnemonic
+		network: cred.network
 	})!
 
-	for _, mut process in g.projects{
-		process.execute(mut tf_cl)!
+	for _, mut processes in g.projects {
+		for mut p in processes {
+			// TODO: all processes should try to run before returning an error
+			p.execute(mut tfgrid_client)!
+		}
 	}
 }
 
@@ -156,7 +160,7 @@ fn get_grid_op(op string) !GridOp {
 		'delete' {
 			return GridOp.delete
 		}
-		''{
+		'' {
 			return GridOp.login
 		}
 		else {
@@ -176,7 +180,7 @@ fn get_param_map(action_params Params) map[string]string {
 
 fn get_argument_set(action_params Params) map[string]bool {
 	mut mp := map[string]bool{}
-	for p in action_params.args{
+	for p in action_params.args {
 		mp[p] = true
 	}
 

@@ -19,7 +19,7 @@
   - disk_size [optional]
     - size in GB of disk to be mounted on each machine at "/mnt/disk"
   - ssh_key [required]
-  - backend_port 
+  - backend_port
         the port where the gateway should point to. default is `80`
 - arguments:
   - public_network
