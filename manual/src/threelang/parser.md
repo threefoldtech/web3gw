@@ -33,7 +33,6 @@
 ```md
     !!tfgrid.machines.create
         name: 'my machines'
-        network: private
         ssh_key: 'ssh_key'
         number_of_machines: 4
         capacity: medium
