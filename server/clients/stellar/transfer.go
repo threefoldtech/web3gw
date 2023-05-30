@@ -52,7 +52,7 @@ func (c *Client) Transfer(destination, memo string, amount string) error {
 		SourceAccount:        &hAccount,
 		IncrementSequenceNum: true,
 		Operations:           []txnbuild.Operation{&transferTx},
-		BaseFee:              txnbuild.MinBaseFee,
+		BaseFee:              BaseFee,
 		Preconditions: txnbuild.Preconditions{
 			TimeBounds: txnbuild.NewInfiniteTimeout(),
 		},
