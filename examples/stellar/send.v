@@ -27,7 +27,7 @@ fn main() {
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	secret := fp.string('secret', `s`, '', 'The secret of the sending account')
 	destination := fp.string('destination', `d`, '', 'The destination account')
-	amount := fp.string('amount', `m`, '0', 'The amount of tft to send.')
+	amount := fp.string('amount', `m`, '0', 'The amount of tft to send. Can be with decimals: "0.1")')
 	network := fp.string('network', `n`, 'public', 'The network to connect to. Should be testnet or public.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
