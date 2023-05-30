@@ -1,6 +1,8 @@
 ## [**Web3 Proxy**](README.md)
 
 - [Server](server/server.md)
+  - [Functionality](server/functionality/functionality.md)
+    - [stellar](server/functionality/stellar.md)
 - [Playground](playground/playground.md)
 - [RPC](rpc/rpc.md)
 - [Examples](examples/examples.md)
