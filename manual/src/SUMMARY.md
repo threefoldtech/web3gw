@@ -5,6 +5,8 @@
     - [stellar](server/functionality/stellar.md)
 - [Playground](playground/playground.md)
 - [RPC](rpc/rpc.md)
+- [v clients](v-clients/vclients.md)
+  - [Ethereum](v-clients/ethereum/ethereum.md)
 - [Examples](examples/examples.md)
   - [TF Grid](examples/tfgrid/examples.md)
     - [Machines](examples/tfgrid/machines.md)
