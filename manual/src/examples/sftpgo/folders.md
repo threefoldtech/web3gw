@@ -1,10 +1,10 @@
-# Metrics
+# SFTPGO
 
 ## Folders
 
 This example shows how to run sftpgo sal example to manage folders
 
-To run the metrics example
+To run the folders example
 
 - `-a`: address, address of sftpgo api like http://localhost:8080/api/v2
 - `-k`: API key generated from sftpgo server
