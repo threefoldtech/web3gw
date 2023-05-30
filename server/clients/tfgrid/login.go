@@ -18,9 +18,13 @@ func (c *Client) Login(ctx context.Context, credentials Credentials) error {
 		return errors.Wrap(err, "failed to get tf plugin client")
 	}
 
-	c.client = NewTFGridClient(&newClient)
+	c.GridClient = NewTFGridClient(&newClient)
 	c.TwinID = newClient.TwinID
 	c.Identity = newClient.Identity
 
 	return nil
+}
+
+func (c *Client) Logout(ctx context.Context) {
+	c.GridClient.Close()
 }

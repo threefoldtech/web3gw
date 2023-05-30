@@ -81,6 +81,18 @@ func (mr *MockTFGridClientMockRecorder) CancelProject(ctx, projectName interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelProject", reflect.TypeOf((*MockTFGridClient)(nil).CancelProject), ctx, projectName)
 }
 
+// Close mocks base method.
+func (m *MockTFGridClient) Close() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Close")
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockTFGridClientMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockTFGridClient)(nil).Close))
+}
+
 // DeployDeployment mocks base method.
 func (m *MockTFGridClient) DeployDeployment(ctx context.Context, d *workloads.Deployment) error {
 	m.ctrl.T.Helper()

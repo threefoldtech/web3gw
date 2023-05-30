@@ -55,7 +55,7 @@ func (c *Client) GatewayNameDeploy(ctx context.Context, gw GatewayNameModel) (Ga
 }
 
 func (c *Client) deployGWName(ctx context.Context, gridGW *workloads.GatewayNameProxy) error {
-	if err := c.client.DeployGWName(ctx, gridGW); err != nil {
+	if err := c.GridClient.DeployGWName(ctx, gridGW); err != nil {
 		return errors.Wrapf(err, "failed to deploy gateway %s", gridGW.Name)
 	}
 
@@ -122,7 +122,7 @@ func (r *Client) getGatewayNode() (uint32, error) {
 		Domain: &TrueVal,
 	}
 
-	nodes, _, err := r.client.FilterNodes(options, proxyTypes.Limit{})
+	nodes, _, err := r.GridClient.FilterNodes(options, proxyTypes.Limit{})
 	if err != nil || len(nodes) == 0 {
 		return 0, errors.Wrapf(err, "Couldn't find node for the provided filters: %+v", options)
 	}

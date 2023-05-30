@@ -82,8 +82,10 @@ func NewStateManager[S State]() *StateManager[S] {
 					}
 					if meta.accessed < time.Now().Unix()-int64(keyStaleMark.Seconds()) {
 						log.Debug().Msgf("Removing stale key", key)
+
 						sm.conStates.Delete(key)
 					}
+
 					return true
 				})
 			case <-sm.closeChan:

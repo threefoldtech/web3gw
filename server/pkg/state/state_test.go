@@ -7,8 +7,12 @@ type testStruct struct {
 	b int
 }
 
+func (t *testStruct) Close() error {
+	return nil
+}
+
 func TestStateManagerLoadDefault(t *testing.T) {
-	sm := StateManager[testStruct]{}
+	sm := StateManager[*testStruct]{}
 	res, exists := sm.Get("ab")
 	if exists {
 		t.Fatal("StateManager claims state exists but it doesn't")
@@ -19,9 +23,9 @@ func TestStateManagerLoadDefault(t *testing.T) {
 }
 
 func TestStateManagerSetAndLoad(t *testing.T) {
-	sm := StateManager[testStruct]{}
+	sm := StateManager[*testStruct]{}
 	a := 5
-	sm.Set("ab", testStruct{a: &a, b: 6})
+	sm.Set("ab", &testStruct{a: &a, b: 6})
 	res, exists := sm.Get("ab")
 	if !exists {
 		t.Fatal("StateManager claims state doesn't exist but it does")

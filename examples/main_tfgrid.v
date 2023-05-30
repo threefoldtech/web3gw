@@ -21,7 +21,7 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 		machines: [
 			tfgrid.Machine{
 				name: 'vm1'
-				node_id: 83
+				node_id: 33
 				cpu: 2
 				memory: 2048
 				rootfs_size: 1024
@@ -38,14 +38,17 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 		description: 'description'
 	})!
 	logger.info('${res}')
+	defer {
+		client.machines_delete(model_name) or {}
+	}
 
 	add_res := client.machines_add(tfgrid.AddMachine{
 		model_name: model_name
 		machine: tfgrid.Machine{
 			name: 'vm3'
-			node_id: 83
 			cpu: 2
 			memory: 2048
+			node_id: 34
 			rootfs_size: 1024
 			env_vars: {
 				'SSH_KEY': 'ssh-rsa ...'
@@ -62,10 +65,10 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 		model_name: model_name
 		machine: tfgrid.Machine{
 			name: 'vm10'
-			node_id: 33
 			cpu: 2
 			memory: 2048
 			rootfs_size: 1024
+			node_id: 16
 			env_vars: {
 				'SSH_KEY': 'ssh-rsa ...'
 			}
@@ -85,8 +88,6 @@ fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 
 	res_3 := client.machines_get(model_name)!
 	logger.info('${res_3}')
-
-	client.machines_delete(model_name)!
 }
 
 fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
@@ -343,9 +344,12 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) 
 		network: 'dev'
 	})!
 
+	defer {
+		tfgrid_client.logout() or {}
+	}
+
 	test_machines_ops(mut tfgrid_client, mut logger) or {
-		logger.error('Failed executing machines ops: ${err}')
-		exit(1)
+		return error('Failed executing machines ops: ${err}')
 	}
 
 	// test_k8s_ops(mut tfgrid_client, mut logger) or {
