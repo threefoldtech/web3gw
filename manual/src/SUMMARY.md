@@ -1,4 +1,4 @@
-## [**Web3 Proxy**](README.md)
+# [**Web3 Proxy**](README.md)
 
 - [Server](server/server.md)
   - [Functionality](server/functionality/functionality.md)
@@ -13,6 +13,12 @@
     - [Gateway Name](examples/tfgrid/gateway_name.md)
     - [Gateway FQDN](examples/tfgrid/gateway_fqdn.md)
     - [ZOS Node Calls](examples/tfgrid/zos_calls.md)
+    - [Funkwhale](examples/tfgrid/funkwhale.md)
+    - [Discourse](examples/tfgrid/discourse.md)
+    - [Machine With QSFS](examples/tfgrid/machine_with_qsfs.md)
+    - [Machines with Gateways](examples/tfgrid/machines_with_gateways.md)
+    - [Peertube](examples/tfgrid/peertube.md)
+    - [Presearch](examples/tfgrid/presearch.md)
   - [eth](examples/eth/examples.md)
     - [account](examples/eth/account.md)
     - [transfer](examples/eth/transfer.md)
