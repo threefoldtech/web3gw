@@ -6,14 +6,15 @@
 
 - action name: !!tfgrid.peertube.create
 - parameters:
-  - model_name [required]
+  - name [required]
   - farm_id [optional]
     - if 0, machines could span multiple nodes on different farms
   - capacity [required]
-    - a string in ['small', 'medium', 'large'] indicating the capacity of the machines
-    - small: 2 vCPU, 4GB RAM, 10GB SSD
-    - medium: 4 vCPU, 8GB RAM, 20GB SSD
-    - large: 8 vCPU, 16GB RAM, 30GB SSD
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the peertube instance
+    - small: 1 vCPU, 2GB RAM, 10GB SSD
+    - medium: 2 vCPU, 4GB RAM, 50GB SSD
+    - large: 4 vCPU, 8GB RAM, 240 SSD
+    - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - ssh_key [required]
   - db_username [required]
   - db_password [required]
@@ -22,11 +23,11 @@
   - smtp_username [required]
   - smtp_password [required]
 
-## Read Operation
+## Get Operation
 
-- action name: !!tfgrid.peertube.read
+- action name: !!tfgrid.peertube.get
 - parameters:
-  - model_name [required]
+  - name [required]
 
 ## Update Operations
 
@@ -36,4 +37,4 @@
 
 - action_name: !!tfgrid.peertube.delete
 - parameters:
-  - model_name [required]
+  - name [required]

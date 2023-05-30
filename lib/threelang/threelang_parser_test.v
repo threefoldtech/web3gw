@@ -11,7 +11,7 @@ fn test_parse_content() ! {
 	name: hamadagateway
 	backend: http://1.1.1.1:9000
 
-!!tfgrid.gateway_name.read
+!!tfgrid.gateway_name.get
 	name: hamadagateway
 
 !!tfgrid.gateway_name.delete

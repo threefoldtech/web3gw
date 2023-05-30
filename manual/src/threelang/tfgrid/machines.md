@@ -4,30 +4,32 @@
 
 ## Create Operation
 
-- action name: !!tfgrid.machines.create
+- action name: !!tfgrid.machine.create
 - parameters:
-  - model_name [required]
+  - network_name [required]
   - farm_id [optional]
     - if 0, machines could span multiple nodes on different farms
-  - number_of_machines [required]
+  - times [required]
+    - indicates how many machines to deploy
     - a number in the range [1, 252]
   - capacity [required]
-    - a string in ['small', 'medium', 'large'] indicating the capacity of the machines
-    - small: 2 vCPU, 4GB RAM, 10GB SSD
-    - medium: 4 vCPU, 8GB RAM, 20GB SSD
-    - large: 8 vCPU, 16GB RAM, 30GB SSD
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the machines
+    - small: 1 vCPU, 2GB RAM, 10GB SSD
+    - medium: 2 vCPU, 4GB RAM, 50GB SSD
+    - large: 4 vCPU, 8GB RAM, 240 SSD
+    - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
     - size in GB of disk to be mounted on each machine at "/mnt/disk"
   - ssh_key [required]
 - arguments:
-  - public_network
+  - add_wireguard_access
   - public_ips
 
-## Read Operation
+## Get Operation
 
-- action name: !!tfgrid.machines.read
+- action name: !!tfgrid.machines.get
 - parameters:
-  - model_name [required]
+  - network_name [required]
 
 ## Update Operations
 
@@ -35,14 +37,15 @@
 
 - action_name: !!tfgrid.machines.add
 - parameters:
-  - model_name [required]
+  - network_name [required]
   - farm_id [optional]
     - if 0, machines could span multiple nodes on different farms
   - capacity [required]
-    - a string in ['small', 'medium', 'large'] indicating the capacity of the machines
-    - small: 2 vCPU, 4GB RAM, 10GB SSD
-    - medium: 4 vCPU, 8GB RAM, 20GB SSD
-    - large: 8 vCPU, 16GB RAM, 30GB SSD
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the machines
+    - small: 1 vCPU, 2GB RAM, 10GB SSD
+    - medium: 2 vCPU, 4GB RAM, 50GB SSD
+    - large: 4 vCPU, 8GB RAM, 240 SSD
+    - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
     - size in GB of disk to be mounted on each machine at "/mnt/disk"
   - ssh_key [required]
@@ -53,11 +56,11 @@
 
 - action_name: !!tfgrid.machines.remove
 - parameters:
-  - model_name [required]
+  - network_name [required]
   - machine_name [required]
 
 ## Delete Operation
 
 - action_name: !!tfgrid.machines.delete
 - parameters:
-  - model_name [required]
+  - network_name [required]

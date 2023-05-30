@@ -6,7 +6,7 @@
 
 - action name: !!tfgrid.zdb.create
 - parameters:
-  - model_name [required]
+  - name [required]
   - farm_id [optional]
   - password [required]
   - size [required]
@@ -15,11 +15,11 @@
   - public
   - user_mode
 
-## Read Operation
+## Get Operation
 
-- action name: !!tfgrid.zdb.read
+- action name: !!tfgrid.zdb.get
 - parameters:
-  - model_name [required]
+  - name [required]
 
 ## Update Operations
 
@@ -29,4 +29,4 @@
 
 - action_name: !!tfgrid.zdb.delete
 - parameters:
-  - model_name [required]
+  - name [required]

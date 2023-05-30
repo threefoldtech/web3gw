@@ -6,7 +6,7 @@
 
 - action name: !!tfgrid.gateway_fqdn.create
 - parameters:
-  - model_name [required]
+  - name [required]
   - node_id [required]
   - fqdn [required]
   - backend [required]
@@ -14,11 +14,11 @@
 - arguments:
   - tls_passthrough
 
-## Read Operation
+## Get Operation
 
-- action name: !!tfgrid.gateway_fqdn.read
+- action name: !!tfgrid.gateway_fqdn.get
 - parameters:
-  - model_name [required]
+  - name [required]
 
 ## Update Operations
 
@@ -28,4 +28,4 @@
 
 - action_name: !!tfgrid.gateway_fqdn.delete
 - parameters:
-  - model_name [required]
+  - name [required]
