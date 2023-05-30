@@ -6,18 +6,18 @@
 
 - action name: !!tfgrid.gateway_name.create
 - parameters:
-  - model_name [required]
+  - name [required]
   - farm_id [optional]
   - backend [required]
     - the URL that the gateway will pass traffic to.
 - arguments:
   - tls_passthrough
 
-## Read Operation
+## Get Operation
 
-- action name: !!tfgrid.gateway_name.read
+- action name: !!tfgrid.gateway_name.get
 - parameters:
-  - model_name [required]
+  - name [required]
 
 ## Update Operations
 
@@ -27,4 +27,4 @@
 
 - action_name: !!tfgrid.gateway_name.delete
 - parameters:
-  - model_name [required]
+  - name [required]

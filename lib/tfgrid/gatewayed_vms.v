@@ -75,7 +75,7 @@ fn (client TFGridClient) gatewayed_vms_create(vms GatewayedVMsCreate) ! (tfgrid.
 	machines := client.machines_deploy(vms)!
 
 	backends := []string{}
-	for __vm in res.machines {
+	for _vm in res.machines {
 		backends << vm.ygg_ip
 	}
 

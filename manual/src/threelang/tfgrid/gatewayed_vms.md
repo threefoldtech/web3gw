@@ -6,34 +6,36 @@
 
 - action name: !!tfgrid.gatewayed_vms.create
 - parameters:
-  - model_name [required]
+  - name [required]
   - farm_id [optional]
     - if 0, machines could span multiple nodes on different farms
-  - number_of_machines [optional]
+  - times [optional]
+    - indicates how many machines to deploy
     - default is one
     - a number in the range [1, 252]
   - capacity [required]
-    - a string in ['small', 'medium', 'large'] indicating the capacity of the machines
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the machines
     - small: 1 vCPU, 2GB RAM, 10GB SSD
-    - medium: 2 vCPU, 4GB RAM, 20GB SSD
-    - large: 4 vCPU, 8GB RAM, 50GB SSD
+    - medium: 2 vCPU, 4GB RAM, 50GB SSD
+    - large: 4 vCPU, 8GB RAM, 240 SSD
+    - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
     - size in GB of disk to be mounted on each machine at "/mnt/disk"
   - ssh_key [required]
   - backend_port
         the port where the gateway should point to. default is `80`
 - arguments:
-  - public_network
+  - add_wireguard_access
   - public_ips
 
-## Read Operation
+## Get Operation
 
-- action name: !!tfgrid.gatewayed_vms.read
+- action name: !!tfgrid.gatewayed_vms.get
 - parameters:
-  - model_name [required]
+  - name [required]
 
 ## Delete Operation
 
 - action_name: !!tfgrid.gatewayed_vms.delete
 - parameters:
-  - model_name [required]
+  - name [required]

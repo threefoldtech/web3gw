@@ -31,10 +31,10 @@
 - if a user wants to deploy a group of 4 machines on the same network:
   
 ```md
-    !!tfgrid.machines.create
+    !!tfgrid.machine.create
         name: 'my machines'
         ssh_key: 'ssh_key'
-        number_of_machines: 4
+        times: 4
         capacity: medium
 ```
 

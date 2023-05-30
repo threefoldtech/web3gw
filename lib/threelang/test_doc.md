@@ -1,2 +1,2 @@
-!!tfgrid.machines.create
+!!tfgrid.machine.create
     name: "hamada"
