@@ -11,7 +11,7 @@ bash install.sh
 
 ## Developing
 
-When working on the manual folder, run `bash manual/develop.sh`. This will open the book in the browser on port 8881, and listen for changes in the manual, and reload the book as you save your changes.
+When working on the manual folder, run `bash develop.sh`. This will open the book in the browser on port 8881, and listen for changes in the manual, and reload the book as you save your changes.
 
 ## Building
 
