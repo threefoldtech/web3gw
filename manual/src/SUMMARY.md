@@ -23,6 +23,7 @@
     - [chat](examples/nostr/chat.md)
   - [stellar](examples/stellar/examples.md)
     - [balance](examples/stellar/balance.md)
+    - [send](examples/stellar/send.md)
   - [ipfs](examples/ipfs/examples.md)
     - [ipfs](examples/ipfs/ipfs.md)
   - [explorer](examples/explorer/examples.md)

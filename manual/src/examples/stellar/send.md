@@ -1,17 +1,11 @@
-# Stellar examples
+# Send TFT example
 
-## Get your Balance
+## Prerequisites
 
-To run the balance example
+- 2 Stellar accounts with at least 2 XLM and TFT Trustlines.
+- The sending account needs TFT tokens
 
-- `-s`: stellar secret
-- `-n`: network (testnet/public)
-
-```sh
-v -cg run balance.v -s stellar_secret -n testnet
-```
-
-## Send TFT
+## run the example
 
 - `-s`: stellar secret of the sending account
 - `-d`: destination ethereum account
