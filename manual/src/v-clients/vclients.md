@@ -25,3 +25,4 @@ import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 ## Clients
 
 - [Ethereum](./ethereum/ethereum.md)
+- [Stellar](./stellar/stellar.md)
