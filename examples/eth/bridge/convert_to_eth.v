@@ -18,7 +18,6 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 	balance := stellar_client.balance('')! // fill in your address
 	logger.info('Stellar tft balance: ${balance}\n')
 
-	// Amount in stroops (1 TFT = 10^7 stroops)
 	// Destination is the ethereum address
 	stellar_client.bridge_to_eth(amount: amount, destination: destination)!
 }
@@ -33,7 +32,7 @@ fn main() {
 	secret := fp.string('secret', `s`, '', 'The secret of your stellar key')
 	network := fp.string('network', `n`, '', 'The network to connect to. Should be testnet or public.')
 
-	amount := fp.string('amount', `m`, '', 'The amount of TFT to transfer')
+	amount := fp.string('amount', `m`, '', 'The amount of TFT to convert (can be with decimals: "0.1")')
 	destination := fp.string('destination', `d`, '', 'The destination ethereum address')
 
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
