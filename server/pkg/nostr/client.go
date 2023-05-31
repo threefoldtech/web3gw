@@ -270,3 +270,57 @@ func (c *Client) PublishProduct(ctx context.Context, conState jsonrpc.State, inp
 
 	return state.Client.PublishProduct(ctx, input.Tags, input.Product)
 }
+
+type CreateChannelInput struct {
+	Tags  []string `json:"tags"`
+	Name  string   `json:"name"`
+	About string   `json:"about"`
+}
+
+func (c *Client) CreateChannel(ctx context.Context, conState jsonrpc.State, input CreateChannelInput) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.CreateChannel(ctx, input.Tags, nostr.Channel{Name: input.Name, About: input.About})
+}
+
+func (c *Client) SubscribeChannelCreation(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.SubscribeChannelCreation()
+}
+
+type CreateChannelMessageInput struct {
+	Tags    []string `json:"tags"`
+	Content string   `json:"content"`
+	// ReplyTo is either the channel ID for root messages, or a message ID for replies
+	ReplyTo string `json:"replyTo"`
+}
+
+func (c *Client) CreateChannelMessage(ctx context.Context, conState jsonrpc.State, input CreateChannelMessageInput) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.CreateChannelMessage(ctx, input.Tags, nostr.ChannelMessage{Content: input.Content, ReplyTo: input.ReplyTo})
+}
+
+type SubscribeChannelMessageInput struct {
+	// Id of the channel or message for which the reply is intended
+	MessageId string `json:"messageId"`
+}
+
+func (c *Client) SubscribeChannelMessage(ctx context.Context, conState jsonrpc.State, input SubscribeChannelMessageInput) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.SubscribeChannelMessages(input.MessageId)
+}

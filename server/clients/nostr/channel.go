@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/nbd-wtf/go-nostr"
 	"github.com/pkg/errors"
 )
 
@@ -77,4 +78,26 @@ func (c *Client) HideMessage(ctx context.Context, tags []string, messageID strin
 // The user to mute is identified by it's pubkey
 func (c *Client) MuteUser(ctx context.Context, tags []string, user string, content string) error {
 	return c.publishEventToRelays(ctx, kindSetChannelMetadata, [][]string{tags, {"p", user}}, content)
+}
+
+func (c *Client) SubscribeChannelCreation() (string, error) {
+	var filters nostr.Filters
+	filters = []nostr.Filter{{
+		Kinds: []int{nostr.KindChannelCreation},
+		Limit: DEFAULT_LIMIT,
+	}}
+
+	return c.subscribeWithFiler(filters)
+}
+
+// SubscribeChannelMessages subsribes to messages which are a reply to the given chanMessageId
+func (c *Client) SubscribeChannelMessages(chanMessageId string) (string, error) {
+	var filters nostr.Filters
+	filters = []nostr.Filter{{
+		Kinds: []int{nostr.KindChannelMessage},
+		Limit: DEFAULT_LIMIT,
+		Tags:  nostr.TagMap{"e": []string{chanMessageId}},
+	}}
+
+	return c.subscribeWithFiler(filters)
 }
