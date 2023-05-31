@@ -7,6 +7,7 @@
 - [RPC](rpc/rpc.md)
 - [v clients](v-clients/vclients.md)
   - [Ethereum](v-clients/ethereum/ethereum.md)
+  - [Stellar](v-clients/stellar/stellar.md)
 - [Examples](examples/examples.md)
   - [TF Grid](examples/tfgrid/examples.md)
     - [Machines](examples/tfgrid/machines.md)
