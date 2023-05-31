@@ -2,7 +2,7 @@
 
 ## API Key Generation
 
-This example shows how to run sftpgo sal example to list fs and provider events
+This example shows how to run sftpgo sal example generate api key
 
 To run the api key generation example
 

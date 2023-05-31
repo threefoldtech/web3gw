@@ -1,7 +1,7 @@
 module sftpgo
 import json
 import net.http
-
+import encoding.base64
 
 [noinit]
 pub struct SFTPGoClient {
@@ -35,6 +35,26 @@ pub fn new(args SFTPGOClientArgs) !SFTPGoClient {
 		address: args.address,
 		header: header
 	}
+}
+
+[params]
+pub struct JWTArgs {
+	pub mut:
+		address  string
+		username string
+		password string
+	
+}
+pub fn generate_jwt_token(args JWTArgs) !string{
+	cred := base64.encode_str("${args.username}:${args.password}")
+	header := http.new_custom_header_from_map({'Authorization': "basic ${cred}"})!
+	req := http.Request{
+		method: http.Method.get
+		header: header
+		url: '${args.address}/token'
+	}
+	resp := req.do()!
+	return resp.body
 }
 
 [params]

@@ -32,6 +32,8 @@
     - [todo](examples/btc/todo.md)
   - [Metrics](examples/metrics/metrics.md)
   - [sftpgo-sal](examples/sftpgo/examples.md)
+    - [JWT generation](examples/sftpgo/jwt.md)
+    - [API Key generatation](examples/sftpgo/api_key.md)
     - [users](examples/sftpgo/users.md)
     - [folders](examples/sftpgo/folders.md)
     - [roles](examples/sftpgo/roles.md)
