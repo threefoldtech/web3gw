@@ -32,3 +32,54 @@ eth_client.withdraw_eth_tft_to_stellar(destination: destination, amount: amount)
 ```
 
 The conversion from TFT on Stellar to TFT on Ethereum  is part of the [Stellar client](../stellar/stellar.md#convert-tft-on-stellar-to-tft-on-ethereum).
+
+## Swaps
+
+The web3gw proxy allows buying TFT with and selling TFT for Eth via [uniswap](https://uniswap.org).
+
+### Eth to TFT
+
+Before you actually swap Eth to TFT you may want to know how much TFT you will get.
+
+The ethereum client allows to get a quote for a swap.
+
+```v
+ethToSwap :='0.01'
+tftToReceive := eth_client.quote_eth_for_tft(ethToSwap)!
+```
+
+Execute the swap.
+
+```v
+ethToSwap :='0.01'
+tx := eth_client.swap_eth_for_tft(ethToSwap)!
+```
+
+### TFT to Eth
+
+Before you actually swap TFT to Eth you may want to know how much Eth you will get.
+
+The ethereum client allows to get a quote for a swap.
+
+```v
+tftToSwap := '2000'
+ethToReceive := eth_client.quote_tft_for_eth(tftToSwap)!
+```
+
+The uniswap contract can not simply take TFT out of your account to perform the swap.
+
+TFT is an ERC-20 token and this provides the ability to approve another account or contract to take a certain amount of TFT from your balance. Every time this other account spends an amount of TFT from your account, this is substracted from the approved amount.
+
+At least the amount of TFT for this swap needs to be approved before the swap can be performed.
+
+```v
+t := eth_client.approve_eth_tft_spending(tftToSwap)!
+```
+
+You can approve a much bigger amount to avoid an approval transaction for every swap, saving gas.
+
+Execute the swap.
+
+```v
+tx := eth_client.swap_tft_for_eth(tftToSwap)!
+```
