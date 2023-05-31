@@ -1,6 +1,7 @@
-module tfgrid
+module solution
 
 import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNameResult, Machine, MachineResult, MachinesModel, MachinesResult, Network, RemoveMachine }
 
 pub struct Funkwhale {
 pub:
@@ -21,7 +22,7 @@ pub:
 	gateway_name   string
 }
 
-pub fn (mut client TFGridClient) deploy_funkwhale(mut explorer_client explorer.ExplorerClient, funkwhale Funkwhale) !FunkwhaleResult {
+pub fn (mut s SolutionHandler) deploy_funkwhale(mut explorer_client explorer.ExplorerClient, funkwhale Funkwhale) !FunkwhaleResult {
 	mut filter := explorer.NodeFilter{
 		status: 'up'
 		dedicated: false
@@ -34,7 +35,7 @@ pub fn (mut client TFGridClient) deploy_funkwhale(mut explorer_client explorer.E
 		}
 	}
 
-	gateway_nodes := explorer_client.nodes(explorer.NodesRequestParams{
+	gateway_nodes := explorer_s.tfclient.nodes(explorer.NodesRequestParams{
 		filters: filter
 		pagination: explorer.Limit{
 			size: 1
@@ -48,7 +49,7 @@ pub fn (mut client TFGridClient) deploy_funkwhale(mut explorer_client explorer.E
 	gateway_node_id := gateway_nodes.nodes[0].node_id
 	domain := gateway_nodes.nodes[0].public_config.domain
 
-	machine := client.machines_deploy(MachinesModel{
+	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_funkwhale_machine_name(funkwhale.name)
 		network: Network{
 			add_wireguard_access: false
@@ -72,18 +73,18 @@ pub fn (mut client TFGridClient) deploy_funkwhale(mut explorer_client explorer.E
 			},
 		]
 	}) or {
-		client.machines_delete(generate_funkwhale_machine_name(funkwhale.name))!
+		s.tfclient.machines_delete(generate_funkwhale_machine_name(funkwhale.name))!
 		return error('failed to deploy funkwhale instance: ${err}')
 	}
 
-	gateway := client.gateways_deploy_name(GatewayName{
+	gateway := s.tfclient.gateways_deploy_name(GatewayName{
 		name: funkwhale.name
 		backends: ['http://${machine.machines[0].ygg_ip}:80']
 		node_id: u32(gateway_node_id)
 	}) or {
 		// if either deployment failed, delete all created contracts
-		client.machines_delete(generate_funkwhale_machine_name(funkwhale.name))!
-		client.gateways_delete_name(funkwhale.name)!
+		s.tfclient.machines_delete(generate_funkwhale_machine_name(funkwhale.name))!
+		s.tfclient.gateways_delete_name(funkwhale.name)!
 		return error('failed to deploy funkwhale instance: ${err}')
 	}
 
@@ -94,14 +95,14 @@ pub fn (mut client TFGridClient) deploy_funkwhale(mut explorer_client explorer.E
 	}
 }
 
-pub fn (mut client TFGridClient) delete_funkwhale(funkwhale_name string) ! {
-	client.gateways_delete_name(funkwhale_name)!
-	client.machines_delete(generate_funkwhale_machine_name(funkwhale_name))!
+pub fn (mut s SolutionHandler) delete_funkwhale(funkwhale_name string) ! {
+	s.tfclient.gateways_delete_name(funkwhale_name)!
+	s.tfclient.machines_delete(generate_funkwhale_machine_name(funkwhale_name))!
 }
 
-pub fn (mut client TFGridClient) get_funkwhale(funkwhale_name string) !FunkwhaleResult {
-	machine := client.machines_get(generate_funkwhale_machine_name(funkwhale_name))!
-	gateway := client.gateways_get_name(funkwhale_name)!
+pub fn (mut s SolutionHandler) get_funkwhale(funkwhale_name string) !FunkwhaleResult {
+	machine := s.tfclient.machines_get(generate_funkwhale_machine_name(funkwhale_name))!
+	gateway := s.tfclient.gateways_get_name(funkwhale_name)!
 
 	return FunkwhaleResult{
 		name: funkwhale_name

@@ -1,6 +1,7 @@
-module tfgrid
+module solution
 
 import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid { Disk, GatewayName, Machine, MachinesModel, Network }
 
 pub struct Taiga {
 pub:
@@ -23,7 +24,7 @@ pub:
 	gateway_name   string
 }
 
-pub fn (mut client TFGridClient) deploy_taiga(mut explorer_client explorer.ExplorerClient, taiga Taiga) !TaigaResult {
+pub fn (mut s SolutionHandler) deploy_taiga(taiga Taiga) !TaigaResult {
 	mut filter := explorer.NodeFilter{
 		status: 'up'
 		dedicated: false
@@ -36,7 +37,7 @@ pub fn (mut client TFGridClient) deploy_taiga(mut explorer_client explorer.Explo
 		}
 	}
 
-	gateway_nodes := explorer_client.nodes(explorer.NodesRequestParams{
+	gateway_nodes := s.explorer.nodes(explorer.NodesRequestParams{
 		filters: filter
 		pagination: explorer.Limit{
 			size: 1
@@ -50,7 +51,7 @@ pub fn (mut client TFGridClient) deploy_taiga(mut explorer_client explorer.Explo
 	gateway_node_id := gateway_nodes.nodes[0].node_id
 	domain := gateway_nodes.nodes[0].public_config.domain
 
-	machine := client.machines_deploy(MachinesModel{
+	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_taiga_machine_name(taiga.name)
 		network: Network{
 			add_wireguard_access: true
@@ -87,17 +88,17 @@ pub fn (mut client TFGridClient) deploy_taiga(mut explorer_client explorer.Explo
 			},
 		]
 	}) or {
-		client.machines_delete(generate_taiga_machine_name(taiga.name))!
+		s.tfclient.machines_delete(generate_taiga_machine_name(taiga.name))!
 		return error('failed to deploy taiga instance: ${err}')
 	}
 
-	gateway := client.gateways_deploy_name(GatewayName{
+	gateway := s.tfclient.gateways_deploy_name(GatewayName{
 		name: taiga.name
 		backends: ['http://${machine.machines[0].ygg_ip}:9000']
 		node_id: u32(gateway_node_id)
 	}) or {
-		client.machines_delete(generate_taiga_machine_name(taiga.name))!
-		client.gateways_delete_name(taiga.name)!
+		s.tfclient.machines_delete(generate_taiga_machine_name(taiga.name))!
+		s.tfclient.gateways_delete_name(taiga.name)!
 		return error('failed to deploy taiga instance: ${err}')
 	}
 
@@ -108,14 +109,14 @@ pub fn (mut client TFGridClient) deploy_taiga(mut explorer_client explorer.Explo
 	}
 }
 
-pub fn (mut client TFGridClient) delete_taiga(taiga_name string) ! {
-	client.gateways_delete_name(taiga_name)!
-	client.machines_delete(generate_taiga_machine_name(taiga_name))!
+pub fn (mut s SolutionHandler) delete_taiga(taiga_name string) ! {
+	s.tfclient.gateways_delete_name(taiga_name)!
+	s.tfclient.machines_delete(generate_taiga_machine_name(taiga_name))!
 }
 
-pub fn (mut client TFGridClient) get_taiga(taiga_name string) !TaigaResult {
-	machine := client.machines_get(generate_taiga_machine_name(taiga_name))!
-	gateway := client.gateways_get_name(taiga_name)!
+pub fn (mut s SolutionHandler) get_taiga(taiga_name string) !TaigaResult {
+	machine := s.tfclient.machines_get(generate_taiga_machine_name(taiga_name))!
+	gateway := s.tfclient.gateways_get_name(taiga_name)!
 
 	return TaigaResult{
 		name: taiga_name

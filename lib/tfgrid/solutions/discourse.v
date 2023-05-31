@@ -1,6 +1,7 @@
-module tfgrid
+module solution
 
 import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNameResult, Machine, MachineResult, MachinesModel, MachinesResult, Network, RemoveMachine }
 
 pub struct Discourse {
 pub:
@@ -29,7 +30,7 @@ pub:
 	gateway_name   string
 }
 
-pub fn (mut client TFGridClient) deploy_discourse(mut explorer_client explorer.ExplorerClient, discourse Discourse) !DiscourseResult {
+pub fn (mut s SolutionHandler) deploy_discourse(discourse Discourse) !DiscourseResult {
 	mut filter := explorer.NodeFilter{
 		status: 'up'
 		dedicated: false
@@ -42,7 +43,7 @@ pub fn (mut client TFGridClient) deploy_discourse(mut explorer_client explorer.E
 		}
 	}
 
-	gateway_nodes := explorer_client.nodes(explorer.NodesRequestParams{
+	gateway_nodes := s.explorer.nodes(explorer.NodesRequestParams{
 		filters: filter
 		pagination: explorer.Limit{
 			size: 1
@@ -57,7 +58,7 @@ pub fn (mut client TFGridClient) deploy_discourse(mut explorer_client explorer.E
 	domain := gateway_nodes.nodes[0].public_config.domain
 	smtp_enable_tls := if discourse.smtp_enable_tls { 'true' } else { 'false' }
 
-	machine := client.machines_deploy(MachinesModel{
+	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_discourse_machine_name(discourse.name)
 		network: Network{
 			add_wireguard_access: false
@@ -92,18 +93,18 @@ pub fn (mut client TFGridClient) deploy_discourse(mut explorer_client explorer.E
 			},
 		]
 	}) or {
-		client.machines_delete(generate_discourse_machine_name(discourse.name))!
+		s.tfclient.machines_delete(generate_discourse_machine_name(discourse.name))!
 		return error('failed to deploy discourse instance: ${err}')
 	}
 
-	gateway := client.gateways_deploy_name(GatewayName{
+	gateway := s.tfclient.gateways_deploy_name(GatewayName{
 		name: discourse.name
 		backends: ['http://${machine.machines[0].ygg_ip}:88']
 		node_id: u32(gateway_node_id)
 	}) or {
 		// if either deployment failed, delete all created contracts
-		client.machines_delete(generate_discourse_machine_name(discourse.name))!
-		client.gateways_delete_name(discourse.name)!
+		s.tfclient.machines_delete(generate_discourse_machine_name(discourse.name))!
+		s.tfclient.gateways_delete_name(discourse.name)!
 		return error('failed to deploy discourse instance: ${err}')
 	}
 
@@ -114,14 +115,14 @@ pub fn (mut client TFGridClient) deploy_discourse(mut explorer_client explorer.E
 	}
 }
 
-pub fn (mut client TFGridClient) delete_discourse(discourse_name string) ! {
-	client.gateways_delete_name(discourse_name)!
-	client.machines_delete(generate_discourse_machine_name(discourse_name))!
+pub fn (mut s SolutionHandler) delete_discourse(discourse_name string) ! {
+	s.tfclient.gateways_delete_name(discourse_name)!
+	s.tfclient.machines_delete(generate_discourse_machine_name(discourse_name))!
 }
 
-pub fn (mut client TFGridClient) get_discourse(discourse_name string) !DiscourseResult {
-	machine := client.machines_get(generate_discourse_machine_name(discourse_name))!
-	gateway := client.gateways_get_name(discourse_name)!
+pub fn (mut s SolutionHandler) get_discourse(discourse_name string) !DiscourseResult {
+	machine := s.tfclient.machines_get(generate_discourse_machine_name(discourse_name))!
+	gateway := s.tfclient.gateways_get_name(discourse_name)!
 
 	return DiscourseResult{
 		name: discourse_name

@@ -1,6 +1,7 @@
-module tfgrid
+module solution
 
 import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid { GatewayName, Machine, MachinesModel, Network }
 
 pub struct Peertube {
 pub:
@@ -25,7 +26,7 @@ pub:
 	gateway_name   string
 }
 
-pub fn (mut client TFGridClient) deploy_peertube(mut explorer_client explorer.ExplorerClient, peertube Peertube) !PeertubeResult {
+pub fn (mut s SolutionHandler) deploy_peertube(peertube Peertube) !PeertubeResult {
 	mut filter := explorer.NodeFilter{
 		status: 'up'
 		dedicated: false
@@ -38,7 +39,7 @@ pub fn (mut client TFGridClient) deploy_peertube(mut explorer_client explorer.Ex
 		}
 	}
 
-	gateway_nodes := explorer_client.nodes(explorer.NodesRequestParams{
+	gateway_nodes := s.explorer.nodes(explorer.NodesRequestParams{
 		filters: filter
 		pagination: explorer.Limit{
 			size: 1
@@ -52,7 +53,7 @@ pub fn (mut client TFGridClient) deploy_peertube(mut explorer_client explorer.Ex
 	gateway_node_id := gateway_nodes.nodes[0].node_id
 	domain := gateway_nodes.nodes[0].public_config.domain
 
-	machine := client.machines_deploy(MachinesModel{
+	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_peertube_machine_name(peertube.name)
 		network: Network{
 			add_wireguard_access: false
@@ -82,18 +83,18 @@ pub fn (mut client TFGridClient) deploy_peertube(mut explorer_client explorer.Ex
 			},
 		]
 	}) or {
-		client.machines_delete(generate_peertube_machine_name(peertube.name))!
+		s.tfclient.machines_delete(generate_peertube_machine_name(peertube.name))!
 		return error('failed to deploy peertube instance: ${err}')
 	}
 
-	gateway := client.gateways_deploy_name(GatewayName{
+	gateway := s.tfclient.gateways_deploy_name(GatewayName{
 		name: peertube.name
 		backends: ['http://${machine.machines[0].ygg_ip}:9000']
 		node_id: u32(gateway_node_id)
 	}) or {
 		// if either deployment failed, delete all created contracts
-		client.machines_delete(generate_peertube_machine_name(peertube.name))!
-		client.gateways_delete_name(peertube.name)!
+		s.tfclient.machines_delete(generate_peertube_machine_name(peertube.name))!
+		s.tfclient.gateways_delete_name(peertube.name)!
 		return error('failed to deploy peertube instance: ${err}')
 	}
 
@@ -104,14 +105,14 @@ pub fn (mut client TFGridClient) deploy_peertube(mut explorer_client explorer.Ex
 	}
 }
 
-pub fn (mut client TFGridClient) delete_peertube(peertube_name string) ! {
-	client.gateways_delete_name(peertube_name)!
-	client.machines_delete(generate_peertube_machine_name(peertube_name))!
+pub fn (mut s SolutionHandler) delete_peertube(peertube_name string) ! {
+	s.tfclient.gateways_delete_name(peertube_name)!
+	s.tfclient.machines_delete(generate_peertube_machine_name(peertube_name))!
 }
 
-pub fn (mut client TFGridClient) get_peertube(peertube_name string) !PeertubeResult {
-	machine := client.machines_get(generate_peertube_machine_name(peertube_name))!
-	gateway := client.gateways_get_name(peertube_name)!
+pub fn (mut s SolutionHandler) get_peertube(peertube_name string) !PeertubeResult {
+	machine := s.tfclient.machines_get(generate_peertube_machine_name(peertube_name))!
+	gateway := s.tfclient.gateways_get_name(peertube_name)!
 
 	return PeertubeResult{
 		name: peertube_name
