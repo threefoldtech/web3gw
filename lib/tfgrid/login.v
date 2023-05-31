@@ -12,4 +12,3 @@ pub fn (mut t TFGridClient) load(credentials Credentials) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfgrid.Load', [credentials.mnemonic, credentials.network],
 		default_timeout)!
 }
-

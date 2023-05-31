@@ -1,16 +1,14 @@
-module main
-
-import threefoldtech.threebot.tfgrid
+module tfgrid
 
 pub struct MachineWithGateway {
 pub:
-	machine tfgrid.Machine
+	machine Machine
 	gateway bool
 }
 
 pub struct MachineWithGatewayResult {
 pub mut:
-	machine tfgrid.MachineResult
+	machine MachineResult
 	gateway string
 }
 
@@ -28,15 +26,15 @@ pub mut:
 	machines         []MachineWithGatewayResult
 }
 
-fn deploy_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_gateways MachinesWithGateways) !MachinesWithGatewaysResult {
-	mut machines_list := []tfgrid.Machine{}
+pub fn (mut client TFGridClient) deploy_machines_with_gateways(machines_with_gateways MachinesWithGateways) !MachinesWithGatewaysResult {
+	mut machines_list := []Machine{}
 	for machine_with_gateway in machines_with_gateways.machines {
 		machines_list << machine_with_gateway.machine
 	}
 
-	machines_model := client.machines_deploy(tfgrid.MachinesModel{
+	machines_model := client.machines_deploy(MachinesModel{
 		name: machines_with_gateways.name
-		network: tfgrid.Network{
+		network: Network{
 			add_wireguard_access: machines_with_gateways.add_wireguard_access
 		}
 		machines: machines_list
@@ -46,7 +44,7 @@ fn deploy_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_g
 	}
 
 	// maps machine name to its ip
-	mut machines_map := map[string]tfgrid.MachineResult{}
+	mut machines_map := map[string]MachineResult{}
 	for machine in machines_model.machines {
 		machines_map[machine.name] = machine
 	}
@@ -63,15 +61,15 @@ fn deploy_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_g
 
 		if machine_with_gateway.gateway {
 			ip := get_machine_ip(machines_map[machine_with_gateway.machine.name]) or {
-				delete_machines_with_gateways(mut client, machines_with_gateways.name)!
+				client.delete_machines_with_gateways(machines_with_gateways.name)!
 				return error('failed to get machine ${machine_with_gateway.machine.name} ip: ${err}')
 			}
 
-			gw := client.gateways_deploy_name(tfgrid.GatewayName{
+			gw := client.gateways_deploy_name(GatewayName{
 				name: generate_gateway_name(machine_with_gateway.machine.name)
 				backends: ['http://${ip}:9000']
 			}) or {
-				delete_machines_with_gateways(mut client, machines_with_gateways.name)!
+				client.delete_machines_with_gateways(machines_with_gateways.name)!
 				return error('failed to deploy gateways: ${err}')
 			}
 
@@ -84,7 +82,7 @@ fn deploy_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_g
 	return machines_result
 }
 
-fn delete_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_gateways_name string) ! {
+pub fn (mut client TFGridClient) delete_machines_with_gateways(machines_with_gateways_name string) ! {
 	// the gateways must be deleted first
 	machines_model := client.machines_get(machines_with_gateways_name)!
 
@@ -95,7 +93,7 @@ fn delete_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_g
 	client.machines_delete(machines_with_gateways_name)!
 }
 
-fn get_machine_ip(machine tfgrid.MachineResult) !string {
+fn get_machine_ip(machine MachineResult) !string {
 	if machine.computed_ip4 != '' {
 		return machine.computed_ip4
 	}
@@ -107,7 +105,7 @@ fn get_machine_ip(machine tfgrid.MachineResult) !string {
 	return error('machine ${machine.name} neither has a public ipv4, nor a ygg ip')
 }
 
-fn get_machines_with_gateways(mut client tfgrid.TFGridClient, machines_with_gateways_name string) !MachinesWithGatewaysResult {
+pub fn (mut client TFGridClient) get_machines_with_gateways(machines_with_gateways_name string) !MachinesWithGatewaysResult {
 	machines_model := client.machines_get(machines_with_gateways_name)!
 
 	mut result := MachinesWithGatewaysResult{
