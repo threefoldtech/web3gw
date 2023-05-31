@@ -51,7 +51,7 @@ fn main() {
 	// eth_url defaults to Goerli node
 	eth_url := fp.string('eth', `e`, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
-	amount := fp.string('amount', `m`, '0.0001', 'The amount of eth to swap for tft.')
+	amount := fp.string('amount', `m`, '0.0001', 'The amount of eth to swap for TFT (can be with decimals: "0.1")')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 	_ := fp.finalize() or {
 		eprintln(err)
