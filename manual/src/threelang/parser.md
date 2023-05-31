@@ -25,6 +25,7 @@
 ### Module actions
 
 - [TFGrid Actions](./tfgrid/grid_actions.md)
+- [TFChain Actions](./tfchain/tfchain.md)
 
 ## Example
 
