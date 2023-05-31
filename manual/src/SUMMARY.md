@@ -3,6 +3,7 @@
 - [Server](server/server.md)
   - [Functionality](server/functionality/functionality.md)
     - [stellar](server/functionality/stellar.md)
+  - [Sftpgo](server/sftpgo.md)
 - [Playground](playground/playground.md)
 - [RPC](rpc/rpc.md)
 - [v clients](v-clients/vclients.md)

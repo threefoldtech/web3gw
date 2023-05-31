@@ -1,0 +1,21 @@
+services:
+  webproxy:
+    build:
+      context: .
+      args:
+        SFTPGOBRANCH: development
+    ports:
+    - 8060:8060
+    environment:
+    - SFTP_SERVER_ADDR=http://webproxy:8060
+    - ONLYOFFICE_SERVER_ADDR=http://${DOCKER_HOST_IP}:8016
+    - SFTPGO_DEFAULT_ADMIN_USERNAME=${SFTPGO_DEFAULT_ADMIN_USERNAME}
+    - SFTPGO_DEFAULT_ADMIN_PASSWORD=${SFTPGO_DEFAULT_ADMIN_PASSWORD}
+  onlyoffice:
+    image: onlyoffice/documentserver
+    ports:
+    - 8016:80
+    environment:
+      - JWT_ENABLED=false
+
+    
