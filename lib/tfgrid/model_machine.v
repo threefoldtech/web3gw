@@ -2,7 +2,7 @@ module tfgrid
 
 [params]
 pub struct MachinesModel {
-pub:
+pub mut:
 	name        string    [required]
 	network     Network   [required]
 	machines    []Machine [required]
@@ -21,7 +21,7 @@ pub:
 
 [params]
 pub struct Machine {
-pub:
+pub mut:
 	name        string            [required]
 	node_id     u32
 	farm_id     u32

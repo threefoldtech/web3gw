@@ -25,7 +25,7 @@ pub:
 
 [params]
 pub struct GatewayName {
-pub:
+pub mut:
 	name            string   [json: 'name'; required]
 	node_id         u32      [json: 'node_id']
 	tls_passthrough bool     [json: 'tls_passthrough']

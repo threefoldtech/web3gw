@@ -1,6 +1,6 @@
-module tfgrid
+module solution
 
-import threefoldtech.threebot.tfgrid
+import threefoldtech.threebot.tfgrid { Disk, Machine, MachinesModel, Network }
 
 pub struct Presearch {
 pub:
@@ -21,8 +21,8 @@ pub:
 	machine_ipv4   string
 }
 
-pub fn (mut client TFGridClient) deploy_presearch(presearch Presearch) !PresearchResult {
-	machine := client.machines_deploy(MachinesModel{
+pub fn (mut s SolutionHandler) deploy_presearch(presearch Presearch) !PresearchResult {
+	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: presearch.name
 		network: Network{
 			add_wireguard_access: false
@@ -50,7 +50,7 @@ pub fn (mut client TFGridClient) deploy_presearch(presearch Presearch) !Presearc
 			},
 		]
 	}) or {
-		client.machines_delete(presearch.name)!
+		s.tfclient.machines_delete(presearch.name)!
 		return error('failed to deploy presearch instance: ${err}')
 	}
 
@@ -61,12 +61,12 @@ pub fn (mut client TFGridClient) deploy_presearch(presearch Presearch) !Presearc
 	}
 }
 
-pub fn (mut client TFGridClient) delete_presearch(presearch_name string) ! {
-	client.machines_delete(presearch_name)!
+pub fn (mut s SolutionHandler) delete_presearch(presearch_name string) ! {
+	s.tfclient.machines_delete(presearch_name)!
 }
 
-pub fn (mut client TFGridClient) get_presearch(presearch_name string) !PresearchResult {
-	machine := client.machines_get(presearch_name)!
+pub fn (mut s SolutionHandler) get_presearch(presearch_name string) !PresearchResult {
+	machine := s.tfclient.machines_get(presearch_name)!
 
 	return PresearchResult{
 		name: presearch_name
