@@ -3,6 +3,8 @@ module gridprocessor
 import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { SolutionHandler }
 import strconv
+import rand
+import encoding.utf8
 
 struct GWNameCreateParams {
 	name            string
@@ -11,29 +13,33 @@ struct GWNameCreateParams {
 	backend         string
 }
 
-fn (gw_create GWNameCreateParams) execute(mut s SolutionHandler) ! {
-	s.tfclient.gateways_deploy_name(tfgrid.GatewayName{
+fn (gw_create GWNameCreateParams) execute(mut s SolutionHandler) !string {
+	ret := s.tfclient.gateways_deploy_name(tfgrid.GatewayName{
 		name: gw_create.name
 		backends: [gw_create.backend]
 		node_id: gw_create.node_id
 		tls_passthrough: gw_create.tls_passthrough
 	})!
+
+	return ret.str()
 }
 
 struct GWNameGetParams {
 	name string
 }
 
-fn (gw_get GWNameGetParams) execute(mut s SolutionHandler) ! {
-	s.tfclient.gateways_get_name(gw_get.name)!
+fn (gw_get GWNameGetParams) execute(mut s SolutionHandler) !string {
+	ret := s.tfclient.gateways_get_name(gw_get.name)!
+	return ret.str()
 }
 
 struct GWNameDeleteParams {
 	name string
 }
 
-fn (gw_delete GWNameDeleteParams) execute(mut s SolutionHandler) ! {
+fn (gw_delete GWNameDeleteParams) execute(mut s SolutionHandler) !string {
 	s.tfclient.gateways_delete_name(gw_delete.name)!
+	return 'gateway name ${gw_delete.name} deleted'
 }
 
 fn build_gateway_name_process(op GridOp, param_map map[string]string, args_set map[string]bool) !(string, Process) {

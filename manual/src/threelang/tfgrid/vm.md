@@ -6,7 +6,8 @@
 
 - action name: !!tfgrid.vm.create
 - parameters:
-  - network [required]
+  - network [optional]
+    - if not provided, a random network name will be generated.
   - farm_id [optional]
     - if 0, the grid nodes will be chosen at random and the deployed vms might span multiple farms.
   - times [required]
@@ -23,7 +24,7 @@
   - ssh_key [required]
 - arguments:
   - add_wireguard_access
-  - public_ips
+  - add_public_ips
   - gateway
     - to add a gateway point to this machine on port 9000
 

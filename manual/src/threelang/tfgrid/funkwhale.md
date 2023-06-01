@@ -11,9 +11,9 @@
     - if 0, machines could span multiple nodes on different farms
   - capacity [required]
     - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the funkwhale instance
-    - small: 1 vCPU, 2GB RAM, 10GB SSD
+    - small: 2 vCPU, 2GB RAM, 10GB SSD
     - medium: 2 vCPU, 4GB RAM, 50GB SSD
-    - large: 4 vCPU, 8GB RAM, 240 SSD
+    - large: 2 vCPU, 8GB RAM, 240 SSD
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   
   - ssh_key [required]

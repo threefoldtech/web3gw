@@ -14,7 +14,7 @@ pub mut:
 	ssh_key              string
 	gateway              bool
 	add_wireguard_access bool
-	public_ips           bool
+	add_public_ips           bool
 }
 
 struct VMResult {
@@ -92,7 +92,7 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 		mut m := Machine{
 			name: utf8.to_lower(rand.string(8))
 			farm_id: vm.farm_id
-			public_ip: vm.public_ips
+			public_ip: vm.add_public_ips
 			cpu: solution.cap[vm.capacity].cpu
 			memory: solution.cap[vm.capacity].memory
 			rootfs_size: solution.cap[vm.capacity].size
@@ -213,7 +213,7 @@ fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
 		mut m := Machine{
 			name: utf8.to_lower(rand.string(8))
 			farm_id: vm.farm_id
-			public_ip: vm.public_ips
+			public_ip: vm.add_public_ips
 			cpu: solution.cap[vm.capacity].cpu
 			memory: solution.cap[vm.capacity].memory
 			rootfs_size: solution.cap[vm.capacity].size

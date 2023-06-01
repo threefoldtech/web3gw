@@ -3,6 +3,8 @@ module gridprocessor
 import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
 import strconv
+import rand
+import encoding.utf8
 
 struct VMCreateParams {
 	VM
@@ -24,20 +26,24 @@ mut:
 	network string
 }
 
-fn (vm_create VMCreateParams) execute(mut s SolutionHandler) ! {
-	s.create_vm(vm_create.VM)!
+fn (vm_create VMCreateParams) execute(mut s SolutionHandler) !string {
+	ret := s.create_vm(vm_create.VM)!
+	return ret.str()
 }
 
-fn (vm_get VMGetParams) execute(mut s SolutionHandler) ! {
-	s.get_vm(vm_get.network)!
+fn (vm_get VMGetParams) execute(mut s SolutionHandler) !string {
+	ret := s.get_vm(vm_get.network)!
+	return ret.str()
 }
 
-fn (vm_remove VMRemoveParams) execute(mut s SolutionHandler) ! {
-	s.remove_vm(vm_remove.network, vm_remove.machine_name)!
+fn (vm_remove VMRemoveParams) execute(mut s SolutionHandler) !string {
+	ret := s.remove_vm(vm_remove.network, vm_remove.machine_name)!
+	return ret.str()
 }
 
-fn (vm_delete VMDeleteParams) execute(mut s SolutionHandler) ! {
+fn (vm_delete VMDeleteParams) execute(mut s SolutionHandler) !string {
 	s.delete_vm(vm_delete.network)!
+	return 'vm ${vm_delete.network} is deleted'
 }
 
 fn build_vm_process(op GridOp, param_map map[string]string, args_set map[string]bool) !(string, Process) {
@@ -62,7 +68,7 @@ fn build_vm_process(op GridOp, param_map map[string]string, args_set map[string]
 
 fn create_vm(param_map map[string]string, args_set map[string]bool) !(string, Process) {
 	mut vm := VMCreateParams{}
-	vm.network = param_map['network'] or { return error('vm network name is missing') }
+	vm.network = param_map['network'] or { utf8.to_lower(rand.string(10)) }
 
 	farm_id_str := param_map['farm_id'] or { '0' }
 	vm.farm_id = u32(strconv.parse_uint(farm_id_str, 10, 32)!)
@@ -80,7 +86,7 @@ fn create_vm(param_map map[string]string, args_set map[string]bool) !(string, Pr
 
 	vm.gateway = args_set['gateway']
 	vm.add_wireguard_access = args_set['add_wireguard_access']
-	vm.public_ips = args_set['public_ips']
+	vm.add_public_ips = args_set['add_public_ips']
 
 	return vm.network, vm
 }
