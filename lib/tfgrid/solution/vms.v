@@ -5,6 +5,7 @@ import rand
 import encoding.utf8
 
 pub struct VM {
+pub mut:
 	network              string
 	farm_id              u32
 	capacity             Capacity
