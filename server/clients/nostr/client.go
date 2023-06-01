@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -291,6 +292,78 @@ func (c *Client) SubscribeProductCreation(tag string) (string, error) {
 	}
 
 	return c.subscribeWithFiler(filters)
+}
+
+func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]NostrEvent, error) {
+	relays := c.server.clientRelays(c.Id())
+	if len(relays) == 0 {
+		return nil, ErrNoRelayConnected
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	evChan := make(chan NostrEvent)
+	wg := sync.WaitGroup{}
+	wg.Add(len(relays))
+
+	for _, relay := range relays {
+		log.Debug().Msgf("NOSTR: Connected to relay %s", relay.URL)
+		sub, err := relay.Subscribe(ctx, filters)
+		if err != nil {
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
+			return nil, errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+		}
+
+		go func() {
+			<-sub.EndOfStoredEvents
+			cancel()
+			log.Debug().Msg("End of stored events")
+		}()
+
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case ev := <-sub.Events:
+					{
+						log.Debug().Msgf("NOSTR: Received event from relay, kind: %d", ev.Kind)
+
+						// Decrypt direct messages
+						if ev.Kind == kindDirectMessage {
+							log.Debug().Msgf("NOSTR: Decrypting message from relay")
+
+							ss, err := nip04.ComputeSharedSecret(ev.PubKey, c.sk)
+							if err != nil {
+								log.Error().Msgf("could not compute shared secret for receiver %s", err.Error())
+								continue
+							}
+							msg, err := nip04.Decrypt(ev.Content, ss)
+							if err != nil {
+								log.Error().Msgf("could not decrypt message %s", err.Error())
+								continue
+							}
+
+							// Set decrypted content
+							ev.Content = msg
+						}
+
+						evChan <- *ev
+					}
+				}
+			}
+		}()
+	}
+	wg.Wait()
+	close(evChan)
+	events := []NostrEvent{}
+
+	for ev := range evChan {
+		events = append(events, ev)
+	}
+
+	return events, nil
 }
 
 func (c *Client) subscribeWithFiler(filters nostr.Filters) (string, error) {
