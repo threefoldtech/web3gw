@@ -1,7 +1,7 @@
 module gridprocessor
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
+import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM, get_capacity }
 import strconv
 import rand
 import encoding.utf8
@@ -89,26 +89,6 @@ fn create_vm(param_map map[string]string, args_set map[string]bool) !(string, Pr
 	vm.add_public_ips = args_set['add_public_ips']
 
 	return vm.network, vm
-}
-
-fn get_capacity(cap string) !Capacity {
-	match cap {
-		'small' {
-			return Capacity.small
-		}
-		'medium' {
-			return Capacity.medium
-		}
-		'large' {
-			return Capacity.large
-		}
-		'extra_large' {
-			return Capacity.extra_large
-		}
-		else {
-			return error('invalid capacity')
-		}
-	}
 }
 
 fn get_vm(param_map map[string]string, args_set map[string]bool) !(string, Process) {

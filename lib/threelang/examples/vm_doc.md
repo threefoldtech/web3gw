@@ -1,5 +1,5 @@
 !!tfgrid.login
-	mnemonic: 'YOUR MNEMONICS'
+	mnemonic: 'YOUR MNEMONIC'
 	network: dev
 
 !!tfgrid.vm.create 
