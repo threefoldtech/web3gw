@@ -28,10 +28,13 @@ The following snippet will send 49.12 TFT (50.12 - 1 conversion fee) to GBN4RY5F
 amount := '50.12'
 destination := 'GBN4RY5FDSY5MJJKD3G4QYXLQ73H6MXYPUXT4YMV3JXWA2HCXAJTFOZ2'
 
-eth_client.withdraw_eth_tft_to_stellar(destination: destination, amount: amount)!
+eth_client.bridge_to_stellar(destination: destination, amount: amount)!
 ```
 
+## Convert TFT on Stellar to TFT on Ethereum
+
 The conversion from TFT on Stellar to TFT on Ethereum  is part of the [Stellar client](../stellar/stellar.md#convert-tft-on-stellar-to-tft-on-ethereum).
+
 
 ## Swaps
 
