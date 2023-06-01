@@ -151,3 +151,29 @@ func (c *Client) ApproveEthTftSpending(ctx context.Context, input string) (strin
 
 	return tx.Hash().Hex(), nil
 }
+
+func (c *Client) EthTftSpendingAllowance(ctx context.Context) (string, error) {
+	tftC, err := c.GetTftTokenContract()
+	if err != nil {
+		return "", err
+	}
+
+	tft, err := tft.NewToken(tftC.Address, c.Eth)
+	if err != nil {
+		return "", err
+	}
+
+	ctxWithCancel, cancel := context.WithTimeout(ctx, time.Minute*10)
+	defer cancel()
+
+	allowed, err := tft.Allowance(&bind.CallOpts{
+		Context: ctxWithCancel,
+	}, c.Address, SwapRouter)
+	if err != nil {
+		return "", err
+	}
+
+	log.Debug().Msgf("TFT allowance for swap: %s", allowed.String())
+
+	return TftUnitsToString(allowed), nil
+}

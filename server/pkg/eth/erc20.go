@@ -64,7 +64,7 @@ func (c *Client) TransferFromTokens(ctx context.Context, conState jsonrpc.State,
 	return state.Client.TransferFromTokens(ctx, args.ContractAddress, args.From, args.Destination, args.Amount)
 }
 
-// ApproveTokenSpending approved spending of a token contract with a limit
+// ApproveTokenSpending approves spending from a token contract with a limit
 func (c *Client) ApproveTokenSpending(ctx context.Context, conState jsonrpc.State, args ApproveTokenSpending) (string, error) {
 	state := State(conState)
 	if state.Client == nil {

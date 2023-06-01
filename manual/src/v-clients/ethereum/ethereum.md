@@ -80,6 +80,12 @@ t := eth_client.approve_eth_tft_spending(tft_to_swap)!
 
 You can approve a much bigger amount to avoid an approval transaction for every swap, saving gas.
 
+To check how much TFT is still allowed to be swapped, use the `get_eth_tft_allowance` function.
+
+```v
+approved_amount := eth_client.get_eth_tft_allowance()!
+```
+
 Execute the swap.
 
 ```v

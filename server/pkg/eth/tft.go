@@ -49,3 +49,12 @@ func (c *Client) ApproveEthTftSpending(ctx context.Context, conState jsonrpc.Sta
 
 	return state.Client.ApproveEthTftSpending(ctx, amount)
 }
+
+func (c *Client) EthTftSpendingAllowance(ctx context.Context, conState jsonrpc.State) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.EthTftSpendingAllowance(ctx)
+}
