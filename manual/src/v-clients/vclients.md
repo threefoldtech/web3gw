@@ -16,7 +16,7 @@ import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
   level: if debug_log { .debug } else { .info }
  })
 
- mut rpcClient := rpcwebsocket.new_rpcwsclient(server_address, &logger) or {
+ mut rpc_client := rpcwebsocket.new_rpcwsclient(server_address, &logger) or {
   logger.error('Failed creating rpc websocket client: ${err}')
   exit(1)
  }
