@@ -31,24 +31,10 @@ destination := 'GBN4RY5FDSY5MJJKD3G4QYXLQ73H6MXYPUXT4YMV3JXWA2HCXAJTFOZ2'
 eth_client.bridge_to_stellar(destination: destination, amount: amount)!
 ```
 
-The conversion from TFT on Stellar to TFT on Ethereum  is part of the [Stellar client](../stellar/stellar.md#convert-tft-on-stellar-to-tft-on-ethereum).
-
 ## Convert TFT on Stellar to TFT on Ethereum
 
-The Ethereum  clients provides an easy way to convert [TFT on Stellar](https://github.com/threefoldfoundation/tft-stellar) to [TFT on Ethereum](https://github.com/threefoldfoundation/tft/tree/main/ethereum) using the Stellar-Ethereum bridge.
+The conversion from TFT on Stellar to TFT on Ethereum  is part of the [Stellar client](../stellar/stellar.md#convert-tft-on-stellar-to-tft-on-ethereum).
 
-The `amount` parameter is a string in decimal format of the number of TFT's to convert. Keep in mind that a conversion fee of 2000 TFT will be deducted so make sure the amount is larger than that.
-
-The destination parameter is the Ethereum account that will receive the TFT's.
-
-The following snippet will send 2050.12 TFT (50.12 - 2000 conversion fee) to 0xf0290fC6Aa636019d39fD5D8EA55B0b7d760baf3.
-
-```v
-amount := '2050.12'
-destination := '0xf0290fC6Aa636019d39fD5D8EA55B0b7d760baf3'
-
-stellar_client.bridge_to_eth(amount: amount, destination: destination)!
-```
 
 ## Swaps
 
