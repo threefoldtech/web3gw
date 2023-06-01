@@ -2,7 +2,9 @@ module gridprocessor
 
 import freeflowuniverse.crystallib.params { Params }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.tfgrid { TFGridClient }
+import threefoldtech.threebot.tfgrid
+import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid.solution { SolutionHandler }
 
 type Builder = fn (grid_op GridOp, param_map map[string]string, args_set map[string]bool) !(string, Process)
 
@@ -17,14 +19,14 @@ mut:
 // Process is an interface for all tfgrid operations
 pub interface Process {
 mut:
-	execute(mut client TFGridClient) !
+	execute(mut s SolutionHandler) !
 }
 
 pub enum GridNS {
 	k8s
 	gateway_name
 	gateway_fqdn
-	machines
+	vm
 	zdb
 	discourse
 	taiga
@@ -37,8 +39,9 @@ pub enum GridNS {
 
 pub enum GridOp {
 	create
-	read
-	update
+	get
+	add
+	remove
 	delete
 	login
 }
@@ -51,6 +54,7 @@ pub fn new() GridProcessor {
 	}
 
 	g.process_builder[int(GridNS.gateway_name)] = build_gateway_name_process
+	g.process_builder[int(GridNS.vm)] = build_vm_process
 	// record other solutions
 
 	return g
@@ -86,15 +90,24 @@ fn (mut g GridProcessor) execute(mut rpc_client RpcWsClient) ! {
 
 	cred := g.credentials or { return error('Unauthorized. You must add a login action') }
 
+	mut exp := explorer.new(mut rpc_client)
+
 	tfgrid_client.load(tfgrid.Credentials{
 		mnemonic: cred.mnemonic
 		network: cred.network
 	})!
 
+	exp.load(cred.network)!
+
+	mut s := SolutionHandler{
+		tfclient: &tfgrid_client
+		explorer: &exp
+	}
+
 	for _, mut processes in g.projects {
 		for mut p in processes {
 			// TODO: all processes should try to run before returning an error
-			p.execute(mut tfgrid_client)!
+			p.execute(mut s)!
 		}
 	}
 }
@@ -111,8 +124,8 @@ fn get_grid_ns(ns string) !GridNS {
 		'gateway_fqdn' {
 			return GridNS.gateway_fqdn
 		}
-		'machines' {
-			return GridNS.machines
+		'vm' {
+			return GridNS.vm
 		}
 		'zdb' {
 			return GridNS.zdb
@@ -152,10 +165,13 @@ fn get_grid_op(op string) !GridOp {
 			return GridOp.create
 		}
 		'get' {
-			return GridOp.read
+			return GridOp.get
 		}
-		'update' {
-			return GridOp.update
+		'add' {
+			return GridOp.add
+		}
+		'remove' {
+			return GridOp.remove
 		}
 		'delete' {
 			return GridOp.delete
