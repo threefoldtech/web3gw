@@ -10,5 +10,6 @@ pub struct ChainProcessor {
 fn (c ChainProcessor) add_action(ns string, op string, action_params Params) ! {
 }
 
-fn (c ChainProcessor) execute(rpc_client &RpcWsClient) ! {
+fn (c ChainProcessor) execute(rpc_client &RpcWsClient) !string {
+	return ''
 }

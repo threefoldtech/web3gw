@@ -19,7 +19,7 @@ mut:
 // Process is an interface for all tfgrid operations
 pub interface Process {
 mut:
-	execute(mut s SolutionHandler) !
+	execute(mut s SolutionHandler) !string
 }
 
 pub enum GridNS {
@@ -55,6 +55,8 @@ pub fn new() GridProcessor {
 
 	g.process_builder[int(GridNS.gateway_name)] = build_gateway_name_process
 	g.process_builder[int(GridNS.vm)] = build_vm_process
+	g.process_builder[int(GridNS.zdb)] = build_zdb_process
+	g.process_builder[int(GridNS.gateway_fqdn)] = build_gateway_fqdn_process
 	// record other solutions
 
 	return g
@@ -85,7 +87,7 @@ fn (mut g GridProcessor) add_action(ns string, op string, action_params Params) 
 	}
 }
 
-fn (mut g GridProcessor) execute(mut rpc_client RpcWsClient) ! {
+fn (mut g GridProcessor) execute(mut rpc_client RpcWsClient) !string {
 	mut tfgrid_client := tfgrid.new(mut rpc_client)
 
 	cred := g.credentials or { return error('Unauthorized. You must add a login action') }
@@ -104,12 +106,16 @@ fn (mut g GridProcessor) execute(mut rpc_client RpcWsClient) ! {
 		explorer: &exp
 	}
 
+	mut output := ''
+
 	for _, mut processes in g.projects {
 		for mut p in processes {
 			// TODO: all processes should try to run before returning an error
-			p.execute(mut s)!
+			output += p.execute(mut s)! + '\n\n*****************\n\n'
 		}
 	}
+
+	return output
 }
 
 // get_grid_ns validates namespace, returns corresponding enum

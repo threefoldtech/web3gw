@@ -20,7 +20,7 @@ mut:
 interface Processor {
 mut:
 	add_action(namespace string, operation string, params Params) !
-	execute(mut rpc_client RpcWsClient) !
+	execute(mut rpc_client RpcWsClient) !string
 }
 
 const (
@@ -76,7 +76,7 @@ fn (mut t ThreeLangParser) delegate(action Action) ! {
 }
 
 // execute performs all actions specified inside the md file
-pub fn (mut t ThreeLangParser) execute() ! {
+pub fn (mut t ThreeLangParser) execute() !string {
 	// create a websocket connection, pass it to all processors
 
 	mut logger := log.Logger(&log.Log{
@@ -89,8 +89,12 @@ pub fn (mut t ThreeLangParser) execute() ! {
 
 	_ := spawn rpc_client.run()
 
-	t.grid_processor.execute(mut rpc_client)!
-	t.chain_processor.execute(mut rpc_client)!
+	mut output := ''
+
+	output += t.grid_processor.execute(mut rpc_client)! + '________________\n'
+	output += t.chain_processor.execute(mut rpc_client)! + '\n________________\n'
+
+	return output
 }
 
 // parse_action_name validates action name, splits it into 3 parts (module, namespace, operation)
