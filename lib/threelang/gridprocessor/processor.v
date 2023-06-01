@@ -151,7 +151,7 @@ fn get_grid_op(op string) !GridOp {
 		'create' {
 			return GridOp.create
 		}
-		'read' {
+		'get' {
 			return GridOp.read
 		}
 		'update' {
