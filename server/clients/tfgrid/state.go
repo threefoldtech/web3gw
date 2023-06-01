@@ -148,6 +148,7 @@ func (c *Client) loadGridMachinesModel(ctx context.Context, modelName string) (g
 	}
 
 	if len(modelContracts.nodeContracts) == 0 {
+		delete(c.Projects, generateProjectName(modelName))
 		return gridMachinesModel{}, fmt.Errorf("found 0 contracts for model %s", modelName)
 	}
 

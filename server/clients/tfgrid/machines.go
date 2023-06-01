@@ -139,7 +139,7 @@ func (c *Client) MachinesDeploy(ctx context.Context, model MachinesModel) (Machi
 		return MachinesModel{}, err
 	}
 
-	if err := c.assignNodesIDsForMachines(ctx, &model); err != nil {
+	if err := c.assignNodesIDsForMachines(ctx, model.Machines); err != nil {
 		return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
 	}
 
@@ -209,6 +209,11 @@ func (c *Client) MachinesGet(ctx context.Context, modelName string) (MachinesMod
 
 func (c *Client) MachineAdd(ctx context.Context, params AddMachineParams) (MachinesModel, error) {
 	log.Debug().Msgf("adding machine %s", params.Machine.Name)
+	machine := []Machine{params.Machine}
+	if err := c.assignNodesIDsForMachines(ctx, machine); err != nil {
+		return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
+	}
+	params.Machine = machine[0]
 
 	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
 	if err != nil {
@@ -332,7 +337,7 @@ func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) 
 }
 
 // Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
-func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
+func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines []Machine) error {
 	// all units unified in bytes
 
 	reservations := Reservations{}

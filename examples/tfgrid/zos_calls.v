@@ -1,11 +1,7 @@
 module main
 
-import freeflowuniverse.crystallib.rpcwebsocket
 import threefoldtech.threebot.tfgrid
-import flag
 import log
-import os
-import time
 
 const (
 	default_server_address = 'ws://127.0.0.1:8080'

@@ -1,12 +1,12 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid.solution { Funkwhale, SolutionHandler }
 import log
 
-fn test_funkwhale_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerClient, mut logger log.Logger) ! {
+fn test_funkwhale_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadafunkwhale'
-	deploy_res := client.deploy_funkwhale(mut exp, tfgrid.Funkwhale{
+	deploy_res := s.deploy_funkwhale(Funkwhale{
 		name: model_name
 		farm_id: 1
 		cpu: 2
@@ -19,12 +19,10 @@ fn test_funkwhale_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerC
 	logger.info('${deploy_res}')
 
 	defer {
-		client.delete_funkwhale(model_name) or {
-			logger.error('failed to delete funkwhale: ${err}')
-		}
+		s.delete_funkwhale(model_name) or { logger.error('failed to delete funkwhale: ${err}') }
 	}
 
-	get_res := client.get_discourse(model_name)!
+	get_res := s.get_funkwhale(model_name)!
 	logger.info('${get_res}')
 }
 
@@ -38,7 +36,12 @@ fn main() {
 		exit(1)
 	}
 
-	test_funkwhale_ops(mut tfgrid_client, mut exp, mut logger) or {
+	mut s := SolutionHandler{
+		tfclient: &tfgrid_client
+		explorer: &exp
+	}
+
+	test_funkwhale_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

@@ -1,12 +1,12 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid.solution { SolutionHandler, Taiga }
 import log
 
-fn test_taiga_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerClient, mut logger log.Logger) ! {
+fn test_taiga_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadataiga'
-	deploy_res := client.deploy_taiga(mut exp, tfgrid.Taiga{
+	deploy_res := s.deploy_taiga(Taiga{
 		name: model_name
 		farm_id: 1
 		cpu: 2
@@ -21,10 +21,10 @@ fn test_taiga_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerClien
 	logger.info('${deploy_res}')
 
 	defer {
-		client.delete_taiga(model_name) or { logger.error('failed to delete taiga: ${err}') }
+		s.delete_taiga(model_name) or { logger.error('failed to delete taiga: ${err}') }
 	}
 
-	get_res := client.get_taiga(model_name)!
+	get_res := s.get_taiga(model_name)!
 	logger.info('${get_res}')
 }
 
@@ -38,7 +38,12 @@ fn main() {
 		exit(1)
 	}
 
-	test_taiga_ops(mut tfgrid_client, mut exp, mut logger) or {
+	mut s := SolutionHandler{
+		tfclient: &tfgrid_client
+		explorer: &exp
+	}
+
+	test_taiga_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

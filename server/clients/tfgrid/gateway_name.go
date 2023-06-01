@@ -61,12 +61,10 @@ func (c *Client) deployGWName(ctx context.Context, gridGW *workloads.GatewayName
 
 	projectName := generateProjectName(gridGW.Name)
 
-	projectState := map[uint32]state.ContractIDs{
-		gridGW.NodeID: {gridGW.ContractID},
-	}
-
 	c.Projects[projectName] = ProjectState{
-		nodeContracts: projectState,
+		nodeContracts: map[uint32]state.ContractIDs{
+			gridGW.NodeID: {gridGW.ContractID},
+		},
 		nameContracts: map[uint32]uint64{gridGW.NodeID: gridGW.NameContractID},
 	}
 
