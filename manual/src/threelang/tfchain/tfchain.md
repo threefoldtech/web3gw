@@ -146,14 +146,14 @@ In a simple format you can do almost all the extrinsic and queries on the chian.
     ```
     !!tfchain.contracts.create_node
         node_id:11
-        body: // TODO
-        hash: // TODO
+        body: `string`
+        hash: `string`
         public_ips:1
         solution_provider_id:102
     ```
     - `node_id`: the node where you want to deploy the contract
     - `body`: the deployment itself
-    - `hash`: hash of the deployment // TODO: could be auto generated?
+    - `hash`: hash of the deployment.
     - `public_ips`: number of public ips attached to the contract
     - `solution_provider_id`: `optional` solution provider twin id
 - Create new Rent contract
@@ -181,11 +181,11 @@ In a simple format you can do almost all the extrinsic and queries on the chian.
 - Create new service contract
     ```
     !!tfchain.service_contract.create
-        service:   // TODO
-        consumer:  // TODO    
+        service:  `string`
+        consumer: `string`    
     ```
-    - `service`: 
-    - `consumer`:
+    - `service`: SS58 address
+    - `consumer`: SS58 address
 
 - Approve service contract
     ```
@@ -213,12 +213,12 @@ In a simple format you can do almost all the extrinsic and queries on the chian.
     ```
     !!tfchain.service_contract.set
         contract_id:2015
-        base_fee:
-        variable_fee:
+        base_fee:      `u64`
+        variable_fee:  `u64`
     ```
     Set fees for service contract
-    - `base_fee`: // TODO
-    - `vaiable_fee`: // TODO
+    - `base_fee`: amount of base fee
+    - `variable_fee`: amount of variable fee
 
     ```
     !!tfchain.service_contract.set
