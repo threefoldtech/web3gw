@@ -30,12 +30,6 @@ pub:
 	gateway ?GatewayNameResult
 }
 
-struct CapacityPackage {
-	cpu    u32
-	memory u32
-	size   u32
-}
-
 const (
 	gateway_project_name_env_var = 'WEB3PROXY_DOMAIN_PROJECT_NAME'
 

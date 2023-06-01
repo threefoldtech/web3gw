@@ -9,7 +9,7 @@
   - name [required]
   - farm_id [optional]
     - if 0, cluster nodes could span multiple nodes on different farms
-  - number_of_workers [required]
+  - replica [required]
     - a number in the range [1, 252]
   - capacity [required]
     - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the cluster nodes

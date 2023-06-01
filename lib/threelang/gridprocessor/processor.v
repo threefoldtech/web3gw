@@ -57,6 +57,7 @@ pub fn new() GridProcessor {
 	g.process_builder[int(GridNS.vm)] = build_vm_process
 	g.process_builder[int(GridNS.zdb)] = build_zdb_process
 	g.process_builder[int(GridNS.gateway_fqdn)] = build_gateway_fqdn_process
+	g.process_builder[int(GridNS.k8s)] = build_k8s_process
 	// record other solutions
 
 	return g
