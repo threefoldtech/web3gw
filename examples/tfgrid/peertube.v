@@ -1,12 +1,12 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid.solution { Peertube, SolutionHandler }
 import log
 
-fn test_peertube_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerClient, mut logger log.Logger) ! {
+fn test_peertube_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadapeertube'
-	deploy_res := client.deploy_peertube(mut exp, tfgrid.Peertube{
+	deploy_res := s.deploy_peertube(Peertube{
 		name: model_name
 		cpu: 2
 		memory: 4096
@@ -22,10 +22,10 @@ fn test_peertube_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerCl
 	logger.info('${deploy_res}')
 
 	defer {
-		client.delete_peertube(model_name) or { logger.error('failed to delete peertube: ${err}') }
+		s.delete_peertube(model_name) or { logger.error('failed to delete peertube: ${err}') }
 	}
 
-	get_res := client.get_peertube(model_name)!
+	get_res := s.get_peertube(model_name)!
 	logger.info('${get_res}')
 }
 
@@ -39,7 +39,12 @@ fn main() {
 		exit(1)
 	}
 
-	test_peertube_ops(mut tfgrid_client, mut exp, mut logger) or {
+	mut s := SolutionHandler{
+		tfclient: &tfgrid_client
+		explorer: &exp
+	}
+
+	test_peertube_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

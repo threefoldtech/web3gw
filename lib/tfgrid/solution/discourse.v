@@ -2,6 +2,8 @@ module solution
 
 import threefoldtech.threebot.explorer
 import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNameResult, Machine, MachineResult, MachinesModel, MachinesResult, Network, RemoveMachine }
+import rand
+import time
 
 pub struct Discourse {
 pub:
@@ -58,6 +60,11 @@ pub fn (mut s SolutionHandler) deploy_discourse(discourse Discourse) !DiscourseR
 	domain := gateway_nodes.nodes[0].public_config.domain
 	smtp_enable_tls := if discourse.smtp_enable_tls { 'true' } else { 'false' }
 
+	mut gw := GatewayName{
+		name: rand.string(8)
+		backends: []string{}
+	}
+
 	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_discourse_machine_name(discourse.name)
 		network: Network{
@@ -88,6 +95,7 @@ pub fn (mut s SolutionHandler) deploy_discourse(discourse Discourse) !DiscourseR
 					'DISCOURSE_SMTP_PASSWORD':         discourse.smtp_password
 					'THREEBOT_PRIVATE_KEY':            discourse.threebot_private_key
 					'FLASK_SECRET_KEY':                discourse.flask_secret_key
+					'GW_PROJECT_NAME': gw.name
 				}
 				planetary: true
 			},
@@ -116,8 +124,9 @@ pub fn (mut s SolutionHandler) deploy_discourse(discourse Discourse) !DiscourseR
 }
 
 pub fn (mut s SolutionHandler) delete_discourse(discourse_name string) ! {
-	s.tfclient.gateways_delete_name(discourse_name)!
 	s.tfclient.machines_delete(generate_discourse_machine_name(discourse_name))!
+	s.tfclient.gateways_delete_name(discourse_name)!
+	// time.sleep(10 * time.second)
 }
 
 pub fn (mut s SolutionHandler) get_discourse(discourse_name string) !DiscourseResult {

@@ -1,12 +1,12 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.explorer
+import threefoldtech.threebot.tfgrid.solution { Discourse, SolutionHandler }
 import log
 
-fn test_discourse_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerClient, mut logger log.Logger) ! {
+fn test_discourse_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadadiscourse'
-	deploy_res := client.deploy_discourse(mut exp, tfgrid.Discourse{
+	deploy_res := s.deploy_discourse(Discourse{
 		name: model_name
 		cpu: 4
 		memory: 4096
@@ -22,12 +22,10 @@ fn test_discourse_ops(mut client tfgrid.TFGridClient, mut exp explorer.ExplorerC
 	logger.info('${deploy_res}')
 
 	defer {
-		client.delete_discourse(model_name) or {
-			logger.error('failed to delete discourse: ${err}')
-		}
+		s.delete_discourse(model_name) or { logger.error('failed to delete discourse: ${err}') }
 	}
 
-	get_res := client.get_discourse(model_name)!
+	get_res := s.get_discourse(model_name)!
 	logger.info('${get_res}')
 }
 
@@ -41,7 +39,12 @@ fn main() {
 		exit(1)
 	}
 
-	test_discourse_ops(mut tfgrid_client, mut exp, mut logger) or {
+	mut s := SolutionHandler{
+		tfclient: &tfgrid_client
+		explorer: &exp
+	}
+
+	test_discourse_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

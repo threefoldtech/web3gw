@@ -2,8 +2,9 @@ module solution
 
 import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNameResult, Machine, MachineResult, MachinesModel, MachinesResult, Network, RemoveMachine }
 import rand
+import encoding.utf8
 
-struct VM {
+pub struct VM {
 	network              string
 	farm_id              u32
 	capacity             Capacity
@@ -16,13 +17,14 @@ struct VM {
 }
 
 struct VMResult {
-mut:
+pub mut:
 	network          string
 	wireguard_config string
 	vms              []GatewayedMachines
 }
 
 struct GatewayedMachines {
+pub:
 	machine MachineResult
 	gateway ?GatewayNameResult
 }
@@ -64,7 +66,7 @@ const (
 pub fn (mut s SolutionHandler) create_vm(vm VM) !VMResult {
 	// create should first check if this is a create or an update operation
 	_ := s.tfclient.machines_get(vm.network) or {
-		if err.msg().contains('model not found') {
+		if err.msg().contains('found 0 contracts for model') {
 			// this is a new network, do a create op
 			return s.create_new_vm(vm)
 		}
@@ -87,7 +89,7 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 	mut gws := map[string]GatewayName{}
 	for _ in 0 .. vm.times {
 		mut m := Machine{
-			name: rand.string(8)
+			name: utf8.to_lower(rand.string(8))
 			farm_id: vm.farm_id
 			public_ip: vm.public_ips
 			cpu: solution.cap[vm.capacity].cpu
@@ -106,7 +108,7 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 		}
 
 		if vm.gateway {
-			gw_project_name := rand.string(8)
+			gw_project_name := utf8.to_lower(rand.string(8))
 			m.env_vars[solution.gateway_project_name_env_var] = gw_project_name
 			gws[m.name] = GatewayName{
 				name: gw_project_name
@@ -208,7 +210,7 @@ fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
 
 	for _ in 0 .. vm.times {
 		mut m := Machine{
-			name: rand.string(8)
+			name: utf8.to_lower(rand.string(8))
 			farm_id: vm.farm_id
 			public_ip: vm.public_ips
 			cpu: solution.cap[vm.capacity].cpu
@@ -227,7 +229,7 @@ fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
 		}
 
 		if vm.gateway {
-			gw_project_name := rand.string(8)
+			gw_project_name := utf8.to_lower(rand.string(8))
 			m.env_vars[solution.gateway_project_name_env_var] = gw_project_name
 			gws[m.name] = GatewayName{
 				name: gw_project_name

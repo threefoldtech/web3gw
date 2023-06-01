@@ -1,6 +1,6 @@
 module solution
 
-enum Capacity {
+pub enum Capacity {
 	small
 	medium
 	large

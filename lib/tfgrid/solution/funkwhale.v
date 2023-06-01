@@ -1,7 +1,7 @@
 module solution
 
 import threefoldtech.threebot.explorer
-import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNameResult, Machine, MachineResult, MachinesModel, MachinesResult, Network, RemoveMachine }
+import threefoldtech.threebot.tfgrid { GatewayName, Machine, MachinesModel, Network }
 
 pub struct Funkwhale {
 pub:
@@ -22,7 +22,7 @@ pub:
 	gateway_name   string
 }
 
-pub fn (mut s SolutionHandler) deploy_funkwhale(mut explorer_client explorer.ExplorerClient, funkwhale Funkwhale) !FunkwhaleResult {
+pub fn (mut s SolutionHandler) deploy_funkwhale(funkwhale Funkwhale) !FunkwhaleResult {
 	mut filter := explorer.NodeFilter{
 		status: 'up'
 		dedicated: false
@@ -35,7 +35,7 @@ pub fn (mut s SolutionHandler) deploy_funkwhale(mut explorer_client explorer.Exp
 		}
 	}
 
-	gateway_nodes := explorer_s.tfclient.nodes(explorer.NodesRequestParams{
+	gateway_nodes := s.explorer.nodes(explorer.NodesRequestParams{
 		filters: filter
 		pagination: explorer.Limit{
 			size: 1
