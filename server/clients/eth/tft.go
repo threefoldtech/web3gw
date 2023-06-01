@@ -56,7 +56,7 @@ func (c *Client) TransferEthTft(ctx context.Context, destination string, amount 
 	return tx.Hash().Hex(), nil
 }
 
-func (c *Client) WithdrawEthTftToStellar(ctx context.Context, destination string, amount string) (string, error) {
+func (c *Client) BridgeToStellar(ctx context.Context, destination string, amount string) (string, error) {
 	tftC, err := c.GetTftTokenContract()
 	if err != nil {
 		return "", err

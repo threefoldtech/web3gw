@@ -24,7 +24,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	mut balance := eth_client.get_tft_eth_balance()!
 	logger.info('tft balance before bridge: ${balance}\n')
 
-	eth_client.withdraw_eth_tft_to_stellar(destination: destination, amount: amount)!
+	eth_client.bridge_to_stellar(destination: destination, amount: amount)!
 	logger.info('withdrawn eth to stellar\n')
 
 	balance = eth_client.get_tft_eth_balance()!
