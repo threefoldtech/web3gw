@@ -292,7 +292,7 @@ pub fn (mut e EthClient) transfer_eth_tft(args TftEthTransfer) !string {
 	], eth.default_timeout)!
 }
 
-// bridge_to_stellar withdraws eth tft to stellar
+// bridge_to_stellar bridges tft on ethereum to tft stellar
 pub fn (mut e EthClient) bridge_to_stellar(args TftEthTransfer) !string {
 	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.BridgeToStellar',
 		[args], eth.default_timeout)!
