@@ -101,3 +101,25 @@ func (c *Client) SubscribeChannelMessages(chanMessageId string) (string, error) 
 
 	return c.subscribeWithFiler(filters)
 }
+
+func (c *Client) FetchChannelCreation() ([]RelayEvent, error) {
+	var filters nostr.Filters
+	filters = []nostr.Filter{{
+		Kinds: []int{nostr.KindChannelCreation},
+		Limit: DEFAULT_LIMIT,
+	}}
+
+	return c.fetchEventsWithFilter(filters)
+}
+
+// SubscribeChannelMessages subsribes to messages which are a reply to the given chanMessageId
+func (c *Client) FetchChannelMessages(chanMessageId string) ([]RelayEvent, error) {
+	var filters nostr.Filters
+	filters = []nostr.Filter{{
+		Kinds: []int{nostr.KindChannelMessage},
+		Limit: DEFAULT_LIMIT,
+		Tags:  nostr.TagMap{"e": []string{chanMessageId}},
+	}}
+
+	return c.fetchEventsWithFilter(filters)
+}

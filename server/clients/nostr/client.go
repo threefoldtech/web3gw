@@ -20,6 +20,11 @@ import (
 type (
 	NostrEvent = nostr.Event
 
+	RelayEvent struct {
+		Relay string     `json:"relay"`
+		Event NostrEvent `json:"event"`
+	}
+
 	// Client for nostr protocol
 	Client struct {
 		// Reference to the server we are using
@@ -294,7 +299,7 @@ func (c *Client) SubscribeProductCreation(tag string) (string, error) {
 	return c.subscribeWithFiler(filters)
 }
 
-func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]NostrEvent, error) {
+func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]RelayEvent, error) {
 	relays := c.server.clientRelays(c.Id())
 	if len(relays) == 0 {
 		return nil, ErrNoRelayConnected
@@ -303,7 +308,7 @@ func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]NostrEvent, err
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	evChan := make(chan NostrEvent)
+	evChan := make(chan RelayEvent)
 	wg := sync.WaitGroup{}
 	wg.Add(len(relays))
 
@@ -321,7 +326,7 @@ func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]NostrEvent, err
 			log.Debug().Msg("End of stored events")
 		}()
 
-		go func() {
+		go func(relay *nostr.Relay) {
 			for {
 				select {
 				case <-ctx.Done():
@@ -349,15 +354,18 @@ func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]NostrEvent, err
 							ev.Content = msg
 						}
 
-						evChan <- *ev
+						evChan <- RelayEvent{
+							Relay: relay.URL,
+							Event: *ev,
+						}
 					}
 				}
 			}
-		}()
+		}(relay)
 	}
 	wg.Wait()
 	close(evChan)
-	events := []NostrEvent{}
+	events := []RelayEvent{}
 
 	for ev := range evChan {
 		events = append(events, ev)
