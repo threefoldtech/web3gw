@@ -45,7 +45,7 @@ pub:
 	name        string
 	node_id     u32
 	farm_id     u32
-	flist       string
+	flist       string 
 	entrypoint  string
 	public_ip   bool
 	public_ip6  bool

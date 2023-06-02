@@ -13,6 +13,8 @@ const (
 	// keyType for the TF grid
 	keyType = "sr25519"
 
+	//THIS SHOULD NOT BE HARDCODED, WE NEED AN ABSTRACTION FOR WHAT IS A NETWORK, AND ITS NOT A NETWORK ITS A REGIONALINTERNET OR SO TODO:
+
 	// NetworkMain is the TF grid mainnet
 	NetworkMain = "main"
 	// NetworkTest is the TF grid testnet
