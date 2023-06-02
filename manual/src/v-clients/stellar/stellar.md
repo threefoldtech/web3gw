@@ -11,7 +11,14 @@ secret := 'SB1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGH'
 
 mut stellar_client := stellar.new(mut rpc_client)
 stellar_client.load(secret: secret)!
+```
 
+## Get TFT balance
+
+The `balance` function gets the TFT balance of an account, if the passed account is an empty string, the balance of the account of the client is returned.
+
+```v
+balance := stellar_client.balance('')!
 ```
 
 ## Convert TFT on Stellar to TFT on Ethereum
