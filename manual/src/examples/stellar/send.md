@@ -8,7 +8,7 @@
 ## run the example
 
 - `-s`: stellar secret of the sending account
-- `-d`: destination ethereum account
+- `-d`: destination account
 - `-m`: amount of TFT in string format (can be with decimals: "0.1")
 - `-n`: network (testnet/public, default=public)
 

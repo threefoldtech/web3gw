@@ -2,16 +2,23 @@
 
 ## Create and load a client
 
-Needs an [RPC websocket client to a web3proxy server](../vclients.md#rpc-websocket-client) which is assumed to be present in a variable `rpcClient`.
+Needs an [RPC websocket client to a web3proxy server](../vclients.md#rpc-websocket-client) which is assumed to be present in a variable `rpc_client`.
 
 The `secret` parameter requires a private key of the Stellar account the client needs to use.
 
 ```v
 secret := 'SB1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGH'
 
-mut stellar_client := stellar.new(mut rpcClient)
+mut stellar_client := stellar.new(mut rpc_client)
 stellar_client.load(secret: secret)!
+```
 
+## Get TFT balance
+
+The `balance` function gets the TFT balance of an account, if the passed account is an empty string, the balance of the account of the client is returned.
+
+```v
+balance := stellar_client.balance('')!
 ```
 
 ## Convert TFT on Stellar to TFT on Ethereum

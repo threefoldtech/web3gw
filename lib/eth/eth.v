@@ -292,9 +292,9 @@ pub fn (mut e EthClient) transfer_eth_tft(args TftEthTransfer) !string {
 	], eth.default_timeout)!
 }
 
-// withdraw_eth_tft_to_stellar withdraws eth tft to stellar
-pub fn (mut e EthClient) withdraw_eth_tft_to_stellar(args TftEthTransfer) !string {
-	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.WithdrawEthTftToStellar',
+// bridge_to_stellar bridges tft on ethereum to tft stellar
+pub fn (mut e EthClient) bridge_to_stellar(args TftEthTransfer) !string {
+	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.BridgeToStellar',
 		[args], eth.default_timeout)!
 }
 
@@ -304,11 +304,17 @@ pub fn (mut e EthClient) get_tft_eth_balance() !string {
 		eth.default_timeout)!
 }
 
-// approve_eth_tft_spending approves the given amount of tft to be spent by the multisig contract
+// approve_eth_tft_spending approves the given amount of TFT to be swapped
 pub fn (mut e EthClient) approve_eth_tft_spending(amount string) !string {
 	return e.client.send_json_rpc[[]string, string]('eth.ApproveEthTftSpending', [
 		amount,
 	], eth.default_timeout)!
+}
+
+// get_eth_tft_allowance returns the amount of TFT approved to be swapped
+pub fn (mut e EthClient) get_eth_tft_allowance() !string {
+	return e.client.send_json_rpc[[]string, string]('eth.EthTftSpendingAllowance', []string{},
+		eth.default_timeout)!
 }
 
 // quote_eth_for_tft returns the amount of tft that would be received for the given amount of eth
