@@ -50,6 +50,7 @@ pub fn (mut r Runner) run(address string, debug_log bool) ! {
 	r.gateway_name_actions(mut ap)!
 	r.gateway_fqdn_actions(mut ap)!
 	r.zdb_actions(mut ap)!
+	r.k8s_actions(mut ap)!
 }
 
 pub fn (mut r Runner) helper_actions(mut ap actionsparser.ActionsParser) ! {
