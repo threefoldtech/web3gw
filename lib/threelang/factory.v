@@ -44,11 +44,6 @@ pub fn (mut r Runner) run(address string, debug_log bool) ! {
 
 	_ := spawn myclient.run()
 
-	// for action in ap.actions {
-	// 	println(action.book)
-	// 	println("-------")
-	// }
-
 	r.helper_actions(mut ap)!
 	r.core_actions(mut ap, mut myclient)!
 	r.vm_actions(mut ap)!
@@ -56,11 +51,6 @@ pub fn (mut r Runner) run(address string, debug_log bool) ! {
 	r.gateway_fqdn_actions(mut ap)!
 	r.zdb_actions(mut ap)!
 }
-
-
-// pub fn (mut r Runner) tfgrid_client_get(name string) ! {
-// 	//TODO: work with sumtype, look for right name
-// }
 
 pub fn (mut r Runner) helper_actions(mut ap actionsparser.ActionsParser) ! {
 	mut sshkey_action := ap.filtersort(actor: 'sshkeys', book: 'tfgrid')!
