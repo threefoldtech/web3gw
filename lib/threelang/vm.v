@@ -1,4 +1,4 @@
-module threelang
+module main
 
 import freeflowuniverse.crystallib.actionsparser
 import threefoldtech.threebot.tfgrid
@@ -39,16 +39,49 @@ import log
 // }
 // import freeflowuniverse.crystallib.texttools
 
-fn (mut r Runner) vm_actions(actions actionsparser.ActionsParser) ! {
-	mut actions2 := actions.filtersort(actor: 'vm', domain:'tfgrid')!
+fn (mut r Runner) vm_actions(mut actions actionsparser.ActionsParser) ! {
+	mut actions2 := actions.filtersort(actor: 'machines', book:'tfgrid')!
 	for action in actions2 {
-		p:=action.params
-		if action.name == 'create' {
-			//get the relevant args from params
-			name := action.params.get('name')!
-			// name := action.params.get_default('growth', '1:1')!
+		match action.name {
+			'create' {
+				name := action.params.get('name')!
+				farm_id := action.params.get_int_default('farm_id', 0)!
+				capacity := action.params.get_default('capacity', 'meduim')!
+				times := action.params.get_int_default('times', 1)!
+				disk_size := action.params.get_int_default('disk_size', 10)!
+				gateway := action.params.get_default('gateway', 'no')!
+				wg := action.params.get_default('add_wireguard_access', 'no')!
+				public_ip := action.params.get_default('add_public_ips', 'no')!
 
-			//TODO: call the V client to deploy a VM
+
+				ssh_key_name := action.params.get_default('sshkey', 'default')!
+				ssh_key := r.ssh_keys[ssh_key_name]
+				
+				deploy_res := r.handler.create_vm(VM{
+					network: name
+					capacity: capacity
+					ssh_key: ssh_key
+					gateway: false
+					add_wireguard_access: true
+				})!
+
+				println('${deploy_res}')
+			}
+			'delete' {
+				println('deleting')
+			}
+			'get' {
+				println('getting')
+			}
+			'add' {
+				println('adding')
+			}
+			'remove' {
+				println('removing')
+			}
+			else {
+				println("error")
+			}
 		}
-
 	}
+}
