@@ -2,14 +2,16 @@
 In a simple format you can do almost all the extrinsic and queries on the chian. List of the namespaces
 
 ## Name spaces and their actions
-- [Account](#account)
-- [Balance](#balance)
-- [Twins](#twins)
-- [Nodes](#nodes)
-- [Farms](#farms)
-- [Contracts](#contracts)
-- [Service Contract](#service-contract)
-- [Metadata](#metadata)
+- [TF Chain Actions](#tf-chain-actions)
+  - [Name spaces and their actions](#name-spaces-and-their-actions)
+  - [Account](#account)
+  - [Balance](#balance)
+  - [Twins](#twins)
+  - [Nodes](#nodes)
+  - [Farms](#farms)
+  - [Contracts](#contracts)
+  - [Service Contract](#service-contract)
+  - [Metadata](#metadata)
 
 
 ## Account

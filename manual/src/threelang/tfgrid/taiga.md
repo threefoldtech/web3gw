@@ -1,6 +1,6 @@
-# Taiga Namespace
+# Taiga action
 
-- To deploy a taiga instance, use the Taiga namespace.
+- To deploy a taiga instance, use the Taiga action.
 
 ## Create Operation
 
@@ -16,14 +16,31 @@
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
   - ssh_key [required]
-- arguments:
   - public_ip
+    - yes or no to add a public ip to the taiga instance
+
+- Example:
+  
+  ```
+  !!tfgrid.taiga.create
+      name: hamadataiga
+      capacity: medium
+      size: 10GB
+      ssh_key: my_taiga_ssh_key
+  ```
 
 ## Get Operation
 
 - action name: !!tfgrid.taiga.get
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.taiga.get
+      name: hamadataiga
+  ```
 
 ## Update Operations
 
@@ -34,3 +51,10 @@
 - action_name: !!tfgrid.taiga.delete
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.taiga.delete
+      name: hamadataiga
+  ```

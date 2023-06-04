@@ -1,10 +1,10 @@
-# VM Namespace
+# Machines Actions
 
-- To deploy a number of virtual machines on the same network, use the vm namespace.
+- To deploy a number of virtual machines on the same network, use the machines actions.
 
 ## Create Operation
 
-- action name: !!tfgrid.vm.create
+- action name: !!tfgrid.machines.create
 - parameters:
   - network [optional]
     - if not provided, a random network name will be generated.
@@ -21,18 +21,40 @@
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
     - size in GB of disk to be mounted on each machine at "/mnt/disk"
-  - ssh_key [required]
-- arguments:
-  - add_wireguard_access
-  - add_public_ips
-  - gateway
-    - to add a gateway point to this machine on port 9000
+  - ssh_key [optional]
+    - the name of the ssh key defined with an sshkey action.
+    - if not provided, the sshkey with the name 'default' will be used.
+  - add_wireguard_access [optional]
+    - yes or no to add a wireguard access point to the network
+  - add_public_ips [optional]
+    - yes or no to add public ips to the machines
+  - gateway [optional]
+    - yes or no to add a gateway point to this machine on port 9000
+
+- Example:
+  
+  ```
+  !!tfgrid.machines.create
+      network: skynet
+      sshkey: my_ssh_key
+      capacity: small
+      times: 2
+      gateway: yes
+      add_wireguard_access: yes
+  ```
 
 ## Get Operation
 
-- action name: !!tfgrid.vm.get
+- action name: !!tfgrid.machines.get
 - parameters:
   - network [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.machines.get
+      name: skynet
+  ```
 
 ## Update Operations
 
@@ -42,13 +64,28 @@
 
 ### Remove Operation
 
-- action_name: !!tfgrid.vm.remove
+- action_name: !!tfgrid.machines.remove
 - parameters:
   - network_name [required]
   - machine_name [required]
 
+- Example:
+  
+  ```
+  !!tfgrid.machines.remove
+      network_name: skynet
+      machine_name: vm1
+  ```
+
 ## Delete Operation
 
-- action_name: !!tfgrid.vm.delete
+- action_name: !!tfgrid.machines.delete
 - parameters:
   - network_name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.machines.delete
+      network_name: skynet
+  ```

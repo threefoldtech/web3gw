@@ -1,6 +1,6 @@
-# Presearch Namespace
+# Presearch actions
 
-- To deploy a presearch instance, use the Presearch namespace.
+- To deploy a presearch instance, use the Presearch actions.
 
 ## Create Operation
 
@@ -16,14 +16,32 @@
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
   - ssh_key [required]
-- arguments:
   - public_ip
+    - yes or no to add a public ip to the presearch instance
+
+- Example:
+  
+  ```
+  !!tfgrid.presearch.create
+      name: mypresearch
+      farm_id: 3
+      capacity: large
+      disk_size: 10GB
+      public_ip: yes
+  ```
 
 ## Get Operation
 
 - action name: !!tfgrid.presearch.get
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.presearch.get
+      name: mypresearch
+  ```
 
 ## Update Operations
 
@@ -34,3 +52,10 @@
 - action_name: !!tfgrid.presearch.delete
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.presearch.delete
+      name: mypresearch
+  ```

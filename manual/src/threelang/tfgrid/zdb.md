@@ -1,25 +1,42 @@
-# ZDB Namespace
+# ZDB Actions
 
-- To deploy a ZDB, use the ZDB namespace
+- To deploy a ZDB, use the ZDB actions
 
 ## Create Operation
 
-- action name: !!tfgrid.zdb.create
+- action name: !!tfgrid.zdbs.create
 - parameters:
   - name [required]
   - farm_id [optional]
   - password [required]
   - size [required]
     - size of the ZDB in GB
-- arguments:
   - public
+    - yes or no
   - user_mode
+    - 'seq' or 'user'. defaults to 'user'
+
+- Example:
+  
+  ```
+  !!tfgrid.zdbs.create 
+      name: hamadazdb
+      size: 10GB
+      password: pass1
+  ```
 
 ## Get Operation
 
-- action name: !!tfgrid.zdb.get
+- action name: !!tfgrid.zdbs.get
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.zdbs.get
+      name: hamadazdb
+  ```
 
 ## Update Operations
 
@@ -27,6 +44,13 @@
 
 ## Delete Operation
 
-- action_name: !!tfgrid.zdb.delete
+- action_name: !!tfgrid.zdbs.delete
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.zdbs.delete
+      name: hamadazdb
+  ```
