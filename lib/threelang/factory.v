@@ -1,4 +1,4 @@
-module main
+module threelang
 
 import freeflowuniverse.crystallib.actionsparser
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
@@ -21,20 +21,24 @@ pub mut:
 	address string
 }
 
-pub fn new(args RunnerArgs, logger &log.Logger) !Runner {
+pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	mut factory := Runner{
 			path:args.path
 		}
 
 
-	factory.run(args.address, logger)!
+	factory.run(args.address, debug_log)!
 	return factory
 }
 
-pub fn (mut r Runner) run(address string, logger &log.Logger) ! {
+pub fn (mut r Runner) run(address string, debug_log bool) ! {
 	mut ap := actionsparser.new(path: r.path, defaultbook: 'aaa')!
 
-	mut myclient := rpcwebsocket.new_rpcwsclient(address, logger) or {
+	mut logger := log.Logger(&log.Log{
+		level: if debug_log { .debug } else { .info }
+	})
+
+	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
 		return error('Failed creating rpc websocket client: ${err}')
 	}
 
@@ -48,6 +52,9 @@ pub fn (mut r Runner) run(address string, logger &log.Logger) ! {
 	r.helper_actions(mut ap)!
 	r.core_actions(mut ap, mut myclient)!
 	r.vm_actions(mut ap)!
+	r.gateway_name_actions(mut ap)!
+	r.gateway_fqdn_actions(mut ap)!
+	r.zdb_actions(mut ap)!
 }
 
 

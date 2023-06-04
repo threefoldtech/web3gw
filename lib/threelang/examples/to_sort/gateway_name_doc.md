@@ -1,4 +1,4 @@
-!!tfgrid.login
+!!tfgrid.core.login
 	mnemonic: 'YOUR MNEMONICS'
 	network: dev
 

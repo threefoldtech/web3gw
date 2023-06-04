@@ -1,5 +1,5 @@
 !!tfgrid.core.login
-	mnemonic: 'mom picnic deliver again rug night rabbit music motion hole lion where'
+	mnemonic: 'YOUR MNEMONICS'
 	network: dev
 
 !!tfgrid.sshkeys.new

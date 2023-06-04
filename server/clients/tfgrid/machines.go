@@ -3,8 +3,6 @@ package tfgrid
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
@@ -779,80 +777,6 @@ func (m *MachinesModel) findMachine(machineName string) (*Machine, error) {
 	}
 
 	return nil, fmt.Errorf("failed to find machine %s in model %s", machineName, m.Name)
-}
-
-func (g *gridMachinesModel) getNetworkState() (state.Network, error) {
-	subnets := map[uint32]string{}
-	for nodeID, subnet := range g.network.NodesIPRange {
-		subnets[nodeID] = subnet.String()
-	}
-
-	usedIPs := state.NodeDeploymentHostIDs{}
-	for nodeID, dl := range g.deployments {
-		nodeUsedIPs := state.DeploymentHostIDs{}
-		for _, vm := range dl.Vms {
-			slices := strings.SplitAfter(vm.IP, ".")
-			hostID := slices[len(slices)-1]
-			id, err := strconv.ParseUint(hostID, 10, 8)
-			if err != nil {
-				return state.Network{}, err
-			}
-			contractID := dl.NodeDeploymentID[nodeID]
-			nodeUsedIPs[contractID] = append(nodeUsedIPs[contractID], byte(id))
-		}
-		usedIPs[nodeID] = nodeUsedIPs
-	}
-
-	return state.Network{
-		Subnets:               subnets,
-		NodeDeploymentHostIDs: usedIPs,
-	}, nil
-}
-
-func (c *Client) updateDeployment(ctx context.Context, oldDeployments map[uint32]uint64, params *AddMachineParams) error {
-	dl, err := c.prepareDeploymentForUpdate(oldDeployments, params)
-	if err != nil {
-		return err
-	}
-
-	if err := c.GridClient.DeployDeployment(ctx, &dl); err != nil {
-		return errors.Wrap(err, "failed to deploy")
-	}
-
-	oldDeployments[dl.NodeID] = dl.ContractID
-
-	return nil
-}
-
-func (c *Client) prepareDeploymentForUpdate(oldDeployments map[uint32]uint64, params *AddMachineParams) (workloads.Deployment, error) {
-	networkName := generateNetworkName(params.ModelName)
-	vm, disks, qsfss := extractMachineWorkloads(&params.Machine, networkName)
-
-	if _, ok := oldDeployments[params.Machine.NodeID]; ok {
-		// there is an old deployment on this node; load and update this deployment.
-		dl, err := c.loadDeployment(params.ModelName, params.Machine.NodeID)
-		if err != nil {
-			return workloads.Deployment{}, errors.Wrap(err, "failed to load deployments")
-		}
-
-		dl.Vms = append(dl.Vms, vm)
-		dl.QSFS = append(dl.QSFS, qsfss...)
-		dl.Disks = append(dl.Disks, disks...)
-
-		return dl, nil
-	}
-
-	return workloads.NewDeployment(
-		params.ModelName,
-		params.Machine.NodeID,
-		generateProjectName(params.ModelName),
-		nil,
-		networkName,
-		disks,
-		nil,
-		[]workloads.VM{vm},
-		qsfss), nil
-
 }
 
 func removeMachineFromDeployment(dl *workloads.Deployment, machine *Machine) {
