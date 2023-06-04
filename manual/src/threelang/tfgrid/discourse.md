@@ -1,6 +1,6 @@
-# Discourse Namespace
+# Discourse action
 
-- To deploy a discourse instance, use the discourse namespace.
+- To deploy a discourse instance, use the discourse action.
 
 ## Create Operation
 
@@ -25,14 +25,43 @@
   - smtp_password [required]
   - smtp_tls [required]
 
+- Example:
+  
+  ```
+  !!tfgrid.discourse.create
+      name: discoursename
+      capacity: large
+      ssh_key: my_ssh_key
+      developer_email: email@gmail.com
+      smtp_hostname: myhostname
+      smtp_port: 9000
+      smtp_username: username1
+      smtp_password: pass1
+      smtp_tls: true
+  ```
+
 ## Get Operation
 
 - action name: !!tfgrid.discourse.get
 - parameters:
   - name [required]
 
+- Example:
+  
+  ```
+  !!tfgrid.discourse.get
+      name: discoursename
+  ```
+
 ## Delete Operation
 
 - action_name: !!tfgrid.discourse.delete
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.discourse.delete
+      name: discoursename
+  ```

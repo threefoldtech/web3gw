@@ -1,6 +1,6 @@
-# Funkwhale Namespace
+# Funkwhale action
 
-- To deploy a funkwhale instance, use the funkwhale namespace.
+- To deploy a funkwhale instance, use the funkwhale action.
 
 ## Create Operation
 
@@ -21,14 +21,41 @@
   - admin_username [required]
   - admin_password [required]
 
+- Example:
+  
+  ```
+  !!tfgrid.funkwhale.create
+      name: funkwhale_instance
+      farm_id: 4
+      capacity: medium
+      ssh_key: my_ssh_key
+      admin_email: email@gmail.com
+      admin_username: username1
+      admin_password: pass1
+  ```
+
 ## Get Operation
 
 - action name: !!tfgrid.funkwhale.get
 - parameters:
   - name [required]
 
+- Example:
+  
+  ```
+  !!tfgrid.funkwhale.get
+      name: funkwhale_instance
+  ```
+
 ## Delete Operation
 
 - action_name: !!tfgrid.funkwhale.delete
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.funkwhale.delete
+      name: funkwhale_instance
+  ```

@@ -1,5 +1,7 @@
 # Grid Actions
 
+- [Login Action](./login.md)
+- [SSH Key Action](./ssh_key.md)
 - [Machines Actions](./machines.md)
 - [Kubernetes Actions](./k8s.md)
 - [Gateway Name Actions](./gateway_name.md)

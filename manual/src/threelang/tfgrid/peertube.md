@@ -1,6 +1,6 @@
-# Peertube Namespace
+# Peertube actions
 
-- To deploy a peertube instance, use the Peertube namespace.
+- To deploy a peertube instance, use the Peertube actions.
 
 ## Create Operation
 
@@ -23,11 +23,34 @@
   - smtp_username [required]
   - smtp_password [required]
 
+- Example:
+  
+  ```
+  !!tfgrid.peertube.create
+      name: mypeertube
+      farm_id: 2
+      capacity: extra-large
+      ssh_key: my_peertube_sshkey
+      db_username: dbusername
+      db_password: dbpassword
+      admin_email: admin@gmail.com
+      smtp_hostname: host1
+      smtp_username: username1
+      smtp_password: password1
+  ```
+
 ## Get Operation
 
 - action name: !!tfgrid.peertube.get
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.peertube.get
+      name: mypeertube
+  ```
 
 ## Update Operations
 
@@ -38,3 +61,10 @@
 - action_name: !!tfgrid.peertube.delete
 - parameters:
   - name [required]
+
+- Example:
+  
+  ```
+  !!tfgrid.peertube.delete
+      name: mypeertube
+  ```
