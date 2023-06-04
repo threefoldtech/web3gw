@@ -5,6 +5,6 @@ import threefoldtech.threebot.explorer { ExplorerClient }
 
 pub struct SolutionHandler {
 pub mut:
-	tfclient &TFGridClient
-	explorer &ExplorerClient
+	tfclient TFGridClient
+	explorer ExplorerClient
 }

@@ -8,7 +8,7 @@ pub struct VM {
 pub mut:
 	network              string
 	farm_id              u32
-	capacity             Capacity
+	capacity             string
 	times                u32 = 1
 	disk_size            u32
 	ssh_key              string
@@ -34,22 +34,22 @@ const (
 	gateway_project_name_env_var = 'WEB3PROXY_DOMAIN_PROJECT_NAME'
 
 	cap                          = {
-		Capacity.small:       CapacityPackage{
+		'small':       CapacityPackage{
 			cpu: 1
 			memory: 2048
 			size: 4096
 		}
-		Capacity.medium:      CapacityPackage{
+		'medium':      CapacityPackage{
 			cpu: 2
 			memory: 4096
 			size: 8192
 		}
-		Capacity.large:       CapacityPackage{
+		'large':       CapacityPackage{
 			cpu: 4
 			memory: 8192
 			size: 16384
 		}
-		Capacity.extra_large: CapacityPackage{
+		'extra_large': CapacityPackage{
 			cpu: 8
 			memory: 16384
 			size: 32768
