@@ -13,7 +13,7 @@ fn test_vm_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 
 	deploy_res := s.create_vm(VM{
 		network: network_name
-		capacity: Capacity.small
+		capacity: 'small'
 		ssh_key: 'hamada ssh'
 		gateway: true
 		add_wireguard_access: true
@@ -22,7 +22,7 @@ fn test_vm_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 
 	add_res := s.create_vm(VM{
 		network: network_name
-		capacity: Capacity.small
+		capacity: 'small'
 		ssh_key: 'hamada ssh2'
 		times: 2
 		gateway: true
