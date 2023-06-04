@@ -9,7 +9,6 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-
 fn main() {
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
