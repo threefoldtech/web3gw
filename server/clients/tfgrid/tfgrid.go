@@ -157,9 +157,8 @@ func (c *tfgridClient) SetContractState(contracts map[uint32]state.ContractIDs) 
 	mp := map[uint32]state.ContractIDs{}
 	for k, v := range contracts {
 		contractsCopy := state.ContractIDs{}
-		for _, c := range v {
-			contractsCopy = append(contractsCopy, c)
-		}
+		contractsCopy = append(contractsCopy, v...)
+
 		mp[k] = contractsCopy
 	}
 

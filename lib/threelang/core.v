@@ -1,4 +1,4 @@
-module main
+module threelang
 
 import freeflowuniverse.crystallib.actionsparser
 import threefoldtech.threebot.tfgrid

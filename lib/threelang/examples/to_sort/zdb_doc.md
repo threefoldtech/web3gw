@@ -1,14 +1,14 @@
-!!tfgrid.login
+!!tfgrid.core.login
 	mnemonic: 'YOUR MNEMONICS'
 	network: dev
 
-!!tfgrid.zdb.create 
+!!tfgrid.zdbs.create 
     name: hamadazdb
-    size: 10
+    size: 10GB
     password: pass1
 
-!!tfgrid.zdb.get
+!!tfgrid.zdbs.get
 	name: hamadazdb
 
-!!tfgrid.zdb.delete
+!!tfgrid.zdbs.delete
 	name: hamadazdb
