@@ -15,7 +15,7 @@ const (
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	mut tfchain_client := tfchain.new(mut client)
 
-	tfchain_client.load(network:.testnet, mnemonic:mnemonic)!
+	tfchain_client.load(network:"testnet", mnemonic:mnemonic)!
 	
 	//tfchain_client.transfer(tfchain.Transfer{amount: 1000, destination: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"})! // FILL IN SOME DESTINATION
 	
