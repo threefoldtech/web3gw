@@ -1,25 +1,13 @@
 module threelang
 
 import freeflowuniverse.crystallib.actionsparser
-import threefoldtech.threebot.tfgrid {GatewayFQDN}
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
+import threefoldtech.threebot.tfgrid { GatewayFQDN }
+import threefoldtech.threebot.tfgrid.solution
 import rand
 import encoding.utf8
 
-/*
-[params]
-pub struct GatewayFQDN {
-pub:
-	name            string   [required]
-	node_id         u32      [required]
-	tls_passthrough bool
-	backends        []string [required]
-	fqdn            string   [required]
-}
-*/
-
 fn (mut r Runner) gateway_fqdn_actions(mut actions actionsparser.ActionsParser) ! {
-	mut gateway_actions := actions.filtersort(actor: 'gateway_fqdn', book:'tfgrid')!
+	mut gateway_actions := actions.filtersort(actor: 'gateway_fqdn', book: 'tfgrid')!
 	for action in gateway_actions {
 		match action.name {
 			'create' {
@@ -32,11 +20,10 @@ fn (mut r Runner) gateway_fqdn_actions(mut actions actionsparser.ActionsParser) 
 				gw_deploy := r.handler.tfclient.gateways_deploy_fqdn(GatewayFQDN{
 					name: name
 					node_id: u32(node_id)
-					tls_passthrough: if tls_passthrough == 'yes'{true} else{false}
+					tls_passthrough: if tls_passthrough == 'yes' { true } else { false }
 					backends: [backend]
 					fqdn: fqdn
 				})!
-
 			}
 			'delete' {
 				name := action.params.get('name')!

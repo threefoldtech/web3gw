@@ -2,11 +2,11 @@ module threelang
 
 import freeflowuniverse.crystallib.actionsparser
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, K8s }
+import threefoldtech.threebot.tfgrid.solution { K8s }
 import log
 
 fn (mut r Runner) k8s_actions(mut actions actionsparser.ActionsParser) ! {
-	mut actions2 := actions.filtersort(actor: 'kubernetes', book:'tfgrid')!
+	mut actions2 := actions.filtersort(actor: 'kubernetes', book: 'tfgrid')!
 	for action in actions2 {
 		match action.name {
 			'create' {
@@ -19,7 +19,7 @@ fn (mut r Runner) k8s_actions(mut actions actionsparser.ActionsParser) ! {
 
 				ssh_key_name := action.params.get_default('sshkey', 'default')!
 				ssh_key := r.ssh_keys[ssh_key_name]
-				
+
 				deploy_res := r.handler.create_k8s(K8s{
 					name: name
 					farm_id: farm_id
@@ -31,12 +31,12 @@ fn (mut r Runner) k8s_actions(mut actions actionsparser.ActionsParser) ! {
 				})!
 
 				println('${deploy_res}')
-			}	
+			}
 			'get' {
 				name := action.params.get('name')!
 
 				get_res := r.handler.get_k8s(name)!
-				
+
 				println('${get_res}')
 			}
 			'add' {
@@ -47,7 +47,7 @@ fn (mut r Runner) k8s_actions(mut actions actionsparser.ActionsParser) ! {
 
 				ssh_key_name := action.params.get_default('sshkey', 'default')!
 				ssh_key := r.ssh_keys[ssh_key_name]
-				
+
 				add_res := r.handler.add_k8s_worker(K8s{
 					name: name
 					farm_id: farm_id
@@ -57,7 +57,6 @@ fn (mut r Runner) k8s_actions(mut actions actionsparser.ActionsParser) ! {
 				})!
 
 				println('${add_res}')
-
 			}
 			'remove' {
 				name := action.params.get('name')!
@@ -72,7 +71,7 @@ fn (mut r Runner) k8s_actions(mut actions actionsparser.ActionsParser) ! {
 				r.handler.delete_k8s(name) or { println('failed to delete k8s cluster: ${err}') }
 			}
 			else {
-				println("invalid operation.")
+				return error('operation ${action.name} is not supported on k8s')
 			}
 		}
 	}

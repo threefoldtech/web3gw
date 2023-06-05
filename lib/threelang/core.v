@@ -2,14 +2,14 @@ module threelang
 
 import freeflowuniverse.crystallib.actionsparser
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
+import threefoldtech.threebot.tfgrid.solution { SolutionHandler }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import threefoldtech.threebot.explorer
 
-fn (mut r Runner) core_actions(mut actions actionsparser.ActionsParser, mut myclient &RpcWsClient) ! {
-	mut actions2 := actions.filtersort(actor: 'core', book:'tfgrid')!
+fn (mut r Runner) core_actions(mut actions actionsparser.ActionsParser, mut myclient RpcWsClient) ! {
+	mut actions2 := actions.filtersort(actor: 'core', book: 'tfgrid')!
 	for action in actions2 {
-		p:=action.params
+		p := action.params
 		if action.name == 'login' {
 			mnemonic := action.params.get_default('mnemonic', '')!
 			netstring := action.params.get_default('net', 'dev')!
@@ -31,6 +31,5 @@ fn (mut r Runner) core_actions(mut actions actionsparser.ActionsParser, mut mycl
 
 			r.handler = sl
 		}
-
 	}
 }

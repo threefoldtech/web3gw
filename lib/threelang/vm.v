@@ -2,11 +2,11 @@ module threelang
 
 import freeflowuniverse.crystallib.actionsparser
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
+import threefoldtech.threebot.tfgrid.solution { VM }
 import log
 
 fn (mut r Runner) vm_actions(mut actions actionsparser.ActionsParser) ! {
-	mut actions2 := actions.filtersort(actor: 'machines', book:'tfgrid')!
+	mut actions2 := actions.filtersort(actor: 'machines', book: 'tfgrid')!
 	for action in actions2 {
 		match action.name {
 			'create' {
@@ -21,7 +21,7 @@ fn (mut r Runner) vm_actions(mut actions actionsparser.ActionsParser) ! {
 
 				ssh_key_name := action.params.get_default('sshkey', 'default')!
 				ssh_key := r.ssh_keys[ssh_key_name]
-				
+
 				deploy_res := r.handler.create_vm(VM{
 					network: network
 					capacity: capacity
@@ -37,7 +37,7 @@ fn (mut r Runner) vm_actions(mut actions actionsparser.ActionsParser) ! {
 				network := action.params.get('network')!
 
 				get_res := r.handler.get_vm(network)!
-				
+
 				println('${get_res}')
 			}
 			'remove' {
@@ -53,7 +53,7 @@ fn (mut r Runner) vm_actions(mut actions actionsparser.ActionsParser) ! {
 				r.handler.delete_vm(network) or { println('failed to delete vm network: ${err}') }
 			}
 			else {
-				println("invalid operation.")
+				return error('operation ${action.name} is not supported on vms')
 			}
 		}
 	}
