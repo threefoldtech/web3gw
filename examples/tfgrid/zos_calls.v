@@ -7,7 +7,7 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn test_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	mut request := tfgrid.ZOSNodeRequest{
 		node_id: 11
 	}
@@ -152,7 +152,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_zos_node_calls(mut tfgrid_client, mut logger) or {
+	run_zos_node_calls(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

@@ -3,7 +3,7 @@ module main
 import threefoldtech.threebot.tfgrid
 import log
 
-fn test_zdb_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_zdb_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	model_name := 'testZdbOps'
 
 	res := client.zdb_deploy(tfgrid.ZDB{
@@ -32,7 +32,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_zdb_ops(mut tfgrid_client, mut logger) or {
+	run_zdb_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

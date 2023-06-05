@@ -3,7 +3,7 @@ module main
 import threefoldtech.threebot.tfgrid
 import log
 
-fn test_fqdn_gw_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_fqdn_gw_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	model_name := '3omarName'
 
 	res := client.gateways_deploy_fqdn(tfgrid.GatewayFQDN{
@@ -34,7 +34,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_fqdn_gw_ops(mut tfgrid_client, mut logger) or {
+	run_fqdn_gw_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

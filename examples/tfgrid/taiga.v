@@ -4,7 +4,7 @@ import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { SolutionHandler, Taiga }
 import log
 
-fn test_taiga_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_taiga_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadataiga'
 	deploy_res := s.deploy_taiga(Taiga{
 		name: model_name
@@ -43,7 +43,7 @@ fn main() {
 		explorer: &exp
 	}
 
-	test_taiga_ops(mut s, mut logger) or {
+	run_taiga_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

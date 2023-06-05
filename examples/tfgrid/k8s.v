@@ -3,7 +3,7 @@ module main
 import threefoldtech.threebot.tfgrid
 import log
 
-fn test_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_k8s_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	cluster_name := 'testK8sOps'
 
 	mut res := client.k8s_deploy(tfgrid.K8sCluster{
@@ -67,7 +67,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_k8s_ops(mut tfgrid_client, mut logger) or {
+	run_k8s_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

@@ -4,7 +4,7 @@ import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { Presearch, SolutionHandler }
 import log
 
-fn test_presearch_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_presearch_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadapresearch'
 	deploy_res := s.deploy_presearch(Presearch{
 		name: model_name
@@ -41,7 +41,7 @@ fn main() {
 		explorer: &exp
 	}
 
-	test_presearch_ops(mut s, mut logger) or {
+	run_presearch_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}
