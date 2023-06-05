@@ -25,6 +25,8 @@ pub struct Arguments {
 
 	tfchain_network 	string
 	tfchain_mnemonic 	string
+
+	ssh_key string
 }
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) ! {
@@ -37,7 +39,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 	tfchain_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
 	stellar_client.load(network: args.stellar_network, secret: args.stellar_secret)!
 	tfgrid_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
-	/*
+	
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
@@ -87,7 +89,6 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 
 	tfchain_balance = tfchain_client.balance(tfchain_address)!
 	logger.info('tft balance: ${tfchain_balance}')
-	*/
 
 	machines_deployment := tfgrid_client.machines_deploy(tfgrid.MachinesModel{
 		name: "mydeployment",
@@ -100,8 +101,9 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 			cpu: 2
 			memory: 2048
 			rootfs_size: 1024
+			public_ip6: true
 			env_vars: {
-				'SSH_KEY': 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDddf7IgESCIkrqeCrn8BMIPRzObrJ9q6lu/Gve0i8t/'
+				'SSH_KEY': args.ssh_key
 			}
 			disks: [tfgrid.Disk{
 				size: 10
@@ -111,7 +113,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 		metadata: "",
 		description: "My deployment using ethereum"
 	})!
-	logger.debug('machines deployment: ${machines_deployment}')
+	logger.info('machines deployment: ${machines_deployment}')
 }
 
 fn main() {
@@ -133,7 +135,7 @@ fn main() {
 	tfchain_mnemonic := fp.string('tfchain-mnemonic', 0, '', 'The mnemonic of your tfchain account.')
 	tfchain_network := fp.string('tfchain-network', 0, '', 'The tfchain network to use.')
 
-	//amount := fp.int('amount', `m`, 0, 'The amount of TFT to send to the destination address.')
+	ssh_key := fp.string('ssh-key', 0, '', 'The SSH key that can be used to ssh into the vm later.')
 
 	_ := fp.finalize() or {
 		eprintln(err)
@@ -162,6 +164,8 @@ fn main() {
 
 		tfchain_network: tfchain_network
 		tfchain_mnemonic: tfchain_mnemonic
+		
+		ssh_key: ssh_key
 	}
 
 	execute_rpcs(mut myclient, mut logger, arguments) or {
