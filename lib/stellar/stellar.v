@@ -57,8 +57,8 @@ pub fn (mut s StellarClient) address() !string {
 	return s.client.send_json_rpc[[]string, string]('stellar.Address', []string{}, default_timeout)!
 }
 
-// Transer an amount of TFT from the loaded account to the destination.
-pub fn (mut s StellarClient) transer(args Transfer) !string {
+// Transfer an amount of TFT from the loaded account to the destination.
+pub fn (mut s StellarClient) transfer(args Transfer) !string {
 	return s.client.send_json_rpc[[]Transfer, string]('stellar.Transfer', [args], default_timeout)!
 }
 
