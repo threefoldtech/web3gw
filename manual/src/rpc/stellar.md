@@ -1,5 +1,6 @@
 
 # Stellar
+
 TODO: intro
 
 ## Remote Procedure Calls
@@ -10,6 +11,7 @@ TODO: intro
 - network = The network to use, either `testnet` or `public`
 
 ****Request****
+
 ```
 {
     "jsonrpc": "2.0",
@@ -21,7 +23,9 @@ TODO: intro
     "id": "<GUID>"
 }
 ```
+
 **Response**
+
 ```
 {
     "jsonrpc": "2.0",
@@ -33,6 +37,7 @@ TODO: intro
 ### Transfer
 
 ****Request****
+
 ```
 {
     "jsonrpc": "2.0",
@@ -45,7 +50,9 @@ TODO: intro
     "id": "<GUID>"
 }
 ```
+
 **Response**
+
 ```
 {
     "jsonrpc": "2.0",
@@ -56,7 +63,10 @@ TODO: intro
 
 ### GetBalance
 
+Get the TFT balance for an account, if the passed address is an empty string, the balance of the account of the client is returned.
+
 **Request**
+
 ```
 {
     "jsonrpc": "2.0",
@@ -65,7 +75,9 @@ TODO: intro
     "id": "<GUID>"
 }
 ```
+
 **Response**
+
 ```
 {
     "jsonrpc": "2.0",
