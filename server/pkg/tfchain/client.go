@@ -8,6 +8,7 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
@@ -40,6 +41,9 @@ const (
 	termsUser     = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/terms_conditions_griduser.md"
 	privacyPolicy = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/privacypolicy.md"
 	disclaimer    = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/disclaimer.md"
+
+	stellarPublicNetworkTfchainBridgeAddress  = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
+	stellarTestnetNetworkTfchainBridgeAddress = "GDHJP6TF3UXYXTNEZ2P36J5FH7W4BJJQ4AYYAXC66I2Q2AH5B6O6BCFG"
 )
 
 type (
@@ -197,6 +201,15 @@ func relayURLFromNetwork(network string) (string, error) {
 		return relayURLQanet, nil
 	} else if network == "devnet" {
 		return relayURLDevnet, nil
+	}
+	return "", errors.New("unsupported network")
+}
+
+func tfchainBridgeAddressFromNetwork(network string) (string, error) {
+	if network == "mainnet" {
+		return stellarPublicNetworkTfchainBridgeAddress, nil
+	} else if network == "devnet" {
+		return stellarTestnetNetworkTfchainBridgeAddress, nil
 	}
 	return "", errors.New("unsupported network")
 }
@@ -641,4 +654,35 @@ func (c *Client) SwapToStellar(ctx context.Context, conState jsonrpc.State, args
 	}
 
 	return state.client.SwapToStellar(state.identity, args.TargetStellarAddress, *args.Amount)
+}
+
+func (c *Client) AwaitTransactionOnTfchainBridge(ctx context.Context, conState jsonrpc.State, memo string) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+	_, err := tfchainBridgeAddressFromNetwork(state.network)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < int(300); i++ {
+		height, err := state.client.GetCurrentHeight()
+		if err != nil {
+			return err
+		}
+		events, err := state.client.GetEventsForBlock(height)
+		if err != nil {
+			return err
+		}
+		for i := range events.TFTBridgeModule_MintCompleted {
+			mintCompletedEvent := events.TFTBridgeModule_MintCompleted[i]
+			if mintCompletedEvent.MintTransaction.Target == types.AccountID(state.identity.PublicKey()) {
+				return nil
+			}
+		}
+		time.Sleep(time.Second * 1)
+	}
+
+	return errors.New("event not found")
 }

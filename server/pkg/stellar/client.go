@@ -112,10 +112,10 @@ func (c *Client) Address(ctx context.Context, conState jsonrpc.State) (string, e
 }
 
 // Transer an amount of TFT from the loaded account to the destination.
-func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) error {
+func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.Client.Transfer(args.Destination, args.Memo, args.Amount)
@@ -133,14 +133,14 @@ func (c *Client) Balance(ctx context.Context, conState jsonrpc.State, address st
 		return "", err
 	}
 
-	return balance.String(), nil
+	return balance, nil
 }
 
 // BridgeToEth transfers TFT from the loaded account to eth bridge and deposits into the destination ethereum account.
-func (c *Client) BridgeToEth(ctx context.Context, conState jsonrpc.State, args BridgeTransfer) error {
+func (c *Client) BridgeToEth(ctx context.Context, conState jsonrpc.State, args BridgeTransfer) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
 	return state.Client.TransferToEthBridge(args.Destination, args.Amount)
@@ -159,11 +159,21 @@ func (c *Client) BridgeToEth(ctx context.Context, conState jsonrpc.State, args B
 // }
 
 // BridgeToTfchain transfers TFT from the loaded account to tfchain bridge and deposits into a twin account.
-func (c *Client) BridgeToTfchain(ctx context.Context, conState jsonrpc.State, args TfchainBridgeTransfer) error {
+func (c *Client) BridgeToTfchain(ctx context.Context, conState jsonrpc.State, args TfchainBridgeTransfer) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.TransferToTfchainBridge(args.Amount, args.TwinId)
+}
+
+// Await till a transaction is processed on ethereum bridge that contains a specific memo
+func (c *Client) AwaitTransactionOnEthBridge(ctx context.Context, conState jsonrpc.State, memo string) error {
 	state := State(conState)
 	if state.Client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.TransferToTfchainBridge(args.Amount, args.TwinId)
+	return state.Client.AwaitTransactionWithMemoOnEthBridge(memo, 60)
 }

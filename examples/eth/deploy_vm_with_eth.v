@@ -38,51 +38,52 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
-	logger.info('eth balance before swap: ${eth_balance}')
+	logger.info('eth balance: ${eth_balance}')
 	
 	mut eth_tft_balance := eth_client.tft_balance()!
-	logger.info('tft balance before swap: ${eth_tft_balance}')
+	logger.info('eth tft balance: ${eth_tft_balance}')
 	
-	/*
-	amount_in := "0.0001"
-
-	quote := eth_client.quote_eth_for_tft(amount_in)!
-	logger.info('will receive: ${quote} tft')
-
-	tx := eth_client.swap_eth_for_tft(amount_in)!
-	logger.info('tx: ${tx}')
-	*/
-	quote := 183943396
+	eth_to_swap := "0.0001"
 	
-	/*
-	eth_tft_balance = eth_client.tft_balance()!
-	logger.info('tft balance after swap: ${eth_tft_balance}')
+	quote := eth_client.quote_eth_for_tft(eth_to_swap)!
+	logger.info('should receive ${quote} tft after swap')
+
+	tx := eth_client.swap_eth_for_tft(eth_to_swap)!
+	logger.info('swapped eth for tft: tx: ${tx}')
 
 	eth_balance = eth_client.balance(address)!
-	logger.info('eth balance after swap: ${eth_balance}')
-
-	eth_client.withdraw_eth_tft_to_stellar(destination: args.stellar_address, amount: quote)!
-	logger.info('withdrawn eth to stellar')
+	logger.info('eth balance: ${eth_balance}')
 
 	eth_tft_balance = eth_client.tft_balance()!
-	logger.info('tft balance after bridge: ${eth_tft_balance}')
-	*/
+	logger.info('eth tft balance: ${eth_tft_balance}')
+
 	stellar_address := stellar_client.address()!
-
-	stellar_balance := stellar_client.balance(stellar_address)!
-	logger.info('stellar balance after bridge: ${stellar_balance}')
-
+	
+	hash_bridge_to_stellar := eth_client.bridge_to_stellar(destination: stellar_address, amount: quote)!
+	stellar_client.await_transaction_on_eth_bridge(hash_bridge_to_stellar)!
+	logger.info('bridge to stellar done')
+	
+	eth_tft_balance = eth_client.tft_balance()!
+	logger.info('eth tft balance: ${eth_tft_balance}')
+	
+	mut stellar_balance := stellar_client.balance(stellar_address)!
+	logger.info('stellar balance: ${stellar_balance}')
+	
 	tfchain_address := tfchain_client.address()!
-	logger.info('Bridge to tfchain address ${tfchain_address}')
-
 	tfchain_twinid := tfchain_client.get_twin_by_pubkey(tfchain_address)!
-	logger.info('Twin ID on tfchain is ${tfchain_twinid}')
+	
+	mut tfchain_balance := tfchain_client.balance(tfchain_address)!
+	logger.info('tft balance: ${tfchain_balance}')
 
-	/*tfchain_client.bridge_to_tfchain(amount:stellar_balance.str(), twin_id:tfchain_twinid)!
-	logger.info('Bridge to tfchain done')*/
+	hash_bridge_to_tfchain := stellar_client.bridge_to_tfchain(amount:stellar_balance, twin_id:tfchain_twinid)!
+	tfchain_client.await_transaction_on_tfchain_bridge(hash_bridge_to_tfchain)!
+	logger.info('bridge to tfchain done')
 
-	tfchain_balance := tfchain_client.balance(tfchain_address)!
-	logger.info('Balance on TF Chain is ${tfchain_balance}')
+	stellar_balance = stellar_client.balance(stellar_address)!
+	logger.info('stellar balance: ${stellar_balance}')
+
+	tfchain_balance = tfchain_client.balance(tfchain_address)!
+	logger.info('tft balance: ${tfchain_balance}')
 }
 
 fn main() {

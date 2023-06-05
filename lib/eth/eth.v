@@ -2,8 +2,6 @@ module eth
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import math.unsigned { Uint128, uint128_from_dec_str }
-
 const (
 	default_timeout = 500000
 )
@@ -193,10 +191,9 @@ pub fn (mut e EthClient) get_multisig_owners(contractAddress string) ![]string {
 	], eth.default_timeout)!
 }
 
-pub fn (mut e EthClient) get_multisig_threshold(contractAddress string) !Uint128 {
-	threshold := e.client.send_json_rpc[[]string, string]('eth.GetMultisigThreshold', [contractAddress],
+pub fn (mut e EthClient) get_multisig_threshold(contractAddress string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.GetMultisigThreshold', [contractAddress],
 		eth.default_timeout)!
-	return uint128_from_dec_str(threshold)
 }
 
 // add_multisig_owner adds a new owner to the given multisig contract.
@@ -235,10 +232,9 @@ pub fn (mut e EthClient) initiate_multisig_token_transfer(args InitiateMultisigT
 }
 
 // get_fungible_balance returns the balance of the given fungible token.
-pub fn (mut e EthClient) get_fungible_balance(args GetFungibleBalance) !Uint128 {
-	balance := e.client.send_json_rpc[[]GetFungibleBalance, string]('eth.GetFungibleBalance',
+pub fn (mut e EthClient) get_fungible_balance(args GetFungibleBalance) !string {
+	return e.client.send_json_rpc[[]GetFungibleBalance, string]('eth.GetFungibleBalance',
 		[args], eth.default_timeout)!
-	return uint128_from_dec_str(balance)
 }
 
 // onwer_of_fungible returns the owner of the given fungible token.
@@ -291,16 +287,15 @@ pub fn (mut e EthClient) transfer_eth_tft(args TftEthTransfer) !string {
 	], eth.default_timeout)!
 }
 
-// bridge_to_stellar bridges tft on ethereum to tft stellar
+// bridge_to_stellar withdraws eth tft to stellar
 pub fn (mut e EthClient) bridge_to_stellar(args TftEthTransfer) !string {
 	return e.client.send_json_rpc[[]TftEthTransfer, string]('eth.BridgeToStellar',
 		[args], eth.default_timeout)!
 }
 
 // get_tft_eth_balance returns the tft balance on ethereum
-pub fn (mut e EthClient) tft_balance() !Uint128 {
-	balance := e.client.send_json_rpc[[]string, string]('eth.GetEthTftBalance', []string{}, eth.default_timeout)!
-	return uint128_from_dec_str(balance)
+pub fn (mut e EthClient) tft_balance() !string {
+	return e.client.send_json_rpc[[]string, string]('eth.GetEthTftBalance', []string{}, eth.default_timeout)!
 }
 
 // approve_eth_tft_spending approves the given amount of TFT to be swapped
