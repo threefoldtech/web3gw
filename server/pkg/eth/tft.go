@@ -38,12 +38,7 @@ func (c *Client) GetEthTftBalance(ctx context.Context, conState jsonrpc.State) (
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	tftBalance, err := state.Client.GetEthTftBalance(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	return tftBalance, nil
+	return state.Client.GetEthTftBalance(ctx)
 }
 
 func (c *Client) ApproveEthTftSpending(ctx context.Context, conState jsonrpc.State, amount string) (string, error) {

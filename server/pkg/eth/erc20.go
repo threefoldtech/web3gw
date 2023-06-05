@@ -41,11 +41,7 @@ func (c *Client) GetTokenBalance(ctx context.Context, conState jsonrpc.State, co
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	balance, err := state.Client.GetTokenBalance(contractAddress)
-	if err != nil {
-		return "", err
-	}
-	return balance, nil
+	return state.Client.GetTokenBalance(contractAddress)
 }
 
 // TransferToken transfer an erc20 compatible token to a destination

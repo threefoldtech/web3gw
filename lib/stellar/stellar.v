@@ -2,8 +2,6 @@ module stellar
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
-import math.unsigned { Uint128, uint128_from_dec_str }
-
 const (
 	default_timeout = 500000
 )

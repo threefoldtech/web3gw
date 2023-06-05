@@ -124,8 +124,8 @@ func (c *Client) TransferToTfchainBridge(amount string, twinID uint32) (string, 
 	if err != nil {
 		return "", err
 	}
-	memo := fmt.Sprintf("twin_%d", twinID)
-	return c.Transfer(bridgeAddr, memo, amount)
+
+	return c.Transfer(bridgeAddr, fmt.Sprintf("twin_%d", twinID), amount)
 }
 
 // func (c *Client) GetBscBridgeAddress() (string, error) {
