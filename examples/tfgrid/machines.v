@@ -3,7 +3,7 @@ module main
 import threefoldtech.threebot.tfgrid
 import log
 
-fn test_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	model_name := 'testMachinesOps'
 
 	res := client.machines_deploy(tfgrid.MachinesModel{
@@ -93,7 +93,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_machines_ops(mut tfgrid_client, mut logger) or {
+	run_machines_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

@@ -4,7 +4,7 @@ import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { Discourse, SolutionHandler }
 import log
 
-fn test_discourse_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_discourse_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadadiscourse'
 	deploy_res := s.deploy_discourse(Discourse{
 		name: model_name
@@ -44,7 +44,7 @@ fn main() {
 		explorer: &exp
 	}
 
-	test_discourse_ops(mut s, mut logger) or {
+	run_discourse_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

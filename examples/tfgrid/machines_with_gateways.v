@@ -3,7 +3,7 @@ module main
 import threefoldtech.threebot.tfgrid
 import log
 
-fn test_machines_with_gateways_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_machines_with_gateways_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	model_name := 'hamada_machines_with_gateways'
 	deploy_res := client.deploy_machines_with_gateways(tfgrid.MachinesWithGateways{
 		name: model_name
@@ -41,7 +41,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_machines_with_gateways_ops(mut tfgrid_client, mut logger) or {
+	run_machines_with_gateways_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

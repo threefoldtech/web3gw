@@ -3,7 +3,7 @@ module main
 import threefoldtech.threebot.tfgrid
 import log
 
-fn test_name_gw_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
+fn run_name_gw_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	gw_name := 'qowienfoiqw'
 
 	res := client.gateways_deploy_name(tfgrid.GatewayName{
@@ -33,7 +33,7 @@ fn main() {
 		exit(1)
 	}
 
-	test_name_gw_ops(mut tfgrid_client, mut logger) or {
+	run_name_gw_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

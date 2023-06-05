@@ -4,7 +4,7 @@ import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { Peertube, SolutionHandler }
 import log
 
-fn test_peertube_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_peertube_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadapeertube'
 	deploy_res := s.deploy_peertube(Peertube{
 		name: model_name
@@ -44,7 +44,7 @@ fn main() {
 		explorer: &exp
 	}
 
-	test_peertube_ops(mut s, mut logger) or {
+	run_peertube_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

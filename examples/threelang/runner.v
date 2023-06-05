@@ -36,9 +36,3 @@ fn main() {
 	}
 }
 
-// threelang/
-// 	examples/
-// 	runner.v
-// 			 => examples/threelang/
-// 	factory.v
-// 	books/

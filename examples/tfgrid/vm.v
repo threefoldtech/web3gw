@@ -4,7 +4,7 @@ import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
 import log
 
-fn test_vm_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_vm_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	network_name := 'hamadavm'
 
 	defer {
@@ -52,7 +52,7 @@ fn main() {
 		explorer: &exp
 	}
 
-	test_vm_ops(mut s, mut logger) or {
+	run_vm_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

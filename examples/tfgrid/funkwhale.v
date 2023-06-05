@@ -4,7 +4,7 @@ import threefoldtech.threebot.tfgrid
 import threefoldtech.threebot.tfgrid.solution { Funkwhale, SolutionHandler }
 import log
 
-fn test_funkwhale_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_funkwhale_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadafunkwhale'
 	deploy_res := s.deploy_funkwhale(Funkwhale{
 		name: model_name
@@ -41,7 +41,7 @@ fn main() {
 		explorer: &exp
 	}
 
-	test_funkwhale_ops(mut s, mut logger) or {
+	run_funkwhale_ops(mut s, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}
