@@ -5,8 +5,10 @@ import (
 )
 
 func (c *Client) GetBalance(account string) (string, error) {
-	// Get information about the account we just created
-	accountRequest := horizonclient.AccountRequest{AccountID: c.kp.Address()}
+	if account == "" {
+		account = c.kp.Address()
+	}
+	accountRequest := horizonclient.AccountRequest{AccountID: account}
 	hAccount, err := c.horizon.AccountDetail(accountRequest)
 	if err != nil {
 		return "", err
