@@ -17,10 +17,10 @@ type (
 
 	ChannelMessage struct {
 		// Content of the message
-		Content string
+		Content string `json:"content"`
 		// ReplyTo is either the ID of a message to reply to, or the ID of the channel create message of the channel to post in
 		// if this is a root message in the channel
-		ReplyTo string
+		ReplyTo string `json:"replyTo"`
 	}
 )
 
