@@ -1,7 +1,7 @@
 module main
 
 import os
-import threefoldtech.threebot.threelang {RunnerArgs}
+import threefoldtech.threebot.threelang { RunnerArgs }
 import log
 import flag
 
@@ -15,8 +15,11 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
+
+	config_file_path := fp.string('file', `f`, '', 'Relative path to the Threelang config file.')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
+
 	_ := fp.finalize() or {
 		eprintln(err)
 		println(fp.usage())
@@ -27,9 +30,15 @@ fn main() {
 		level: if debug_log { .debug } else { .info }
 	})
 
-	mut tl:=threelang.new(RunnerArgs{path:'./to_sort/vm_doc.md', address: default_server_address}, debug_log) or {
+	_ := threelang.new(RunnerArgs{ path: config_file_path, address: address }, debug_log) or {
 		eprintln(err)
 		exit(1)
 	}
-	
 }
+
+// threelang/
+// 	examples/
+// 	runner.v
+// 			 => examples/threelang/
+// 	factory.v
+// 	books/

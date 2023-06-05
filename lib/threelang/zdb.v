@@ -1,15 +1,15 @@
 module threelang
 
 import freeflowuniverse.crystallib.actionsparser
-import threefoldtech.threebot.tfgrid {ZDB}
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
+import threefoldtech.threebot.tfgrid { ZDB }
+import threefoldtech.threebot.tfgrid.solution
 import rand
 import encoding.utf8
 
 const GB = 1024 * 1024 * 1024
 
 fn (mut r Runner) zdb_actions(mut actions actionsparser.ActionsParser) ! {
-	mut zdb_actions := actions.filtersort(actor: 'zdbs', book:'tfgrid')!
+	mut zdb_actions := actions.filtersort(actor: 'zdbs', book: 'tfgrid')!
 	for action in zdb_actions {
 		match action.name {
 			'create' {
@@ -24,11 +24,10 @@ fn (mut r Runner) zdb_actions(mut actions actionsparser.ActionsParser) ! {
 					node_id: u32(node_id)
 					name: name
 					password: password
-					public: if public == 'yes' {true} else {false}
-					size: u32(size / GB)
+					public: if public == 'yes' { true } else { false }
+					size: u32(size / threelang.GB)
 					mode: mode
 				})!
-
 			}
 			'delete' {
 				name := action.params.get('name')!

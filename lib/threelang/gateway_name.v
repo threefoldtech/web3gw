@@ -1,13 +1,13 @@
 module threelang
 
 import freeflowuniverse.crystallib.actionsparser
-import threefoldtech.threebot.tfgrid {GatewayName}
-import threefoldtech.threebot.tfgrid.solution { Capacity, SolutionHandler, VM }
+import threefoldtech.threebot.tfgrid { GatewayName }
+import threefoldtech.threebot.tfgrid.solution
 import rand
 import encoding.utf8
 
 fn (mut r Runner) gateway_name_actions(mut actions actionsparser.ActionsParser) ! {
-	mut gateway_actions := actions.filtersort(actor: 'gateway_name', book:'tfgrid')!
+	mut gateway_actions := actions.filtersort(actor: 'gateway_name', book: 'tfgrid')!
 	for action in gateway_actions {
 		match action.name {
 			'create' {
@@ -19,10 +19,9 @@ fn (mut r Runner) gateway_name_actions(mut actions actionsparser.ActionsParser) 
 				gw_deploy := r.handler.tfclient.gateways_deploy_name(GatewayName{
 					name: name
 					node_id: u32(node_id)
-					tls_passthrough: if tls_passthrough == 'yes'{true} else{false}
+					tls_passthrough: if tls_passthrough == 'yes' { true } else { false }
 					backends: [backend]
 				})!
-
 			}
 			'delete' {
 				name := action.params.get('name')!
