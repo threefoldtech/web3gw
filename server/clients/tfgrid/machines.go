@@ -215,6 +215,12 @@ func (c *Client) MachineAdd(ctx context.Context, params AddMachineParams) (Machi
 		return MachinesModel{}, err
 	}
 
+	if params.Machine.NodeID == 0 {
+		if err := c.assignNodesIDForMachine(ctx, &params.Machine); err != nil {
+			return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
+		}
+	}
+
 	if err := c.addMachine(ctx, &gridMachinesModel, &params); err != nil {
 		return MachinesModel{}, errors.Wrapf(err, "failed to add machine %s", params.Machine.Name)
 	}
@@ -290,6 +296,44 @@ func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
 	return model, nil
 }
 
+func createPlannedReservationFromMachine(machine *Machine) *PlannedReservation {
+	neededSRU := 0
+	neededHRU := 0
+	for _, disk := range machine.Disks {
+		neededSRU += disk.SizeGB * int(gridtypes.Gigabyte)
+	}
+	for _, qsfs := range machine.QSFSs {
+		neededHRU += int(qsfs.Cache) * int(gridtypes.Gigabyte)
+	}
+	neededSRU += machine.RootfsSize * int(gridtypes.Megabyte)
+
+	return &PlannedReservation{
+		WorkloadName: machine.Name,
+		MRU:          uint64(machine.Memory * int(gridtypes.Megabyte)),
+		SRU:          uint64(neededSRU),
+		HRU:          uint64(neededHRU),
+		FarmID:       machine.FarmID,
+		NodeID:       machine.NodeID,
+	}
+}
+
+func assignNodeIdforMachine(machine *Machine, workloads []*PlannedReservation) {
+	for _, workload := range workloads {
+		if workload.WorkloadName == machine.Name {
+			machine.NodeID = uint32(workload.NodeID)
+		}
+	}
+}
+
+func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) error {
+	reservs := []*PlannedReservation{createPlannedReservationFromMachine(machine)}
+	if err := c.AssignNodes(ctx, reservs); err != nil {
+		return err
+	}
+	assignNodeIdforMachine(machine, reservs)
+	return nil
+}
+
 // Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
 func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
 	// all units unified in bytes
@@ -297,24 +341,8 @@ func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 	workloads := []*PlannedReservation{}
 
 	for idx := range machines.Machines {
-		neededSRU := 0
-		neededHRU := 0
-		for _, disk := range machines.Machines[idx].Disks {
-			neededSRU += disk.SizeGB * int(gridtypes.Gigabyte)
-		}
-		for _, qsfs := range machines.Machines[idx].QSFSs {
-			neededHRU += int(qsfs.Cache) * int(gridtypes.Gigabyte)
-		}
-		neededSRU += machines.Machines[idx].RootfsSize * int(gridtypes.Megabyte)
-
-		workloads = append(workloads, &PlannedReservation{
-			WorkloadName: machines.Machines[idx].Name,
-			MRU:          uint64(machines.Machines[idx].Memory * int(gridtypes.Megabyte)),
-			SRU:          uint64(neededSRU),
-			HRU:          uint64(neededHRU),
-			FarmID:       machines.Machines[idx].FarmID,
-			NodeID:       machines.Machines[idx].NodeID,
-		})
+		workload := createPlannedReservationFromMachine(&machines.Machines[idx])
+		workloads = append(workloads, workload)
 	}
 
 	err := c.AssignNodes(ctx, workloads)
@@ -324,11 +352,7 @@ func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 
 	for idx := range machines.Machines {
 		if machines.Machines[idx].NodeID == 0 {
-			for _, workload := range workloads {
-				if workload.WorkloadName == machines.Machines[idx].Name {
-					machines.Machines[idx].NodeID = uint32(workload.NodeID)
-				}
-			}
+			assignNodeIdforMachine(&machines.Machines[idx], workloads)
 		}
 	}
 
