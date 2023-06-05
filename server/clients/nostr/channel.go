@@ -6,6 +6,7 @@ import (
 
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type (
@@ -15,12 +16,24 @@ type (
 		Picture string `json:"picture"`
 	}
 
+	RelayChannel struct {
+		Channel
+		Relay string `json:"relay"`
+		Id    string `json:"id"`
+	}
+
 	ChannelMessage struct {
 		// Content of the message
 		Content string `json:"content"`
 		// ReplyTo is either the ID of a message to reply to, or the ID of the channel create message of the channel to post in
 		// if this is a root message in the channel
 		ReplyTo string `json:"replyTo"`
+	}
+
+	RelayChannelMessage struct {
+		ChannelMessage
+		Relay string `json:"relay"`
+		Id    string `json:"id"`
 	}
 )
 
@@ -102,18 +115,38 @@ func (c *Client) SubscribeChannelMessages(chanMessageId string) (string, error) 
 	return c.subscribeWithFiler(filters)
 }
 
-func (c *Client) FetchChannelCreation() ([]RelayEvent, error) {
+func (c *Client) FetchChannelCreation() ([]RelayChannel, error) {
 	var filters nostr.Filters
 	filters = []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelCreation},
 		Limit: DEFAULT_LIMIT,
 	}}
 
-	return c.fetchEventsWithFilter(filters)
+	channelCreationEvents, err := c.fetchEventsWithFilter(filters)
+	if err != nil {
+		return nil, err
+	}
+
+	rc := make([]RelayChannel, 0, len(channelCreationEvents))
+
+	for _, cce := range channelCreationEvents {
+		var c Channel
+		if err := json.Unmarshal([]byte(cce.Event.Content), &c); err != nil {
+			log.Warn().Err(err).Msg("could not decode channel create message")
+			continue
+		}
+		rc = append(rc, RelayChannel{
+			Channel: c,
+			Id:      cce.Event.ID,
+			Relay:   cce.Relay,
+		})
+	}
+
+	return rc, nil
 }
 
 // SubscribeChannelMessages subsribes to messages which are a reply to the given chanMessageId
-func (c *Client) FetchChannelMessages(chanMessageId string) ([]RelayEvent, error) {
+func (c *Client) FetchChannelMessages(chanMessageId string) ([]RelayChannelMessage, error) {
 	var filters nostr.Filters
 	filters = []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelMessage},
@@ -121,5 +154,25 @@ func (c *Client) FetchChannelMessages(chanMessageId string) ([]RelayEvent, error
 		Tags:  nostr.TagMap{"e": []string{chanMessageId}},
 	}}
 
-	return c.fetchEventsWithFilter(filters)
+	channelMessageEvents, err := c.fetchEventsWithFilter(filters)
+	if err != nil {
+		return nil, err
+	}
+
+	rm := make([]RelayChannelMessage, 0, len(channelMessageEvents))
+
+	for _, cme := range channelMessageEvents {
+		var m ChannelMessage
+		if err := json.Unmarshal([]byte(cme.Event.Content), &c); err != nil {
+			log.Warn().Err(err).Msg("could not decode channel message")
+			continue
+		}
+		rm = append(rm, RelayChannelMessage{
+			ChannelMessage: m,
+			Id:             cme.Event.ID,
+			Relay:          cme.Relay,
+		})
+	}
+
+	return rm, nil
 }
