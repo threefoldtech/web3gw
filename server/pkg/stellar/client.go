@@ -175,5 +175,5 @@ func (c *Client) AwaitTransactionOnEthBridge(ctx context.Context, conState jsonr
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.AwaitTransactionWithMemoOnEthBridge(memo, 60)
+	return state.Client.AwaitTransactionWithMemoOnEthBridge(memo, 300)
 }

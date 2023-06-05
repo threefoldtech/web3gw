@@ -167,48 +167,48 @@ func NewClient() *Client {
 }
 
 func tfchainNetworkFromNetworkString(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return tfchainMainnet, nil
-	} else if network == "testnet" {
+	} else if network == "test" {
 		return tfchainTestnet, nil
-	} else if network == "qanet" {
+	} else if network == "qa" {
 		return tfchainQanet, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return tfchainDevnet, nil
 	}
 	return "", errors.New("unsupported network")
 }
 
 func activationURLFromNetwork(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return activationURLMainnet, nil
-	} else if network == "testnet" {
+	} else if network == "test" {
 		return activationURLTestnet, nil
-	} else if network == "qanet" {
+	} else if network == "qa" {
 		return activationURLQanet, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return activationURLDevnet, nil
 	}
 	return "", errors.New("unsupported network")
 }
 
 func relayURLFromNetwork(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return relayURLMainnet, nil
-	} else if network == "testnet" {
+	} else if network == "test" {
 		return relayURLTestnet, nil
-	} else if network == "qanet" {
+	} else if network == "qa" {
 		return relayURLQanet, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return relayURLDevnet, nil
 	}
 	return "", errors.New("unsupported network")
 }
 
 func tfchainBridgeAddressFromNetwork(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return stellarPublicNetworkTfchainBridgeAddress, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return stellarTestnetNetworkTfchainBridgeAddress, nil
 	}
 	return "", errors.New("unsupported network")

@@ -8,37 +8,10 @@ const (
 	default_timeout = 500000
 )
 
-pub enum Network as u8 {
-	mainnet
-	testnet
-	qanet
-	devnet
-}
-
-pub fn parse_network(network string) !Network {
-	return match network.to_lower() {
-		"mainnet", "main" {
-			.mainnet
-		}
-		"testnet", "test" {
-			.testnet
-		}
-		"qanet", "qa" {
-			.qanet
-		}
-		"devnet", "dev" {
-			.devnet
-		}
-		else {
-			return error("Not a valid network! It should be one of: mainnet, testnet, qanet or devnet")
-		}
-	}
-}
-
 [params]
 pub struct Load {
 pub:
-	network Network
+	network string
 	mnemonic string
 }
 

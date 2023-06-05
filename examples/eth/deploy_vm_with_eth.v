@@ -4,6 +4,7 @@ import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import threefoldtech.threebot.eth
 import threefoldtech.threebot.stellar
 import threefoldtech.threebot.tfchain
+import threefoldtech.threebot.tfgrid
 
 import flag
 import log
@@ -22,7 +23,7 @@ pub struct Arguments {
 	stellar_secret      string
 	stellar_network     string
 
-	tfchain_network 	tfchain.Network
+	tfchain_network 	string
 	tfchain_mnemonic 	string
 }
 
@@ -30,11 +31,13 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 	mut eth_client := eth.new(mut client)
 	mut tfchain_client := tfchain.new(mut client)
 	mut stellar_client := stellar.new(mut client)
+	mut tfgrid_client := tfgrid.new(mut client)
 
 	eth_client.load(url: args.eth_url, secret: args.eth_secret)!
 	tfchain_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
 	stellar_client.load(network: args.stellar_network, secret: args.stellar_secret)!
-
+	tfgrid_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
+	/*
 	address := eth_client.address()!
 
 	mut eth_balance := eth_client.balance(address)!
@@ -84,6 +87,31 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 
 	tfchain_balance = tfchain_client.balance(tfchain_address)!
 	logger.info('tft balance: ${tfchain_balance}')
+	*/
+
+	machines_deployment := tfgrid_client.machines_deploy(tfgrid.MachinesModel{
+		name: "mydeployment",
+		network: tfgrid.Network{
+			add_wireguard_access: false
+		},
+		machines: [tfgrid.Machine{
+			name: "vm1"
+			farm_id: 1
+			cpu: 2
+			memory: 2048
+			rootfs_size: 1024
+			env_vars: {
+				'SSH_KEY': 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDddf7IgESCIkrqeCrn8BMIPRzObrJ9q6lu/Gve0i8t/'
+			}
+			disks: [tfgrid.Disk{
+				size: 10
+				mountpoint: '/mnt/disk1'
+			}]
+		}],
+		metadata: "",
+		description: "My deployment using ethereum"
+	})!
+	logger.debug('machines deployment: ${machines_deployment}')
 }
 
 fn main() {
@@ -132,10 +160,7 @@ fn main() {
 		stellar_secret: stellar_secret
 		stellar_network: stellar_network
 
-		tfchain_network: tfchain.parse_network(tfchain_network) or {
-			logger.error('${err}')
-			exit(1)
-		}
+		tfchain_network: tfchain_network
 		tfchain_mnemonic: tfchain_mnemonic
 	}
 
