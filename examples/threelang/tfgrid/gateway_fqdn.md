@@ -3,7 +3,7 @@
 - This example deployes, gets, and deletes a gateway fqdn workload on the tfgrid.
 
 !!tfgrid.core.login
- 	mnemonic: 'route visual hundred rabbit wet crunch ice castle milk model inherit outside'
+ 	mnemonic: 'YOUR MNEMONICS'
 	network: dev
 
 !!tfgrid.gateway_fqdn.create

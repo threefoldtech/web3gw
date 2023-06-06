@@ -16,6 +16,9 @@
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
   - disk_size [optional]
   - ssh_key [required]
+  - admin_username [required]
+  - admin_password [required]
+  - admin_email [required]
   - public_ip
     - yes or no to add a public ip to the taiga instance
 
@@ -27,6 +30,9 @@
       capacity: medium
       size: 10GB
       ssh_key: my_taiga_ssh_key
+      admin_username: user1
+      admin_password: pass1
+      admin_email: email@gmail.com
   ```
 
 ## Get Operation

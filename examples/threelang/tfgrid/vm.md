@@ -3,7 +3,7 @@
 - This example deployes, gets, udpates, and deletes a network of machines on the tfgrid.
 
 !!tfgrid.core.login
- 	mnemonic: 'route visual hundred rabbit wet crunch ice castle milk model inherit outside'
+ 	mnemonic: 'YOUR MNEMONICS'
 	network: dev
 
 !!tfgrid.sshkeys.new

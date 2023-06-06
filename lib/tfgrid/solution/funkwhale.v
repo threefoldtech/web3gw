@@ -3,13 +3,35 @@ module solution
 import threefoldtech.threebot.explorer
 import threefoldtech.threebot.tfgrid { GatewayName, Machine, MachinesModel, Network }
 
+const funkwhale_cap = {
+	Capacity.small:       CapacityPackage{
+		cpu: 1
+		memory: 2048
+		size: 4096
+	}
+	Capacity.medium:      CapacityPackage{
+		cpu: 2
+		memory: 4096
+		size: 8192
+	}
+	Capacity.large:       CapacityPackage{
+		cpu: 4
+		memory: 8192
+		size: 16384
+	}
+	Capacity.extra_large: CapacityPackage{
+		cpu: 8
+		memory: 16384
+		size: 32768
+	}
+}
+
 pub struct Funkwhale {
 pub:
 	name           string
 	farm_id        u64
-	cpu            u32
-	memory         u32 // in mega bytes
-	rootfs_size    u32 // in mega bytes
+	capacity Capacity
+	ssh_key string
 	admin_email    string
 	admin_username string
 	admin_password string
@@ -58,12 +80,13 @@ pub fn (mut s SolutionHandler) deploy_funkwhale(funkwhale Funkwhale) !FunkwhaleR
 			Machine{
 				name: 'funkwhale_vm'
 				farm_id: u32(funkwhale.farm_id)
-				cpu: funkwhale.cpu
-				memory: funkwhale.memory
-				rootfs_size: funkwhale.rootfs_size
+				cpu: funkwhale_cap[funkwhale.capacity].cpu
+				memory: funkwhale_cap[funkwhale.capacity].memory
+				rootfs_size: funkwhale_cap[funkwhale.capacity].size
 				flist: 'https://hub.grid.tf/tf-official-apps/funkwhale-dec21.flist'
 				entrypoint: '/init.sh'
 				env_vars: {
+					'SSH_KEY': funkwhale.ssh_key
 					'FUNKWHALE_HOSTNAME':        domain
 					'DJANGO_SUPERUSER_EMAIL':    funkwhale.admin_email
 					'DJANGO_SUPERUSER_USERNAME': funkwhale.admin_username
