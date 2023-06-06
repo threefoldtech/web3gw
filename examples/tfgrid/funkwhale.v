@@ -9,9 +9,7 @@ fn run_funkwhale_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	deploy_res := s.deploy_funkwhale(Funkwhale{
 		name: model_name
 		farm_id: 1
-		cpu: 2
-		memory: 4096
-		rootfs_size: 10240
+		capacity: 'medium'
 		admin_email: 'admin@gmail.com'
 		admin_username: 'user1'
 		admin_password: 'pass1'

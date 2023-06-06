@@ -3,13 +3,34 @@ module solution
 import threefoldtech.threebot.explorer
 import threefoldtech.threebot.tfgrid { GatewayName, Machine, MachinesModel, Network }
 
+const peertube_cap = {
+	Capacity.small:       CapacityPackage{
+		cpu: 1
+		memory: 2048
+		size: 4096
+	}
+	Capacity.medium:      CapacityPackage{
+		cpu: 2
+		memory: 4096
+		size: 8192
+	}
+	Capacity.large:       CapacityPackage{
+		cpu: 4
+		memory: 8192
+		size: 16384
+	}
+	Capacity.extra_large: CapacityPackage{
+		cpu: 8
+		memory: 16384
+		size: 32768
+	}
+}
+
 pub struct Peertube {
 pub:
 	name          string
 	farm_id       u64
-	cpu           u32
-	memory        u32 // in mega bytes
-	rootfs_size   u32 // in mega bytes
+	capacity Capacity
 	ssh_key       string
 	db_username   string
 	db_password   string
@@ -62,9 +83,9 @@ pub fn (mut s SolutionHandler) deploy_peertube(peertube Peertube) !PeertubeResul
 			Machine{
 				name: 'peertube_vm'
 				farm_id: u32(peertube.farm_id)
-				cpu: peertube.cpu
-				memory: peertube.memory
-				rootfs_size: peertube.rootfs_size
+				cpu: peertube_cap[peertube.capacity].cpu
+				memory: peertube_cap[peertube.capacity].memory
+				rootfs_size: peertube_cap[peertube.capacity].size
 				flist: 'https://hub.grid.tf/tf-official-apps/peertube-v3.1.1.flist'
 				env_vars: {
 					'SSH_KEY':                     peertube.ssh_key

@@ -5,13 +5,34 @@ import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNam
 import rand
 import time
 
+const discourse_cap = {
+	Capacity.small:       CapacityPackage{
+		cpu: 1
+		memory: 2048
+		size: 4096
+	}
+	Capacity.medium:      CapacityPackage{
+		cpu: 2
+		memory: 4096
+		size: 8192
+	}
+	Capacity.large:       CapacityPackage{
+		cpu: 4
+		memory: 8192
+		size: 16384
+	}
+	Capacity.extra_large: CapacityPackage{
+		cpu: 8
+		memory: 16384
+		size: 32768
+	}
+}
+
 pub struct Discourse {
 pub:
 	name            string
 	farm_id         u64
-	cpu             u32
-	memory          u32 // in mega bytes
-	rootfs_size     u32 // in mega bytes
+	capacity Capacity
 	disk_size       u32 // in giga bytes
 	ssh_key         string
 	developer_email string
@@ -65,6 +86,14 @@ pub fn (mut s SolutionHandler) deploy_discourse(discourse Discourse) !DiscourseR
 		backends: []string{}
 	}
 
+	mut disks := []Disk{}
+	if discourse.disk_size > 0{
+		disks << Disk{
+			size: discourse.disk_size
+			mountpoint: '/var/lib/docker'
+		}
+	}
+
 	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_discourse_machine_name(discourse.name)
 		network: Network{
@@ -74,16 +103,11 @@ pub fn (mut s SolutionHandler) deploy_discourse(discourse Discourse) !DiscourseR
 			Machine{
 				name: 'discourse_vm'
 				farm_id: u32(discourse.farm_id)
-				cpu: discourse.cpu
-				memory: discourse.memory
-				rootfs_size: discourse.rootfs_size
+				cpu: discourse_cap[discourse.capacity].cpu
+				memory: discourse_cap[discourse.capacity].memory
+				rootfs_size: discourse_cap[discourse.capacity].size
 				flist: 'https://hub.grid.tf/tf-official-apps/forum-docker-v3.1.2.flist'
-				disks: [
-					Disk{
-						size: discourse.disk_size
-						mountpoint: '/var/lib/docker'
-					},
-				]
+				disks: disks
 				env_vars: {
 					'SSH_KEY':                         discourse.ssh_key
 					'DISCOURSE_HOSTNAME':              domain

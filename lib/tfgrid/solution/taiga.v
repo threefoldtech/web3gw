@@ -3,13 +3,34 @@ module solution
 import threefoldtech.threebot.explorer
 import threefoldtech.threebot.tfgrid { Disk, GatewayName, Machine, MachinesModel, Network }
 
+const taiga_cap = {
+	Capacity.small:       CapacityPackage{
+		cpu: 1
+		memory: 2048
+		size: 4096
+	}
+	Capacity.medium:      CapacityPackage{
+		cpu: 2
+		memory: 4096
+		size: 8192
+	}
+	Capacity.large:       CapacityPackage{
+		cpu: 4
+		memory: 8192
+		size: 16384
+	}
+	Capacity.extra_large: CapacityPackage{
+		cpu: 8
+		memory: 16384
+		size: 32768
+	}
+}
+
 pub struct Taiga {
 pub:
 	name           string
 	farm_id        u64
-	cpu            u32
-	memory         u32 // in mega bytes
-	rootfs_size    u32 // in mega bytes
+	capacity Capacity
 	disk_size      u32 // in giga bytes
 	ssh_key        string
 	admin_username string
@@ -51,6 +72,14 @@ pub fn (mut s SolutionHandler) deploy_taiga(taiga Taiga) !TaigaResult {
 	gateway_node_id := gateway_nodes.nodes[0].node_id
 	domain := gateway_nodes.nodes[0].public_config.domain
 
+	mut disks := []Disk{}
+	if taiga.disk_size > 0{
+		disks << Disk{
+			size: taiga.disk_size
+			mountpoint: '/mnt/disk1'
+		}
+	}
+
 	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: generate_taiga_machine_name(taiga.name)
 		network: Network{
@@ -60,9 +89,9 @@ pub fn (mut s SolutionHandler) deploy_taiga(taiga Taiga) !TaigaResult {
 			Machine{
 				name: 'taiga_vm'
 				farm_id: u32(taiga.farm_id)
-				cpu: taiga.cpu
-				memory: taiga.memory
-				rootfs_size: taiga.rootfs_size
+				cpu: taiga_cap[taiga.capacity].cpu
+				memory: taiga_cap[taiga.capacity].memory
+				rootfs_size: taiga_cap[taiga.capacity].size
 				flist: 'https://hub.grid.tf/tf-official-apps/grid3_taiga_docker-latest.flist'
 				env_vars: {
 					'DOMAIN_NAME':         '${taiga.name}.${domain}'
@@ -78,12 +107,7 @@ pub fn (mut s SolutionHandler) deploy_taiga(taiga Taiga) !TaigaResult {
 					'EMAIL_HOST_USER':     ''
 					'EMAIL_HOST_PASSWORD': ''
 				}
-				disks: [
-					Disk{
-						size: taiga.disk_size
-						mountpoint: '/mnt/disk1'
-					},
-				]
+				disks: disks
 				planetary: true
 			},
 		]

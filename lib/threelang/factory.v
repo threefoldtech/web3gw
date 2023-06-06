@@ -39,8 +39,8 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	}
 	_ := spawn myclient.run()
 
-	tfgrid_handler := tfgrid.new(mut myclient)
-	tfchain_handler := tfchain.new(mut myclient)
+	tfgrid_handler := tfgrid.new(mut myclient, logger)
+	tfchain_handler := tfchain.new(mut myclient, logger)
 
 	mut runner := Runner{
 		path: args.path

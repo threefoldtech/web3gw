@@ -7,7 +7,7 @@ pub struct VM {
 pub mut:
 	network              string
 	farm_id              u32
-	capacity             string
+	capacity             Capacity
 	times                u32 = 1
 	disk_size            u32
 	ssh_key              string
@@ -31,30 +31,30 @@ pub:
 
 const (
 	gateway_project_name_env_var = 'WEB3PROXY_DOMAIN_PROJECT_NAME'
-
-	cap                          = {
-		'small':       CapacityPackage{
-			cpu: 1
-			memory: 2048
-			size: 4096
-		}
-		'medium':      CapacityPackage{
-			cpu: 2
-			memory: 4096
-			size: 8192
-		}
-		'large':       CapacityPackage{
-			cpu: 4
-			memory: 8192
-			size: 16384
-		}
-		'extra_large': CapacityPackage{
-			cpu: 8
-			memory: 16384
-			size: 32768
-		}
-	}
 )
+
+const vm_cap = {
+	Capacity.small:       CapacityPackage{
+		cpu: 1
+		memory: 2048
+		size: 4096
+	}
+	Capacity.medium:      CapacityPackage{
+		cpu: 2
+		memory: 4096
+		size: 8192
+	}
+	Capacity.large:       CapacityPackage{
+		cpu: 4
+		memory: 8192
+		size: 16384
+	}
+	Capacity.extra_large: CapacityPackage{
+		cpu: 8
+		memory: 16384
+		size: 32768
+	}
+}
 
 // create create or updates a network of vms
 pub fn (mut s SolutionHandler) create_vm(vm VM) !VMResult {
@@ -86,9 +86,9 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 			name: rand.string(8).to_lower()
 			farm_id: vm.farm_id
 			public_ip: vm.add_public_ips
-			cpu: solution.cap[vm.capacity].cpu
-			memory: solution.cap[vm.capacity].memory
-			rootfs_size: solution.cap[vm.capacity].size
+			cpu: vm_cap[vm.capacity].cpu
+			memory: vm_cap[vm.capacity].memory
+			rootfs_size: vm_cap[vm.capacity].size
 			env_vars: {
 				'SSH_KEY': vm.ssh_key
 			}
@@ -207,9 +207,9 @@ fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
 			name: rand.string(8).to_lower()
 			farm_id: vm.farm_id
 			public_ip: vm.add_public_ips
-			cpu: solution.cap[vm.capacity].cpu
-			memory: solution.cap[vm.capacity].memory
-			rootfs_size: solution.cap[vm.capacity].size
+			cpu: vm_cap[vm.capacity].cpu
+			memory: vm_cap[vm.capacity].memory
+			rootfs_size: vm_cap[vm.capacity].size
 			env_vars: {
 				'SSH_KEY': vm.ssh_key
 			}

@@ -2,13 +2,34 @@ module solution
 
 import threefoldtech.threebot.tfgrid { Disk, Machine, MachinesModel, Network }
 
+const presearch_cap = {
+	Capacity.small:       CapacityPackage{
+		cpu: 1
+		memory: 2048
+		size: 4096
+	}
+	Capacity.medium:      CapacityPackage{
+		cpu: 2
+		memory: 4096
+		size: 8192
+	}
+	Capacity.large:       CapacityPackage{
+		cpu: 4
+		memory: 8192
+		size: 16384
+	}
+	Capacity.extra_large: CapacityPackage{
+		cpu: 8
+		memory: 16384
+		size: 32768
+	}
+}
+
 pub struct Presearch {
 pub:
 	name        string
 	farm_id     u64
-	cpu         u32
-	memory      u32 // in mega bytes
-	rootfs_size u32 // in mega bytes
+	capacity Capacity
 	disk_size   u32 // in giga bytes
 	ssh_key     string
 	public_ipv4 bool
@@ -22,6 +43,14 @@ pub:
 }
 
 pub fn (mut s SolutionHandler) deploy_presearch(presearch Presearch) !PresearchResult {
+	mut disks := []Disk{}
+	if presearch.disk_size > 0{
+		disks << Disk{
+			size: presearch.disk_size
+			mountpoint: '/var/lib/docker'
+		}
+	}
+
 	machine := s.tfclient.machines_deploy(MachinesModel{
 		name: presearch.name
 		network: Network{
@@ -31,20 +60,15 @@ pub fn (mut s SolutionHandler) deploy_presearch(presearch Presearch) !PresearchR
 			Machine{
 				name: 'presearch_vm'
 				farm_id: u32(presearch.farm_id)
-				cpu: presearch.cpu
-				memory: presearch.memory
-				rootfs_size: presearch.rootfs_size
+				cpu: presearch_cap[presearch.capacity].cpu
+				memory: presearch_cap[presearch.capacity].memory
+				rootfs_size: presearch_cap[presearch.capacity].size
 				flist: 'https://hub.grid.tf/tf-official-apps/presearch-v2.2.flist'
 				env_vars: {
 					'SSH_KEY':                     presearch.ssh_key
 					'PRESEARCH_REGISTRATION_CODE': ''
 				}
-				disks: [
-					Disk{
-						size: presearch.disk_size
-						mountpoint: '/var/lib/docker'
-					},
-				]
+				disks: disks
 				planetary: true
 				public_ip: presearch.public_ipv4
 			},

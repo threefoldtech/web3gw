@@ -8,9 +8,7 @@ fn run_discourse_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadadiscourse'
 	deploy_res := s.deploy_discourse(Discourse{
 		name: model_name
-		cpu: 4
-		memory: 4096
-		rootfs_size: 10240
+		capacity: 'medium'
 		disk_size: 10
 		ssh_key: 'hamada ssh key'
 		developer_email: 'em@mail.com'
