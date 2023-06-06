@@ -8,6 +8,7 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
@@ -40,6 +41,11 @@ const (
 	termsUser     = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/terms_conditions_griduser.md"
 	privacyPolicy = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/privacypolicy.md"
 	disclaimer    = "https://raw.githubusercontent.com/threefoldfoundation/info_legal/master/wiki/disclaimer.md"
+
+	stellarPublicNetworkTfchainBridgeAddress  = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
+	stellarTestnetNetworkTfchainBridgeAddress = "GDHJP6TF3UXYXTNEZ2P36J5FH7W4BJJQ4AYYAXC66I2Q2AH5B6O6BCFG"
+
+	timeoutAwaitTransaction = 300
 )
 
 type (
@@ -163,40 +169,49 @@ func NewClient() *Client {
 }
 
 func tfchainNetworkFromNetworkString(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return tfchainMainnet, nil
-	} else if network == "testnet" {
+	} else if network == "test" {
 		return tfchainTestnet, nil
-	} else if network == "qanet" {
+	} else if network == "qa" {
 		return tfchainQanet, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return tfchainDevnet, nil
 	}
 	return "", errors.New("unsupported network")
 }
 
 func activationURLFromNetwork(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return activationURLMainnet, nil
-	} else if network == "testnet" {
+	} else if network == "test" {
 		return activationURLTestnet, nil
-	} else if network == "qanet" {
+	} else if network == "qa" {
 		return activationURLQanet, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return activationURLDevnet, nil
 	}
 	return "", errors.New("unsupported network")
 }
 
 func relayURLFromNetwork(network string) (string, error) {
-	if network == "mainnet" {
+	if network == "main" {
 		return relayURLMainnet, nil
-	} else if network == "testnet" {
+	} else if network == "test" {
 		return relayURLTestnet, nil
-	} else if network == "qanet" {
+	} else if network == "qa" {
 		return relayURLQanet, nil
-	} else if network == "devnet" {
+	} else if network == "dev" {
 		return relayURLDevnet, nil
+	}
+	return "", errors.New("unsupported network")
+}
+
+func tfchainBridgeAddressFromNetwork(network string) (string, error) {
+	if network == "main" {
+		return stellarPublicNetworkTfchainBridgeAddress, nil
+	} else if network == "dev" {
+		return stellarTestnetNetworkTfchainBridgeAddress, nil
 	}
 	return "", errors.New("unsupported network")
 }
@@ -641,4 +656,39 @@ func (c *Client) SwapToStellar(ctx context.Context, conState jsonrpc.State, args
 	}
 
 	return state.client.SwapToStellar(state.identity, args.TargetStellarAddress, *args.Amount)
+}
+
+func (c *Client) AwaitTransactionOnTfchainBridge(ctx context.Context, conState jsonrpc.State, memo string) error {
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+	_, err := tfchainBridgeAddressFromNetwork(state.network)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < int(timeoutAwaitTransaction); i++ {
+		select {
+		case <-time.After(1 * time.Second):
+			height, err := state.client.GetCurrentHeight()
+			if err != nil {
+				return err
+			}
+			events, err := state.client.GetEventsForBlock(height)
+			if err != nil {
+				return err
+			}
+			for i := range events.TFTBridgeModule_MintCompleted {
+				mintCompletedEvent := events.TFTBridgeModule_MintCompleted[i]
+				if mintCompletedEvent.MintTransaction.Target == types.AccountID(state.identity.PublicKey()) {
+					return nil
+				}
+			}
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+
+	return errors.New("event not found")
 }

@@ -8,17 +8,10 @@ const (
 	default_timeout = 500000
 )
 
-pub enum Network as u8 {
-	mainnet
-	testnet
-	qanet
-	devnet
-}
-
 [params]
 pub struct Load {
 pub:
-	network Network
+	network string
 	mnemonic string
 }
 
@@ -327,5 +320,11 @@ pub fn (mut t TfChainClient) get_zos_version() !string {
 // Swap TFT tokens to the provided stellar address
 pub fn (mut t TfChainClient) swap_to_stellar(args SwapToStellar) ! {
 	_ := t.client.send_json_rpc[[]SwapToStellar, string]('tfchain.SwapToStellar', [args],
+		tfchain.default_timeout)!
+}
+
+// Await till a transaction is processed on tfchain bridge that contains a specific memo
+pub fn (mut t TfChainClient) await_transaction_on_tfchain_bridge(memo string) ! {
+	_ := t.client.send_json_rpc[[]string, string]('tfchain.AwaitTransactionOnTfchainBridge', [memo],
 		tfchain.default_timeout)!
 }
