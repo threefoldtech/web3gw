@@ -686,7 +686,7 @@ func (c *Client) AwaitTransactionOnTfchainBridge(ctx context.Context, conState j
 				}
 			}
 		case <-ctx.Done():
-			return nil
+			return ctx.Err()
 		}
 	}
 

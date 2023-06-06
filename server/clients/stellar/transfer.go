@@ -171,7 +171,7 @@ func (c *Client) AwaitTransactionWithMemo(ctx context.Context, account string, m
 				}
 			}
 		case <-ctx.Done():
-			return nil
+			return ctx.Err()
 		}
 	}
 	return errors.New("transaction not found")

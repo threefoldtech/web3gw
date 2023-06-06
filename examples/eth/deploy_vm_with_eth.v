@@ -12,6 +12,7 @@ import os
 const (
 	default_server_address = 'http://127.0.0.1:8080'
 	goerli_node_url        = 'ws://45.156.243.137:8546'
+	mainnet_ethereum_node = 'ws://185.69.167.224:8546'
 )
 
 [params]
@@ -134,7 +135,7 @@ fn main() {
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
 	eth_secret := fp.string('eth-secret', 0, '', 'The secret to use for eth.')
-	eth_url := fp.string('eth-node', 0, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
+	eth_url := fp.string('eth-node', 0, '${mainnet_ethereum_node}', 'The url of the ethereum node to connect to.')
 
 	stellar_secret := fp.string('stellar-secret', 0, '', 'The secret of the stellar address to send the TFT to.')
 	stellar_network := fp.string('stellar-network', 0, 'public', 'The stellar network of the provided stellar address.')
