@@ -1,13 +1,17 @@
+# Machines Example
+
+- This example deployes, gets, udpates, and deletes a network of machines on the tfgrid.
+
 !!tfgrid.core.login
-	mnemonic: 'YOUR MNEMONICS'
+ 	mnemonic: 'route visual hundred rabbit wet crunch ice castle milk model inherit outside'
 	network: dev
 
 !!tfgrid.sshkeys.new
-    name: default
+	name: default
 	ssh_key: 'YOUR SSH KEY'
 
 !!tfgrid.machines.create
-    sshkey: default
+	sshkey: default
 	network: skynet
 	capacity: small
 	times: 2

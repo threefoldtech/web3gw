@@ -52,10 +52,6 @@ pub fn (mut s SolutionHandler) create_k8s(k8s K8s) !tfgrid.K8sClusterResult {
 
 	mut workers := []tfgrid.K8sNode{}
 	for _ in 0 .. k8s.replica {
-		// if k8s.add_public_ips_to_workers {
-		// 	public_ip = true
-		// }
-
 		mut worker := tfgrid.K8sNode{
 			name: 'wr' + rand.string(6)
 			cpu: capacity.cpu

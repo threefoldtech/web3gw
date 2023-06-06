@@ -2,7 +2,6 @@ module solution
 
 import threefoldtech.threebot.tfgrid { AddMachine, Disk, GatewayName, GatewayNameResult, Machine, MachineResult, MachinesModel, MachinesResult, Network, RemoveMachine }
 import rand
-import encoding.utf8
 
 pub struct VM {
 pub mut:
@@ -84,7 +83,7 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 	mut gws := map[string]GatewayName{}
 	for _ in 0 .. vm.times {
 		mut m := Machine{
-			name: utf8.to_lower(rand.string(8))
+			name: rand.string(8).to_lower()
 			farm_id: vm.farm_id
 			public_ip: vm.add_public_ips
 			cpu: solution.cap[vm.capacity].cpu
@@ -103,7 +102,7 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 		}
 
 		if vm.gateway {
-			gw_project_name := utf8.to_lower(rand.string(8))
+			gw_project_name := rand.string(8).to_lower()
 			m.env_vars[solution.gateway_project_name_env_var] = gw_project_name
 			gws[m.name] = GatewayName{
 				name: gw_project_name
@@ -205,7 +204,7 @@ fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
 
 	for _ in 0 .. vm.times {
 		mut m := Machine{
-			name: utf8.to_lower(rand.string(8))
+			name: rand.string(8).to_lower()
 			farm_id: vm.farm_id
 			public_ip: vm.add_public_ips
 			cpu: solution.cap[vm.capacity].cpu
@@ -224,7 +223,7 @@ fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
 		}
 
 		if vm.gateway {
-			gw_project_name := utf8.to_lower(rand.string(8))
+			gw_project_name := rand.string(8).to_lower()
 			m.env_vars[solution.gateway_project_name_env_var] = gw_project_name
 			gws[m.name] = GatewayName{
 				name: gw_project_name

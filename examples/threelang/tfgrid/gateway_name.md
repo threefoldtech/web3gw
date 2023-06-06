@@ -1,3 +1,7 @@
+# Gatewya Name Example
+
+- This example deployes, gets, and deletes a gateway name workload on the tfgrid.
+
 !!tfgrid.core.login
 	mnemonic: 'YOUR MNEMONICS'
 	network: dev

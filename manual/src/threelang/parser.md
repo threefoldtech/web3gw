@@ -1,11 +1,8 @@
-# 3bot parser
+# Threelang parser
 
-- the objective of this parser is to be able to parse and execute actions from md files on different tf modules
-- we already have md file parser that could extract actions and their parameters.
-- these actions could be passed to the 3bot parser to parse and execute the user's requests
-- the 3bot parser should have smaller inner processors for each tf module
+Threelang is an intermediate language that users can use to tell the web3 proxy what to do. The language is markdown syntax augmented with actions. Actions tell the web3 proxy what to do. Each action contains a name and optionally parameters.
 
-## Actions
+## Actions have the following properties:
 
 - an action is indicated in an md file by a line starting with !!
 - actions are delimited by new lines.

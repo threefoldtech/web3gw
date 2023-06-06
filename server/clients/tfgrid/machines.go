@@ -16,7 +16,7 @@ import (
 
 // Machines model ensures that each node has one deployment that includes all workloads
 type MachinesModel struct {
-	Name     string    `json:"name"`     // this is the model name, should be unique (QUESTION: does this mean deployment name  or contract name)
+	Name     string    `json:"name"`     // this is the name of the deployment, should be unique
 	Network  Network   `json:"network"`  // network specs
 	Machines []Machine `json:"machines"` // machines specs
 }
