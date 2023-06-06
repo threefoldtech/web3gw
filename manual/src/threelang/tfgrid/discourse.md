@@ -6,7 +6,7 @@
 
 - action name: !!tfgrid.discourse.create
 - parameters:
-  - name [required]
+  - name [optional]
   - farm_id [optional]
     - if 0, machines could span multiple nodes on different farms
   - capacity [required]
@@ -19,7 +19,7 @@
   - ssh_key [required]
   - developer_email [required]
 
-  - smtp_hostname [required]
+  - smtp_address [required]
   - smtp_port [required]
   - smtp_username [required]
   - smtp_password [required]

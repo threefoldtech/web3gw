@@ -1,15 +1,11 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser {Action}
+import freeflowuniverse.crystallib.actionsparser { Action }
 import threefoldtech.threebot.tfgrid { GatewayFQDN }
 import threefoldtech.threebot.tfgrid.solution
 import rand
-import log
 
 fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
-	mut logger := log.Logger(&log.Log{
-		level: .info
-	})
 
 	match action.name {
 		'create' {
@@ -27,7 +23,7 @@ fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
 				fqdn: fqdn
 			})!
 
-			logger.info('${gw_deploy}')
+			t.logger.info('${gw_deploy}')
 		}
 		'delete' {
 			name := action.params.get('name')!
@@ -37,7 +33,7 @@ fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
 			name := action.params.get('name')!
 			gw_get := t.solution_handler.tfclient.gateways_get_fqdn(name)!
 
-			logger.info('${gw_get}')
+			t.logger.info('${gw_get}')
 		}
 		else {
 			return error('action ${action.name} is not supported on gateways')
