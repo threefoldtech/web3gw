@@ -326,7 +326,7 @@ func (c *Client) SubscribeChannelMessage(ctx context.Context, conState jsonrpc.S
 }
 
 // ListChannels on connected relays
-func (c *Client) ListChannels(ctx context.Context, conState jsonrpc.State) ([]nostr.RelayEvent, error) {
+func (c *Client) ListChannels(ctx context.Context, conState jsonrpc.State) ([]nostr.RelayChannel, error) {
 	state := State(conState)
 	if state.Client == nil {
 		return nil, pkg.ErrClientNotConnected{}
@@ -339,7 +339,7 @@ type FetchChannelMessageInput struct {
 	ChannelId string `json:"channelId"`
 }
 
-func (c *Client) GetChannelMessages(ctx context.Context, conState jsonrpc.State, input FetchChannelMessageInput) ([]nostr.RelayEvent, error) {
+func (c *Client) GetChannelMessages(ctx context.Context, conState jsonrpc.State, input FetchChannelMessageInput) ([]nostr.RelayChannelMessage, error) {
 	state := State(conState)
 	if state.Client == nil {
 		return nil, pkg.ErrClientNotConnected{}
