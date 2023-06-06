@@ -1,6 +1,7 @@
 package stellargoclient
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -146,43 +147,48 @@ func (c *Client) GetTfchainBridgeAddress() (string, error) {
 	}
 }
 
-func (c *Client) AwaitTransactionWithMemo(account string, memo string, timeout int) error {
+func (c *Client) AwaitTransactionWithMemo(ctx context.Context, account string, memo string, timeout int) error {
 	memo = strings.TrimPrefix(memo, "0x")
 	for i := 0; i < int(timeout); i++ {
-		transactionRequest := horizonclient.TransactionRequest{
-			ForAccount: account,
-			Order:      horizonclient.OrderDesc,
-		}
-		txs, err := c.horizon.Transactions(transactionRequest)
-		if err != nil {
-			return err
-		}
-		for _, tx := range txs.Embedded.Records {
-			decodedMemo, err := base64.StdEncoding.DecodeString(tx.Memo)
-			if err == nil {
-				hexDecodedMemo := hex.EncodeToString(decodedMemo)
-				if hexDecodedMemo == memo {
-					return nil
+		select {
+		case <-time.After(1 * time.Second):
+
+			transactionRequest := horizonclient.TransactionRequest{
+				ForAccount: account,
+				Order:      horizonclient.OrderDesc,
+			}
+			txs, err := c.horizon.Transactions(transactionRequest)
+			if err != nil {
+				return err
+			}
+			for _, tx := range txs.Embedded.Records {
+				decodedMemo, err := base64.StdEncoding.DecodeString(tx.Memo)
+				if err == nil {
+					hexDecodedMemo := hex.EncodeToString(decodedMemo)
+					if hexDecodedMemo == memo {
+						return nil
+					}
 				}
 			}
+		case <-ctx.Done():
+			return nil
 		}
-		time.Sleep(time.Second * 1)
 	}
 	return errors.New("transaction not found")
 }
 
-func (c *Client) AwaitTransactionWithMemoOnEthBridge(memo string, timeout int) error {
+func (c *Client) AwaitTransactionWithMemoOnEthBridge(ctx context.Context, memo string, timeout int) error {
 	bridgeAddress, err := c.GetEthBridgeAddress()
 	if err != nil {
 		return err
 	}
-	return c.AwaitTransactionWithMemo(bridgeAddress, memo, timeout)
+	return c.AwaitTransactionWithMemo(ctx, bridgeAddress, memo, timeout)
 }
 
-func (c *Client) AwaitForTransactionWithMemoOnTfchainBridge(memo string, timeout int) error {
+func (c *Client) AwaitForTransactionWithMemoOnTfchainBridge(ctx context.Context, memo string, timeout int) error {
 	bridgeAddress, err := c.GetTfchainBridgeAddress()
 	if err != nil {
 		return err
 	}
-	return c.AwaitTransactionWithMemo(bridgeAddress, memo, timeout)
+	return c.AwaitTransactionWithMemo(ctx, bridgeAddress, memo, timeout)
 }

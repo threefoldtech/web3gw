@@ -137,10 +137,10 @@ fn main() {
 	eth_url := fp.string('eth-node', 0, '${goerli_node_url}', 'The url of the ethereum node to connect to.')
 
 	stellar_secret := fp.string('stellar-secret', 0, '', 'The secret of the stellar address to send the TFT to.')
-	stellar_network := fp.string('stellar-network', 0, '', 'The stellar network of the provided stellar address.')
+	stellar_network := fp.string('stellar-network', 0, 'public', 'The stellar network of the provided stellar address.')
 
 	tfchain_mnemonic := fp.string('tfchain-mnemonic', 0, '', 'The mnemonic of your tfchain account.')
-	tfchain_network := fp.string('tfchain-network', 0, '', 'The tfchain network to use.')
+	tfchain_network := fp.string('tfchain-network', 0, 'main', 'The tfchain network to use.')
 
 	ssh_key := fp.string('ssh-key', 0, '', 'The SSH key that can be used to ssh into the vm later.')
 

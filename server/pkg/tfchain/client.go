@@ -44,6 +44,8 @@ const (
 
 	stellarPublicNetworkTfchainBridgeAddress  = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
 	stellarTestnetNetworkTfchainBridgeAddress = "GDHJP6TF3UXYXTNEZ2P36J5FH7W4BJJQ4AYYAXC66I2Q2AH5B6O6BCFG"
+
+	timeoutAwaitTransaction = 300
 )
 
 type (
@@ -666,22 +668,26 @@ func (c *Client) AwaitTransactionOnTfchainBridge(ctx context.Context, conState j
 		return err
 	}
 
-	for i := 0; i < int(300); i++ {
-		height, err := state.client.GetCurrentHeight()
-		if err != nil {
-			return err
-		}
-		events, err := state.client.GetEventsForBlock(height)
-		if err != nil {
-			return err
-		}
-		for i := range events.TFTBridgeModule_MintCompleted {
-			mintCompletedEvent := events.TFTBridgeModule_MintCompleted[i]
-			if mintCompletedEvent.MintTransaction.Target == types.AccountID(state.identity.PublicKey()) {
-				return nil
+	for i := 0; i < int(timeoutAwaitTransaction); i++ {
+		select {
+		case <-time.After(1 * time.Second):
+			height, err := state.client.GetCurrentHeight()
+			if err != nil {
+				return err
 			}
+			events, err := state.client.GetEventsForBlock(height)
+			if err != nil {
+				return err
+			}
+			for i := range events.TFTBridgeModule_MintCompleted {
+				mintCompletedEvent := events.TFTBridgeModule_MintCompleted[i]
+				if mintCompletedEvent.MintTransaction.Target == types.AccountID(state.identity.PublicKey()) {
+					return nil
+				}
+			}
+		case <-ctx.Done():
+			return nil
 		}
-		time.Sleep(time.Second * 1)
 	}
 
 	return errors.New("event not found")
