@@ -56,7 +56,7 @@ func State(conState jsonrpc.State) *explorerState {
 	ns, ok := raw.(*explorerState)
 	if !ok {
 		// This means the invariant is violated, so panic here is ok
-		panic("Invalid saved state for tfchain")
+		panic("Invalid saved state for explorer")
 	}
 	return ns
 }

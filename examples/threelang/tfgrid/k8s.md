@@ -1,10 +1,14 @@
+# Kubernetes Example
+
+- This example deployes, gets, updates, and deletes a kubernetes cluster on the tfgrid.
+
 !!tfgrid.core.login
- 	mnemonic: 'YOUR MNEMONIC'
- 	network: dev
+    mnemonic: 'YOUR MNEMONIC'
+    network: dev
 
 !!tfgrid.sshkeys.new
     name: default
-	ssh_key: 'YOUR SSH KEY'
+    ssh_key: 'YOUR SSH KEY'
 
 !!tfgrid.kubernetes.create
     name:test_3lang_k8s
