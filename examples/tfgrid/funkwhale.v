@@ -1,7 +1,7 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Funkwhale, SolutionHandler }
+import threefoldtech.threebot.tfgrid.solution { Funkwhale, SolutionHandler, Capacity }
 import log
 
 fn run_funkwhale_ops(mut s SolutionHandler, mut logger log.Logger) ! {
@@ -9,7 +9,7 @@ fn run_funkwhale_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	deploy_res := s.deploy_funkwhale(Funkwhale{
 		name: model_name
 		farm_id: 1
-		capacity: 'medium'
+		capacity: Capacity.medium
 		admin_email: 'admin@gmail.com'
 		admin_username: 'user1'
 		admin_password: 'pass1'

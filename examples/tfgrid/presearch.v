@@ -1,7 +1,7 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Presearch, SolutionHandler }
+import threefoldtech.threebot.tfgrid.solution { Presearch, SolutionHandler, Capacity }
 import log
 
 fn run_presearch_ops(mut s SolutionHandler, mut logger log.Logger) ! {
@@ -9,9 +9,7 @@ fn run_presearch_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	deploy_res := s.deploy_presearch(Presearch{
 		name: model_name
 		farm_id: 1
-		cpu: 2
-		memory: 4096
-		rootfs_size: 10240
+		capacity: Capacity.small
 		disk_size: 10
 		ssh_key: 'key'
 		public_ipv4: false

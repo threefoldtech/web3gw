@@ -12,9 +12,9 @@
   - capacity [required]
     - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the discourse instance
     - small: 1 vCPU, 2GB RAM, 10GB SSD
-    - medium: 2 vCPU, 4GB RAM, 50GB SSD
-    - large: 4 vCPU, 8GB RAM, 240 SSD
-    - extra-large: 8vCPU, 16GB RAM, 480GB SSD
+    - medium: 2 vCPU, 2GB RAM, 50GB SSD
+    - large: 4 vCPU, 4GB RAM, 100 SSD
+    - extra-large: 4vCPU, 8GB RAM, 150GB SSD
   
   - ssh_key [required]
   - developer_email [required]

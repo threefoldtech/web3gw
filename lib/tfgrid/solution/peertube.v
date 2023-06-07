@@ -7,22 +7,22 @@ const peertube_cap = {
 	Capacity.small:       CapacityPackage{
 		cpu: 1
 		memory: 2048
-		size: 4096
+		size: 10240
 	}
 	Capacity.medium:      CapacityPackage{
 		cpu: 2
-		memory: 4096
-		size: 8192
+		memory: 2048
+		size: 102400
 	}
 	Capacity.large:       CapacityPackage{
 		cpu: 4
-		memory: 8192
-		size: 16384
+		memory: 4096
+		size: 256000
 	}
 	Capacity.extra_large: CapacityPackage{
-		cpu: 8
-		memory: 16384
-		size: 32768
+		cpu: 4
+		memory: 8192
+		size: 409600
 	}
 }
 
