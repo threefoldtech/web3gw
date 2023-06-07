@@ -10,8 +10,6 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
-			capacity_str := action.params.get_default('capacity', 'meduim')!
-			capacity := solution.get_capacity(capacity_str)!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 			disk_size := action.params.get_storagecapacity_in_bytes('disk_size')! / u32(1024*1024*1024)
@@ -20,7 +18,6 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			deploy_res := t.solution_handler.deploy_presearch(Presearch{
 				name: name
 				farm_id: u64(farm_id)
-				capacity: capacity
 				ssh_key: ssh_key
 				disk_size: u32(disk_size)
 				public_ipv4: public_ipv4
