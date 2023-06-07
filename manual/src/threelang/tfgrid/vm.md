@@ -6,6 +6,8 @@
 
 - action name: !!tfgrid.machines.create
 - parameters:
+  - name [optional]
+    - vm name
   - network [optional]
     - if not provided, a random network name will be generated.
   - farm_id [optional]

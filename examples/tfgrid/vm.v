@@ -12,6 +12,7 @@ fn run_vm_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	}
 
 	deploy_res := s.create_vm(VM{
+		name: 'myfirstvm'
 		network: network_name
 		capacity: Capacity.small
 		ssh_key: 'hamada ssh'
@@ -21,6 +22,7 @@ fn run_vm_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	logger.info('${deploy_res}')
 
 	add_res := s.create_vm(VM{
+		name: 'mysecondvm'
 		network: network_name
 		capacity: Capacity.small
 		ssh_key: 'hamada ssh2'
