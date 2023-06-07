@@ -1,16 +1,14 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Peertube, SolutionHandler }
+import threefoldtech.threebot.tfgrid.solution { Peertube, SolutionHandler, Capacity }
 import log
 
 fn run_peertube_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadapeertube'
 	deploy_res := s.deploy_peertube(Peertube{
 		name: model_name
-		cpu: 2
-		memory: 4096
-		rootfs_size: 10240
+		capacity: Capacity.small
 		ssh_key: 'key'
 		db_username: 'dbuser'
 		db_password: 'dbpass'

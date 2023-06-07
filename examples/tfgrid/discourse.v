@@ -1,14 +1,14 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Discourse, SolutionHandler }
+import threefoldtech.threebot.tfgrid.solution { Discourse, SolutionHandler, Capacity }
 import log
 
 fn run_discourse_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	model_name := 'hamadadiscourse'
 	deploy_res := s.deploy_discourse(Discourse{
 		name: model_name
-		capacity: 'medium'
+		capacity: Capacity.medium
 		disk_size: 10
 		ssh_key: 'hamada ssh key'
 		developer_email: 'em@mail.com'

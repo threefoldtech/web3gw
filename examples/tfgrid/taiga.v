@@ -1,7 +1,7 @@
 module main
 
 import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { SolutionHandler, Taiga }
+import threefoldtech.threebot.tfgrid.solution { SolutionHandler, Taiga, Capacity }
 import log
 
 fn run_taiga_ops(mut s SolutionHandler, mut logger log.Logger) ! {
@@ -9,9 +9,7 @@ fn run_taiga_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	deploy_res := s.deploy_taiga(Taiga{
 		name: model_name
 		farm_id: 1
-		cpu: 2
-		memory: 4096
-		rootfs_size: 10240
+		capacity: Capacity.small
 		disk_size: 20
 		ssh_key: 'key'
 		admin_username: 'user1'
