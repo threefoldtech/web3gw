@@ -27,7 +27,7 @@ type (
 		Content string `json:"content"`
 		// ReplyTo is either the ID of a message to reply to, or the ID of the channel create message of the channel to post in
 		// if this is a root message in the channel
-		ReplyTo string `json:"replyTo"`
+		ReplyTo string `json:"reply_to"`
 	}
 
 	RelayChannelMessage struct {
@@ -94,8 +94,7 @@ func (c *Client) MuteUser(ctx context.Context, tags []string, user string, conte
 }
 
 func (c *Client) SubscribeChannelCreation() (string, error) {
-	var filters nostr.Filters
-	filters = []nostr.Filter{{
+	filters := []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelCreation},
 		Limit: DEFAULT_LIMIT,
 	}}
@@ -105,8 +104,7 @@ func (c *Client) SubscribeChannelCreation() (string, error) {
 
 // SubscribeChannelMessages subsribes to messages which are a reply to the given chanMessageId
 func (c *Client) SubscribeChannelMessages(chanMessageId string) (string, error) {
-	var filters nostr.Filters
-	filters = []nostr.Filter{{
+	filters := []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelMessage},
 		Limit: DEFAULT_LIMIT,
 		Tags:  nostr.TagMap{"e": []string{chanMessageId}},
@@ -116,8 +114,7 @@ func (c *Client) SubscribeChannelMessages(chanMessageId string) (string, error) 
 }
 
 func (c *Client) FetchChannelCreation() ([]RelayChannel, error) {
-	var filters nostr.Filters
-	filters = []nostr.Filter{{
+	filters := []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelCreation},
 		Limit: DEFAULT_LIMIT,
 	}}
@@ -147,8 +144,7 @@ func (c *Client) FetchChannelCreation() ([]RelayChannel, error) {
 
 // SubscribeChannelMessages subsribes to messages which are a reply to the given chanMessageId
 func (c *Client) FetchChannelMessages(chanMessageId string) ([]RelayChannelMessage, error) {
-	var filters nostr.Filters
-	filters = []nostr.Filter{{
+	filters := []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelMessage},
 		Limit: DEFAULT_LIMIT,
 		Tags:  nostr.TagMap{"e": []string{chanMessageId}},

@@ -110,16 +110,6 @@ func (c *Client) GenerateKeyPair(ctx context.Context) (string, error) {
 	return nostr.GenerateKeyPair(), nil
 }
 
-// ConnectToRelay connects to a relay with a given url
-func (c *Client) ConnectToRelay(ctx context.Context, conState jsonrpc.State, url string) error {
-	state := State(conState)
-	if state.Client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.Client.ConnectAuthRelay(ctx, url)
-}
-
 // TextNote is a text note published on a relay
 type TextInput struct {
 	Tags    []string `json:"tags"`
@@ -299,7 +289,7 @@ type CreateChannelMessageInput struct {
 	Tags    []string `json:"tags"`
 	Content string   `json:"content"`
 	// ReplyTo is either the channel ID for root messages, or a message ID for replies
-	ReplyTo string `json:"replyTo"`
+	ReplyTo string `json:"reply_to"`
 }
 
 func (c *Client) CreateChannelMessage(ctx context.Context, conState jsonrpc.State, input CreateChannelMessageInput) error {
@@ -313,7 +303,7 @@ func (c *Client) CreateChannelMessage(ctx context.Context, conState jsonrpc.Stat
 
 type SubscribeChannelMessageInput struct {
 	// Id of the channel or message for which the reply is intended
-	MessageId string `json:"messageId"`
+	MessageId string `json:"message_id"`
 }
 
 func (c *Client) SubscribeChannelMessage(ctx context.Context, conState jsonrpc.State, input SubscribeChannelMessageInput) (string, error) {
@@ -336,7 +326,7 @@ func (c *Client) ListChannels(ctx context.Context, conState jsonrpc.State) ([]no
 }
 
 type FetchChannelMessageInput struct {
-	ChannelId string `json:"channelId"`
+	ChannelId string `json:"channel_id"`
 }
 
 func (c *Client) GetChannelMessages(ctx context.Context, conState jsonrpc.State, input FetchChannelMessageInput) ([]nostr.RelayChannelMessage, error) {
