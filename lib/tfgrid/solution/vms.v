@@ -5,6 +5,7 @@ import rand
 
 pub struct VM {
 pub mut:
+	name string // this is the vm's name, if multiple vms are to be deployed, and index is appended to the vm's name
 	network              string
 	farm_id              u32
 	capacity             Capacity
@@ -72,6 +73,8 @@ pub fn (mut s SolutionHandler) create_vm(vm VM) !VMResult {
 }
 
 fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
+	mut vm_name := if vm.name != ''{vm.name} else {rand.string(10).to_lower()}
+
 	mut machines_model := MachinesModel{
 		name: vm.network
 		network: Network{
@@ -81,9 +84,9 @@ fn (mut s SolutionHandler) create_new_vm(vm VM) !VMResult {
 	}
 
 	mut gws := map[string]GatewayName{}
-	for _ in 0 .. vm.times {
+	for i in 0 .. vm.times {
 		mut m := Machine{
-			name: rand.string(8).to_lower()
+			name: if vm.times > 1 {'${vm_name}${i}'} else {vm_name}
 			farm_id: vm.farm_id
 			public_ip: vm.add_public_ips
 			cpu: vm_cap[vm.capacity].cpu
@@ -199,12 +202,14 @@ pub fn (mut s SolutionHandler) remove_vm(network_name string, vm_name string) !V
 
 // add adds a vm to a network
 fn (mut s SolutionHandler) add_vm(vm VM) !VMResult {
+	mut vm_name := if vm.name != ''{vm.name} else {rand.string(10).to_lower()}
+	
 	mut machines_res := MachinesResult{}
 	mut gws := map[string]GatewayName{}
 
-	for _ in 0 .. vm.times {
+	for i in 0 .. vm.times {
 		mut m := Machine{
-			name: rand.string(8).to_lower()
+			name: if vm.times > 1 {'${vm_name}${i}'} else {vm_name}
 			farm_id: vm.farm_id
 			public_ip: vm.add_public_ips
 			cpu: vm_cap[vm.capacity].cpu
