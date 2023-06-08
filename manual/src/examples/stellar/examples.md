@@ -6,5 +6,6 @@ First go to the `examples/stellar` directory:
 cd examples/stellar
 ```
 
+- [account](./account.v)
 - [balance](./balance.md)
 - [send](./send.md)

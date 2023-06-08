@@ -10,12 +10,11 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, network string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, network string, account string) ! {
 	mut stellar_client := stellar.new(mut client)
 
 	stellar_client.load(secret: secret, network: network)!
 
-	account := stellar_client.address()!
 	balance := stellar_client.balance(account)!
 	logger.info('Balance: ${balance}')
 }
@@ -28,6 +27,7 @@ fn main() {
 	fp.skip_executable()
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	secret := fp.string('secret', `s`, '', 'The secret of your stellar key')
+	account := fp.string('account', `d`, '', 'The account to ask the balance of, if empty the account of the secret will be used')
 	network := fp.string('network', `n`, 'public', 'The network to connect to. Should be testnet or public.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
@@ -48,7 +48,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, secret, network) or {
+	execute_rpcs(mut myclient, mut logger, secret, network, account) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
