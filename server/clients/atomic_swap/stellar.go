@@ -111,3 +111,5 @@ func (s *StellarDriver) ClaimTFT(ctx context.Context, initTransferResult any, se
 
 	return nil
 }
+
+var _ SellChain = &StellarDriver{}

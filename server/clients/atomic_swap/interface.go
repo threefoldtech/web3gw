@@ -15,7 +15,7 @@ type (
 		// ValidateInitPaymentResult validates the result of an init payment call
 		ValidateInitPaymentResult(ctx context.Context, initResult any, details NegotiatedTrade) (SwapSecretHash, error)
 		// Claim payment on chain
-		Claim(ctx context.Context, initResult any, secret SwapSecret) error
+		Claim(ctx context.Context, initResult any, secretHash SwapSecretHash, secret SwapSecret) (string, error)
 	}
 
 	// SellChain holds all logic regarding the chain on which TFT are sold
