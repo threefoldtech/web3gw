@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
+	"github.com/stellar/go/protocols/horizon"
 	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
 )
@@ -30,6 +31,12 @@ type (
 		Secret  string `json:"secret"`
 	}
 
+	Swap struct {
+		Amount           string `json:"amount"`
+		SourceAsset      string `json:"source_asset"`
+		DestinationAsset string `json:"destination_asset"`
+	}
+
 	Transfer struct {
 		Amount      string `json:"amount"`
 		Destination string `json:"destination"`
@@ -44,6 +51,17 @@ type (
 	TfchainBridgeTransfer struct {
 		Amount string `json:"amount"`
 		TwinId uint32 `json:"twin_id"`
+	}
+
+	Transactions struct {
+		Account       string `json:"account"`
+		Limit         uint   `json:"limit"`
+		IncludeFailed bool   `json:"include_failed"`
+		Cursor        string `json:"cursor"`
+	}
+
+	AccountData struct {
+		Account string `json:"account"`
 	}
 )
 
@@ -111,6 +129,16 @@ func (c *Client) Address(ctx context.Context, conState jsonrpc.State) (string, e
 	return state.Client.Address(), nil
 }
 
+// TODO
+func (c *Client) Swap(ctx context.Context, conState jsonrpc.State, args Swap) error {
+	state := State(conState)
+	if state.Client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.Swap(args.SourceAsset, args.DestinationAsset, args.Amount)
+}
+
 // Transer an amount of TFT from the loaded account to the destination.
 func (c *Client) Transfer(ctx context.Context, conState jsonrpc.State, args Transfer) (string, error) {
 	state := State(conState)
@@ -176,4 +204,31 @@ func (c *Client) AwaitTransactionOnEthBridge(ctx context.Context, conState jsonr
 	}
 
 	return state.Client.AwaitTransactionWithMemoOnEthBridge(ctx, memo, 300)
+}
+
+// Get the last transactions of your account
+func (c *Client) Transactions(ctx context.Context, conState jsonrpc.State, args Transactions) ([]horizon.Transaction, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return []horizon.Transaction{}, pkg.ErrClientNotConnected{}
+	}
+	if args.Account == "" {
+		args.Account = state.Client.Address()
+	}
+
+	return state.Client.Transactions(args.Account, args.Limit, args.IncludeFailed, args.Cursor)
+}
+
+// Get data related to a stellar account
+func (c *Client) AccountData(ctx context.Context, conState jsonrpc.State, account string) (horizon.Account, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return horizon.Account{}, pkg.ErrClientNotConnected{}
+	}
+
+	if account == "" {
+		account = state.Client.Address()
+	}
+
+	return state.Client.AccountData(account)
 }

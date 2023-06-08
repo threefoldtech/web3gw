@@ -3,8 +3,10 @@ package stellargoclient
 import (
 	"net/http"
 
+	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
+	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/txnbuild"
 )
 
@@ -17,6 +19,7 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 
 	// Don't activate account on public network
 	if c.stellarNetwork == "public" {
+		// Todo create account via other account
 		return kp, nil
 	}
 
@@ -25,7 +28,7 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 		return nil, err
 	}
 
-	err = c.SetTrustLine()
+	err = c.SetTrustLine(kp.Address())
 	if err != nil {
 		return nil, err
 	}
@@ -33,21 +36,23 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 	return kp, nil
 }
 
-func (c *Client) SetTrustLine() error {
+func (c *Client) SetTrustLine(account string) error {
 	createTftTrustlineOperation := txnbuild.ChangeTrust{
 		Line: txnbuild.ChangeTrustAssetWrapper{
 			Asset: c.GetTftAsset(),
 		},
 		Limit:         "",
-		SourceAccount: c.kp.Address(),
+		SourceAccount: account,
 	}
 
 	// Get information about the account we just created
-	accountRequest := horizonclient.AccountRequest{AccountID: c.kp.Address()}
+	accountRequest := horizonclient.AccountRequest{AccountID: account}
 	hAccount, err := c.horizon.AccountDetail(accountRequest)
 	if err != nil {
 		return err
 	}
+
+	log.Debug().Msgf("Account is %s", hAccount.ID)
 
 	params := txnbuild.TransactionParams{
 		SourceAccount:        &hAccount,
@@ -139,4 +144,12 @@ func activateAccount(addr string) error {
 	}
 
 	return nil
+}
+
+func (c *Client) AccountData(account string) (horizon.Account, error) {
+	accountRequest := horizonclient.AccountRequest{
+		AccountID: account,
+	}
+
+	return c.horizon.AccountDetail(accountRequest)
 }

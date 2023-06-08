@@ -1,6 +1,9 @@
 package stellargoclient
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
 	"github.com/stellar/go/network"
@@ -65,6 +68,22 @@ func (c *Client) GetTftBaseAsset() base.Asset {
 		return MainnetTftAsset
 	} else {
 		return TestnetTftAsset
+	}
+}
+
+func (c *Client) GetXlmAsset() txnbuild.CreditAsset {
+	return txnbuild.CreditAsset{}
+}
+
+// GetTftAsset returns the tft asset for the stellar network
+func (c *Client) GetAssetFromString(asset string) (txnbuild.Asset, error) {
+	assetLower := strings.ToLower(asset)
+	if assetLower == "tft" {
+		return c.GetTftAsset(), nil
+	} else if assetLower == "xlm" {
+		return txnbuild.NativeAsset{}, nil
+	} else {
+		return txnbuild.CreditAsset{}, errors.New("unsupported asset")
 	}
 }
 

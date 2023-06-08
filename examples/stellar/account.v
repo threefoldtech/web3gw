@@ -15,9 +15,9 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 
 	stellar_client.load(secret: secret, network: network)!
 
-	account := stellar_client.address()!
-	balance := stellar_client.balance(account)!
-	logger.info('Balance: ${balance}')
+	// empty string to account_data results in account data of loaded key
+	account_data := stellar_client.account_data("")!
+	logger.info('Account data: ${account_data}')
 }
 
 fn main() {
