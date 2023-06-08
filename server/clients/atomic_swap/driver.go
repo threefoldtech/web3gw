@@ -113,7 +113,7 @@ var (
 	// contract address on the goerli network
 	// contractAddress = common.HexToAddress("0x8420c8271d602F6D0B190856Cea8E74D09A0d3cF")
 	// TFT asset on the stellar testnet
-	testnetTftAsset = mustStellarTestnetTftAsset()
+	testnetTftAsset = stellargoclient.TestnetTft
 )
 
 func initDriver(nostr *nostr.Client, eth *goethclient.Client, stellar *stellargoclient.Client) *Driver {
