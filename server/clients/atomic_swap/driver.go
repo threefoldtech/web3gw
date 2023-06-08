@@ -25,6 +25,41 @@ import (
 )
 
 type (
+	// TradeManager manages a full trade. This can inlcude 1 or more swaps
+	TradeManager struct {
+		nostr *nostr.Client
+		// buyer and seller are only used by the drivers, but are instantiated here so we can clone them into the driver when that is created
+		buyer  BuyChain
+		seller SellChain
+
+		saleId string
+
+		// This is used to negotiate trades
+		msges <-chan nostr.NostrEvent
+
+		// Total amount of tft's to swap
+		totalAmount uint64
+		// amount of other token to pay for 1 TFT
+		swapPrice uint64
+		// drivers currently active. A driver becomes active after a trade is successfully negotiated
+		inflightTrades []SwapDriver
+	}
+
+	// SwapDriver drives a single atomic swap. Multiple swap drivers can be in progress for the same swap
+	SwapDriver struct {
+		nostr  *nostr.Client
+		buyer  BuyChain
+		seller SellChain
+
+		swapId string
+
+		msges <-chan nostr.NostrEvent
+
+		// Atomic swap secret and hash.
+		secret     [32]byte
+		secretHash [sha256.Size]byte
+	}
+
 	// Driver for atomic swaps
 	Driver struct {
 		nostr   *nostr.Client
