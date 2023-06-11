@@ -1,8 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Discourse }
+import threefoldtech.threebot.tfgrid { Discourse }
 import rand
 
 fn (mut t TFGridHandler) discourse(action Action) ! {
@@ -10,8 +9,7 @@ fn (mut t TFGridHandler) discourse(action Action) ! {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
-			capacity_str := action.params.get_default('capacity', 'meduim')!
-			capacity := solution.get_capacity(capacity_str)!
+			capacity := action.params.get_default('capacity', 'meduim')!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 			developer_email := action.params.get('developer_email')!
@@ -21,7 +19,7 @@ fn (mut t TFGridHandler) discourse(action Action) ! {
 			smtp_password := action.params.get('smtp_password')!
 			smtp_tls := action.params.get_default_false('smtp_tls')
 
-			deploy_res := t.solution_handler.deploy_discourse(Discourse{
+			deploy_res := t.tfclient.deploy_discourse(Discourse{
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -39,15 +37,14 @@ fn (mut t TFGridHandler) discourse(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.solution_handler.get_discourse(name)!
+			get_res := t.tfclient.get_discourse(name)!
 
 			t.logger.info('${get_res}')
 		}
-		
 		'delete' {
 			name := action.params.get('name')!
 
-			t.solution_handler.delete_discourse(name) or {
+			t.tfclient.delete_discourse(name) or {
 				return error('failed to delete discourse instance: ${err}')
 			}
 		}

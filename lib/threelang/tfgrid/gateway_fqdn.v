@@ -2,11 +2,9 @@ module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
 import threefoldtech.threebot.tfgrid { GatewayFQDN }
-import threefoldtech.threebot.tfgrid.solution
 import rand
 
 fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
-
 	match action.name {
 		'create' {
 			node_id := action.params.get_int('node_id')!
@@ -15,7 +13,7 @@ fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
 			backend := action.params.get('backend')!
 			fqdn := action.params.get('fqdn')!
 
-			gw_deploy := t.solution_handler.tfclient.gateways_deploy_fqdn(GatewayFQDN{
+			gw_deploy := t.tfclient.gateways_deploy_fqdn(GatewayFQDN{
 				name: name
 				node_id: u32(node_id)
 				tls_passthrough: tls_passthrough
@@ -27,11 +25,11 @@ fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
 		}
 		'delete' {
 			name := action.params.get('name')!
-			t.solution_handler.tfclient.gateways_delete_fqdn(name)!
+			t.tfclient.gateways_delete_fqdn(name)!
 		}
 		'get' {
 			name := action.params.get('name')!
-			gw_get := t.solution_handler.tfclient.gateways_get_fqdn(name)!
+			gw_get := t.tfclient.gateways_get_fqdn(name)!
 
 			t.logger.info('${gw_get}')
 		}

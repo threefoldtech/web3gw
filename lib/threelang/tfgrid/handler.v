@@ -1,30 +1,22 @@
 module tfgrid
 
-import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.explorer
-import threefoldtech.threebot.tfgrid.solution { SolutionHandler }
+import threefoldtech.threebot.tfgrid { TFGridClient }
 import freeflowuniverse.crystallib.actionsparser { Action }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import log {Logger}
+import log { Logger }
 
 pub struct TFGridHandler {
 pub mut:
-	solution_handler SolutionHandler
-	ssh_keys         map[string]string
-	logger Logger
+	tfclient TFGridClient
+	ssh_keys map[string]string
+	logger   Logger
 }
 
 pub fn new(mut rpc_client RpcWsClient, logger Logger) TFGridHandler {
 	mut tfgrid_client := tfgrid.new(mut rpc_client)
-	mut exp := explorer.new(mut rpc_client)
-
-	solution_handler := SolutionHandler{
-		tfclient: tfgrid_client
-		explorer: exp
-	}
 
 	return TFGridHandler{
-		solution_handler: solution_handler
+		tfclient: tfgrid_client
 		logger: logger
 	}
 }
@@ -49,19 +41,19 @@ pub fn (mut t TFGridHandler) handle_action(action Action) ! {
 		'zdbs' {
 			t.zdb(action)!
 		}
-		'discourse'{
+		'discourse' {
 			t.discourse(action)!
 		}
-		'funkwhale'{
+		'funkwhale' {
 			t.funkwhale(action)!
 		}
-		'peertube'{
+		'peertube' {
 			t.peertube(action)!
 		}
-		'taiga'{
+		'taiga' {
 			t.taiga(action)!
 		}
-		'presearch'{
+		'presearch' {
 			t.presearch(action)!
 		}
 		else {

@@ -1,18 +1,14 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { VM }
+import threefoldtech.threebot.tfgrid { VM, RemoveVMWithGWArgs }
 
 fn (mut t TFGridHandler) vm(action Action) ! {
-	
-
 	match action.name {
 		'create' {
 			network := action.params.get('network')!
 			farm_id := action.params.get_int_default('farm_id', 0)!
-			capacity_str := action.params.get_default('capacity', 'meduim')!
-			capacity := solution.get_capacity(capacity_str)!
+			capacity := action.params.get_default('capacity', 'meduim')!
 			times := action.params.get_int_default('times', 1)!
 			disk_size := action.params.get_int_default('disk_size', 10)!
 			gateway := action.params.get_default_false('gateway')
@@ -22,7 +18,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 
-			deploy_res := t.solution_handler.create_vm(VM{
+			deploy_res := t.tfclient.deploy_vm(VM{
 				network: network
 				capacity: capacity
 				ssh_key: ssh_key
@@ -36,7 +32,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 		'get' {
 			network := action.params.get('network')!
 
-			get_res := t.solution_handler.get_vm(network)!
+			get_res := t.tfclient.get_vm(network)!
 
 			t.logger.info('${get_res}')
 		}
@@ -44,15 +40,16 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			network := action.params.get('network')!
 			machine := action.params.get('machine')!
 
-			remove_res := t.solution_handler.remove_vm(network, machine)!
+			remove_res := t.tfclient.remove_vm(RemoveVMWithGWArgs{
+				network: network
+				vm_name: machine
+			})!
 			t.logger.info('${remove_res}')
 		}
 		'delete' {
 			network := action.params.get('network')!
 
-			t.solution_handler.delete_vm(network) or {
-				return error('failed to delete vm network: ${err}')
-			}
+			t.tfclient.delete_vm(network) or { return error('failed to delete vm network: ${err}') }
 		}
 		else {
 			return error('operation ${action.name} is not supported on vms')
