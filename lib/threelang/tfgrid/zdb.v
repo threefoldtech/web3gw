@@ -2,7 +2,6 @@ module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
 import threefoldtech.threebot.tfgrid { ZDB }
-import threefoldtech.threebot.tfgrid.solution
 import rand
 
 const GB = 1024 * 1024 * 1024
@@ -17,7 +16,7 @@ fn (mut t TFGridHandler) zdb(action Action) ! {
 			size := action.params.get_storagecapacity_in_bytes('size')!
 			mode := action.params.get_default('mode', 'user')!
 
-			zdb_deploy := t.solution_handler.tfclient.zdb_deploy(ZDB{
+			zdb_deploy := t.tfclient.zdb_deploy(ZDB{
 				node_id: u32(node_id)
 				name: name
 				password: password
@@ -30,11 +29,11 @@ fn (mut t TFGridHandler) zdb(action Action) ! {
 		}
 		'delete' {
 			name := action.params.get('name')!
-			t.solution_handler.tfclient.zdb_delete(name)!
+			t.tfclient.zdb_delete(name)!
 		}
 		'get' {
 			name := action.params.get('name')!
-			zdb_get := t.solution_handler.tfclient.zdb_get(name)!
+			zdb_get := t.tfclient.zdb_get(name)!
 
 			t.logger.info('${zdb_get}')
 		}

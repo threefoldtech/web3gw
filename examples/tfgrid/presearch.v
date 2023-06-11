@@ -1,12 +1,11 @@
 module main
 
-import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Presearch, SolutionHandler }
+import threefoldtech.threebot.tfgrid {TFGridClient}
 import log
 
-fn run_presearch_ops(mut s SolutionHandler, mut logger log.Logger) ! {
+fn run_presearch_ops(mut t TFGridClient, mut logger log.Logger) ! {
 	model_name := 'hamadapresearch'
-	deploy_res := s.deploy_presearch(Presearch{
+	deploy_res := t.deploy_presearch(tfgrid.Presearch{
 		name: model_name
 		farm_id: 1
 		ssh_key: 'key'
@@ -15,10 +14,10 @@ fn run_presearch_ops(mut s SolutionHandler, mut logger log.Logger) ! {
 	logger.info('${deploy_res}')
 
 	defer {
-		s.delete_presearch(model_name) or { logger.error('failed to delete presearch: ${err}') }
+		t.delete_presearch(model_name) or { logger.error('failed to delete presearch: ${err}') }
 	}
 
-	get_res := s.get_presearch(model_name)!
+	get_res := t.get_presearch(model_name)!
 	logger.info('${get_res}')
 }
 
@@ -27,17 +26,12 @@ fn main() {
 		level: .info
 	}
 
-	mut tfgrid_client, exp := tfgrid.cli(mut logger) or {
+	mut tfgrid_client, _ := tfgrid.cli(mut logger) or {
 		logger.error('failed to initialize tfgrid client: ${err}')
 		exit(1)
 	}
 
-	mut s := SolutionHandler{
-		tfclient: &tfgrid_client
-		explorer: &exp
-	}
-
-	run_presearch_ops(mut s, mut logger) or {
+	run_presearch_ops(mut tfgrid_client, mut logger) or {
 		logger.error('${err}')
 		exit(1)
 	}

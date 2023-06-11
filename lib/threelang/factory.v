@@ -3,19 +3,19 @@ module threelang
 import freeflowuniverse.crystallib.actionsparser
 import freeflowuniverse.crystallib.rpcwebsocket
 import log
-import threefoldtech.threebot.threelang.tfgrid {TFGridHandler}
-import threefoldtech.threebot.threelang.tfchain {TFChainHandler}
+import threefoldtech.threebot.threelang.tfgrid { TFGridHandler }
+import threefoldtech.threebot.threelang.tfchain { TFChainHandler }
 
-const(
-	tfgrid_book = 'tfgrid'
+const (
+	tfgrid_book  = 'tfgrid'
 	tfchain_book = 'tfchain'
 )
 
 pub struct Runner {
 pub mut:
-	path     string
+	path string
 
-	tfgrid_handler TFGridHandler
+	tfgrid_handler  TFGridHandler
 	tfchain_handler TFChainHandler
 }
 
@@ -29,7 +29,7 @@ pub mut:
 
 pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	mut ap := actionsparser.new(path: args.path, defaultbook: 'aaa')!
-	
+
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }
 	})
@@ -53,15 +53,15 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 }
 
 pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
-	for action in action_parser.actions{
-		match action.book{
-			'tfgrid'{
+	for action in action_parser.actions {
+		match action.book {
+			'tfgrid' {
 				r.tfgrid_handler.handle_action(action)!
 			}
-			'tfchain'{
+			'tfchain' {
 				r.tfchain_handler.handle_action(action)!
 			}
-			else{
+			else {
 				return error('module ${action.book} is invalid')
 			}
 		}
