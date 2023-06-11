@@ -2,7 +2,7 @@ module tfgrid
 
 pub struct VM {
 pub mut:
-	name                 string // this is the vm's name, if multiple vms are to be deployed, and index is appended to the vm's name
+	name                 string // this is the vm's name, if multiple vms are to be deployed, and index is appended to the vm's name, and if not provided, a random name is generated
 	network              string
 	farm_id              u32
 	capacity             string
