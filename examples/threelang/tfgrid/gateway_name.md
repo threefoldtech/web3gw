@@ -1,4 +1,4 @@
-# Gatewya Name Example
+# Gateway Name Example
 
 - This example deployes, gets, and deletes a gateway name workload on the tfgrid.
 
