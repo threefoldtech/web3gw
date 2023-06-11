@@ -26,8 +26,6 @@ fn (mut t TFGridHandler) ssh_key_helper(action Action) ! {
 	}
 }
 
-fn (mut t TFGridHandler) get_ssh_key(name string)!string{
-	return t.ssh_keys[name] or {
-		return error('ssh key ${name} does not exist')
-	}
+fn (mut t TFGridHandler) get_ssh_key(name string) !string {
+	return t.ssh_keys[name] or { return error('ssh key ${name} does not exist') }
 }

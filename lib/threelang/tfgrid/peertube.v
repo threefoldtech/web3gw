@@ -1,8 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Peertube }
+import threefoldtech.threebot.tfgrid { Peertube }
 import rand
 
 fn (mut t TFGridHandler) peertube(action Action) ! {
@@ -10,8 +9,7 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
-			capacity_str := action.params.get_default('capacity', 'meduim')!
-			capacity := solution.get_capacity(capacity_str)!
+			capacity := action.params.get_default('capacity', 'meduim')!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 			admin_email := action.params.get('admin_email')!
@@ -20,8 +18,8 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 			smtp_hostname := action.params.get('smtp_hostname')!
 			smtp_username := action.params.get('smtp_username')!
 			smtp_password := action.params.get('smtp_password')!
-			
-			deploy_res := t.solution_handler.deploy_peertube(Peertube{
+
+			deploy_res := t.tfclient.deploy_peertube(Peertube{
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -39,15 +37,14 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.solution_handler.get_peertube(name)!
+			get_res := t.tfclient.get_peertube(name)!
 
 			t.logger.info('${get_res}')
 		}
-		
 		'delete' {
 			name := action.params.get('name')!
 
-			t.solution_handler.delete_peertube(name) or {
+			t.tfclient.delete_peertube(name) or {
 				return error('failed to delete peertube instance: ${err}')
 			}
 		}

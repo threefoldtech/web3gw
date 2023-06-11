@@ -1,8 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid
-import threefoldtech.threebot.tfgrid.solution { Presearch }
+import threefoldtech.threebot.tfgrid { Presearch }
 import rand
 
 fn (mut t TFGridHandler) presearch(action Action) ! {
@@ -12,10 +11,10 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
-			disk_size := action.params.get_storagecapacity_in_bytes('disk_size')! / u32(1024*1024*1024)
+			disk_size := action.params.get_storagecapacity_in_bytes('disk_size')! / u32(1024 * 1024 * 1024)
 			public_ipv4 := action.params.get_default_false('public_ip')
-			
-			deploy_res := t.solution_handler.deploy_presearch(Presearch{
+
+			deploy_res := t.tfclient.deploy_presearch(Presearch{
 				name: name
 				farm_id: u64(farm_id)
 				ssh_key: ssh_key
@@ -28,15 +27,14 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.solution_handler.get_presearch(name)!
+			get_res := t.tfclient.get_presearch(name)!
 
 			t.logger.info('${get_res}')
 		}
-		
 		'delete' {
 			name := action.params.get('name')!
 
-			t.solution_handler.delete_presearch(name) or {
+			t.tfclient.delete_presearch(name) or {
 				return error('failed to delete presearch instance: ${err}')
 			}
 		}
