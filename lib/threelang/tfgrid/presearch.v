@@ -14,7 +14,7 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			disk_size := action.params.get_storagecapacity_in_bytes('disk_size')! / u32(1024 * 1024 * 1024)
 			public_ipv4 := action.params.get_default_false('public_ip')
 
-			deploy_res := t.tfclient.deploy_presearch(Presearch{
+			deploy_res := t.tfgrid.deploy_presearch(Presearch{
 				name: name
 				farm_id: u64(farm_id)
 				ssh_key: ssh_key
@@ -27,14 +27,14 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfclient.get_presearch(name)!
+			get_res := t.tfgrid.get_presearch(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfclient.delete_presearch(name) or {
+			t.tfgrid.delete_presearch(name) or {
 				return error('failed to delete presearch instance: ${err}')
 			}
 		}

@@ -18,10 +18,13 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 
-			deploy_res := t.tfclient.deploy_vm(VM{
+			deploy_res := t.tfgrid.deploy_vm(VM{
 				network: network
+				farm_id: u32(farm_id)
 				capacity: capacity
 				ssh_key: ssh_key
+				times: u32(times)
+				disk_size: u32(disk_size)
 				gateway: gateway
 				add_wireguard_access: wg
 				add_public_ips: public_ip
@@ -32,7 +35,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 		'get' {
 			network := action.params.get('network')!
 
-			get_res := t.tfclient.get_vm(network)!
+			get_res := t.tfgrid.get_vm(network)!
 
 			t.logger.info('${get_res}')
 		}
@@ -40,7 +43,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			network := action.params.get('network')!
 			machine := action.params.get('machine')!
 
-			remove_res := t.tfclient.remove_vm(RemoveVMWithGWArgs{
+			remove_res := t.tfgrid.remove_vm(RemoveVMWithGWArgs{
 				network: network
 				vm_name: machine
 			})!
@@ -49,7 +52,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 		'delete' {
 			network := action.params.get('network')!
 
-			t.tfclient.delete_vm(network) or { return error('failed to delete vm network: ${err}') }
+			t.tfgrid.delete_vm(network) or { return error('failed to delete vm network: ${err}') }
 		}
 		else {
 			return error('operation ${action.name} is not supported on vms')

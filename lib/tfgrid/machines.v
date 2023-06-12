@@ -1,5 +1,41 @@
 module tfgrid
 
+[params]
+pub struct MachinesModel {
+pub mut:
+	name        string    [required]
+	network     Network   [required]
+	machines    []Machine [required]
+	metadata    string
+	description string
+}
+
+[params]
+pub struct AddMachine {
+pub:
+	machine    Machine
+	model_name string
+}
+
+[params]
+pub struct RemoveMachine {
+pub:
+	machine_name string
+	model_name   string
+}
+
+[params]
+pub struct MachinesGet {
+	model_name   string
+	project_name string
+}
+
+[params]
+pub struct MachinesDeploy {
+	model        MachinesModel
+	project_name string
+}
+
 // Deploys a machines workload given a machines model. If it does not succeed the call returns an error.
 pub fn (mut t TFGridClient) machines_deploy(model MachinesModel) !MachinesResult {
 	return t.client.send_json_rpc[[]MachinesModel, MachinesResult]('tfgrid.MachinesDeploy',

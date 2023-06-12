@@ -47,6 +47,7 @@ type VMWithGW struct {
 	Gateway            bool   `json:"gateway"`
 	AddWireguardAccess bool   `json:"add_wireguard_access"`
 	AddPublicIPs       bool   `json:"add_public_ips"`
+	PublicIPv6         bool   `json:"public_ipv6"`
 }
 
 type VMWithGWResult struct {
@@ -65,7 +66,7 @@ type RemoveVMWithGWArgs struct {
 	VMName  string `json:"vm_name"`
 }
 
-func (c *Client) DeployVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResult, error) {
+func (c *Client) DeployVM(ctx context.Context, vm VMWithGW) (VMWithGWResult, error) {
 	_, err := c.MachinesGet(ctx, vm.Network)
 	if err != nil {
 		log.Error().Msgf("error: %+v", err)
@@ -174,7 +175,7 @@ func (c *Client) addVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResult, 
 	return newVMWithGWResult(machinesModel, gws), nil
 }
 
-func (c *Client) GetVMWithGW(ctx context.Context, networkName string) (VMWithGWResult, error) {
+func (c *Client) GetVM(ctx context.Context, networkName string) (VMWithGWResult, error) {
 	gws := map[string]GatewayNameModel{}
 
 	machinesModel, err := c.MachinesGet(ctx, networkName)
@@ -208,7 +209,7 @@ func (c *Client) GetVMWithGW(ctx context.Context, networkName string) (VMWithGWR
 	return res, nil
 }
 
-func (c *Client) DeleteVMWithGW(ctx context.Context, networkName string) error {
+func (c *Client) DeleteVM(ctx context.Context, networkName string) error {
 	machinesModel, err := c.MachinesGet(ctx, networkName)
 	if err != nil {
 		return err
@@ -232,7 +233,7 @@ func (c *Client) DeleteVMWithGW(ctx context.Context, networkName string) error {
 	return nil
 }
 
-func (c *Client) RemoveVMWithGW(ctx context.Context, args RemoveVMWithGWArgs) (VMWithGWResult, error) {
+func (c *Client) RemoveVM(ctx context.Context, args RemoveVMWithGWArgs) (VMWithGWResult, error) {
 	machinesModel, err := c.MachinesGet(ctx, args.Network)
 	if err != nil {
 		return VMWithGWResult{}, err
@@ -258,7 +259,7 @@ func (c *Client) RemoveVMWithGW(ctx context.Context, args RemoveVMWithGWArgs) (V
 		}
 	}
 
-	return c.GetVMWithGW(ctx, args.Network)
+	return c.GetVM(ctx, args.Network)
 }
 
 func (vm *VMWithGW) generateMachines() ([]Machine, error) {
@@ -303,7 +304,7 @@ func (vm *VMWithGW) generateMachines() ([]Machine, error) {
 		}
 
 		if vm.Gateway {
-			gwName := generateRandomGwName(8)
+			gwName := generateRandomString(8)
 			m.EnvVars[gwNameEnvVar] = gwName
 		}
 
@@ -330,7 +331,7 @@ func newVMWithGWResult(model MachinesModel, gws map[string]GatewayNameModel) VMW
 	return res
 }
 
-func generateRandomGwName(n int) string {
+func generateRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
