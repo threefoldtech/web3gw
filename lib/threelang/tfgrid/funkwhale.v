@@ -16,7 +16,7 @@ fn (mut t TFGridHandler) funkwhale(action Action) ! {
 			admin_username := action.params.get('admin_username')!
 			admin_password := action.params.get('admin_password')!
 
-			deploy_res := t.tfclient.deploy_funkwhale(Funkwhale{
+			deploy_res := t.tfgrid.deploy_funkwhale(Funkwhale{
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -31,14 +31,14 @@ fn (mut t TFGridHandler) funkwhale(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfclient.get_funkwhale(name)!
+			get_res := t.tfgrid.get_funkwhale(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfclient.delete_funkwhale(name) or {
+			t.tfgrid.delete_funkwhale(name) or {
 				return error('failed to delete funkwhale instance: ${err}')
 			}
 		}

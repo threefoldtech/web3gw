@@ -6,16 +6,18 @@ import (
 )
 
 type Presearch struct {
-	Name     string `json:"name"`
-	FarmID   uint64 `json:"farm_id"`
-	SSHKey   string `json:"ssh_key"`
-	DiskSize uint32 `json:"disk_size"`
-	PublicIP bool   `json:"public_ipv4"`
+	Name       string `json:"name"`
+	FarmID     uint64 `json:"farm_id"`
+	SSHKey     string `json:"ssh_key"`
+	DiskSize   uint32 `json:"disk_size"`
+	PublicIP   bool   `json:"public_ipv4"`
+	PublicIPv6 bool   `json:"public_ipv6"`
 }
 
 type PresearchResult struct {
 	Name         string `json:"name"`
 	MachineYGGIP string `json:"machine_ygg_ip"`
+	MachineIPv6  string `json:"machine_ipv6"`
 	MachineIPV4  string `json:"machine_ipv4"`
 }
 
@@ -32,11 +34,13 @@ func (c *Client) DeployPresearch(ctx context.Context, presearch Presearch) (Pres
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 	publicIP := machinesModel.Machines[0].ComputedIP4
 
 	return PresearchResult{
 		Name:         presearch.Name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		MachineIPV4:  publicIP,
 	}, nil
 }
@@ -75,11 +79,13 @@ func (c *Client) GetPresearch(ctx context.Context, name string) (PresearchResult
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 	publicIP := machinesModel.Machines[0].ComputedIP4
 
 	return PresearchResult{
 		Name:         name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		MachineIPV4:  publicIP,
 	}, nil
 }

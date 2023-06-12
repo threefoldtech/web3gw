@@ -1,5 +1,18 @@
 module tfgrid
 
+[params]
+pub struct Funkwhale {
+pub:
+	name           string
+	farm_id        u64
+	capacity       string
+	ssh_key        string
+	admin_email    string
+	admin_username string
+	admin_password string
+	public_ipv6    bool
+}
+
 // Deploys a funkwhale instance
 pub fn (mut t TFGridClient) deploy_funkwhale(funkwhale Funkwhale) !FunkwhaleResult {
 	return t.client.send_json_rpc[[]Funkwhale, FunkwhaleResult]('tfgrid.DeployFunkwhale',

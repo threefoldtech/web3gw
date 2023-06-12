@@ -16,7 +16,7 @@ fn (mut t TFGridHandler) taiga(action Action) ! {
 			admin_password := action.params.get('admin_password')!
 			admin_email := action.params.get('admin_email')!
 
-			deploy_res := t.tfclient.deploy_taiga(Taiga{
+			deploy_res := t.tfgrid.deploy_taiga(Taiga{
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -31,14 +31,14 @@ fn (mut t TFGridHandler) taiga(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfclient.get_taiga(name)!
+			get_res := t.tfgrid.get_taiga(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfclient.delete_taiga(name) or {
+			t.tfgrid.delete_taiga(name) or {
 				return error('failed to delete taiga instance: ${err}')
 			}
 		}

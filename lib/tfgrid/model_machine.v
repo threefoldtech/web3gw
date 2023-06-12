@@ -1,25 +1,5 @@
 module tfgrid
 
-[params]
-pub struct MachinesModel {
-pub mut:
-	name        string    [required]
-	network     Network   [required]
-	machines    []Machine [required]
-	metadata    string
-	description string
-}
-
-pub struct MachinesResult {
-pub:
-	name        string
-	metadata    string
-	description string
-	network     NetworkResult
-	machines    []MachineResult
-}
-
-[params]
 pub struct Machine {
 pub mut:
 	name        string            [required]
@@ -38,6 +18,46 @@ pub mut:
 	qsfss       []QSFS
 	env_vars    map[string]string // ex: { "SSH_KEY": ".." }
 	description string
+}
+
+pub struct Disk {
+pub:
+	size        u32    [required] // disk size in GBs
+	mountpoint  string [required]
+	description string
+}
+
+pub struct QSFS {
+pub:
+	mountpoint       string [required]
+	encryption_key   string [required]
+	cache            u32    [required]
+	minimal_shards   u32    [required]
+	expected_shards  u32    [required]
+	redundant_groups u32    [required]
+	redundant_nodes  u32    [required]
+
+	encryption_algorithm  string = 'AES'
+	compression_algorithm string = 'snappy'
+	metadata              Metadata [required]
+	description           string
+
+	max_zdb_data_dir_size u32     [required]
+	groups                []Group [required]
+}
+
+pub struct Zlog {
+pub:
+	output string
+}
+
+pub struct MachinesResult {
+pub:
+	name        string
+	metadata    string
+	description string
+	network     NetworkResult
+	machines    []MachineResult
 }
 
 pub struct MachineResult {
@@ -65,44 +85,6 @@ pub:
 	ygg_ip       string
 }
 
-[params]
-pub struct Disk {
-pub:
-	size        u32    [required] // disk size in GBs
-	mountpoint  string [required]
-	description string
-}
-
-[params]
-pub struct DiskResult {
-pub:
-	size        u32    [required] // disk size in GBs
-	mountpoint  string [required]
-	description string
-	// computed
-	name string [required]
-}
-
-[params]
-pub struct QSFS {
-pub:
-	mountpoint       string [required]
-	encryption_key   string [required]
-	cache            u32    [required]
-	minimal_shards   u32    [required]
-	expected_shards  u32    [required]
-	redundant_groups u32    [required]
-	redundant_nodes  u32    [required]
-
-	encryption_algorithm  string = 'AES'
-	compression_algorithm string = 'snappy'
-	metadata              Metadata [required]
-	description           string
-
-	max_zdb_data_dir_size u32     [required]
-	groups                []Group [required]
-}
-
 pub struct QSFSResult {
 pub:
 	mountpoint       string
@@ -126,9 +108,13 @@ pub:
 }
 
 [params]
-pub struct Zlog {
+pub struct DiskResult {
 pub:
-	output string
+	size        u32    [required] // disk size in GBs
+	mountpoint  string [required]
+	description string
+	// computed
+	name string [required]
 }
 
 pub struct Metadata {
@@ -161,26 +147,4 @@ pub:
 	ip_range string
 	// computed
 	wireguard_config string
-}
-
-pub struct AddMachine {
-pub:
-	machine    Machine
-	model_name string
-}
-
-pub struct RemoveMachine {
-pub:
-	machine_name string
-	model_name   string
-}
-
-pub struct MachinesGet {
-	model_name   string
-	project_name string
-}
-
-pub struct MachinesDeploy {
-	model        MachinesModel
-	project_name string
 }

@@ -4,6 +4,25 @@ const (
 	default_timeout = 500000
 )
 
+[params]
+pub struct GatewayFQDN {
+pub:
+	name            string   [required]
+	node_id         u32      [required]
+	tls_passthrough bool
+	backends        []string [required]
+	fqdn            string   [required]
+}
+
+[params]
+pub struct GatewayName {
+pub mut:
+	name            string   [json: 'name'; required]
+	node_id         u32      [json: 'node_id']
+	tls_passthrough bool     [json: 'tls_passthrough']
+	backends        []string [json: 'backends'; required]
+}
+
 // Deploys a fully qualified domain on gateway (for example site.com) and returns gateway model
 // with some extra data related to the created fqdn.
 pub fn (mut t TFGridClient) gateways_deploy_fqdn(model GatewayFQDN) !GatewayFQDNResult {

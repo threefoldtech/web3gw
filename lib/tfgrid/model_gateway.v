@@ -1,17 +1,5 @@
 module tfgrid
 
-// NOTE: is there any need to translate json here?
-
-[params]
-pub struct GatewayFQDN {
-pub:
-	name            string   [required]
-	node_id         u32      [required]
-	tls_passthrough bool
-	backends        []string [required]
-	fqdn            string   [required]
-}
-
 pub struct GatewayFQDNResult {
 pub:
 	name            string
@@ -21,15 +9,6 @@ pub:
 	fqdn            string
 	// computed
 	contract_id u32
-}
-
-[params]
-pub struct GatewayName {
-pub mut:
-	name            string   [json: 'name'; required]
-	node_id         u32      [json: 'node_id']
-	tls_passthrough bool     [json: 'tls_passthrough']
-	backends        []string [json: 'backends'; required]
 }
 
 pub struct GatewayNameResult {

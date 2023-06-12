@@ -1,5 +1,6 @@
 module tfgrid
 
+[params]
 pub struct ZDB {
 pub:
 	node_id     u32

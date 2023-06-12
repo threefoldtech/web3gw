@@ -33,24 +33,24 @@ var discourseCapacity = map[string]capacityPackage{
 }
 
 type Discourse struct {
-	Name               string `json:"name"`
-	FarmID             uint64 `json:"farm_id"`
-	Capacity           string `json:"capacity"`
-	DiskSize           uint32 `json:"disk_size"`
-	SSHKey             string `json:"ssh_key"`
-	DeveloperEmail     string `json:"developer_email"`
-	SMTPUsername       string `json:"smtp_username"`
-	SMTPPassword       string `json:"smtp_password"`
-	SMTPAddress        string `json:"smtp_address"`
-	SMTPEnableTLS      bool   `json:"smtp_enable_tls"`
-	SMTPPort           uint32 `json:"smtp_port"`
-	ThreebotPrivateKey string `json:"threebot_private_key"`
-	FlaskSecretKey     string `json:"flask_secret_key"`
+	Name           string `json:"name"`
+	FarmID         uint64 `json:"farm_id"`
+	Capacity       string `json:"capacity"`
+	DiskSize       uint32 `json:"disk_size"`
+	SSHKey         string `json:"ssh_key"`
+	DeveloperEmail string `json:"developer_email"`
+	SMTPUsername   string `json:"smtp_username"`
+	SMTPPassword   string `json:"smtp_password"`
+	SMTPAddress    string `json:"smtp_address"`
+	SMTPEnableTLS  bool   `json:"smtp_enable_tls"`
+	SMTPPort       uint32 `json:"smtp_port"`
+	PublicIPv6     bool   `json:"public_ipv6"`
 }
 
 type DiscourseResult struct {
 	Name         string `json:"name"`
 	MachineYGGIP string `json:"machine_ygg_ip"`
+	MachineIPv6  string `json:"machine_ipv6"`
 	FQDN         string `json:"fqdn"`
 }
 
@@ -75,6 +75,7 @@ func (c *Client) DeployDiscourse(ctx context.Context, discourse Discourse) (Disc
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	gwModel := discourse.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -85,6 +86,7 @@ func (c *Client) DeployDiscourse(ctx context.Context, discourse Discourse) (Disc
 	return DiscourseResult{
 		Name:         discourse.Name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }
@@ -127,9 +129,10 @@ func (d *Discourse) generateMachinesModel(gwNode types.Node) (MachinesModel, err
 					"DISCOURSE_SMTP_ENABLE_START_TLS": fmt.Sprint(d.SMTPEnableTLS),
 					"DISCOURSE_SMTP_USER_NAME":        d.SMTPUsername,
 					"DISCOURSE_SMTP_PASSWORD":         d.SMTPPassword,
-					"THREEBOT_PRIVATE_KEY":            d.ThreebotPrivateKey,
-					"FLASK_SECRET_KEY":                d.FlaskSecretKey,
+					"THREEBOT_PRIVATE_KEY":            generateRandomString(16),
+					"FLASK_SECRET_KEY":                generateRandomString(16),
 				},
+				PublicIP6:  d.PublicIPv6,
 				Entrypoint: "/sbin/zinit init",
 				Planetary:  true,
 				FarmID:     uint32(d.FarmID),
@@ -163,10 +166,12 @@ func (c *Client) GetDiscourse(ctx context.Context, name string) (DiscourseResult
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	return DiscourseResult{
 		Name:         name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }

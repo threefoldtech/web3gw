@@ -11,7 +11,7 @@ fn (mut t TFGridHandler) core(action Action) ! {
 			mnemonic := action.params.get_default('mnemonic', '')!
 			netstring := action.params.get_default('network', 'main')!
 
-			t.tfclient.load(Credentials{
+			t.tfgrid.load(Credentials{
 				mnemonic: mnemonic
 				network: netstring
 			})!
