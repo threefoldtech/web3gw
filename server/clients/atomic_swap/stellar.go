@@ -112,4 +112,9 @@ func (s *StellarDriver) ClaimTFT(ctx context.Context, initTransferResult any, se
 	return nil
 }
 
+// Address implements SellChain
+func (s *StellarDriver) Address() string {
+	return s.stellar.Address()
+}
+
 var _ SellChain = &StellarDriver{}
