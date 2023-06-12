@@ -7,7 +7,7 @@ import log { Logger }
 
 pub struct TFGridHandler {
 pub mut:
-	tfclient TFGridClient
+	tfgrid TFGridClient
 	ssh_keys map[string]string
 	logger   Logger
 }
@@ -16,7 +16,7 @@ pub fn new(mut rpc_client RpcWsClient, logger Logger) TFGridHandler {
 	mut tfgrid_client := tfgrid.new(mut rpc_client)
 
 	return TFGridHandler{
-		tfclient: tfgrid_client
+		tfgrid: tfgrid_client
 		logger: logger
 	}
 }

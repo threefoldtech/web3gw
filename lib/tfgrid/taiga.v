@@ -1,5 +1,19 @@
 module tfgrid
 
+[params]
+pub struct Taiga {
+pub:
+	name           string
+	farm_id        u64
+	capacity       string
+	disk_size      u32 // in giga bytes
+	ssh_key        string
+	admin_username string
+	admin_password string
+	admin_email    string
+	public_ipv6    bool
+}
+
 // Deploys a taiga instance
 pub fn (mut t TFGridClient) deploy_taiga(taiga Taiga) !TaigaResult {
 	return t.client.send_json_rpc[[]Taiga, TaigaResult]('tfgrid.DeployTaiga', [taiga],

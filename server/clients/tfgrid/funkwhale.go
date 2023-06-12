@@ -40,11 +40,13 @@ type Funkwhale struct {
 	AdminEmail    string `json:"admin_email"`
 	AdminUsername string `json:"admin_username"`
 	AdminPassword string `json:"admin_password"`
+	PublicIPv6    bool   `json:"public_ipv6"`
 }
 
 type FunkwhaleResult struct {
 	Name         string `json:"name"`
 	MachineYGGIP string `json:"machine_ygg_ip"`
+	MachineIPv6  string `json:"machine_ipv6"`
 	FQDN         string `json:"fqdn"`
 }
 
@@ -69,6 +71,7 @@ func (c *Client) Deployfunkwhale(ctx context.Context, funkwhale Funkwhale) (Funk
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	gwModel := funkwhale.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -79,6 +82,7 @@ func (c *Client) Deployfunkwhale(ctx context.Context, funkwhale Funkwhale) (Funk
 	return FunkwhaleResult{
 		Name:         funkwhale.Name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }
@@ -108,6 +112,7 @@ func (f *Funkwhale) generateMachinesModel(gwNode types.Node) (MachinesModel, err
 					"DJANGO_SUPERUSER_USERNAME": f.AdminUsername,
 					"DJANGO_SUPERUSER_PASSWORD": f.AdminPassword,
 				},
+				PublicIP6:  f.PublicIPv6,
 				Entrypoint: "/init.sh",
 				Planetary:  true,
 				FarmID:     uint32(f.FarmID),
@@ -140,10 +145,12 @@ func (c *Client) Getfunkwhale(ctx context.Context, name string) (FunkwhaleResult
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	return FunkwhaleResult{
 		Name:         name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }

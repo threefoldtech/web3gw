@@ -13,7 +13,7 @@ fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
 			backend := action.params.get('backend')!
 			fqdn := action.params.get('fqdn')!
 
-			gw_deploy := t.tfclient.gateways_deploy_fqdn(GatewayFQDN{
+			gw_deploy := t.tfgrid.gateways_deploy_fqdn(GatewayFQDN{
 				name: name
 				node_id: u32(node_id)
 				tls_passthrough: tls_passthrough
@@ -25,11 +25,11 @@ fn (mut t TFGridHandler) gateway_fqdn(action Action) ! {
 		}
 		'delete' {
 			name := action.params.get('name')!
-			t.tfclient.gateways_delete_fqdn(name)!
+			t.tfgrid.gateways_delete_fqdn(name)!
 		}
 		'get' {
 			name := action.params.get('name')!
-			gw_get := t.tfclient.gateways_get_fqdn(name)!
+			gw_get := t.tfgrid.gateways_get_fqdn(name)!
 
 			t.logger.info('${gw_get}')
 		}

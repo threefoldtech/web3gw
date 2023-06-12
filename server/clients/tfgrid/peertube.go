@@ -44,11 +44,13 @@ type Peertube struct {
 	SMTPHostname string `json:"smtp_hostname"`
 	SMTPUsername string `json:"stmp_username"`
 	SMTPPassword string `json:"stmp_password"`
+	PublicIPv6   bool   `json:"public_ipv6"`
 }
 
 type PeertubeResult struct {
 	Name         string `json:"name"`
 	MachineYGGIP string `json:"machine_ygg_ip"`
+	MachineIPv6  string `json:"machine_ipv6"`
 	FQDN         string `json:"fqdn"`
 }
 
@@ -73,6 +75,7 @@ func (c *Client) DeployPeertube(ctx context.Context, peertube Peertube) (Peertub
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	gwModel := peertube.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -83,6 +86,7 @@ func (c *Client) DeployPeertube(ctx context.Context, peertube Peertube) (Peertub
 	return PeertubeResult{
 		Name:         peertube.Name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }
@@ -150,10 +154,12 @@ func (c *Client) GetPeertube(ctx context.Context, name string) (PeertubeResult, 
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	return PeertubeResult{
 		Name:         name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }

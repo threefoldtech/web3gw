@@ -19,7 +19,7 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 			smtp_username := action.params.get('smtp_username')!
 			smtp_password := action.params.get('smtp_password')!
 
-			deploy_res := t.tfclient.deploy_peertube(Peertube{
+			deploy_res := t.tfgrid.deploy_peertube(Peertube{
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -37,14 +37,14 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfclient.get_peertube(name)!
+			get_res := t.tfgrid.get_peertube(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfclient.delete_peertube(name) or {
+			t.tfgrid.delete_peertube(name) or {
 				return error('failed to delete peertube instance: ${err}')
 			}
 		}

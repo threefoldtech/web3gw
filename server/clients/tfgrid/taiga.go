@@ -41,11 +41,13 @@ type Taiga struct {
 	AdminEmail    string `json:"admin_email"`
 	AdminUsername string `json:"admin_username"`
 	AdminPassword string `json:"admin_password"`
+	PublicIPv6    bool   `json:"public_ipv6"`
 }
 
 type TaigaResult struct {
 	Name         string `json:"name"`
 	MachineYGGIP string `json:"machine_ygg_ip"`
+	MachineIPv6  string `json:"machine_ipv6"`
 	FQDN         string `json:"fqdn"`
 }
 
@@ -70,6 +72,7 @@ func (c *Client) DeployTaiga(ctx context.Context, taiga Taiga) (TaigaResult, err
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	gwModel := taiga.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -80,6 +83,7 @@ func (c *Client) DeployTaiga(ctx context.Context, taiga Taiga) (TaigaResult, err
 	return TaigaResult{
 		Name:         taiga.Name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }
@@ -148,10 +152,12 @@ func (c *Client) GetTaiga(ctx context.Context, name string) (TaigaResult, error)
 	}
 
 	yggIP := machinesModel.Machines[0].YggIP
+	ipv6 := machinesModel.Machines[0].ComputedIP6
 
 	return TaigaResult{
 		Name:         name,
 		MachineYGGIP: yggIP,
+		MachineIPv6:  ipv6,
 		FQDN:         gw.FQDN,
 	}, nil
 }
