@@ -11,7 +11,7 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
-			disk_size := action.params.get_storagecapacity_in_bytes('disk_size')! / u32(1024 * 1024 * 1024)
+			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size')!
 			public_ipv4 := action.params.get_default_false('public_ip')
 
 			deploy_res := t.tfgrid.deploy_presearch(Presearch{
