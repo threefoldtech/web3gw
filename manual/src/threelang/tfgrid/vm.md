@@ -35,7 +35,7 @@
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.machines.create
       network: skynet
       sshkey: my_ssh_key
@@ -53,7 +53,7 @@
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.machines.get
       name: skynet
   ```
@@ -73,7 +73,7 @@
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.machines.remove
       network_name: skynet
       machine_name: vm1
@@ -87,7 +87,7 @@
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.machines.delete
       network_name: skynet
   ```
