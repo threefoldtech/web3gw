@@ -10,6 +10,8 @@ import (
 type (
 	// BuyChain holds all logic regarding the chain used to pay for TFT
 	BuyChain interface {
+		// Address on the buy chain of the loaded account
+		Address() string
 		// InitPayment initializes a payment transaction on the chain
 		InitPayment(ctx context.Context, tftAmount uint64, tftPrice uint64, destination string) (any, SwapSecret, SwapSecretHash, error)
 		// ValidateInitPaymentResult validates the result of an init payment call
@@ -20,7 +22,7 @@ type (
 
 	// SellChain holds all logic regarding the chain on which TFT are sold
 	SellChain interface {
-		// The address on the sell chain of the loaded account
+		// Address on the sell chain of the loaded account
 		Address() string
 		// InitTFTTransfer locks TFT's in the contract
 		InitTFTTransfer(ctx context.Context, details NegotiatedTrade, sharedSecret SwapSecretHash, destination string) (any, error)

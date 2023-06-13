@@ -155,4 +155,9 @@ func (e *EthDriver) Claim(ctx context.Context, initResult any, secretHash SwapSe
 	return redeemOutput.RedeemTxHash.Hex(), nil
 }
 
+// Claim implements BuyChain
+func (e *EthDriver) Address() string {
+	return e.eth.AddressFromKey().Hex()
+}
+
 var _ BuyChain = &EthDriver{}

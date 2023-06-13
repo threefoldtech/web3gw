@@ -95,12 +95,13 @@ func (c *Client) PlaceSellOrder(ctx context.Context, amount uint, currency strin
 		return nil, errors.Wrap(err, "could not publish sale")
 	}
 
-	driver := initDriver(c.nostr, c.eth, c.stellar)
-	if err := driver.OpenSale(product); err != nil {
-		return nil, errors.Wrap(err, "could not start sale driver")
-	}
+	//driver := initDriver(c.nostr, c.eth, c.stellar)
+	//if err := driver.OpenSale(product); err != nil {
+	//	return nil, errors.Wrap(err, "could not start sale driver")
+	//}
 
-	return driver, nil
+	//return driver, nil
+	return nil, nil
 }
 
 // Attempt to buy from an already existing swap
@@ -137,10 +138,10 @@ func (c *Client) AttemptBuy(ctx context.Context, amount uint, currency string, m
 
 	// if we actually have a sale open, attempt to drive it
 	if len(filteredSales) > 0 {
-		driver := initDriver(c.nostr, c.eth, c.stellar)
-		// TODO
-		driver.Buy(ctx, filteredSales[0].seller, filteredSales[0].sale, amount)
-		return driver, nil
+		//driver := initDriver(c.nostr, c.eth, c.stellar)
+		//// TODO
+		//driver.Buy(ctx, filteredSales[0].seller, filteredSales[0].sale, amount)
+		//return driver, nil
 	}
 
 	return nil, ErrNoSalesFound
