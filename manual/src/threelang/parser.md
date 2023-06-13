@@ -1,8 +1,8 @@
 # Threelang parser
 
-Threelang is an intermediate language that users can use to tell the web3 proxy what to do. The language is markdown syntax augmented with actions. Actions tell the web3 proxy what to do. Each action contains a name and optionally parameters.
+Threelang is an intermediate language to tell the web3 proxy what to do. The language is markdown syntax augmented with actions. Actions tell the web3 proxy what to do. Each action contains a name and optionally parameters.
 
-## Actions have the following properties:
+## Action properties
 
 - an action is indicated in an md file by a line starting with !!
 - actions are delimited by new lines.
