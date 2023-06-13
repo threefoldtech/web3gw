@@ -127,3 +127,12 @@ func (c *Client) GetHexSeed(ctx context.Context, conState jsonrpc.State) (string
 
 	return state.Client.GetHexSeed(), nil
 }
+
+func (c *Client) CreateAndActivateStellarAccount(ctx context.Context, conState jsonrpc.State, network string) (string, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return "", pkg.ErrClientNotConnected{}
+	}
+
+	return state.Client.CreateAndActivateStellarAccount(ctx, network)
+}

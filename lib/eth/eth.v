@@ -336,3 +336,9 @@ pub fn (mut e EthClient) swap_tft_for_eth(amount_in string) !string {
 	return e.client.send_json_rpc[[]string, string]('eth.SwapTftForEth', [amount_in],
 		eth.default_timeout)!
 }
+
+// create_and_activate_stellar_account creates and activates a stellar account, the cost to create your account on stellar are paid with ethereum
+pub fn (mut e EthClient) create_and_activate_stellar_account(network string) !string {
+	return e.client.send_json_rpc[[]string, string]('eth.CreateAndActivateStellarAccount', [network],
+		eth.default_timeout)!
+}

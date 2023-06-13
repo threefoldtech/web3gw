@@ -20,9 +20,6 @@ pub struct Arguments {
 	eth_secret string
 	eth_url    string
 
-	stellar_secret  string
-	stellar_network string
-
 	tfchain_network  string
 	tfchain_mnemonic string
 
@@ -37,8 +34,23 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 
 	eth_client.load(url: args.eth_url, secret: args.eth_secret)!
 	tfchain_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
-	stellar_client.load(network: args.stellar_network, secret: args.stellar_secret)!
 	tfgrid_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
+
+	stellar_network := match args.tfchain_network {
+		"dev" {
+			"testnet"
+		}
+		"main" {
+			"public"
+		}
+		else {
+			return error("Invalid network ${args.tfchain_network}")
+		}
+	}
+	stellar_account_secret := eth_client.create_and_activate_stellar_account(stellar_network)!
+	stellar_client.load(network: stellar_network, secret: stellar_account_secret)!
+	stellar_address := stellar_client.address()!
+	logger.info('Created stellar account ${stellar_address}')
 
 	address := eth_client.address()!
 
@@ -61,8 +73,6 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 
 	eth_tft_balance = eth_client.tft_balance()!
 	logger.info('eth tft balance: ${eth_tft_balance}')
-
-	stellar_address := stellar_client.address()!
 
 	hash_bridge_to_stellar := eth_client.bridge_to_stellar(
 		destination: stellar_address
@@ -137,9 +147,6 @@ fn main() {
 	eth_secret := fp.string('eth-secret', 0, '', 'The secret to use for eth.')
 	eth_url := fp.string('eth-node', 0, '${mainnet_ethereum_node}', 'The url of the ethereum node to connect to.')
 
-	stellar_secret := fp.string('stellar-secret', 0, '', 'The secret of the stellar address to send the TFT to.')
-	stellar_network := fp.string('stellar-network', 0, 'public', 'The stellar network of the provided stellar address.')
-
 	tfchain_mnemonic := fp.string('tfchain-mnemonic', 0, '', 'The mnemonic of your tfchain account.')
 	tfchain_network := fp.string('tfchain-network', 0, 'main', 'The tfchain network to use.')
 
@@ -165,8 +172,6 @@ fn main() {
 	arguments := Arguments{
 		eth_secret: eth_secret
 		eth_url: eth_url
-		stellar_secret: stellar_secret
-		stellar_network: stellar_network
 		tfchain_network: tfchain_network
 		tfchain_mnemonic: tfchain_mnemonic
 		ssh_key: ssh_key

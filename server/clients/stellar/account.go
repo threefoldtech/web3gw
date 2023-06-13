@@ -36,6 +36,24 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 	return kp, nil
 }
 
+func (c *Client) HasTrustLine(account string) (bool, error) {
+	if account == "" {
+		account = c.kp.Address()
+	}
+	accountRequest := horizonclient.AccountRequest{AccountID: account}
+	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	if err != nil {
+		return false, err
+	}
+
+	for _, b := range hAccount.Balances {
+		if b.Asset == c.GetTftBaseAsset() {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (c *Client) SetTrustLine(account string) error {
 	createTftTrustlineOperation := txnbuild.ChangeTrust{
 		Line: txnbuild.ChangeTrustAssetWrapper{

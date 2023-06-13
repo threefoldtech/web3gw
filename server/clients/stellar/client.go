@@ -1,6 +1,7 @@
 package stellargoclient
 
 import (
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
@@ -31,6 +32,17 @@ func NewClient(secret, stellarNetwork string) (*Client, error) {
 			return nil, err
 		}
 		cl.kp = k
+
+		accountRequest := horizonclient.AccountRequest{AccountID: k.Address()}
+		hAccount, err := cl.horizon.AccountDetail(accountRequest)
+		if err != nil {
+			return nil, errors.Wrap(err, "account does not exist")
+		}
+
+		if !hasTrustline(hAccount, cl.GetTftBaseAsset()) {
+			log.Debug().Msgf("Adding trustline for account %s", k.Address())
+			cl.SetTrustLine(k.Address())
+		}
 	} else {
 		k, err := cl.GenerateAccount()
 		if err != nil {

@@ -12,7 +12,7 @@ require (
 	github.com/daoleno/uniswap-sdk-core v0.1.5
 	github.com/daoleno/uniswapv3-sdk v0.4.0
 	github.com/drakkan/sftpgo/v2 v2.4.5
-	github.com/ethereum/go-ethereum v1.11.6
+	github.com/ethereum/go-ethereum v1.12.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/hsanjuan/ipfs-lite v1.7.0
@@ -22,8 +22,9 @@ require (
 	github.com/nbd-wtf/go-nostr v0.16.11
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
-	github.com/stellar/go v0.0.0-20230427175813-d795eeefe6f1
+	github.com/stellar/go v0.0.0-20230606222445-da99d595db9a
 	github.com/stretchr/testify v1.8.4
+	github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230612074549-364d4486091b
 	github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
 	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230511085814-333413419983
