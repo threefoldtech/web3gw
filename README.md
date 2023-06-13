@@ -42,7 +42,13 @@ To generate the documentation for the project, run `v run doc.vsh`. This builds:
 - OpenRPC Documents for the JSON-RPC API's at `docs/openrpc`.
 - OpenRPC Playground for the JSON-RPC API's at `docs/playground`.
 
-Running this command overwrites prebuilt content in docs if any. To save your changes to the generated documentation, simply commit your changes in the manual/src folder. The CI workflow will regenerate the documentation on github pages upon pushing / merging changes to the development branch.
+Note that running this command overwrites prebuilt content in docs if any, and is not necessary beyond testing locally as the script is run in CI workflow upon pushing / merging changes to the development branch. The docs are generated automatically and are made available on Github Pages at the [projects page](https://threefoldtech.github.io/web3_proxy)
+
+Links to generated documents:
+- [Manual](https://threefoldtech.github.io/web3_proxy)
+- [OpenRPC Document](https://threefoldtech.github.io/web3_proxy/openrpc/openrpc.json) for all clients
+- OpenRPC Document for each client: https://threefoldtech.github.io/web3_proxy/openrpc/<client_name>/openrpc.json
+- [OpenRPC Playground](https://threefoldtech.github.io/web3_proxy/playground/)
 
 **While /docs is already in .gitignore, please avoid pushing generated docs.**
 
