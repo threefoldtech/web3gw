@@ -116,28 +116,27 @@ fn decode_workloads(raw_workloads []WorkloadRaw) ![]Workload {
 
 fn decode_workload_data(workload_type string, data string) !WorkloadData {
 	return match workload_type {
-		zdb_workload_type { json.decode(ZDBWorkload, data)! }
-		zmachine_workload_type { json.decode(ZMachine, data)! }
-		zmount_workload_type { json.decode(ZMount, data)! }
-		network_workload_type { json.decode(NetworkWorkload, data)! }
-		zlogs_workload_type { json.decode(Zlogs, data)! }
-		public_ip_worklaod_type { json.decode(PublicIP, data)! }
-		gateway_name_proxy_workload_type { json.decode(GatewayNameProxyWorkload, data)! }
-		gateway_fqdn_proxy_workload_type { json.decode(GatewayFQDNProxyWorkload, data)! }
-		else { error('workload type ${workload_type} is not supported') }
+		zdb_workload_type { WorkloadData(json.decode(ZDBWorkload, data)!) }
+		zmachine_workload_type { WorkloadData(json.decode(ZMachine, data)!) }
+		zmount_workload_type { WorkloadData(json.decode(ZMount, data)!) }
+		network_workload_type { WorkloadData(json.decode(NetworkWorkload, data)!) }
+		zlogs_workload_type { WorkloadData(json.decode(Zlogs, data)!) }
+		public_ip_worklaod_type { WorkloadData(json.decode(PublicIP, data)!) }
+		gateway_name_proxy_workload_type { WorkloadData(json.decode(GatewayNameProxyWorkload, data)!) }
+		gateway_fqdn_proxy_workload_type { WorkloadData(json.decode(GatewayFQDNProxyWorkload, data)!) }
+		else { return error('workload type ${workload_type} is not supported') }
 	}
 }
 
 fn decode_result(workload_type string, result ResultRaw) !Result {
-	mut result_data := ResultData{}
-	result_data = match workload_type {
+	result_data := match workload_type {
 		zdb_workload_type { ResultData(json.decode(ZDBResultData, result.data)!) }
-		zmachine_workload_type { json.decode(ZMachineResult, result.data)! }
+		zmachine_workload_type { ResultData(json.decode(ZMachineResult, result.data)!) }
 		zmount_workload_type { '' }
 		network_workload_type { '' }
 		zlogs_workload_type { '' }
-		public_ip_worklaod_type { json.decode(PublicIPResult, result.data)! }
-		gateway_name_proxy_workload_type { json.decode(GatewayNameProxyResult, result.data)! }
+		public_ip_worklaod_type { ResultData(json.decode(PublicIPResult, result.data)!) }
+		gateway_name_proxy_workload_type { ResultData(json.decode(GatewayNameProxyResult, result.data)!) }
 		gateway_fqdn_proxy_workload_type { '' }
 		else { return error('workload type ${workload_type} is not supported') }
 	}

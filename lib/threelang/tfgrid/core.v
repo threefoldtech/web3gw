@@ -2,8 +2,6 @@ module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
 import threefoldtech.threebot.tfgrid { Credentials }
-import freeflowuniverse.crystallib.rpcwebsocket
-import threefoldtech.threebot.explorer
 
 fn (mut t TFGridHandler) core(action Action) ! {
 	match action.name {
