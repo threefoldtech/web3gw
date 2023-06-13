@@ -13,8 +13,6 @@ fn run_discourse_ops(mut t TFGridClient, mut logger log.Logger) ! {
 		developer_email: 'em@mail.com'
 		smtp_username: 'user1'
 		smtp_password: 'pass1'
-		threebot_private_key: 'asdfqwer12asdfqwer12asdfqwer12asdfqwer12'
-		flask_secret_key: 'asdfqwer12asdfqwer12asdfqwer12asdfqwer12'
 	})!
 	logger.info('${deploy_res}')
 
