@@ -2,7 +2,6 @@ module main
 
 import os
 import threefoldtech.threebot.threelang { RunnerArgs }
-import log
 import flag
 
 const (
@@ -25,10 +24,6 @@ fn main() {
 		println(fp.usage())
 		exit(1)
 	}
-
-	mut logger := log.Logger(&log.Log{
-		level: if debug_log { .debug } else { .info }
-	})
 
 	_ := threelang.new(RunnerArgs{ path: config_file_path, address: address }, debug_log) or {
 		eprintln(err)
