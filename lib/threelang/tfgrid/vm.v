@@ -10,7 +10,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'meduim')!
 			times := action.params.get_int_default('times', 1)!
-			disk_size := action.params.get_int_default('disk_size', 10)!
+			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size')!
 			gateway := action.params.get_default_false('gateway')
 			wg := action.params.get_default_false('add_wireguard_access')
 			public_ip := action.params.get_default_false('add_public_ips')

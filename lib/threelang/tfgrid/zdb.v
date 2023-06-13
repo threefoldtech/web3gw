@@ -4,8 +4,6 @@ import freeflowuniverse.crystallib.actionsparser { Action }
 import threefoldtech.threebot.tfgrid { ZDB }
 import rand
 
-const GB = 1024 * 1024 * 1024
-
 fn (mut t TFGridHandler) zdb(action Action) ! {
 	match action.name {
 		'create' {
@@ -13,7 +11,7 @@ fn (mut t TFGridHandler) zdb(action Action) ! {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
 			password := action.params.get('password')!
 			public := action.params.get_default_false('public')
-			size := action.params.get_storagecapacity_in_bytes('size')!
+			size := action.params.get_storagecapacity_in_gigabytes('size')!
 			mode := action.params.get_default('mode', 'user')!
 
 			zdb_deploy := t.tfgrid.zdb_deploy(ZDB{
@@ -21,7 +19,7 @@ fn (mut t TFGridHandler) zdb(action Action) ! {
 				name: name
 				password: password
 				public: public
-				size: u32(size / GB)
+				size: u32(size)
 				mode: mode
 			})!
 
