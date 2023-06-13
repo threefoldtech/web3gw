@@ -262,18 +262,19 @@ func (c *Client) PublishProduct(ctx context.Context, conState jsonrpc.State, inp
 }
 
 type CreateChannelInput struct {
-	Tags  []string `json:"tags"`
-	Name  string   `json:"name"`
-	About string   `json:"about"`
+	Tags    []string `json:"tags"`
+	Name    string   `json:"name"`
+	About   string   `json:"about"`
+	Picture string   `json:"picture"`
 }
 
-func (c *Client) CreateChannel(ctx context.Context, conState jsonrpc.State, input CreateChannelInput) error {
+func (c *Client) CreateChannel(ctx context.Context, conState jsonrpc.State, input CreateChannelInput) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.CreateChannel(ctx, input.Tags, nostr.Channel{Name: input.Name, About: input.About})
+	return state.Client.CreateChannel(ctx, input.Tags, nostr.Channel{Name: input.Name, About: input.About, Picture: input.Picture})
 }
 
 func (c *Client) SubscribeChannelCreation(ctx context.Context, conState jsonrpc.State) (string, error) {
@@ -286,19 +287,21 @@ func (c *Client) SubscribeChannelCreation(ctx context.Context, conState jsonrpc.
 }
 
 type CreateChannelMessageInput struct {
-	Tags    []string `json:"tags"`
-	Content string   `json:"content"`
-	// ReplyTo is either the channel ID for root messages, or a message ID for replies
-	ReplyTo string `json:"reply_to"`
+	ChannelID string `json:"channel_id"`
+	Content   string `json:"content"`
+	// MessageID is used for replies
+	MessageID string `json:"message_id"`
+	// PublicKey of author to reploy to
+	PublicKey string `json:"public_key"`
 }
 
-func (c *Client) CreateChannelMessage(ctx context.Context, conState jsonrpc.State, input CreateChannelMessageInput) error {
+func (c *Client) CreateChannelMessage(ctx context.Context, conState jsonrpc.State, input CreateChannelMessageInput) (string, error) {
 	state := State(conState)
 	if state.Client == nil {
-		return pkg.ErrClientNotConnected{}
+		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.CreateChannelMessage(ctx, input.Tags, nostr.ChannelMessage{Content: input.Content, ReplyTo: input.ReplyTo})
+	return state.Client.CreateChannelRootMessage(ctx, nostr.ChannelMessage{Content: input.Content, ChannelID: input.ChannelID, MessageID: input.MessageID, PublicKey: input.PublicKey})
 }
 
 type SubscribeChannelMessageInput struct {

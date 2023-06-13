@@ -77,13 +77,16 @@ pub struct CreateChannelInput {
 	tags  []string
 	name  string
 	about string
+	picture string
 }
 
 pub struct CreateChannelMessageInput {
-	tags    []string
 	content string
-	// reply_to is either the channel ID for root messages, or a message ID for replies
-	reply_to string
+	channel_id string
+	// Message ID is used for replies
+	message_id string 
+	// Public Key of author to reply to
+	public_key string
 }
 
 pub struct SubscribeChannelMessageInput {
@@ -98,7 +101,9 @@ pub struct Channel {
 }
 
 pub struct RelayChannel {
-	Channel
+	name    string
+	about   string
+	picture string
 	relay string
 	id    string
 }
@@ -107,16 +112,9 @@ pub struct FetchChannelMessageInput {
 	channel_id string
 }
 
-pub struct ChannelMessage {
-	// Content of the message
-	content string
-	// ReplyTo is either the ID of a message to reply to, or the ID of the channel create message of the channel to post in
-	// if this is a root message in the channel
-	reply_to string
-}
-
 pub struct RelayChannelMessage {
-	ChannelMessage
+	content string
+	tags [][]string
 	relay string
 	id    string
 }

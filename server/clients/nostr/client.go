@@ -146,14 +146,14 @@ func (c *Client) ConnectAuthRelay(ctx context.Context, relayURL string) error {
 	return nil
 }
 
-// Add function to publish events to a set of relays
-func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]string, content string) error {
+// Add function to publish events to a set of relays, and returns the published event ID if successful
+func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]string, content string) (string, error) {
 	c.server.mutex.RLock()
 	defer c.server.mutex.RUnlock()
 
 	relays := c.server.connectedRelays[c.Id()]
 	if len(relays) == 0 {
-		return errors.New("No relays connected")
+		return "", errors.New("No relays connected")
 	}
 
 	// FIXME: A tag is itself a list of strings
@@ -178,17 +178,17 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 		log.Debug().Str("component", "nostr").Msgf("publising event to relay: %+v", ev)
 		status, err := relay.Publish(ctx, ev)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
+			return "", errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
 		}
 
 		log.Debug().Str("component", "nostr").Msgf("published event to relay: %+v with status:%s", ev, status)
 
 		if status == nostr.PublishStatusFailed {
-			return ErrFailedToPublishEvent
+			return "", ErrFailedToPublishEvent
 		}
 	}
 
-	return nil
+	return ev.ID, nil
 }
 
 // PublishMetadata to connected relays. If metadata was published previously, the old metadata should be overwritten conforming relays
@@ -197,17 +197,30 @@ func (c *Client) PublishMetadata(ctx context.Context, tags []string, content Met
 	if err != nil {
 		return errors.Wrap(err, "could not encode metadata")
 	}
-	return c.publishEventToRelays(ctx, kindSetMetadata, [][]string{tags}, string(marshalledContent))
+
+	if _, err := c.publishEventToRelays(ctx, kindSetMetadata, [][]string{tags}, string(marshalledContent)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // PublishTextNote to connected relays
 func (c *Client) PublishTextNote(ctx context.Context, tags []string, content string) error {
-	return c.publishEventToRelays(ctx, kindTextNote, [][]string{tags}, content)
+	if _, err := c.publishEventToRelays(ctx, kindTextNote, [][]string{tags}, content); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // PublishRecommendServer to connected relays. The content is supposed to be the URL of the relay being recommended
 func (c *Client) PublishRecommendServer(ctx context.Context, tags []string, content string) error {
-	return c.publishEventToRelays(ctx, kindRecommendServer, [][]string{tags}, content)
+	if _, err := c.publishEventToRelays(ctx, kindRecommendServer, [][]string{tags}, content); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // / PublishDirectMessage publishes a direct message for a given peer identified by the given pubkey on the connected relays
@@ -221,8 +234,12 @@ func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags
 	if err != nil {
 		return errors.Wrap(err, "could not encrypt message")
 	}
-	return c.publishEventToRelays(ctx, kindDirectMessage, [][]string{{"p", receiver}, tags}, msg)
 
+	if _, err := c.publishEventToRelays(ctx, kindDirectMessage, [][]string{{"p", receiver}, tags}, msg); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SubscribeTextNotes to textnote events on a relay
@@ -308,7 +325,8 @@ func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]RelayEvent, err
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	evChan := make(chan RelayEvent)
+	mu := sync.Mutex{}
+	events := []RelayEvent{}
 	wg := sync.WaitGroup{}
 	wg.Add(len(relays))
 
@@ -327,6 +345,8 @@ func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]RelayEvent, err
 		}()
 
 		go func(relay *nostr.Relay) {
+			defer wg.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
@@ -354,22 +374,19 @@ func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]RelayEvent, err
 							ev.Content = msg
 						}
 
-						evChan <- RelayEvent{
+						mu.Lock()
+						events = append(events, RelayEvent{
 							Relay: relay.URL,
 							Event: *ev,
-						}
+						})
+						mu.Unlock()
 					}
 				}
 			}
 		}(relay)
 	}
-	wg.Wait()
-	close(evChan)
-	events := []RelayEvent{}
 
-	for ev := range evChan {
-		events = append(events, ev)
-	}
+	wg.Wait()
 
 	return events, nil
 }

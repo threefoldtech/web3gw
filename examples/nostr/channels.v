@@ -1,17 +1,16 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.nostr
+import threefoldtech.threebot.nostr { CreateChannelInput, CreateChannelMessageInput, FetchChannelMessageInput }
 import flag
 import log
 import os
-import time
 
 const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn subscribe_messages(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
 	mut nostr_client := nostr.new(mut client)
 
 	key := if secret == '' {
@@ -24,20 +23,31 @@ fn subscribe_messages(mut client RpcWsClient, mut logger log.Logger, secret stri
 
 	nostr_client.load(key)!
 
-	nostr_id := nostr_client.get_id()!
-	logger.info('Nostr: ID: ${nostr_id}')
-
-	public_key := nostr_client.get_public_key()!
-	logger.info('Nostr: Public Key: ${public_key}')
-
 	nostr_client.connect_to_relay('https://nostr01.grid.tf/')!
-	nostr_client.subscribe_to_direct_messages()!
 
-	for {
-		time.sleep(5 * time.second)
-		events := nostr_client.get_events()!
-		logger.info('Checking for Events: ${events}')
+	channel_id := nostr_client.create_channel(CreateChannelInput{
+		name: 'my chan'
+		about: 'my about'
+		picture: 'my pic'
+	})!
+
+	channels := nostr_client.list_channels()!
+	logger.info('channels ${channels}')
+
+	for i in 0 .. 10 {
+		nostr_client.create_channel_message(CreateChannelMessageInput{
+			content: 'my new message number ${i}'
+			channel_id: channel_id
+			message_id: 'some id'
+			public_key: 'some pk'
+		})!
 	}
+
+	messages := nostr_client.get_channel_message(FetchChannelMessageInput{
+		channel_id: channel_id
+	})!
+
+	logger.info('channel messages: ${messages}')
 }
 
 fn main() {
@@ -66,7 +76,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	subscribe_messages(mut myclient, mut logger, secret) or {
+	execute_rpcs(mut myclient, mut logger, secret) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}

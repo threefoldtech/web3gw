@@ -122,8 +122,8 @@ pub fn (mut n NostrClient) publish_product(args ProductCreateInput) ! {
 }
 
 // create_channel creates a new channel
-pub fn (mut n NostrClient) create_channel(args CreateChannelInput) ! {
-	_ := n.client.send_json_rpc[[]CreateChannelInput, string]('nostr.CreateChannel', [
+pub fn (mut n NostrClient) create_channel(args CreateChannelInput) !string {
+	return n.client.send_json_rpc[[]CreateChannelInput, string]('nostr.CreateChannel', [
 		args,
 	], nostr.default_timeout)!
 }
@@ -154,7 +154,7 @@ pub fn (mut n NostrClient) list_channels() ![]RelayChannel {
 }
 
 pub fn (mut n NostrClient) get_channel_message(args FetchChannelMessageInput) ![]RelayChannelMessage {
-	return n.client.send_json_rpc[[]FetchChannelMessageInput, []RelayChannelMessage]('nostr.GetChannelMessage',
+	return n.client.send_json_rpc[[]FetchChannelMessageInput, []RelayChannelMessage]('nostr.GetChannelMessages',
 		[
 		args,
 	], nostr.default_timeout)!
