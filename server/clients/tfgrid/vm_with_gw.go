@@ -184,7 +184,11 @@ func (c *Client) GetVM(ctx context.Context, networkName string) (VMWithGWResult,
 	}
 
 	for _, m := range machinesModel.Machines {
-		gwName := m.EnvVars[gwNameEnvVar]
+		gwName, ok := m.EnvVars[gwNameEnvVar]
+		if !ok {
+			continue
+		}
+
 		gw, err := c.GatewayNameGet(ctx, gwName)
 		if err != nil {
 			return VMWithGWResult{}, err

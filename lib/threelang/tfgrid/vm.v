@@ -2,10 +2,12 @@ module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
 import threefoldtech.threebot.tfgrid { VM, RemoveVMWithGWArgs }
+import rand
 
 fn (mut t TFGridHandler) vm(action Action) ! {
 	match action.name {
 		'create' {
+			name := action.params.get_default('name', rand.string(6).to_lower())!
 			network := action.params.get('network')!
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'meduim')!
@@ -19,6 +21,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 
 			deploy_res := t.tfgrid.deploy_vm(VM{
+				name: name
 				network: network
 				farm_id: u32(farm_id)
 				capacity: capacity
