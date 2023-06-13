@@ -1,6 +1,6 @@
 module tfgrid
 
-struct VMResult {
+pub struct VMResult {
 pub mut:
 	network          string
 	wireguard_config string
