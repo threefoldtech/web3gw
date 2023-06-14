@@ -317,7 +317,7 @@ func createReservationFromMachine(machine *Machine) (string, *PlannedReservation
 	}
 }
 
-func assignNodeIdforMachine(machine *Machine, reservations Reservations) {
+func (machine *Machine) assignNodeIdforMachine(reservations Reservations) {
 	machine.NodeID = uint32(reservations[machine.Name].NodeID)
 }
 
@@ -327,7 +327,7 @@ func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) 
 	if err := c.AssignNodes(ctx, reservation); err != nil {
 		return err
 	}
-	assignNodeIdforMachine(machine, reservation)
+	machine.assignNodeIdforMachine(reservation)
 	return nil
 }
 
@@ -335,7 +335,7 @@ func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) 
 func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
 	// all units unified in bytes
 
-	var reservations Reservations
+	reservations := Reservations{}
 
 	for idx := range machines.Machines {
 		name, vm := createReservationFromMachine(&machines.Machines[idx])
@@ -349,7 +349,7 @@ func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 
 	for idx := range machines.Machines {
 		if machines.Machines[idx].NodeID == 0 {
-			assignNodeIdforMachine(&machines.Machines[idx], reservations)
+			machines.Machines[idx].assignNodeIdforMachine(reservations)
 		}
 	}
 

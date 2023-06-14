@@ -172,7 +172,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 		}
 
 		// convert back to k8sNode
-		assingIDforK8sNode(&params.Worker, reservation)
+		params.Worker.assingIDforK8sNode(reservation)
 	}
 
 	nodeIds := znet.Nodes
@@ -264,8 +264,20 @@ func createReservationFromK8sNode(node *K8sNode) (string, *PlannedReservation) {
 	}
 }
 
-func assingIDforK8sNode(node *K8sNode, reservations Reservations) {
+func (node *K8sNode) assingIDforK8sNode(reservations Reservations) {
 	node.NodeID = uint32(reservations[node.Name].NodeID)
+}
+
+func (cluster *K8sCluster) assingIDsforK8sCluster(reservations Reservations) {
+	if cluster.Master.NodeID == 0 {
+		cluster.Master.assingIDforK8sNode(reservations)
+	}
+
+	for idx := range cluster.Workers {
+		if cluster.Workers[idx].NodeID == 0 {
+			cluster.Workers[idx].assingIDforK8sNode(reservations)
+		}
+	}
 }
 
 // Assign chosen NodeIds to cluster node. with both way conversions to/from Reservations array.
@@ -290,15 +302,7 @@ func assignNodesIDsForCluster(ctx context.Context, client *Client, cluster *K8sC
 	}
 
 	// convert back
-	if cluster.Master.NodeID == 0 {
-		assingIDforK8sNode(cluster.Master, reservations)
-	}
-
-	for idx := range cluster.Workers {
-		if cluster.Workers[idx].NodeID == 0 {
-			assingIDforK8sNode(&cluster.Workers[idx], reservations)
-		}
-	}
+	cluster.assingIDsforK8sCluster(reservations)
 
 	return nil
 }
