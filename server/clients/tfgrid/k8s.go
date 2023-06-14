@@ -162,7 +162,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 	if params.Worker.NodeID == 0 {
 		// convert to reservation
 		reservation := Reservations{}
-		name, wr := createReservationFromK8sNode(&params.Worker)
+		name, wr := params.Worker.createReservationFromK8sNode()
 		reservation[name] = wr
 
 		// assign node id
@@ -253,7 +253,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 }
 
 /* ***** Helpers ***** */
-func createReservationFromK8sNode(node *K8sNode) (string, *PlannedReservation) {
+func (node *K8sNode) createReservationFromK8sNode() (string, *PlannedReservation) {
 	return node.Name, &PlannedReservation{
 		WorkloadName: node.Name,
 		FarmID:       node.FarmID,
@@ -287,11 +287,11 @@ func assignNodesIDsForCluster(ctx context.Context, client *Client, cluster *K8sC
 	// convert to reservations
 	reservations := Reservations{}
 
-	name, ms := createReservationFromK8sNode(cluster.Master)
+	name, ms := cluster.Master.createReservationFromK8sNode()
 	reservations[name] = ms
 
 	for idx := range cluster.Workers {
-		name, wr := createReservationFromK8sNode(&cluster.Workers[idx])
+		name, wr := cluster.Workers[idx].createReservationFromK8sNode()
 		reservations[name] = wr
 	}
 

@@ -296,7 +296,7 @@ func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
 	return model, nil
 }
 
-func createReservationFromMachine(machine *Machine) (string, *PlannedReservation) {
+func (machine *Machine) createReservationFromMachine() (string, *PlannedReservation) {
 	neededSRU := 0
 	neededHRU := 0
 	for _, disk := range machine.Disks {
@@ -322,7 +322,7 @@ func (machine *Machine) assignNodeIdforMachine(reservations Reservations) {
 }
 
 func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) error {
-	name, vm := createReservationFromMachine(machine)
+	name, vm := machine.createReservationFromMachine()
 	reservation := Reservations{name: vm}
 	if err := c.AssignNodes(ctx, reservation); err != nil {
 		return err
@@ -338,7 +338,7 @@ func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *Machin
 	reservations := Reservations{}
 
 	for idx := range machines.Machines {
-		name, vm := createReservationFromMachine(&machines.Machines[idx])
+		name, vm := machines.Machines[idx].createReservationFromMachine()
 		reservations[name] = vm
 	}
 
