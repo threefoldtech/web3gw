@@ -65,6 +65,11 @@ pub fn (mut s StellarClient) load(args Load) ! {
 	_ := s.client.send_json_rpc[[]Load, string]('stellar.Load', [args], stellar.default_timeout)!
 }
 
+// Load a client, connecting to the rpc endpoint at the given network and loading a keypair from the given secret.
+pub fn (mut s StellarClient) create_account(network string) !string {
+	return s.client.send_json_rpc[[]string, string]('stellar.CreateAccount', [network], stellar.default_timeout)!
+}
+
 // Get the public address of the loaded stellar secret
 pub fn (mut s StellarClient) address() !string {
 	return s.client.send_json_rpc[[]string, string]('stellar.Address', []string{}, default_timeout)!

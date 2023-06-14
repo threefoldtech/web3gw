@@ -13,10 +13,10 @@ const (
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string) ! {
 	mut stellar_client := stellar.new(mut client)
 
-	stellar_client.load(secret: "", network: network)!
+	seed := stellar_client.create_account(network)!
 
 	// empty string to account_data results in account data of loaded key
-	logger.info('Account data:')
+	
 }
 
 fn main() {

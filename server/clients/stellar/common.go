@@ -13,10 +13,12 @@ import (
 )
 
 const (
-	TFT            = "TFT"
-	TESTNET_ISSUER = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3"
-	MAINNET_ISSUER = "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47"
-	BaseFee        = 1000000
+	TFT                          = "TFT"
+	TESTNET_ISSUER               = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3"
+	MAINNET_ISSUER               = "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47"
+	BaseFee                      = 1000000
+	testnetTransactionFunding    = "https://testnet.threefold.io/threefoldfoundation/transactionfunding_service/fund_transaction"
+	productionTransactionFunding = "https://tokenservices.threefold.io/threefoldfoundation/transactionfunding_service/fund_transaction"
 )
 
 var TestnetTft = txnbuild.CreditAsset{Code: TFT, Issuer: TESTNET_ISSUER}
@@ -95,6 +97,16 @@ func (c *Client) GetStellarNetworkPassphrase() string {
 		return network.PublicNetworkPassphrase
 	} else {
 		return network.TestNetworkPassphrase
+	}
+}
+
+func (c *Client) GetTransactionFundingUrlFromNetwork(network string) string {
+	if c.stellarNetwork == "testnet" {
+		return testnetTransactionFunding
+	} else if c.stellarNetwork == "public" {
+		return productionTransactionFunding
+	} else {
+		return testnetTransactionFunding
 	}
 }
 

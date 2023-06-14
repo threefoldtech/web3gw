@@ -1,8 +1,11 @@
 package stellargoclient
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
@@ -10,8 +13,35 @@ import (
 	"github.com/stellar/go/txnbuild"
 )
 
-// Generates and activates an account on the stellar testnet
 func (c *Client) GenerateAccount() (*keypair.Full, error) {
+	kp, err := keypair.Random()
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := c.getTrustLineOperation(kp.Address())
+	if err != nil {
+		return nil, err
+	}
+
+	// todo: use create account from txnbuild
+
+	url := c.GetTransactionFundingUrlFromNetwork(c.stellarNetwork)
+	postBody, _ := json.Marshal(map[string]string{
+		"transaction": tx.ToXDR().GoString(),
+	})
+	responseBody := bytes.NewBuffer(postBody)
+	resp, err := http.Post(url, "application/json", responseBody)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debug().Msgf("Response: %s", resp.Status)
+	return kp, nil
+}
+
+// Generates and activates an account on the stellar testnet
+func (c *Client) GenerateAccount2() (*keypair.Full, error) {
 	kp, err := keypair.Random()
 	if err != nil {
 		return nil, err
@@ -36,7 +66,7 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 	return kp, nil
 }
 
-func (c *Client) SetTrustLine(account string) error {
+func (c *Client) getTrustLineOperation(account string) (*txnbuild.Transaction, error) {
 	createTftTrustlineOperation := txnbuild.ChangeTrust{
 		Line: txnbuild.ChangeTrustAssetWrapper{
 			Asset: c.GetTftAsset(),
@@ -49,7 +79,7 @@ func (c *Client) SetTrustLine(account string) error {
 	accountRequest := horizonclient.AccountRequest{AccountID: account}
 	hAccount, err := c.horizon.AccountDetail(accountRequest)
 	if err != nil {
-		return err
+		return nil, errors.Wrap(err, "failed getting account detail from horizon")
 	}
 
 	log.Debug().Msgf("Account is %s", hAccount.ID)
@@ -64,7 +94,11 @@ func (c *Client) SetTrustLine(account string) error {
 			TimeBounds: txnbuild.NewInfiniteTimeout(),
 		},
 	}
-	tx, err := txnbuild.NewTransaction(params)
+	return txnbuild.NewTransaction(params)
+}
+
+func (c *Client) SetTrustLine(account string) error {
+	tx, err := c.getTrustLineOperation(account)
 	if err != nil {
 		return err
 	}

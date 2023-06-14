@@ -33,6 +33,7 @@ func NewClient(secret, stellarNetwork string) (*Client, error) {
 		}
 		cl.kp = k
 
+		// check if account has trustline, if not add it
 		accountRequest := horizonclient.AccountRequest{AccountID: k.Address()}
 		hAccount, err := cl.horizon.AccountDetail(accountRequest)
 		if err != nil {
