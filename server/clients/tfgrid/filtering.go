@@ -39,6 +39,8 @@ type FilterResult struct {
 	AvailableNodes []uint32      `json:"available_nodes"`
 }
 
+type Reservations map[string]*PlannedReservation
+
 type PlannedReservation struct {
 	WorkloadName string
 	NodeID       uint32
@@ -332,7 +334,8 @@ func (r *Client) checkFarmAvailability(farmId uint64, workload PlannedReservatio
 
 // Searching for node for each workload considering the reserved capacity by workloads in the same deployment.
 // Assign the NodeID if found one or return it with NodeID: 0
-func (c *Client) AssignNodes(ctx context.Context, workloads []*PlannedReservation) error {
+func (c *Client) AssignNodes(ctx context.Context, workloads Reservations) error {
+
 	reservedCapacity := make(map[uint32]PlannedReservation)
 	reservedIps := make(map[uint32]int) // farmID -> numberOfPublicIps
 

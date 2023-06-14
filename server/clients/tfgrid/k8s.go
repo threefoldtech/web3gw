@@ -159,6 +159,22 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 		return K8sCluster{}, errors.Wrapf(err, "failed to load network for cluster %s", params.ClusterName)
 	}
 
+	if params.Worker.NodeID == 0 {
+		// convert to reservation
+		reservation := Reservations{}
+		name, wr := params.Worker.createReservationFromK8sNode()
+		reservation[name] = wr
+
+		// assign node id
+		err := c.AssignNodes(ctx, reservation)
+		if err != nil {
+			return K8sCluster{}, errors.Wrapf(err, "failed to assign node for worker %s", params.Worker.Name)
+		}
+
+		// convert back to k8sNode
+		params.Worker.assingIDforK8sNode(reservation)
+	}
+
 	nodeIds := znet.Nodes
 
 	if !slices.Contains(znet.Nodes, params.Worker.NodeID) {
@@ -237,60 +253,56 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 }
 
 /* ***** Helpers ***** */
+func (node *K8sNode) createReservationFromK8sNode() (string, *PlannedReservation) {
+	return node.Name, &PlannedReservation{
+		WorkloadName: node.Name,
+		FarmID:       node.FarmID,
+		MRU:          uint64(node.Memory * int(gridtypes.Megabyte)),
+		SRU:          uint64(node.DiskSize * int(gridtypes.Gigabyte)),
+		PublicIps:    node.PublicIP,
+		NodeID:       node.NodeID,
+	}
+}
+
+func (node *K8sNode) assingIDforK8sNode(reservations Reservations) {
+	node.NodeID = uint32(reservations[node.Name].NodeID)
+}
+
+func (cluster *K8sCluster) assingIDsforK8sCluster(reservations Reservations) {
+	if cluster.Master.NodeID == 0 {
+		cluster.Master.assingIDforK8sNode(reservations)
+	}
+
+	for idx := range cluster.Workers {
+		if cluster.Workers[idx].NodeID == 0 {
+			cluster.Workers[idx].assingIDforK8sNode(reservations)
+		}
+	}
+}
 
 // Assign chosen NodeIds to cluster node. with both way conversions to/from Reservations array.
 func assignNodesIDsForCluster(ctx context.Context, client *Client, cluster *K8sCluster) error {
 	// all units unified in bytes
 
-	workloads := []*PlannedReservation{}
+	// convert to reservations
+	reservations := Reservations{}
 
-	ms := PlannedReservation{
-		WorkloadName: cluster.Master.Name,
-		FarmID:       cluster.Master.FarmID,
-		MRU:          uint64(cluster.Master.Memory * int(gridtypes.Megabyte)),
-		SRU:          uint64(cluster.Master.DiskSize * int(gridtypes.Gigabyte)),
-		PublicIps:    cluster.Master.PublicIP,
-		NodeID:       cluster.Master.NodeID,
-	}
-
-	workloads = append(workloads, &ms)
+	name, ms := cluster.Master.createReservationFromK8sNode()
+	reservations[name] = ms
 
 	for idx := range cluster.Workers {
-
-		wr := PlannedReservation{
-			WorkloadName: cluster.Workers[idx].Name,
-			FarmID:       cluster.Workers[idx].FarmID,
-			MRU:          uint64(cluster.Workers[idx].Memory * int(gridtypes.Megabyte)),
-			SRU:          uint64(cluster.Workers[idx].DiskSize * int(gridtypes.Gigabyte)),
-			PublicIps:    cluster.Workers[idx].PublicIP,
-			NodeID:       cluster.Workers[idx].NodeID,
-		}
-
-		workloads = append(workloads, &wr)
+		name, wr := cluster.Workers[idx].createReservationFromK8sNode()
+		reservations[name] = wr
 	}
 
-	err := client.AssignNodes(ctx, workloads)
+	// assing nodes
+	err := client.AssignNodes(ctx, reservations)
 	if err != nil {
 		return err
 	}
 
-	if cluster.Master.NodeID == 0 {
-		for _, workload := range workloads {
-			if workload.WorkloadName == cluster.Master.Name {
-				cluster.Master.NodeID = uint32(workload.NodeID)
-			}
-		}
-	}
-
-	for idx := range cluster.Workers {
-		if cluster.Workers[idx].NodeID == 0 {
-			for _, workload := range workloads {
-				if workload.WorkloadName == cluster.Workers[idx].Name {
-					cluster.Workers[idx].NodeID = uint32(workload.NodeID)
-				}
-			}
-		}
-	}
+	// convert back
+	cluster.assingIDsforK8sCluster(reservations)
 
 	return nil
 }
