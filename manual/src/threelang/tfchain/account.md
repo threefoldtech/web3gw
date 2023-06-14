@@ -1,12 +1,13 @@
-## Account actions
+# Account actions
 
-- action name: !!tfchain.
+## Create account
+- action name: !!tfchain.account.create
 - parameters:
-  - 
+  - `network`: is the tfchain network, should be one of (mainnet, testnet, qanet, devnet)
 
-- Example:
+- example:
+  ```md
+  !!tfchain.account.create
+      network:devnet 
+  ```
   
-  ```
-  !!tfchain.
-	  name: 
-  ```
