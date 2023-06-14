@@ -2,8 +2,8 @@ module tfgrid
 
 pub struct PresearchResult {
 pub:
-	name           string
-	machine_ygg_ip string
-	machine_ipv6   string
-	machine_ipv4   string
+	name   string // identifier for the instance
+	ygg_ip string // instance ygg ip
+	ipv6   string // instance ipv6, if any
+	fqdn   string // fully qualified domain name pointing to the instance
 }

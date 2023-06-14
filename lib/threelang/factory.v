@@ -6,14 +6,14 @@ import log
 import threefoldtech.threebot.threelang.tfgrid { TFGridHandler }
 
 const (
-	tfgrid_book  = 'tfgrid'
+	tfgrid_book = 'tfgrid'
 )
 
 pub struct Runner {
 pub mut:
 	path string
 
-	tfgrid_handler  TFGridHandler
+	tfgrid_handler TFGridHandler
 }
 
 [params]
@@ -53,7 +53,6 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 			'tfgrid' {
 				r.tfgrid_handler.handle_action(action)!
 			}
-			
 			else {
 				return error('module ${action.book} is invalid')
 			}

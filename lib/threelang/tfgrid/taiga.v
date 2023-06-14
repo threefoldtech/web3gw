@@ -7,7 +7,7 @@ import rand
 fn (mut t TFGridHandler) taiga(action Action) ! {
 	match action.name {
 		'create' {
-			name := action.params.get_default('name', rand.string(10).to_lower())!
+			name := action.params.get_default('name', rand.string(8).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'meduim')!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
@@ -15,6 +15,7 @@ fn (mut t TFGridHandler) taiga(action Action) ! {
 			admin_username := action.params.get('admin_username')!
 			admin_password := action.params.get('admin_password')!
 			admin_email := action.params.get('admin_email')!
+			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size') or { 50 }
 
 			deploy_res := t.tfgrid.deploy_taiga(Taiga{
 				name: name
@@ -24,6 +25,7 @@ fn (mut t TFGridHandler) taiga(action Action) ! {
 				admin_username: admin_username
 				admin_password: admin_password
 				admin_email: admin_email
+				disk_size: u32(disk_size)
 			})!
 
 			t.logger.info('${deploy_res}')

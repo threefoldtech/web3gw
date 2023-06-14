@@ -13,7 +13,7 @@ import (
 const gwNameEnvVar = "WEB3PROXY_DOMAIN_NAME"
 const letters = "abcdefghijklmnopqrstuvwxyz"
 
-var vmWithGWCapacity = map[string]capacityPackage{
+var vmCapacity = map[string]capacityPackage{
 	"small": {
 		cru: 1,
 		mru: 2048,
@@ -36,7 +36,7 @@ var vmWithGWCapacity = map[string]capacityPackage{
 	},
 }
 
-type VMWithGW struct {
+type VM struct {
 	Name               string `json:"name"`
 	FarmID             uint64 `json:"farm_id"`
 	Network            string `json:"network"`
@@ -46,11 +46,11 @@ type VMWithGW struct {
 	SSHKey             string `json:"ssh_key"`
 	Gateway            bool   `json:"gateway"`
 	AddWireguardAccess bool   `json:"add_wireguard_access"`
-	AddPublicIPs       bool   `json:"add_public_ips"`
-	PublicIPv6         bool   `json:"public_ipv6"`
+	AddPublicIPv4      bool   `json:"add_public_ipv4"`
+	AddPublicIPv6      bool   `json:"add_public_ipv6"`
 }
 
-type VMWithGWResult struct {
+type VMResult struct {
 	Network         string              `json:"network"`
 	WireguardConfig string              `json:"wireguard_config"`
 	VMs             []GatewayedMachines `json:"vms"`
@@ -61,27 +61,27 @@ type GatewayedMachines struct {
 	Gateway GatewayNameModel `json:"gateway"`
 }
 
-type RemoveVMWithGWArgs struct {
+type RemoveVMArgs struct {
 	Network string `json:"network"`
 	VMName  string `json:"vm_name"`
 }
 
-func (c *Client) DeployVM(ctx context.Context, vm VMWithGW) (VMWithGWResult, error) {
+func (c *Client) DeployVM(ctx context.Context, vm VM) (VMResult, error) {
 	_, err := c.MachinesGet(ctx, vm.Network)
 	if err != nil {
 		log.Error().Msgf("error: %+v", err)
 		if strings.Contains(err.Error(), "found 0 contracts for model") {
 			// this is a new network
-			return c.deployVMWithGW(ctx, vm)
+			return c.deployVM(ctx, vm)
 		}
 
-		return VMWithGWResult{}, err
+		return VMResult{}, err
 	}
 
-	return c.addVMWithGW(ctx, vm)
+	return c.addVM(ctx, vm)
 }
 
-func (c *Client) deployVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResult, error) {
+func (c *Client) deployVM(ctx context.Context, vm VM) (VMResult, error) {
 	machinesModel := MachinesModel{
 		Name: vm.Network,
 		Network: Network{
@@ -93,14 +93,14 @@ func (c *Client) deployVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResul
 
 	machines, err := vm.generateMachines()
 	if err != nil {
-		return VMWithGWResult{}, err
+		return VMResult{}, err
 	}
 
 	machinesModel.Machines = machines
 
 	machinesModel, err = c.MachinesDeploy(ctx, machinesModel)
 	if err != nil {
-		return VMWithGWResult{}, err
+		return VMResult{}, err
 	}
 
 	gws := map[string]GatewayNameModel{}
@@ -117,21 +117,21 @@ func (c *Client) deployVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResul
 
 		gw, err := c.GatewayNameDeploy(ctx, gw)
 		if err != nil {
-			return VMWithGWResult{}, err
+			return VMResult{}, err
 		}
 
 		gws[m.Name] = gw
 	}
 
-	return newVMWithGWResult(machinesModel, gws), nil
+	return newVMResult(machinesModel, gws), nil
 }
 
-func (c *Client) addVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResult, error) {
+func (c *Client) addVM(ctx context.Context, vm VM) (VMResult, error) {
 	gws := map[string]GatewayNameModel{}
 
 	machines, err := vm.generateMachines()
 	if err != nil {
-		return VMWithGWResult{}, err
+		return VMResult{}, err
 	}
 
 	machinesModel := MachinesModel{}
@@ -141,7 +141,7 @@ func (c *Client) addVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResult, 
 			Machine:   m,
 		})
 		if err != nil {
-			return VMWithGWResult{}, err
+			return VMResult{}, err
 		}
 
 		machinesModel = res
@@ -166,21 +166,21 @@ func (c *Client) addVMWithGW(ctx context.Context, vm VMWithGW) (VMWithGWResult, 
 
 		gw, err := c.GatewayNameDeploy(ctx, gw)
 		if err != nil {
-			return VMWithGWResult{}, err
+			return VMResult{}, err
 		}
 
 		gws[m.Name] = gw
 	}
 
-	return newVMWithGWResult(machinesModel, gws), nil
+	return newVMResult(machinesModel, gws), nil
 }
 
-func (c *Client) GetVM(ctx context.Context, networkName string) (VMWithGWResult, error) {
+func (c *Client) GetVM(ctx context.Context, networkName string) (VMResult, error) {
 	gws := map[string]GatewayNameModel{}
 
 	machinesModel, err := c.MachinesGet(ctx, networkName)
 	if err != nil {
-		return VMWithGWResult{}, err
+		return VMResult{}, err
 	}
 
 	for _, m := range machinesModel.Machines {
@@ -191,13 +191,13 @@ func (c *Client) GetVM(ctx context.Context, networkName string) (VMWithGWResult,
 
 		gw, err := c.GatewayNameGet(ctx, gwName)
 		if err != nil {
-			return VMWithGWResult{}, err
+			return VMResult{}, err
 		}
 
 		gws[m.Name] = gw
 	}
 
-	res := VMWithGWResult{
+	res := VMResult{
 		Network:         networkName,
 		WireguardConfig: machinesModel.Network.WireguardConfig,
 		VMs:             []GatewayedMachines{},
@@ -237,10 +237,10 @@ func (c *Client) DeleteVM(ctx context.Context, networkName string) error {
 	return nil
 }
 
-func (c *Client) RemoveVM(ctx context.Context, args RemoveVMWithGWArgs) (VMWithGWResult, error) {
+func (c *Client) RemoveVM(ctx context.Context, args RemoveVMArgs) (VMResult, error) {
 	machinesModel, err := c.MachinesGet(ctx, args.Network)
 	if err != nil {
-		return VMWithGWResult{}, err
+		return VMResult{}, err
 	}
 
 	for _, m := range machinesModel.Machines {
@@ -248,7 +248,7 @@ func (c *Client) RemoveVM(ctx context.Context, args RemoveVMWithGWArgs) (VMWithG
 			gwName, ok := m.EnvVars[gwNameEnvVar]
 			if ok {
 				if err := c.cancelModel(ctx, gwName); err != nil {
-					return VMWithGWResult{}, err
+					return VMResult{}, err
 				}
 			}
 
@@ -256,7 +256,7 @@ func (c *Client) RemoveVM(ctx context.Context, args RemoveVMWithGWArgs) (VMWithG
 				ModelName:   args.Network,
 				MachineName: args.VMName,
 			}); err != nil {
-				return VMWithGWResult{}, err
+				return VMResult{}, err
 			}
 
 			break
@@ -266,7 +266,7 @@ func (c *Client) RemoveVM(ctx context.Context, args RemoveVMWithGWArgs) (VMWithG
 	return c.GetVM(ctx, args.Network)
 }
 
-func (vm *VMWithGW) generateMachines() ([]Machine, error) {
+func (vm *VM) generateMachines() ([]Machine, error) {
 	machines := []Machine{}
 
 	vmName := "vm"
@@ -274,7 +274,7 @@ func (vm *VMWithGW) generateMachines() ([]Machine, error) {
 		vmName = vm.Name
 	}
 
-	cap, ok := vmWithGWCapacity[vm.Capacity]
+	cap, ok := vmCapacity[vm.Capacity]
 	if !ok {
 		return nil, fmt.Errorf("capacity %s is invalid", vm.Capacity)
 	}
@@ -290,7 +290,7 @@ func (vm *VMWithGW) generateMachines() ([]Machine, error) {
 			FarmID:     uint32(vm.FarmID),
 			Flist:      "https://hub.grid.tf/tf-official-apps/base:latest.flist",
 			Planetary:  true,
-			PublicIP:   vm.AddPublicIPs,
+			PublicIP:   vm.AddPublicIPv4,
 			CPU:        int(cap.cru),
 			Memory:     int(cap.mru),
 			RootfsSize: int(cap.sru),
@@ -318,8 +318,8 @@ func (vm *VMWithGW) generateMachines() ([]Machine, error) {
 	return machines, nil
 }
 
-func newVMWithGWResult(model MachinesModel, gws map[string]GatewayNameModel) VMWithGWResult {
-	res := VMWithGWResult{
+func newVMResult(model MachinesModel, gws map[string]GatewayNameModel) VMResult {
+	res := VMResult{
 		Network:         model.Name,
 		WireguardConfig: model.Network.WireguardConfig,
 		VMs:             []GatewayedMachines{},

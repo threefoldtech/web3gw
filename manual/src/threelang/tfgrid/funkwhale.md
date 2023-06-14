@@ -2,28 +2,34 @@
 
 - To deploy a funkwhale instance, use the funkwhale action.
 
+> Check Funkwhale docs [here](https://manual.grid.tf/weblets/weblets_funkwhale.html)
+
 ## Create Operation
 
 - action name: !!tfgrid.funkwhale.create
 - parameters:
-  - name [required]
+  - name [optional]
+    - identifier for the instance, must be unique
   - farm_id [optional]
-    - if 0, machines could span multiple nodes on different farms
-  - capacity [required]
-    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the funkwhale instance
+    - farm id to deploy on, if 0, a random eligible node on a random farm will be selected
+  - capacity [optional]
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the funkwhale instance. defaults to `medium`
     - small: 2 vCPU, 1GB RAM, 50GB SSD
     - medium: 2 vCPU, 2GB RAM, 100GB SSD
     - large: 4 vCPU, 4GB RAM, 250 SSD
     - extra-large: 4vCPU, 8GB RAM, 400GB SSD
-  
-  - ssh_key [required]
+  - ssh_key [optional]
+    - ssh key name defined by a previous action. defaults to `default`
   - admin_email [required]
-  - admin_username [required]
-  - admin_password [required]
+    - admin email to access admin dashboard
+  - admin_username [optional]
+    - admin username to access admin dashboard
+  - admin_password [optional]
+    - admin password to access admin dashboard
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.funkwhale.create
       name: funkwhale_instance
       farm_id: 4
@@ -39,10 +45,11 @@
 - action name: !!tfgrid.funkwhale.get
 - parameters:
   - name [required]
+    - name of the funkwhale instance
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.funkwhale.get
       name: funkwhale_instance
   ```
@@ -52,10 +59,11 @@
 - action_name: !!tfgrid.funkwhale.delete
 - parameters:
   - name [required]
+    - name of the funkwhale instance
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.funkwhale.delete
       name: funkwhale_instance
   ```

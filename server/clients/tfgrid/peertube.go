@@ -41,16 +41,13 @@ type Peertube struct {
 	DBPassword string `json:"db_password"`
 	AdminEmail string `json:"admin_email"`
 
-	SMTPHostname string `json:"smtp_hostname"`
-	SMTPUsername string `json:"stmp_username"`
-	SMTPPassword string `json:"stmp_password"`
-	PublicIPv6   bool   `json:"public_ipv6"`
+	PublicIPv6 bool `json:"public_ipv6"`
 }
 
 type PeertubeResult struct {
 	Name         string `json:"name"`
-	MachineYGGIP string `json:"machine_ygg_ip"`
-	MachineIPv6  string `json:"machine_ipv6"`
+	MachineYGGIP string `json:"ygg_ip"`
+	MachineIPv6  string `json:"ipv6"`
 	FQDN         string `json:"fqdn"`
 }
 
@@ -117,9 +114,6 @@ func (p *Peertube) generateMachinesModel(gwNode types.Node) (MachinesModel, erro
 					"PEERTUBE_DB_PASSWORD":        p.DBPassword,
 					"PEERTUBE_ADMIN_EMAIL":        p.AdminEmail,
 					"PEERTUBE_WEBSERVER_PORT":     "443",
-					"PEERTUBE_SMTP_HOSTNAME":      p.SMTPHostname,
-					"PEERTUBE_SMTP_USERNAME":      p.SMTPUsername,
-					"PEERTUBE_SMTP_PASSWORD":      p.SMTPPassword,
 					"PEERTUBE_BIND_ADDRESS":       "::",
 				},
 				Entrypoint: "/sbin/zinit init",

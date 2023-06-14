@@ -7,17 +7,14 @@ import rand
 fn (mut t TFGridHandler) peertube(action Action) ! {
 	match action.name {
 		'create' {
-			name := action.params.get_default('name', rand.string(10).to_lower())!
+			name := action.params.get_default('name', rand.string(8).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'meduim')!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
 			admin_email := action.params.get('admin_email')!
-			db_username := action.params.get('db_username')!
-			db_password := action.params.get('db_password')!
-			smtp_hostname := action.params.get('smtp_hostname')!
-			smtp_username := action.params.get('smtp_username')!
-			smtp_password := action.params.get('smtp_password')!
+			db_username := action.params.get_default('db_username', rand.string(8).to_lower())!
+			db_password := action.params.get_default('db_password', rand.string(8).to_lower())!
 
 			deploy_res := t.tfgrid.deploy_peertube(Peertube{
 				name: name
@@ -27,9 +24,6 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 				admin_email: admin_email
 				db_username: db_username
 				db_password: db_password
-				smtp_hostname: smtp_hostname
-				smtp_username: smtp_username
-				smtp_password: smtp_password
 			})!
 
 			t.logger.info('${deploy_res}')

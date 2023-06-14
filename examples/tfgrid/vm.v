@@ -1,6 +1,6 @@
 module main
 
-import threefoldtech.threebot.tfgrid { RemoveVMWithGWArgs, TFGridClient, VM, VMResult }
+import threefoldtech.threebot.tfgrid { RemoveVMArgs, TFGridClient, VM, VMResult }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -22,7 +22,8 @@ fn deploy_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
 	disk_size := fp.int('disk_size', `d`, 0, 'Size of disk the will be mounted on each vm')
 	gateway := fp.bool('gateway', `g`, false, 'True to add a gateway for each vm')
 	wg := fp.bool('wg', `w`, false, 'True to add a wireguard access point to the network')
-	public_ip := fp.bool('public_ip', `i`, false, 'True to add a public ip to each vm')
+	add_public_ipv4 := fp.bool('add_public_ipv4', `4`, false, 'True to add a public ipv4 to each vm')
+	add_public_ipv6 := fp.bool('add_public_ipv6', `6`, false, 'True to add a public ipv6 to each vm')
 	ssh_key := fp.string('ssh_key', `s`, '', 'Public SSH Key to access the instance')
 	_ := fp.finalize()!
 
@@ -36,7 +37,8 @@ fn deploy_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
 		disk_size: u32(disk_size)
 		gateway: gateway
 		add_wireguard_access: wg
-		add_public_ips: public_ip
+		add_public_ipv4: add_public_ipv4
+		add_public_ipv6: add_public_ipv6
 	}
 
 	return t.deploy_vm(vm)!
@@ -67,7 +69,7 @@ fn remove_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
 	vm_name := fp.string_opt('vm', `v`, 'Name of the VM to be removed')!
 	_ := fp.finalize()!
 
-	return t.remove_vm(RemoveVMWithGWArgs{
+	return t.remove_vm(RemoveVMArgs{
 		network: network
 		vm_name: vm_name
 	})!

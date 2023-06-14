@@ -1,19 +1,21 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { AddK8sWorker, GetK8sParams, RemoveK8sWorker, K8sNode , K8sCluster}
+import threefoldtech.threebot.tfgrid { AddK8sWorker, GetK8sParams, K8sCluster, K8sNode, RemoveK8sWorker }
 import rand
 
 fn (mut t TFGridHandler) k8s(action Action) ! {
 	match action.name {
 		'create' {
-			name := action.params.get('name')!
+			name := action.params.get_default('name', rand.string(8).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'small')!
-			replica := action.params.get_int_default('replica', 1)!
-			public_ip := action.params.get_default_false('add_public_ips')
+			number_of_workers := action.params.get_int_default('workers', 1)!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
+			master_public_ip := action.params.get_default_false('add_public_ip_to_master')
+			worerks_public_ip := action.params.get_default_false('add_public_ips_to_workers')
+			add_wg_access := action.params.get_default_false('add_wireguard_access')
 
 			cpu, memory, disk_size := get_k8s_capacity(capacity)!
 
@@ -23,18 +25,18 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 				cpu: cpu
 				memory: memory
 				disk_size: disk_size
-				public_ip: public_ip
+				public_ip: master_public_ip
 			}
 
-			mut workers := []tfgrid.K8sNode{}
-			for _ in 0 .. replica {
+			mut workers := []K8sNode{}
+			for _ in 0 .. number_of_workers {
 				mut worker := K8sNode{
 					name: 'wr' + rand.string(6)
 					farm_id: u32(farm_id)
 					cpu: cpu
 					memory: memory
 					disk_size: disk_size
-					public_ip: public_ip
+					public_ip: worerks_public_ip
 				}
 
 				workers << worker
@@ -46,6 +48,7 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 				ssh_key: ssh_key
 				master: node
 				workers: workers
+				add_wg_access: add_wg_access
 			}
 
 			deploy_res := t.tfgrid.k8s_deploy(cluster)!
@@ -65,8 +68,8 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 		'add' {
 			name := action.params.get('name')!
 			farm_id := action.params.get_int_default('farm_id', 0)!
-			capacity := action.params.get_default('capacity', 'small')!
-			public_ip := action.params.get_default_false('add_public_ips')
+			capacity := action.params.get_default('capacity', 'medium')!
+			add_public_ip := action.params.get_default_false('add_public_ip')
 
 			cpu, memory, disk_size := get_k8s_capacity(capacity)!
 
@@ -76,7 +79,7 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 				cpu: cpu
 				memory: memory
 				disk_size: disk_size
-				public_ip: public_ip
+				public_ip: add_public_ip
 			}
 
 			add_res := t.tfgrid.k8s_add_worker(AddK8sWorker{
