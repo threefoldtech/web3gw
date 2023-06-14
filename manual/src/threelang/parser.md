@@ -37,3 +37,11 @@ Threelang is an intermediate language to tell the web3 proxy what to do. The lan
 ```
 
 - this would deploy 4 vms, with medium capacity (cru, mru, sru) on the same network.
+
+### Usage
+
+Use web3proxy functionality by providing markdown files containing threelang the script [here](../../../examples/threelang/threelang.v).
+
+  ```v
+  v run threelang.v -f <file_path>
+  ```

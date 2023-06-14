@@ -1,6 +1,6 @@
 # ZDB Example
 
-- This example deployes, gets, and deletes a ZDB workload on the tfgrid.
+- This example deploys, gets, and deletes a ZDB workload on the tfgrid.
 
 !!tfgrid.core.login
 	mnemonic: 'YOUR MNEMONICS'

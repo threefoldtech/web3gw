@@ -1,6 +1,6 @@
 module main
 
-import threefoldtech.threebot.tfgrid { RemoveVMArgs, TFGridClient, VM, VMResult }
+import threefoldtech.threebot.tfgrid { RemoveVM, TFGridClient, VM, VMResult }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -69,7 +69,7 @@ fn remove_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
 	vm_name := fp.string_opt('vm', `v`, 'Name of the VM to be removed')!
 	_ := fp.finalize()!
 
-	return t.remove_vm(RemoveVMArgs{
+	return t.remove_vm(RemoveVM{
 		network: network
 		vm_name: vm_name
 	})!

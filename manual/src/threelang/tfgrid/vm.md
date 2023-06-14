@@ -4,7 +4,7 @@
 
 ## Create Operation
 
-- action name: !!tfgrid.machines.create
+- action name: !!tfgrid.machine.create
 - parameters:
   - name [optional]
     - This is the vm's name. If multiple vms are to be deployed, index is appended to the vm's name. If not provided, a random name is generated.
@@ -37,7 +37,7 @@
 - Example:
   
   ```md
-  !!tfgrid.machines.create
+  !!tfgrid.machine.create
       network: skynet
       sshkey: my_ssh_key
       capacity: small
@@ -49,7 +49,7 @@
 
 ## Get Operation
 
-- action name: !!tfgrid.machines.get
+- action name: !!tfgrid.machine.get
 - parameters:
   - network [required]
     - network name
@@ -57,7 +57,7 @@
 - Example:
   
   ```md
-  !!tfgrid.machines.get
+  !!tfgrid.machine.get
       name: skynet
   ```
 
@@ -69,7 +69,7 @@
 
 ### Remove Operation
 
-- action_name: !!tfgrid.machines.remove
+- action_name: !!tfgrid.machine.remove
 - parameters:
   - network [required]
     - network name
@@ -79,14 +79,14 @@
 - Example:
   
   ```md
-  !!tfgrid.machines.remove
+  !!tfgrid.machine.remove
       network: skynet
       machine_name: vm1
   ```
 
 ## Delete Operation
 
-- action_name: !!tfgrid.machines.delete
+- action_name: !!tfgrid.machine.delete
 - parameters:
   - network [required]
     - network name
@@ -94,6 +94,6 @@
 - Example:
   
   ```md
-  !!tfgrid.machines.delete
+  !!tfgrid.machine.delete
       network: skynet
   ```

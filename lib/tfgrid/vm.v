@@ -17,7 +17,7 @@ pub mut:
 }
 
 [params]
-pub struct RemoveVMArgs {
+pub struct RemoveVM {
 pub:
 	network string
 	vm_name string
@@ -29,8 +29,8 @@ pub fn (mut t TFGridClient) deploy_vm(vm VM) !VMResult {
 }
 
 // Removes a vm from a network
-pub fn (mut t TFGridClient) remove_vm(args RemoveVMArgs) !VMResult {
-	return t.client.send_json_rpc[[]RemoveVMArgs, VMResult]('tfgrid.RemoveVM', [
+pub fn (mut t TFGridClient) remove_vm(args RemoveVM) !VMResult {
+	return t.client.send_json_rpc[[]RemoveVM, VMResult]('tfgrid.RemoveVM', [
 		args,
 	], default_timeout)!
 }

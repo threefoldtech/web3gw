@@ -35,7 +35,7 @@ pub fn (mut t TFGridHandler) handle_action(action Action) ! {
 		'kubernetes' {
 			t.k8s(action)!
 		}
-		'machines' {
+		'machine' {
 			t.vm(action)!
 		}
 		'zdbs' {
