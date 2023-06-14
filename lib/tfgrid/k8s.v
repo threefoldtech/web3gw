@@ -2,25 +2,26 @@ module tfgrid
 
 [params]
 pub struct K8sCluster {
-	name    string    [required]
-	token   string    [required]
-	ssh_key string    [required]
-	master  K8sNode   [required]
-	workers []K8sNode
+	name          string    [required] // name of the cluster, must be unique
+	token         string    [required] // cluster token, workers must have this token to join the cluster
+	ssh_key       string    [required] // public ssh key to access the instance in a later stage
+	master        K8sNode   [required] // master node configs
+	workers       []K8sNode // workers configs
+	add_wg_access bool      // if true, adds a wireguard access point to the network
 }
 
 [params]
 pub struct K8sNode {
-	name       string [required]
-	node_id    u32
-	farm_id    u32
-	public_ip  bool
-	public_ip6 bool
-	planetary  bool   = true
-	flist      string = 'https://hub.grid.tf/tf-official-apps/threefoldtech-k3s-latest.flist'
+	name       string [required] // name of the cluster node
+	node_id    u32    // node id to deploy on, if 0, a random eligible node will be selected
+	farm_id    u32    // farm id to deploy on, if 0, a random eligible farm will be selected
+	public_ip  bool   // if true, a public ipv4 will be added to the node
+	public_ip6 bool   // if true, a public ipv6 will be added to the node
+	planetary  bool   = true // if true, a yggdrasil ip will be added to the node
+	flist      string = 'https://hub.grid.tf/tf-official-apps/threefoldtech-k3s-latest.flist' // flist for kubernetes
 	cpu        u32    [required] // number of vcpu cores.
-	memory     u32    [required] // in MBs
-	disk_size  u32 = 10 // in GB, monted in /mydisk
+	memory     u32    [required] // node memory in MBs
+	disk_size  u32 = 10 // size of disk mounted on the node in GB, monted in /mydisk
 }
 
 // GetK8sParams defines the params needed to get a k8s cluster

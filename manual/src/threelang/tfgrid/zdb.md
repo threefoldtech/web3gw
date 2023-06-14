@@ -6,19 +6,22 @@
 
 - action name: !!tfgrid.zdbs.create
 - parameters:
-  - name [required]
-  - farm_id [optional]
-  - password [required]
+  - name [optional]
+    - zdb name. must be unique
+  - node_id [optional]
+    - node id to deploy the ZDB on, if 0, a random eligible node will be selected
+  - password [optional]
+    - zdb password
   - size [required]
-    - size of the ZDB in GB
-  - public
-    - yes or no
+    - size of the ZDB in GB. defaults to `10`
+  - public [optional]
+    - if true, makes it read-only if password is set, writable if no password set. defaults to `false`
   - user_mode
-    - 'seq' or 'user'. defaults to 'user'
+    - Mode of the ZDB, `user` or `seq`. `user` is the default mode where a user can SET their own keys, like any key-value store. All keys are kept in memory. in `seq` mode, keys are sequential and autoincremented. defaults to `user`
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.zdbs.create 
       name: hamadazdb
       size: 10GB
@@ -30,10 +33,11 @@
 - action name: !!tfgrid.zdbs.get
 - parameters:
   - name [required]
+    - zdb name
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.zdbs.get
       name: hamadazdb
   ```
@@ -47,10 +51,11 @@
 - action_name: !!tfgrid.zdbs.delete
 - parameters:
   - name [required]
+    - zdb name
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.zdbs.delete
       name: hamadazdb
   ```

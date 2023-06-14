@@ -2,13 +2,13 @@ module tfgrid
 
 pub struct VMResult {
 pub mut:
-	network          string
-	wireguard_config string
-	vms              []GatewayedMachines
+	network          string // vm network
+	wireguard_config string // vm wireguard configuration, if any
+	vms              []GatewayedMachines // vms configs
 }
 
 struct GatewayedMachines {
 pub:
-	machine MachineResult
-	gateway GatewayNameResult
+	machine MachineResult     // machine configs
+	gateway GatewayNameResult // gateway configs
 }

@@ -2,25 +2,40 @@
 
 - To deploy a presearch instance, use the Presearch actions.
 
+> Check Presearch docs [here](https://manual.grid.tf/weblets/weblets_presearch.html)
+
 ## Create Operation
 
 - action name: !!tfgrid.presearch.create
 - parameters:
-  - name [required]
+  - name [optional]
+    - identifier for the instance, must be unique
   - farm_id [optional]
+    - farm id to deploy on, if 0, a random eligible node on a random farm will be selected
   - disk_size [optional]
-  - ssh_key [required]
-  - public_ip
-    - yes or no to add a public ip to the presearch instance
+    - size of disk to mount on instance.
+  - ssh_key [optional]
+    - ssh key name defined by a previous action. defaults to `default`
+  - public_ipv4 [optional]
+    - if true, a public ipv4 will be added to the instance
+  - public_ipv6 [optional]
+    - if true, a public ipv6 will be added to the instance
+  - registration_code [required]
+    - You need to sign up on Presearch in order to get your Presearch Registration Code.
+  - public_restore_key [optional]
+  - private_resotre_key [optional]
+    - presearch config for restoring old nodes
+    - to restore old nodes, you need to provide both resotre keys
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.presearch.create
       name: mypresearch
       farm_id: 3
       disk_size: 10GB
       public_ip: yes
+      registration_code: qoweifjquoiwenwfiqurnviqeru9123f234f
   ```
 
 ## Get Operation
@@ -28,10 +43,11 @@
 - action name: !!tfgrid.presearch.get
 - parameters:
   - name [required]
+    - presearch instance name
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.presearch.get
       name: mypresearch
   ```
@@ -45,10 +61,11 @@
 - action_name: !!tfgrid.presearch.delete
 - parameters:
   - name [required]
+    - presearch instance name
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.presearch.delete
       name: mypresearch
   ```

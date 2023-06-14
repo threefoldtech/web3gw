@@ -6,36 +6,35 @@
 
 - action name: !!tfgrid.kubernetes.create
 - parameters:
-  - name [required]
+  - name [optinoal]
+    - name of the cluster, must be unique
   - farm_id [optional]
-    - if 0, cluster nodes could span multiple nodes on different farms
-  - workers [required]
-    - a number in the range [1, 252]
-  - capacity [required]
-    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the cluster nodes
+    - farm id to deploy on, if 0, a random eligible farm will be selected
+  - workers [optional]
+    - number of cluster workers, must be in the range [1, 252]. defaults to `1`
+  - capacity [optional]
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the cluster nodes. defaults to `medium`
     - small: 1 vCPU, 2GB RAM, 10GB SSD
     - medium: 2 vCPU, 4GB RAM, 50GB SSD
     - large: 4 vCPU, 8GB RAM, 240 SSD
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
-  - disk_size [optional]
-    - size in GB of disk to be mounted on each node at "/mnt/disk"
-  - ssh_key [required]
+  - ssh_key [optional]
+    - public ssh key to access the instance in a later stage. defaults to `default`
   - add_wireguard_access
-    - yes or no to add wireguard access point
+    - if true, adds a wireguard access point to the network
   - add_public_ip_to_master
-    - yes or no to add a public ip to the master node
+    - true to add public ipv4 to master
   - add_public_ips_to_workers
-    - yes or no to add public ips to workers
+    - true to add public ipv4 to workers
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.kubernetes.create
       name: myk8s
       farm_id: 1
       workers: 4
       capacity: small
-      disk_size: 5GB
       add_public_ip_to_master: yes
   ```
 
@@ -44,10 +43,11 @@
 - action name: !!tfgrid.kubernetes.get
 - parameters:
   - name [required]
+    - cluster name
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.kubernetes.get
       name: myk8s
   ```
@@ -59,28 +59,25 @@
 - action_name: !!tfgrid.kubernetes.add
 - parameters:
   - name [required]
+    - cluster name
   - farm_id [optional]
-    - if 0, cluster nodes could span multiple nodes on different farms
+    - farm id to deploy on, if 0, a random eligible farm will be selected
   - capacity [required]
-    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the worker
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the worker. defaults to `medium`
     - small: 1 vCPU, 2GB RAM, 10GB SSD
     - medium: 2 vCPU, 4GB RAM, 50GB SSD
     - large: 4 vCPU, 8GB RAM, 240 SSD
     - extra-large: 8vCPU, 16GB RAM, 480GB SSD
-  - disk_size [optional]
-    - size in GB of disk to be mounted on each cluster node at "/mnt/disk"
-  - ssh_key [required]
   - add_public_ip
-    - yes or no to add a public ip to the new worker
+    - true to add public ipv4 to the worker
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.kubernetes.add
       name: myk8s
       farm_id: 2
       capacity: small
-      disk_size: 10GB
   ```
 
 ### Remove Operation
@@ -88,11 +85,13 @@
 - action_name: !!tfgrid.kubernetes.remove
 - parameters:
   - name [required]
+    - cluster name
   - worker_name [required]
+    - worker name to be removed
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.kubernetes.remove
       name: myk8s
       worker_name: worker1
@@ -103,10 +102,11 @@
 - action_name: !!tfgrid.kubernetes.delete
 - parameters:
   - name [required]
+    - cluster name
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.kubernetes.delete
       name: myk8s
   ```

@@ -6,18 +6,21 @@ import (
 )
 
 type Presearch struct {
-	Name       string `json:"name"`
-	FarmID     uint64 `json:"farm_id"`
-	SSHKey     string `json:"ssh_key"`
-	DiskSize   uint32 `json:"disk_size"`
-	PublicIP   bool   `json:"public_ipv4"`
-	PublicIPv6 bool   `json:"public_ipv6"`
+	Name              string `json:"name"`
+	FarmID            uint64 `json:"farm_id"`
+	SSHKey            string `json:"ssh_key"`
+	DiskSize          uint32 `json:"disk_size"`
+	PublicIP          bool   `json:"public_ipv4"`
+	PublicIPv6        bool   `json:"public_ipv6"`
+	PublicRestoreKey  string `json:"public_restore_key"`
+	PrivateRestoreKey string `json:"private_restore_key"`
+	RegistrationCode  string `json:"registration_code"`
 }
 
 type PresearchResult struct {
 	Name         string `json:"name"`
-	MachineYGGIP string `json:"machine_ygg_ip"`
-	MachineIPv6  string `json:"machine_ipv6"`
+	MachineYGGIP string `json:"ygg_ip"`
+	MachineIPv6  string `json:"ipv6"`
 	MachineIPV4  string `json:"machine_ipv4"`
 }
 
@@ -59,7 +62,9 @@ func (p *Presearch) generateMachinesModel() MachinesModel {
 				Memory: 512,
 				EnvVars: map[string]string{
 					"SSH_KEY":                     p.SSHKey,
-					"PRESEARCH_REGISTRATION_CODE": "",
+					"PRESEARCH_REGISTRATION_CODE": p.RegistrationCode,
+					"PRESEARCH_BACKUP_PRI_KEY":    p.PrivateRestoreKey,
+					"PRESEARCH_BACKUP_PUB_KEY":    p.PublicRestoreKey,
 				},
 				Entrypoint: "/sbin/zinit init",
 				Planetary:  true,

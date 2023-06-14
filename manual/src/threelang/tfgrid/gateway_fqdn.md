@@ -6,17 +6,20 @@
 
 - action name: !!tfgrid.gateway_fqdn.create
 - parameters:
-  - name [required]
+  - name [optional]
+    - identifier for the gateway, must be unique
   - node_id [required]
+    - node to deploy the gateway workload on
   - fqdn [required]
+    - The fully qualified domain name that points to this gateway
   - backend [required]
-    - the URL that the gateway will pass traffic to.
+    - The backend that the gateway will point to
   - tls_passthrough [optional]
-    - yes or no
+    - true to enable TLS encryption
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.gateway_fqdn.create
       name: hamadafqdn
       node_id: 11
@@ -24,16 +27,16 @@
       fqdn: hamada1.3x0.me
   ```
 
-
 ## Get Operation
 
 - action name: !!tfgrid.gateway_fqdn.get
 - parameters:
   - name [required]
+    - name of the gateway instance
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.gateway_fqdn.get
       name: hamadafqdn
   ```
@@ -47,11 +50,11 @@
 - action_name: !!tfgrid.gateway_fqdn.delete
 - parameters:
   - name [required]
-
+    - name of the gateway instance
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.gateway_fqdn.delete
       name: hamadafqdn
   ```

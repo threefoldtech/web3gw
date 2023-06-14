@@ -1,21 +1,22 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { VM, RemoveVMWithGWArgs }
+import threefoldtech.threebot.tfgrid { RemoveVMArgs, VM }
 import rand
 
 fn (mut t TFGridHandler) vm(action Action) ! {
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(6).to_lower())!
-			network := action.params.get('network')!
+			network := action.params.get_default('network', rand.string(6).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'meduim')!
 			times := action.params.get_int_default('times', 1)!
-			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size')!
+			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size') or { 0 }
 			gateway := action.params.get_default_false('gateway')
 			wg := action.params.get_default_false('add_wireguard_access')
-			public_ip := action.params.get_default_false('add_public_ips')
+			public_ipv4 := action.params.get_default_false('add_public_ipv4')
+			public_ipv6 := action.params.get_default_false('add_public_ipv6')
 
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
@@ -30,7 +31,8 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 				disk_size: u32(disk_size)
 				gateway: gateway
 				add_wireguard_access: wg
-				add_public_ips: public_ip
+				add_public_ipv4: public_ipv4
+				add_public_ipv6: public_ipv6
 			})!
 
 			t.logger.info('${deploy_res}')
@@ -46,7 +48,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			network := action.params.get('network')!
 			machine := action.params.get('machine')!
 
-			remove_res := t.tfgrid.remove_vm(RemoveVMWithGWArgs{
+			remove_res := t.tfgrid.remove_vm(RemoveVMArgs{
 				network: network
 				vm_name: machine
 			})!
