@@ -296,7 +296,7 @@ func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
 	return model, nil
 }
 
-func createPlannedReservationFromMachine(machine *Machine) *PlannedReservation {
+func createReservationFromMachine(machine *Machine) (string, *PlannedReservation) {
 	neededSRU := 0
 	neededHRU := 0
 	for _, disk := range machine.Disks {
@@ -307,7 +307,7 @@ func createPlannedReservationFromMachine(machine *Machine) *PlannedReservation {
 	}
 	neededSRU += machine.RootfsSize * int(gridtypes.Megabyte)
 
-	return &PlannedReservation{
+	return machine.Name, &PlannedReservation{
 		WorkloadName: machine.Name,
 		MRU:          uint64(machine.Memory * int(gridtypes.Megabyte)),
 		SRU:          uint64(neededSRU),
@@ -317,20 +317,17 @@ func createPlannedReservationFromMachine(machine *Machine) *PlannedReservation {
 	}
 }
 
-func assignNodeIdforMachine(machine *Machine, workloads []*PlannedReservation) {
-	for _, workload := range workloads {
-		if workload.WorkloadName == machine.Name {
-			machine.NodeID = uint32(workload.NodeID)
-		}
-	}
+func assignNodeIdforMachine(machine *Machine, reservations Reservations) {
+	machine.NodeID = uint32(reservations[machine.Name].NodeID)
 }
 
 func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) error {
-	reservs := []*PlannedReservation{createPlannedReservationFromMachine(machine)}
-	if err := c.AssignNodes(ctx, reservs); err != nil {
+	name, vm := createReservationFromMachine(machine)
+	reservation := Reservations{name: vm}
+	if err := c.AssignNodes(ctx, reservation); err != nil {
 		return err
 	}
-	assignNodeIdforMachine(machine, reservs)
+	assignNodeIdforMachine(machine, reservation)
 	return nil
 }
 
@@ -338,21 +335,21 @@ func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) 
 func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines *MachinesModel) error {
 	// all units unified in bytes
 
-	workloads := []*PlannedReservation{}
+	var reservations Reservations
 
 	for idx := range machines.Machines {
-		workload := createPlannedReservationFromMachine(&machines.Machines[idx])
-		workloads = append(workloads, workload)
+		name, vm := createReservationFromMachine(&machines.Machines[idx])
+		reservations[name] = vm
 	}
 
-	err := c.AssignNodes(ctx, workloads)
+	err := c.AssignNodes(ctx, reservations)
 	if err != nil {
 		return err
 	}
 
 	for idx := range machines.Machines {
 		if machines.Machines[idx].NodeID == 0 {
-			assignNodeIdforMachine(&machines.Machines[idx], workloads)
+			assignNodeIdforMachine(&machines.Machines[idx], reservations)
 		}
 	}
 
