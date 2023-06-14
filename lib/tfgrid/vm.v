@@ -4,16 +4,16 @@ module tfgrid
 pub struct VM {
 pub mut:
 	name                 string // This is the vm's name. If multiple vms are to be deployed, index is appended to the vm's name. If not provided, a random name is generated.
-	network              string // Identifier for the network that these VMs will be a part of
+	network              string // Identifier for the network that the vm will be a part of
 	farm_id              u32    // farm id to deploy on, if 0, a random eligible node on a random farm will be selected
-	capacity             string // capacity for the vms, could be 'small', 'medium', 'large', or 'extra-large'
+	capacity             string // capacity for the vm, could be 'small', 'medium', 'large', or 'extra-large'
 	times                u32 = 1 // indicates how many vms will be deployed with the configuration defined by this object
-	disk_size            u32    // disk size to mount on vms in GB
+	disk_size            u32    // disk size to mount on the vms in GB
 	ssh_key              string // this is the public key that will allow you to ssh into the VM at a later stage
-	gateway              bool   // if true, a gateway will deployed for each vm. vms should listen for traffic coming from the gateway at port 9000
+	gateway              bool   // if true, a gateway will deployed for the vm. the vm should listen for traffic coming from the gateway at port 9000
 	add_wireguard_access bool   // if true, a wireguard access point will be added to the network
-	add_public_ipv4      bool   // if true, a public ipv4 will be added to each vm
-	add_public_ipv6      bool   // if true, a public ipv6 will be added to each vm
+	add_public_ipv4      bool   // if true, a public ipv4 will be added the vm
+	add_public_ipv6      bool   // if true, a public ipv6 will be added the vm
 }
 
 [params]
