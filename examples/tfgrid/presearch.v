@@ -18,6 +18,9 @@ fn deploy_presearch(mut fp FlagParser, mut t TFGridClient) !PresearchResult {
 	ssh_key := fp.string('ssh_key', `s`, '', 'Public SSH Key to access the instance')
 	disk_size := fp.int('disk_size', `d`, 0, 'Size of disk mounted on the presearch instance')
 	public_ipv4 := fp.bool('public_ipv4', `i`, false, 'True to add public ipv4 to presearch instance')
+	registration_code := fp.string_opt('registration_code', `r`, 'You need to sign up on Presearch in order to get your Presearch Registration Code.')!
+	public_restore_key := fp.string('public_restore_key', `p`, '', 'presearch public key for restoring old nodes')
+	private_restore_key := fp.string('private_restore_key', `k`, '', 'presearch private key for restoring old nodes')
 	_ := fp.finalize()!
 
 	presearch := Presearch{
@@ -26,6 +29,9 @@ fn deploy_presearch(mut fp FlagParser, mut t TFGridClient) !PresearchResult {
 		ssh_key: ssh_key
 		disk_size: u32(disk_size)
 		public_ipv4: public_ipv4
+		registration_code: registration_code
+		public_restore_key: public_restore_key
+		private_restore_key: private_restore_key
 	}
 
 	return t.deploy_presearch(presearch)!

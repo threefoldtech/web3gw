@@ -46,8 +46,8 @@ type Taiga struct {
 
 type TaigaResult struct {
 	Name         string `json:"name"`
-	MachineYGGIP string `json:"machine_ygg_ip"`
-	MachineIPv6  string `json:"machine_ipv6"`
+	MachineYGGIP string `json:"ygg_ip"`
+	MachineIPv6  string `json:"ipv6"`
 	FQDN         string `json:"fqdn"`
 }
 

@@ -20,9 +20,6 @@ fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 	admin_email := fp.string('admin_email', `e`, '', 'Admin Email')
 	db_username := fp.string('db_username', `d`, '', 'DB username')
 	db_password := fp.string('db_password', `b`, '', 'DB password')
-	smtp_hostname := fp.string('smtp_hostname', `h`, '', 'SMTP hostname')
-	smtp_username := fp.string('smtp_username', `u`, '', 'SMTP username')
-	smtp_password := fp.string('smtp_password', `p`, '', 'SMTP password')
 
 	_ := fp.finalize()!
 
@@ -34,9 +31,6 @@ fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 		admin_email: admin_email
 		db_username: db_username
 		db_password: db_password
-		smtp_hostname: smtp_hostname
-		smtp_username: smtp_username
-		smtp_password: smtp_password
 	}
 
 	return t.deploy_peertube(peertube)!

@@ -2,30 +2,34 @@
 
 - To deploy a peertube instance, use the Peertube actions.
 
+> Check Peertube docs [here](https://manual.grid.tf/weblets/weblets_peertube.html)
+
 ## Create Operation
 
 - action name: !!tfgrid.peertube.create
 - parameters:
-  - name [required]
+  - name [optional]
+    - identifier for the instance, must be unique
   - farm_id [optional]
-    - if 0, machines could span multiple nodes on different farms
-  - capacity [required]
-    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the peertube instance
+    - farm id to deploy on, if 0, a random eligible farm will be selected
+  - capacity [optional]
+    - a string in ['small', 'medium', 'large', 'extra-large'] indicating the capacity of the peertube instance. defaults to `medium`
     - small: 1 vCPU, 2GB RAM, 10GB SSD
     - medium: 2 vCPU, 2GB RAM, 100GB SSD
     - large: 4 vCPU, 4GB RAM, 250 SSD
     - extra-large: 4vCPU, 8GB RAM, 400GB SSD
-  - ssh_key [required]
-  - db_username [required]
-  - db_password [required]
+  - ssh_key [optional]
+    - ssh key name defined by a previous action. defaults to `default`
+  - db_username [optional]
+    - database username
+  - db_password [optional]
+    - database password
   - admin_email [required]
-  - smtp_hostname [required]
-  - smtp_username [required]
-  - smtp_password [required]
+    - admin email
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.peertube.create
       name: mypeertube
       farm_id: 2
@@ -34,9 +38,6 @@
       db_username: dbusername
       db_password: dbpassword
       admin_email: admin@gmail.com
-      smtp_hostname: host1
-      smtp_username: username1
-      smtp_password: password1
   ```
 
 ## Get Operation
@@ -44,10 +45,11 @@
 - action name: !!tfgrid.peertube.get
 - parameters:
   - name [required]
+    - name of the peertube instance
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.peertube.get
       name: mypeertube
   ```
@@ -61,10 +63,11 @@
 - action_name: !!tfgrid.peertube.delete
 - parameters:
   - name [required]
+    - name of the peertube instance
 
 - Example:
   
-  ```
+  ```md
   !!tfgrid.peertube.delete
       name: mypeertube
   ```

@@ -11,8 +11,11 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			ssh_key_name := action.params.get_default('sshkey', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
-			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size')!
+			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size') or { 0 }
 			public_ipv4 := action.params.get_default_false('public_ip')
+			registration_code := action.params.get('registration_code')!
+			public_restore_key := action.params.get_default('public_restore_key', '')!
+			private_restore_key := action.params.get_default('private_restore_key', '')!
 
 			deploy_res := t.tfgrid.deploy_presearch(Presearch{
 				name: name
@@ -20,6 +23,9 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 				ssh_key: ssh_key
 				disk_size: u32(disk_size)
 				public_ipv4: public_ipv4
+				registration_code: registration_code
+				public_restore_key: public_restore_key
+				private_restore_key: private_restore_key
 			})!
 
 			t.logger.info('${deploy_res}')

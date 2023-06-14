@@ -7,7 +7,7 @@ import log { Logger }
 
 pub struct TFGridHandler {
 pub mut:
-	tfgrid TFGridClient
+	tfgrid   TFGridClient
 	ssh_keys map[string]string
 	logger   Logger
 }

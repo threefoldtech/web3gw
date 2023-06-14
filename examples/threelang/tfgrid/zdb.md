@@ -6,7 +6,7 @@
 	mnemonic: 'YOUR MNEMONICS'
 	network: dev
 
-!!tfgrid.zdbs.create 
+!!tfgrid.zdbs.create
 	name: hamadazdb
 	size: 10GB
 	password: pass1

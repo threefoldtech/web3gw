@@ -3,17 +3,16 @@ module tfgrid
 [params]
 pub struct Peertube {
 pub:
-	name          string
-	farm_id       u64
-	capacity      string
-	ssh_key       string
-	db_username   string
-	db_password   string
-	admin_email   string
-	smtp_hostname string
-	smtp_username string
-	smtp_password string
-	public_ipv6   bool
+	name        string // identifier for the instance, must be unique
+	farm_id     u64    // farm id to deploy on, if 0, a random eligible farm will be selected
+	capacity    string // capacity of the instance. one of small, medium, large, extra-large
+	ssh_key     string // public ssh key to access the instance in a later stage
+	public_ipv6 bool   // if true, a public ipv6 will be added to the instance
+	// database configs
+	db_username string // database username
+	db_password string // database password
+
+	admin_email string // admin email
 }
 
 // Deploys a peertube instance

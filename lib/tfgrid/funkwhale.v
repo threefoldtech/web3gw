@@ -3,14 +3,15 @@ module tfgrid
 [params]
 pub struct Funkwhale {
 pub:
-	name           string
-	farm_id        u64
-	capacity       string
-	ssh_key        string
-	admin_email    string
-	admin_username string
-	admin_password string
-	public_ipv6    bool
+	name        string // identifier for the instance, must be unique
+	farm_id     u64    // farm id to deploy on, if 0, a random eligible node on a random farm will be selected
+	capacity    string // capacity of the instance. one of small, medium, large, extra-large
+	ssh_key     string // public ssh key to access the instance in a later stage
+	public_ipv6 bool   // if true, a public ipv6 will be added to the instance
+	// admin configuration
+	admin_email    string [required] // admin email to access admin dashboard
+	admin_username string // admin username to access admin dashboard
+	admin_password string // admin password to access admin dashboard
 }
 
 // Deploys a funkwhale instance

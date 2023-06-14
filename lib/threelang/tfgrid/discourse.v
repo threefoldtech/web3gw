@@ -10,13 +10,13 @@ fn (mut t TFGridHandler) discourse(action Action) ! {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
 			farm_id := action.params.get_int_default('farm_id', 0)!
 			capacity := action.params.get_default('capacity', 'medium')!
-			ssh_key_name := action.params.get_default('sshkey', 'default')!
+			ssh_key_name := action.params.get_default('ssh_key', 'default')!
 			ssh_key := t.get_ssh_key(ssh_key_name)!
-			developer_email := action.params.get('developer_email')!
-			smtp_address := action.params.get('smtp_address')!
-			smtp_port := action.params.get_int('smtp_port')!
-			smtp_username := action.params.get('smtp_username')!
-			smtp_password := action.params.get('smtp_password')!
+			developer_email := action.params.get_default('developer_email', '')!
+			smtp_address := action.params.get_default('smtp_address', 'smtp.gmail.com')!
+			smtp_port := action.params.get_int_default('smtp_port', 587)!
+			smtp_username := action.params.get_default('smtp_username', '')!
+			smtp_password := action.params.get_default('smtp_password', '')!
 			smtp_tls := action.params.get_default_false('smtp_tls')
 
 			deploy_res := t.tfgrid.deploy_discourse(Discourse{

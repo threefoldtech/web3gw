@@ -9,9 +9,9 @@ fn (mut t TFGridHandler) zdb(action Action) ! {
 		'create' {
 			node_id := action.params.get_int_default('node_id', 0)!
 			name := action.params.get_default('name', rand.string(10).to_lower())!
-			password := action.params.get('password')!
+			password := action.params.get_default('password', rand.string(10).to_lower())!
 			public := action.params.get_default_false('public')
-			size := action.params.get_storagecapacity_in_gigabytes('size')!
+			size := action.params.get_storagecapacity_in_gigabytes('size') or { 10 }
 			mode := action.params.get_default('mode', 'user')!
 
 			zdb_deploy := t.tfgrid.zdb_deploy(ZDB{
