@@ -2397,8 +2397,8 @@ github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7/go.mod h1:q4W45
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cbyO7IOYJZWg1U88JhDg3PB6klq9Hg2pA=
 github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=
 github.com/tedsuo/ifrit v0.0.0-20180802180643-bea94bb476cc/go.mod h1:eyZnKCc955uh98WQvzOm0dgAeLnf2O0Rz0LPoC5ze+0=
-github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230612074549-364d4486091b h1:8d9LxuVWOeQUmXCxGTWaBPyNcq7yXpEXjym0DUORamM=
-github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230612074549-364d4486091b/go.mod h1:T9uKQvablAtaWhve07IJd0qQONf9pJvKxeAvu7YMgpM=
+github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230614055139-d1dc4bd1e000 h1:XNbqYXN/lEfeKS9aejj+M/a/BXcFveFcHUBTIdNX5KQ=
+github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230614055139-d1dc4bd1e000/go.mod h1:T9uKQvablAtaWhve07IJd0qQONf9pJvKxeAvu7YMgpM=
 github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877 h1:Islh3gpYlHC3ExZkyflYhstIbm5atIAU4nEE+rrFPNc=
 github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877/go.mod h1:Qn5WpD0eCo9hbV5zHlfrTNWZeW0q+zXO+miotc0JfYY=
 github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054 h1:6jZEjDzbjdyYXit1yujLvlHaVHY2sH0BwIRF9F6IB2Y=

@@ -10,14 +10,14 @@ import os
 
 const (
 	default_server_address = 'ws://127.0.0.1:8080'
-	ethereum_node_url = 'ws://'
+	mainnet_ethereum_node_url = 'ws://185.69.167.224:8546'
 	goerli_node_url        = 'ws://45.156.243.137:8546'
 )
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string, secret string) ! {
 	eth_url := match network {
 		"public" {
-			ethereum_node_url
+			mainnet_ethereum_node_url
 		}
 		"testnet" {
 			goerli_node_url

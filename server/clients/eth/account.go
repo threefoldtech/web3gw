@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	contractAddress      = "0x42aa90c3c5f3B3428b68A22d1C85bB68b2a7E3D7"
+	contractAddress      = "0xE04a9665bbA9B7954572802A9864dD1d03326792"
 	gasLimit             = 210000
 	timeoutCreateAccount = 300
 )
@@ -91,6 +91,7 @@ func (c *Client) CreateAndActivateStellarAccount(ctx context.Context, network st
 		return "", errors.Wrap(err, "failed to activate account")
 	}
 
+	// wait till account is activated
 	client := stellargoclient.GetHorizonClient(network)
 	for i := 0; i < int(timeoutCreateAccount); i++ {
 		select {
@@ -105,5 +106,5 @@ func (c *Client) CreateAndActivateStellarAccount(ctx context.Context, network st
 		}
 	}
 
-	return "", errors.New("failed to wait on creation of stellar account")
+	return "", errors.New("failed to wait on activation of stellar account")
 }

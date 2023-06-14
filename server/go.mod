@@ -24,7 +24,7 @@ require (
 	github.com/rs/zerolog v1.29.1
 	github.com/stellar/go v0.0.0-20230606222445-da99d595db9a
 	github.com/stretchr/testify v1.8.4
-	github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230612074549-364d4486091b
+	github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230614055139-d1dc4bd1e000
 	github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
 	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230511085814-333413419983
