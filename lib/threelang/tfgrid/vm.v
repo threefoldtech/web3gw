@@ -1,7 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { RemoveVMArgs, VM }
+import threefoldtech.threebot.tfgrid { RemoveVM, VM }
 import rand
 
 fn (mut t TFGridHandler) vm(action Action) ! {
@@ -48,7 +48,7 @@ fn (mut t TFGridHandler) vm(action Action) ! {
 			network := action.params.get('network')!
 			machine := action.params.get('machine')!
 
-			remove_res := t.tfgrid.remove_vm(RemoveVMArgs{
+			remove_res := t.tfgrid.remove_vm(RemoveVM{
 				network: network
 				vm_name: machine
 			})!

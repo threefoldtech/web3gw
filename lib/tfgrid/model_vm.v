@@ -7,7 +7,7 @@ pub mut:
 	vms              []GatewayedMachines // vms configs
 }
 
-struct GatewayedMachines {
+pub struct GatewayedMachines {
 pub:
 	machine MachineResult     // machine configs
 	gateway GatewayNameResult // gateway configs

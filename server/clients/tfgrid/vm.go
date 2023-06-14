@@ -61,7 +61,7 @@ type GatewayedMachines struct {
 	Gateway GatewayNameModel `json:"gateway"`
 }
 
-type RemoveVMArgs struct {
+type RemoveVM struct {
 	Network string `json:"network"`
 	VMName  string `json:"vm_name"`
 }
@@ -237,7 +237,7 @@ func (c *Client) DeleteVM(ctx context.Context, networkName string) error {
 	return nil
 }
 
-func (c *Client) RemoveVM(ctx context.Context, args RemoveVMArgs) (VMResult, error) {
+func (c *Client) RemoveVM(ctx context.Context, args RemoveVM) (VMResult, error) {
 	machinesModel, err := c.MachinesGet(ctx, args.Network)
 	if err != nil {
 		return VMResult{}, err

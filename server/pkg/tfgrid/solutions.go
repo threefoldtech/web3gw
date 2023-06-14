@@ -170,7 +170,7 @@ func (c *Client) DeleteVM(ctx context.Context, conState jsonrpc.State, networkNa
 	return state.cl.DeleteVM(ctx, networkName)
 }
 
-func (c *Client) RemoveVM(ctx context.Context, conState jsonrpc.State, args tfgridBase.RemoveVMArgs) (tfgridBase.VMResult, error) {
+func (c *Client) RemoveVM(ctx context.Context, conState jsonrpc.State, args tfgridBase.RemoveVM) (tfgridBase.VMResult, error) {
 	state := State(conState)
 	if state.cl == nil {
 		return tfgridBase.VMResult{}, pkg.ErrClientNotConnected{}
