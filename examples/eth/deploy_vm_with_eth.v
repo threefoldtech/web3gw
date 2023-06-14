@@ -11,19 +11,14 @@ import os
 
 const (
 	default_server_address = 'http://127.0.0.1:8080'
-	goerli_node_url        = 'ws://45.156.243.137:8546'
-	mainnet_ethereum_node = 'ws://185.69.167.224:8546'
+	mainnet_ethereum_node  = 'ws://185.69.167.224:8546'
 )
 
 [params]
 pub struct Arguments {
-	eth_secret string
-	eth_url    string
-
-	tfchain_network  string
+	eth_secret       string
 	tfchain_mnemonic string
-
-	ssh_key string
+	ssh_key          string
 }
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) ! {
@@ -32,23 +27,12 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 	mut stellar_client := stellar.new(mut client)
 	mut tfgrid_client := tfgrid.new(mut client)
 
-	eth_client.load(url: args.eth_url, secret: args.eth_secret)!
-	tfchain_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
-	tfgrid_client.load(network: args.tfchain_network, mnemonic: args.tfchain_mnemonic)!
+	eth_client.load(url: mainnet_ethereum_node, secret: args.eth_secret)!
+	tfchain_client.load(network: 'main', mnemonic: args.tfchain_mnemonic)!
+	tfgrid_client.load(network: 'main', mnemonic: args.tfchain_mnemonic)!
 
-	stellar_network := match args.tfchain_network {
-		"dev" {
-			"testnet"
-		}
-		"main" {
-			"public"
-		}
-		else {
-			return error("Invalid network ${args.tfchain_network}")
-		}
-	}
-	stellar_account_secret := eth_client.create_and_activate_stellar_account(stellar_network)!
-	stellar_client.load(network: stellar_network, secret: stellar_account_secret)!
+	stellar_account_secret := eth_client.create_and_activate_stellar_account('public')!
+	stellar_client.load(network: 'public', secret: stellar_account_secret)!
 	stellar_address := stellar_client.address()!
 	logger.info('Created stellar account ${stellar_address}')
 
@@ -136,7 +120,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 
 fn main() {
 	mut fp := flag.new_flag_parser(os.args)
-	fp.application('TODO')
+	fp.application('This tool allows you to deploy a vm on mainnet using ethereum. It requires you to have a valid ethereum mainnet account, some funds on it and a tfchain account')
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
@@ -145,10 +129,8 @@ fn main() {
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
 	eth_secret := fp.string('eth-secret', 0, '', 'The secret to use for eth.')
-	eth_url := fp.string('eth-node', 0, '${mainnet_ethereum_node}', 'The url of the ethereum node to connect to.')
 
 	tfchain_mnemonic := fp.string('tfchain-mnemonic', 0, '', 'The mnemonic of your tfchain account.')
-	tfchain_network := fp.string('tfchain-network', 0, 'main', 'The tfchain network to use.')
 
 	ssh_key := fp.string('ssh-key', 0, '', 'The SSH key that can be used to ssh into the vm later.')
 
@@ -171,8 +153,6 @@ fn main() {
 
 	arguments := Arguments{
 		eth_secret: eth_secret
-		eth_url: eth_url
-		tfchain_network: tfchain_network
 		tfchain_mnemonic: tfchain_mnemonic
 		ssh_key: ssh_key
 	}
