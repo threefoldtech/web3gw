@@ -15,6 +15,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, network string) !
 
 	seed := stellar_client.create_account(network)!
 
+	logger.info("Seed is ${seed} (keep this safe!!!!")
 	// empty string to account_data results in account data of loaded key
 	
 }

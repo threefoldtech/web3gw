@@ -2,7 +2,9 @@ package stellargoclient
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -19,16 +21,37 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 		return nil, err
 	}
 
-	tx, err := c.getTrustLineOperation(kp.Address())
+	payment := txnbuild.Payment{
+		SourceAccount: kp.Address(),
+		Destination:   kp.Address(),
+		Asset:         c.GetTftAsset(),
+		Amount:        "2",
+	}
+	params := txnbuild.TransactionParams{
+		SourceAccount: &horizon.Account{
+			AccountID: kp.Address(),
+		},
+		IncrementSequenceNum: true,
+		Operations:           []txnbuild.Operation{&payment},
+		BaseFee:              0,
+		Memo:                 nil,
+		Preconditions: txnbuild.Preconditions{
+			TimeBounds: txnbuild.NewInfiniteTimeout(),
+		},
+	}
+	tx, err := txnbuild.NewTransaction(params)
 	if err != nil {
 		return nil, err
 	}
 
-	// todo: use create account from txnbuild
-
+	xdrJson, err := tx.ToXDR().MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	base64EncodedXDR := base64.StdEncoding.EncodeToString(xdrJson)
 	url := c.GetTransactionFundingUrlFromNetwork(c.stellarNetwork)
 	postBody, _ := json.Marshal(map[string]string{
-		"transaction": tx.ToXDR().GoString(),
+		"transaction": base64EncodedXDR,
 	})
 	responseBody := bytes.NewBuffer(postBody)
 	resp, err := http.Post(url, "application/json", responseBody)
@@ -36,7 +59,51 @@ func (c *Client) GenerateAccount() (*keypair.Full, error) {
 		return nil, err
 	}
 
-	log.Debug().Msgf("Response: %s", resp.Status)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	data := map[string]string{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
+	errorMsg, ok := data["error"]
+	if ok {
+		return nil, errors.Errorf("%s", errorMsg)
+	}
+	base64EncodedXDR, ok = data["transaction_xdr"]
+	if !ok {
+		return nil, errors.Errorf("transaction_xdr not found in response from funding")
+	}
+
+	log.Debug().Msgf("XDR %s", base64EncodedXDR)
+
+	fundingTx, err := txnbuild.TransactionFromXDR(base64EncodedXDR)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, ok = fundingTx.Transaction()
+	if !ok {
+		return nil, err
+	}
+
+	xdrJson, err = tx.ToXDR().MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	base64EncodedXDR = base64.StdEncoding.EncodeToString(xdrJson)
+	log.Debug().Msgf("XDR after: %s", base64EncodedXDR)
+
+	c.kp = kp
+
+	err = c.SignAndSubmit(tx)
+	if err != nil {
+		return nil, err
+	}
+
 	return kp, nil
 }
 
