@@ -1,4 +1,10 @@
 # Height Action
 
-- action name: !!height.load
+- action name: !!eth.core.height
 - parameters:
+
+## Example
+
+```md
+  !!eth.core.height
+```

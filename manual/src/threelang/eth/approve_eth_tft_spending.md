@@ -1,5 +1,14 @@
 # Approve Eth TFT Spending Action
 
-- action name: !!eth.approve_eth_tft_spending
+Approves Eth TFT spending
+
+- action name: !!eth.core.approve_eth_tft_spending
 - parameters:
   - amount [required]
+
+## Example
+
+```md
+  !!eth.core.approve_eth_tft_spending
+      amount: 100
+```

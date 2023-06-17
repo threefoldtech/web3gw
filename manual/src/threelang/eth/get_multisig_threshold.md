@@ -1,4 +1,4 @@
-# Get multisig Threshold Action
+# Get Multisig Threshold Action
 
 - action name: !!eth.core.get_multisig_threshold
 - parameters:

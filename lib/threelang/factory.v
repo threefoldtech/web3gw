@@ -17,6 +17,7 @@ import threefoldtech.threebot.threelang.web3gw { Web3GWHandler }
 import threefoldtech.threebot.threelang.btc { BTCHandler }
 import threefoldtech.threebot.threelang.clients { Clients }
 import threefoldtech.threebot.threelang.tfchain { TFChainHandler }
+import threefoldtech.threebot.threelang.eth { EthHandler }
 
 const (
 	tfgrid_book = 'tfgrid'
@@ -31,6 +32,7 @@ pub mut:
 	tfgrid_handler TFGridHandler
 	web3gw_handler Web3GWHandler
 	btc_handler    BTCHandler
+	eth_handler EthHandler
 	tfchain_handler TFChainHandler
 }
 
@@ -67,6 +69,7 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 		btc_handler: btc_handler
 		web3gw_handler: web3gw_handler
 		clients: gw_clients
+		eth_handler: eth_handler
 	}
 
 	runner.run(mut ap)!
@@ -87,6 +90,9 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 			}
 			tfchain_book {
 				r.tfchain_handler.handle_action(action)!
+			}
+			'eth'{
+				r.eth_handler.handle_action(action)!
 			}
 			else {
 				return error('module ${action.book} is invalid')

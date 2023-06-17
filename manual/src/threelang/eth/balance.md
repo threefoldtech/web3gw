@@ -1,5 +1,12 @@
 # Balance Action
 
-- action name: !!eth.balance
+- action name: !!eth.core.balance
 - parameters:
   - address [required]
+
+## Example
+
+```md
+  !!eth.core.balance
+      address: b27a31f1b0af2946b7f582768f03239b1ec07c2c
+```
