@@ -2,7 +2,6 @@ package stellargoclient
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -15,96 +14,151 @@ import (
 	"github.com/stellar/go/txnbuild"
 )
 
+func (c *Client) getTFTTransactionFundingCondition() (feeWallet, fee string, err error) {
+	baseUrl := c.GetTransactionFundingUrlFromNetwork()
+	resp, err := http.Get(baseUrl + "/conditions")
+	if err != nil {
+		return
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	type Condition struct {
+		Asset          string
+		Fee_account_id string
+		Fee_fixed      string
+	}
+	conditions := make([]Condition, 0)
+	json.Unmarshal(body, &conditions)
+	tftAsset := c.GetTftAsset()
+	tftAssetString := tftAsset.GetCode() + ":" + tftAsset.GetIssuer()
+	for _, c := range conditions {
+		if c.Asset == tftAssetString {
+			feeWallet = c.Fee_account_id
+			fee = c.Fee_fixed
+			return
+		}
+	}
+	err = errors.New("Transaction funding condition for TFT not found")
+	return
+}
+func (c *Client) activateAccount() error {
+	url := c.GetActivationServiceUrl()
+	binaryPostdata, err := json.Marshal(map[string]string{
+		"address": c.kp.Address(),
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed Mashal data")
+	}
+	postDataReader := bytes.NewBuffer(binaryPostdata)
+	resp, err := http.Post(url+"/activate_account", "application/json", postDataReader)
+	if err != nil {
+		return errors.Wrap(err, "failed sending post")
+	}
+	responseData := ""
+	err = json.NewDecoder(resp.Body).Decode(&responseData)
+	if err != nil {
+		return err
+	}
+	responseDataJson := map[string]string{}
+	err = json.Unmarshal([]byte(responseData), &responseDataJson)
+	if err != nil {
+		return errors.Wrap(err, "failed decoding http post response")
+	}
+	if errorMsg, errorPresent := responseDataJson["error"]; errorPresent {
+		return errors.New(errorMsg)
+	}
+
+	xdr, ok := responseDataJson["activation_transaction"]
+	if !ok {
+		return errors.Errorf("activation_transaction not found in response")
+	}
+	return c.SignTransactionXdr(xdr)
+}
+
+func (c *Client) setTrustLine() error {
+	url := c.GetActivationServiceUrl()
+	asset := c.GetTftAsset()
+	binaryPostdata, err := json.Marshal(map[string]string{
+		"address": c.kp.Address(),
+		"asset":   asset.Code + ":" + asset.Issuer,
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed Mashal data")
+	}
+	postDataReader := bytes.NewBuffer(binaryPostdata)
+	resp, err := http.Post(url+"/fund_trustline", "application/json", postDataReader)
+	if err != nil {
+		return errors.Wrap(err, "failed sending post")
+	}
+	responseDataJson := map[string]string{}
+	err = json.NewDecoder(resp.Body).Decode(&responseDataJson)
+	if err != nil {
+		return errors.Wrap(err, "failed decoding http post response")
+	}
+	if errorMsg, errorPresent := responseDataJson["error"]; errorPresent {
+		return errors.New(errorMsg)
+	}
+	xdr, ok := responseDataJson["addtrustline_transaction"]
+	if !ok {
+		return errors.Errorf("addtrustline_transaction not found in response")
+	}
+	return c.SignTransactionXdr(xdr)
+}
+
 func (c *Client) GenerateAccount() (*keypair.Full, error) {
 	kp, err := keypair.Random()
 	if err != nil {
 		return nil, err
 	}
 
-	payment := txnbuild.Payment{
-		SourceAccount: kp.Address(),
-		Destination:   kp.Address(),
-		Asset:         c.GetTftAsset(),
-		Amount:        "2",
+	c.kp = kp
+
+	err = c.activateAccount()
+	if err != nil {
+		return nil, err
 	}
-	params := txnbuild.TransactionParams{
-		SourceAccount: &horizon.Account{
-			AccountID: kp.Address(),
-		},
+
+	err = c.setTrustLine()
+	if err != nil {
+		return nil, err
+	}
+	return kp, nil
+}
+
+func (c *Client) FundTransactionUsingTft(amount string) error {
+	feeAccount, fee, err := c.getTFTTransactionFundingCondition()
+	if err != nil {
+		return errors.Wrap(err, "failed to get tft transaction funding condition")
+	}
+
+	payment := txnbuild.Payment{
+		Destination: c.kp.Address(),
+		Amount:      amount,
+		Asset:       c.GetTftAsset(),
+	}
+	feePayment := txnbuild.Payment{
+		Destination: feeAccount,
+		Amount:      fee,
+		Asset:       c.GetTftAsset(),
+	}
+	sourceAccount, err := c.horizon.AccountDetail(horizonclient.AccountRequest{
+		AccountID: c.kp.Address(),
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to get accountdetail")
+	}
+	tx, err := txnbuild.NewTransaction(txnbuild.TransactionParams{
+		SourceAccount:        &sourceAccount,
 		IncrementSequenceNum: true,
-		Operations:           []txnbuild.Operation{&payment},
 		BaseFee:              0,
-		Memo:                 nil,
+		Operations:           []txnbuild.Operation{&payment, &feePayment},
 		Preconditions: txnbuild.Preconditions{
 			TimeBounds: txnbuild.NewInfiniteTimeout(),
 		},
-	}
-	tx, err := txnbuild.NewTransaction(params)
-	if err != nil {
-		return nil, err
-	}
-
-	xdrJson, err := tx.ToXDR().MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	base64EncodedXDR := base64.StdEncoding.EncodeToString(xdrJson)
-	url := c.GetTransactionFundingUrlFromNetwork(c.stellarNetwork)
-	postBody, _ := json.Marshal(map[string]string{
-		"transaction": base64EncodedXDR,
 	})
-	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post(url, "application/json", responseBody)
 	if err != nil {
-		return nil, err
+		return errors.Wrap(err, "failed to create transaction")
 	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	data := map[string]string{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return nil, err
-	}
-	errorMsg, ok := data["error"]
-	if ok {
-		return nil, errors.Errorf("%s", errorMsg)
-	}
-	base64EncodedXDR, ok = data["transaction_xdr"]
-	if !ok {
-		return nil, errors.Errorf("transaction_xdr not found in response from funding")
-	}
-
-	log.Debug().Msgf("XDR %s", base64EncodedXDR)
-
-	fundingTx, err := txnbuild.TransactionFromXDR(base64EncodedXDR)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, ok = fundingTx.Transaction()
-	if !ok {
-		return nil, err
-	}
-
-	xdrJson, err = tx.ToXDR().MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	base64EncodedXDR = base64.StdEncoding.EncodeToString(xdrJson)
-	log.Debug().Msgf("XDR after: %s", base64EncodedXDR)
-
-	c.kp = kp
-
-	err = c.SignAndSubmit(tx)
-	if err != nil {
-		return nil, err
-	}
-
-	return kp, nil
+	return c.SignFundAndSubmitTransaction(tx)
 }
 
 // Generates and activates an account on the stellar testnet

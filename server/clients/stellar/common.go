@@ -7,6 +7,7 @@ import (
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
 	"github.com/stellar/go/network"
+	stellarNetwork "github.com/stellar/go/network"
 	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/protocols/horizon/base"
 	"github.com/stellar/go/txnbuild"
@@ -17,8 +18,11 @@ const (
 	TESTNET_ISSUER               = "GA47YZA3PKFUZMPLQ3B5F2E3CJIB57TGGU7SPCQT2WAEYKN766PWIMB3"
 	MAINNET_ISSUER               = "GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47"
 	BaseFee                      = 1000000
-	testnetTransactionFunding    = "https://testnet.threefold.io/threefoldfoundation/transactionfunding_service/fund_transaction"
-	productionTransactionFunding = "https://tokenservices.threefold.io/threefoldfoundation/transactionfunding_service/fund_transaction"
+	testnetTransactionFunding    = "https://testnet.threefold.io/threefoldfoundation/transactionfunding_service"
+	productionTransactionFunding = "https://tokenservices.threefold.io/threefoldfoundation/transactionfunding_service"
+
+	testnetActivationService    = "https://testnet.threefold.io/threefoldfoundation/activation_service"
+	productionActivationService = "https://tokenservices.threefold.io/threefoldfoundation/activation_service"
 )
 
 var TestnetTft = txnbuild.CreditAsset{Code: TFT, Issuer: TESTNET_ISSUER}
@@ -100,7 +104,7 @@ func (c *Client) GetStellarNetworkPassphrase() string {
 	}
 }
 
-func (c *Client) GetTransactionFundingUrlFromNetwork(network string) string {
+func (c *Client) GetTransactionFundingUrlFromNetwork() string {
 	if c.stellarNetwork == "testnet" {
 		return testnetTransactionFunding
 	} else if c.stellarNetwork == "public" {
@@ -108,6 +112,23 @@ func (c *Client) GetTransactionFundingUrlFromNetwork(network string) string {
 	} else {
 		return testnetTransactionFunding
 	}
+}
+
+func (c *Client) GetActivationServiceUrl() string {
+	if c.stellarNetwork == "testnet" {
+		return testnetActivationService
+	} else if c.stellarNetwork == "public" {
+		return productionActivationService
+	} else {
+		return testnetActivationService
+	}
+}
+
+func (c *Client) getNetworkPassPhrase() string {
+	if c.stellarNetwork == "public" {
+		return stellarNetwork.PublicNetworkPassphrase
+	}
+	return stellarNetwork.TestNetworkPassphrase
 }
 
 func GetKeypairFromSeed(seed string) (*keypair.Full, error) {
