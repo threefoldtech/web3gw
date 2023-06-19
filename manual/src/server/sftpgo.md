@@ -40,7 +40,7 @@ You need to first clone our [fork](https://github.com/freeflowuniverse/aydo) of 
 Then you need to have an instance of OnlyOffice Document [server](https://github.com/ONLYOFFICE/DocumentServer) running. This can be done using the official docker image:
 
 ```bash
-docker run -i -t -d -p 8016:80 -e JWT_ENABLED=false onlyoffice/documentserver
+docker run -i -t -d -p 8016:80 -e JWT_ENABLED=false onlyoffice/documentserver:7.3
 ```
 
 In this instance the Document server would be accessible through <http://localhost:8016>

@@ -12,7 +12,7 @@ services:
     - SFTPGO_DEFAULT_ADMIN_USERNAME=${SFTPGO_DEFAULT_ADMIN_USERNAME}
     - SFTPGO_DEFAULT_ADMIN_PASSWORD=${SFTPGO_DEFAULT_ADMIN_PASSWORD}
   onlyoffice:
-    image: onlyoffice/documentserver
+    image: onlyoffice/documentserver:7.3
     ports:
     - 8016:80
     environment:
