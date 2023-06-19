@@ -1,15 +1,10 @@
 package stellargoclient
 
-import (
-	"github.com/stellar/go/clients/horizonclient"
-)
-
 func (c *Client) GetBalance(account string) (string, error) {
 	if account == "" {
 		account = c.kp.Address()
 	}
-	accountRequest := horizonclient.AccountRequest{AccountID: account}
-	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	hAccount, err := c.AccountData(account)
 	if err != nil {
 		return "", err
 	}

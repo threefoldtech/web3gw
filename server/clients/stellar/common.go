@@ -6,7 +6,6 @@ import (
 
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
-	"github.com/stellar/go/network"
 	stellarNetwork "github.com/stellar/go/network"
 	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/protocols/horizon/base"
@@ -96,11 +95,11 @@ func (c *Client) GetAssetFromString(asset string) (txnbuild.Asset, error) {
 // GetStellarNetworkPassphrase returns the passphrase for the stellar network
 func (c *Client) GetStellarNetworkPassphrase() string {
 	if c.stellarNetwork == "testnet" {
-		return network.TestNetworkPassphrase
+		return stellarNetwork.TestNetworkPassphrase
 	} else if c.stellarNetwork == "public" {
-		return network.PublicNetworkPassphrase
+		return stellarNetwork.PublicNetworkPassphrase
 	} else {
-		return network.TestNetworkPassphrase
+		return stellarNetwork.TestNetworkPassphrase
 	}
 }
 

@@ -17,7 +17,6 @@ type Client struct {
 // stellarNetwork can be "testnet" or "public"
 // if stellarNetwork is not "testnet" or "public" it will default to "testnet"
 func NewClient(secret, stellarNetwork string) (*Client, error) {
-
 	log.Debug().Msgf("Creating stellar client for the %s network", stellarNetwork)
 
 	cl := &Client{
@@ -34,22 +33,32 @@ func NewClient(secret, stellarNetwork string) (*Client, error) {
 		cl.kp = k
 
 		// check if account has trustline, if not add it
-		accountRequest := horizonclient.AccountRequest{AccountID: k.Address()}
-		hAccount, err := cl.horizon.AccountDetail(accountRequest)
+		hAccount, err := cl.AccountData(k.Address())
 		if err != nil {
 			return nil, errors.Wrap(err, "account does not exist")
 		}
 
 		if !hasTrustline(hAccount, cl.GetTftBaseAsset()) {
 			log.Debug().Msgf("Adding trustline for account %s", k.Address())
-			cl.SetTrustLine(k.Address())
+			cl.setTrustLine()
 		}
 	} else {
-		k, err := cl.GenerateAccount()
+		kp, err := keypair.Random()
 		if err != nil {
 			return nil, err
 		}
-		cl.kp = k
+
+		cl.kp = kp
+
+		err = cl.activateAccount()
+		if err != nil {
+			return nil, err
+		}
+
+		err = cl.setTrustLine()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return cl, nil

@@ -36,8 +36,7 @@ func (c *Client) Swap(sourceAsset string, destinationAsset string, amount string
 	if err != nil {
 		return err
 	}
-	accountRequest := horizonclient.AccountRequest{AccountID: c.kp.Address()}
-	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	hAccount, err := c.AccountData(c.kp.Address())
 	if err != nil {
 		return errors.Wrap(err, "account does not exist")
 	}
@@ -71,8 +70,7 @@ func (c *Client) Swap(sourceAsset string, destinationAsset string, amount string
 }
 
 func (c *Client) Transfer(destination, memo string, amount string) (string, error) {
-	accountRequest := horizonclient.AccountRequest{AccountID: c.kp.Address()}
-	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	hAccount, err := c.AccountData(c.kp.Address())
 	if err != nil {
 		return "", errors.Wrap(err, "account does not exist")
 	}
@@ -81,8 +79,7 @@ func (c *Client) Transfer(destination, memo string, amount string) (string, erro
 		return "", errors.New("source account does not have trustline")
 	}
 
-	destAccountRequest := horizonclient.AccountRequest{AccountID: destination}
-	destHAccount, err := c.horizon.AccountDetail(destAccountRequest)
+	destHAccount, err := c.AccountData(destination)
 	if err != nil {
 		return "", errors.Wrap(err, "account does not exist")
 	}

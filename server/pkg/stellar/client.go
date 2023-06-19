@@ -130,7 +130,6 @@ func (c *Client) CreateAccount(ctx context.Context, conState jsonrpc.State, netw
 	state.network = network
 
 	kp := state.Client.KeyPair()
-
 	return kp.Seed(), nil
 }
 
