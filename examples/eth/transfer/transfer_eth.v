@@ -54,7 +54,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, secret, destination, eth_url) or {
+	execute_rpcs(mut myclient, mut logger, secret, destination, amount, eth_url) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}

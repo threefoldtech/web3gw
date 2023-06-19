@@ -1,7 +1,5 @@
 module tfgrid
 
-import threefoldtech.threebot.tfgrid
-
 pub struct Presearch {
 pub:
 	name        string
