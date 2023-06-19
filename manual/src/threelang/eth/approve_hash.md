@@ -1,8 +1,8 @@
 # Approve Hash Action
 
-Approves a transaction hash
+> approves a hash for the given multisig contract.
 
-- action name: !!eth.core.approve_hash
+- action name: !!eth.multisig.approve_hash
 - parameters:
   - contract_address [required]
     - contract address
@@ -12,7 +12,7 @@ Approves a transaction hash
 ## Example
 
 ```md
-  !!eth.core.approve_hash
+  !!eth.multisig.approve_hash
       contract_address: b27a31f1b0af2946b7f582768f03239b1ec07c2c
       hash: 0x00000000000000000000000000000000
 ```

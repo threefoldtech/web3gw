@@ -1,6 +1,8 @@
 # Transfer Eth TFT Action
 
-- action name: !!eth.core.transfer_eth_tft
+> transfers tft from an account on ethereum to another
+
+- action name: !!eth.transfer.tft
 - parameters:
   - destination [required]
   - amount [required]
@@ -8,7 +10,7 @@
 ## Example
 
 ```md
-  !!eth.core.transfer_eth_tft
+  !!eth.transfer.tft
       destination: b27a31f1b0af2946b7f582768f03239b1ec07c2c
       amount: 100
 ```

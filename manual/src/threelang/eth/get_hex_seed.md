@@ -1,10 +1,12 @@
 # Get Hex Seed Action
 
-- action name: !!eth.core.get_hex_seed
+> get_hex_seed returns the hex seed for the current loaded account.
+
+- action name: !!eth.account.hex_seed
 - parameters:
 
 ## Example
 
 ```md
-  !!eth.core.get_hex_seed
+  !!eth.account.hex_seed
 ```

@@ -1,10 +1,12 @@
 # Height Action
 
-- action name: !!eth.core.height
+> height returns the current block height.
+
+- action name: !!eth.block.height
 - parameters:
 
 ## Example
 
 ```md
-  !!eth.core.height
+  !!eth.block.height
 ```

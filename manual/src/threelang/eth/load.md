@@ -1,5 +1,7 @@
 # Load Action
 
+> loads a new eth client
+
 - action name: !!eth.core.load
 - parameters:
   - url [required]

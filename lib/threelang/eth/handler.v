@@ -25,6 +25,36 @@ pub fn (mut h EthHandler) handle_action(action Action) ! {
 		'core' {
 			h.core(action)!
 		}
+		'account' {
+			h.account(action)!
+		}
+		'transfer' {
+			h.transfer(action)!
+		}
+		'balance' {
+			h.balance(action)!
+		}
+		'block' {
+			h.block(action)!
+		}
+		'multisig' {
+			h.multisig(action)!
+		}
+		'swap' {
+			h.swap(action)!
+		}
+		'bridge' {
+			h.bridge(action)!
+		}
+		'fungible' {
+			h.fungible(action)!
+		}
+		'token' {
+			h.token(action)!
+		}
+		'tft' {
+			h.tft(action)!
+		}
 		else {
 			return error('actor ${action.actor} is invalid')
 		}

@@ -1,12 +1,12 @@
 # Address Action
 
-Returns user address.
+> address returns the current loaded eth address.
 
-- action name: !!eth.core.address
+- action name: !!eth.account.address
 - parameters:
 
 ## Example
 
 ```md
-  !!eth.core.address
+  !!eth.account.address
 ```

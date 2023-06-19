@@ -1,14 +1,14 @@
 # Approve Eth TFT Spending Action
 
-Approves Eth TFT spending
+> approves the given amount of TFT to be swapped
 
-- action name: !!eth.core.approve_eth_tft_spending
+- action name: !!eth.swap.approve_eth_tft_spending
 - parameters:
   - amount [required]
 
 ## Example
 
 ```md
-  !!eth.core.approve_eth_tft_spending
+  !!eth.swap.approve_eth_tft_spending
       amount: 100
 ```
