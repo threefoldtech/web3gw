@@ -31,6 +31,7 @@
   - [nostr](examples/nostr/examples.md)
     - [pubsub](examples/nostr/pubsub.md)
     - [chat](examples/nostr/chat.md)
+    - [channels](examples/nostr/channels.md)
   - [stellar](examples/stellar/examples.md)
     - [balance](examples/stellar/balance.md)
     - [send](examples/stellar/send.md)
