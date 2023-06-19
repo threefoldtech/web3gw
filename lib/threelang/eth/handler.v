@@ -1,6 +1,6 @@
 module eth
 
-import threefoldtech.threebot.eth { EthClient }
+import threefoldtech.threebot.eth as eth_client { EthClient }
 import freeflowuniverse.crystallib.actionsparser { Action }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import log { Logger }
@@ -12,10 +12,10 @@ pub mut:
 }
 
 pub fn new(mut rpc_client RpcWsClient, logger Logger) EthHandler {
-	mut eth_client := eth.new(mut rpc_client)
+	mut client := eth_client.new(mut rpc_client)
 
 	return EthHandler{
-		client: eth_client
+		client: client
 		logger: logger
 	}
 }

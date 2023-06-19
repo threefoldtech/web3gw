@@ -8,10 +8,7 @@ fn (mut h EthHandler) transfer(action Action) ! {
 			destination := action.params.get('destination')!
 			amount := action.params.get('amount')!
 
-			res := h.client.transfer(Transfer{
-				destination: destination
-				amount: amount
-			})!
+			res := h.client.transfer(destination: destination, amount: amount)!
 
 			h.logger.info('${res}')
 		}

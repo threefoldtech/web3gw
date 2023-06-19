@@ -16,7 +16,7 @@ fn (mut h EthHandler) token(action Action) ! {
 			destination := action.params.get('destination')!
 			amount := action.params.get('amount')!
 
-			res := h.client.token_transer(
+			res := h.client.token_transfer(
 				contract_address: contract_address
 				destination: destination
 				amount: amount
