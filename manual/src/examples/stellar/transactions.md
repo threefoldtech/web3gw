@@ -13,5 +13,5 @@ Get the last transactions of an account
 - `-n`: network (testnet/public, default=public)
 
 ```sh
-v -cg run balance.v -s stellar_secret -n testnet
+v -cg run transactions.v -s stellar_secret -n testnet
 ```
