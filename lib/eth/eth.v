@@ -137,7 +137,7 @@ pub fn (mut e EthClient) load(args Load) ! {
 }
 
 // transfer eth
-pub fn (mut e EthClient) transer(args Transfer) !string {
+pub fn (mut e EthClient) transfer(args Transfer) !string {
 	return e.client.send_json_rpc[[]Transfer, string]('eth.Transfer', [args], eth.default_timeout)!
 }
 
@@ -167,7 +167,7 @@ pub fn (mut e EthClient) token_balance(contractAddress string) !string {
 }
 
 // token_transfer transfers tokens to the given address.
-pub fn (mut e EthClient) token_transer(args TokenTransfer) !string {
+pub fn (mut e EthClient) token_transfer(args TokenTransfer) !string {
 	return e.client.send_json_rpc[[]TokenTransfer, string]('eth.TransferTokens', [
 		args,
 	], eth.default_timeout)!

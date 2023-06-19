@@ -20,7 +20,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, de
 	mut eth_balance := eth_client.balance(address)!
 	logger.info('eth balance: ${eth_balance}\n')
 
-	mut balance := eth_client.get_tft_eth_balance()!
+	mut balance := eth_client.get_tft_balance()!
 	logger.info('tft balance: ${balance}\n')
 
 	mut res := eth_client.transfer_eth_tft(destination: destination, amount: amount)!
@@ -57,7 +57,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, secret, destination, eth_url) or {
+	execute_rpcs(mut myclient, mut logger, secret, destination, amount, eth_url) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
