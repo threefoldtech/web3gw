@@ -2,18 +2,18 @@
 Query and filter farms on the chain.
 
 ## Filter farms
-- action name: !!explor.farms.filter
+- action name: !!explorer.farms.filter
 - parameters:
-	- `free_ips`: number of free public IPs on the farm
-	- `total_ips`: number of total public IPs on the farm
-	- `stellar_address`: farm stellar address
-	- `pricing_policy_id`: farm pricing policy id 
-	- `farm_id`: farm id 
-	- `twin_id`: twin id for the farm
-	- `name`: full name of the farm (case-sensitive)
-	- `name_contains`: substring of the farm name (case-insensitive)
-	- `certification_type`: farm certification type (`DIY`, `Gold`)
-	- `dedicated`: true if the farm is dedicated
+    - `free_ips`: number of free public IPs on the farm
+    - `total_ips`: number of total public IPs on the farm
+    - `stellar_address`: farm stellar address
+    - `pricing_policy_id`: farm pricing policy id 
+    - `farm_id`: farm id 
+    - `twin_id`: twin id for the farm
+    - `name`: full name of the farm (case-sensitive)
+    - `name_contains`: substring of the farm name (case-insensitive)
+    - `certification_type`: farm certification type (`DIY`, `Gold`)
+    - `dedicated`: true if the farm is dedicated
 
 
     - `size`: size of the returned batch of the farms. default is 50
@@ -24,16 +24,16 @@ Query and filter farms on the chain.
 - examples:
     - get specific farm by it's id
         ```bash
-        !!explor.farms.filter
+        !!explorer.farms.filter
             farm_id: 1
         ```
     - get all farms that marked as dedicated
         ```bash
-        !!explor.farms.filter
+        !!explorer.farms.filter
             dedicated: true
         ```
     - filter farms based on capacity
         ```bash
-        !!explor.farms.filter
+        !!explorer.farms.filter
             free_ips: 2
         ```

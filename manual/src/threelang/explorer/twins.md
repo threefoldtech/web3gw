@@ -2,7 +2,7 @@
 Query and filter twins on the chain.
 
 ## Filter twins
-- action name: !!explor.twins.filter
+- action name: !!explorer.twins.filter
 - parameters:
     - `twin_id`: twin id
     - `account_id`: twin account address
@@ -18,11 +18,11 @@ Query and filter twins on the chain.
 - examples:
     - get specific twin by it's id
         ```bash
-        !!explor.twins.filter
+        !!explorer.twins.filter
             twin_id: 29
         ```
     - get twin by it's account address
         ```bash
-        !!explor.twins.filter
+        !!explorer.twins.filter
             account_id:'5FiC58mQ3J8dbfpUwDvSxYAgnW5uibmubJoATMFwkT6tC2Sn'
         ```
