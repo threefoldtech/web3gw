@@ -109,30 +109,28 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 	if args.Network != stellarNetworkTestnet && args.Network != stellarNetworkPublic {
 		return ErrUnknownNetwork{}
 	}
-	cl, err := stellargoclient.NewClient(args.Secret, args.Network)
-	if err != nil {
-		return err
+	state := State(conState)
+	if state.Client == nil {
+		state := State(conState)
+		state.Client = stellargoclient.NewClient(args.Network)
+		state.network = args.Network
 	}
 
-	state := State(conState)
-	state.Client = cl
-	state.network = args.Network
-
-	return nil
+	return state.Client.Load(args.Secret)
 }
 
 func (c *Client) CreateAccount(ctx context.Context, conState jsonrpc.State, network string) (string, error) {
-	cl, err := stellargoclient.NewClient("", network)
-	if err != nil {
-		return "", err
+	if network != stellarNetworkTestnet && network != stellarNetworkPublic {
+		return "", ErrUnknownNetwork{}
+	}
+	state := State(conState)
+	if state.Client == nil {
+		state := State(conState)
+		state.Client = stellargoclient.NewClient(network)
+		state.network = network
 	}
 
-	state := State(conState)
-	state.Client = cl
-	state.network = network
-
-	kp := state.Client.KeyPair()
-	return kp.Seed(), nil
+	return state.Client.CreateAccount()
 }
 
 // Get the public address of the loaded stellar secret

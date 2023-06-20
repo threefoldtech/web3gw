@@ -6,11 +6,54 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
 	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/txnbuild"
 )
+
+func (c *Client) Load(secret string) error {
+	k, err := GetKeypairFromSeed(secret)
+	if err != nil {
+		return err
+	}
+	c.kp = k
+
+	// check if account has trustline, if not add it
+	hAccount, err := c.AccountData(k.Address())
+	if err != nil {
+		return errors.Wrap(err, "account does not exist")
+	}
+
+	if !hasTrustline(hAccount, c.GetTftBaseAsset()) {
+		log.Debug().Msgf("Adding trustline for account %s", k.Address())
+		c.setTrustLine()
+	}
+
+	return nil
+}
+
+func (c *Client) CreateAccount() (string, error) {
+	kp, err := keypair.Random()
+	if err != nil {
+		return "", err
+	}
+
+	c.kp = kp
+
+	err = c.activateAccount()
+	if err != nil {
+		return "", err
+	}
+
+	err = c.setTrustLine()
+	if err != nil {
+		return "", err
+	}
+
+	return kp.Seed(), nil
+}
 
 // Activates the account using the activation service https://github.com/threefoldfoundation/tft-stellar/tree/master/ThreeBotPackages/activation_service
 func (c *Client) activateAccount() error {
