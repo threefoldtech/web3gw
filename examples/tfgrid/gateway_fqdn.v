@@ -15,7 +15,7 @@ fn deploy_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDNResult
 
 	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
 	node_id := fp.int('node_id', `i`, 0, 'Node ID to deploy on')
-	tls_passthrough := fp.bool('tls_passthrough', `t`, false, 'Enable TLS passthrough')
+	tls_passthrough := fp.bool('tls_passthrough', `t`, false, 'if false will terminate the certificates on the gateway, else will passthrough the request as is.')
 	backend := fp.string_opt('backend', `b`, 'Backend of the gateway')!
 	fqdn := fp.string_opt('fqdn', `f`, 'FQDN of the gateway')!
 	_ := fp.finalize()!

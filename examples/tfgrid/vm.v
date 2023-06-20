@@ -63,7 +63,7 @@ fn delete_vm(mut fp FlagParser, mut t TFGridClient) ! {
 }
 
 fn remove_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
-	fp.usage_example('delete [options]')
+	fp.usage_example('remove [options]')
 
 	network := fp.string_opt('vm_network', `v`, 'Name of the VM network')!
 	vm_name := fp.string_opt('vm', `v`, 'Name of the VM to be removed')!

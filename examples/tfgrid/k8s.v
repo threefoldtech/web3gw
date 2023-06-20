@@ -15,7 +15,7 @@ fn deploy_k8s(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
 	fp.usage_example('deploy [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the cluster')!
-	token := fp.string('token', `t`, rand.string(6).to_lower(), 'Token for the cluster, used to let workers join the cluster')
+	token := fp.string('token', `t`, rand.string(20), 'Token for the cluster, used to let workers join the cluster')
 	ssh_key := fp.string_opt('ssh_key', `s`, 'Public SSH Key to access any cluster node')!
 	number_of_workers := fp.int('workers', `w`, 1, 'Number of workers to add to the cluster')
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
