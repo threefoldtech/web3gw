@@ -44,6 +44,7 @@ pub struct Transactions {
 	limit u32 // limit the amount of transactions to gather with this argument, this is 10 by default
 	include_failed bool // include the failed arguments
 	cursor string // list the last transactions starting from this cursor, leave empty to start from the top
+	ascending bool // order the transactions in ascending order
 }
 
 [openrpc: exclude]
@@ -65,7 +66,7 @@ pub fn (mut s StellarClient) load(args Load) ! {
 	_ := s.client.send_json_rpc[[]Load, string]('stellar.Load', [args], stellar.default_timeout)!
 }
 
-// Load a client, connecting to the rpc endpoint at the given network and loading a keypair from the given secret.
+// Creates an account on the provided network and returns the seed. Consecutive calls will be using the newly created account.
 pub fn (mut s StellarClient) create_account(network string) !string {
 	return s.client.send_json_rpc[[]string, string]('stellar.CreateAccount', [network], stellar.default_timeout)!
 }

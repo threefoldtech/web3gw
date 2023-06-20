@@ -17,10 +17,10 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string) ! 
 	mut stellar_client := stellar.new(mut client)
 	eth_client.load(url: mainnet_ethereum_node_url, secret: secret)!
 
-	stellar_secret := eth_client.create_and_activate_stellar_account('production')!
+	stellar_secret := eth_client.create_and_activate_stellar_account('public')!
 	logger.info('Secret: ${stellar_secret} (keep it safe!!!)')
 
-	stellar_client.load(network: 'production', secret: stellar_secret)!
+	stellar_client.load(network: 'public', secret: stellar_secret)!
 
 	address := stellar_client.address()!
 	logger.info('Address: ${address}')

@@ -1,15 +1,11 @@
 package stellargoclient
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/stellar/go/clients/horizonclient"
-	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/txnbuild"
 )
@@ -188,61 +184,4 @@ func (c *Client) GetTfchainBridgeAddress() (string, error) {
 	} else {
 		return "", errors.New("bsc address not available for networks other than public")
 	}
-}
-
-func (c *Client) AwaitTransactionWithMemo(ctx context.Context, account string, memo string, timeout int) error {
-	memo = strings.TrimPrefix(memo, "0x")
-	for i := 0; i < int(timeout); i++ {
-		select {
-		case <-time.After(1 * time.Second):
-			transactions, err := c.Transactions(account, 10, false, "")
-			if err != nil {
-				return err
-			}
-			for _, tx := range transactions {
-				decodedMemo, err := base64.StdEncoding.DecodeString(tx.Memo)
-				if err == nil {
-					hexDecodedMemo := hex.EncodeToString(decodedMemo)
-					if hexDecodedMemo == memo {
-						return nil
-					}
-				}
-			}
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-	}
-	return errors.New("transaction not found")
-}
-
-func (c *Client) AwaitTransactionWithMemoOnEthBridge(ctx context.Context, memo string, timeout int) error {
-	bridgeAddress, err := c.GetEthBridgeAddress()
-	if err != nil {
-		return err
-	}
-	return c.AwaitTransactionWithMemo(ctx, bridgeAddress, memo, timeout)
-}
-
-func (c *Client) AwaitForTransactionWithMemoOnTfchainBridge(ctx context.Context, memo string, timeout int) error {
-	bridgeAddress, err := c.GetTfchainBridgeAddress()
-	if err != nil {
-		return err
-	}
-	return c.AwaitTransactionWithMemo(ctx, bridgeAddress, memo, timeout)
-}
-
-func (c *Client) Transactions(account string, limit uint, includeFailed bool, cursor string) ([]horizon.Transaction, error) {
-	transactionRequest := horizonclient.TransactionRequest{
-		ForAccount:    account,
-		Limit:         limit,
-		Order:         horizonclient.OrderDesc,
-		IncludeFailed: includeFailed,
-		Cursor:        cursor,
-	}
-
-	txs, err := c.horizon.Transactions(transactionRequest)
-	if err != nil {
-		return []horizon.Transaction{}, err
-	}
-	return txs.Embedded.Records, nil
 }

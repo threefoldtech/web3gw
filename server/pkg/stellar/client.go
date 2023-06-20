@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
+	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/protocols/horizon"
 	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
@@ -58,6 +59,7 @@ type (
 		Limit         uint   `json:"limit"`
 		IncludeFailed bool   `json:"include_failed"`
 		Cursor        string `json:"cursor"`
+		Ascending     bool   `json:"ascending"`
 	}
 
 	AccountData struct {
@@ -230,7 +232,12 @@ func (c *Client) Transactions(ctx context.Context, conState jsonrpc.State, args 
 		args.Account = state.Client.Address()
 	}
 
-	return state.Client.Transactions(args.Account, args.Limit, args.IncludeFailed, args.Cursor)
+	order := horizonclient.OrderDesc
+	if args.Ascending {
+		order = horizonclient.OrderAsc
+	}
+
+	return state.Client.Transactions(args.Account, args.Limit, args.IncludeFailed, args.Cursor, order)
 }
 
 // Get data related to a stellar account
