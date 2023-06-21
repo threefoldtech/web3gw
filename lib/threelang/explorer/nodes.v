@@ -1,10 +1,11 @@
 module explorer
 
 import freeflowuniverse.crystallib.actionparser { Action }
+import threefoldtech.threebot.tfgrid { Limit, NodesRequestParams, NodeFilter }
 
 fn (mut h ExplorerHandler) nodes(action Action) ! {
 	match action.name {
-		'get' {
+		'filter' {
 			status := action.params.get_default('status', 'up')!
 			node_id := action.params.get_default('node_id', 0)!
 			free_mru := action.params.get_storagecapacity_in_bytes('free_mru') or { 0 }
@@ -45,8 +46,31 @@ fn (mut h ExplorerHandler) nodes(action Action) ! {
 
 			req := NodesRequestParams{
 				filters: NodeFilter{
-					id: node_id,
 					status: status,
+					node_id: node_id,
+					free_mru: free_mru,
+					free_hru: free_hru,
+					free_sru: free_sru,
+					total_mru: total_mru,
+					total_hru: total_hru,
+					total_sru: total_sru,
+					total_cru: total_cru,
+					country: country,
+					country_contains: country_contains,
+					city: city,
+					city_contains: city_contains ,
+					farm_name: farm_name ,
+					farm_name_contains: farm_name_contains ,
+					farm_id: farm_id ,
+					free_ips: free_ips ,
+					domain: domain,
+					ipv4: ipv4,
+					dedicated: dedicated ,
+					rentable: rentable ,
+					rented: rented ,
+					rented_by: rented_by ,
+					available_for: available_for ,
+					twin_id: twin_id,
 				},
 				pagination: Limit{
 					page: page,
@@ -58,6 +82,19 @@ fn (mut h ExplorerHandler) nodes(action Action) ! {
 
 			res := h.explorer.nodes()!
 			h.logger.info('nodes: ${res}')
+		}
+		'get' {
+			node_id := action.params.get_default('node_id', 0)!
+			res := h.explorer.node(node_id)!
+			h.logger.info('node: ${res}')
+		}
+		'status' {
+			node_id := action.params.get_default('node_id', 0)!
+			res := h.explorer.node_status(node_id)!
+			h.logger.info('node status: ${res}')
+		}
+		else {
+			return error('unknown action: ${action.name}')
 		}
 	}
 }
