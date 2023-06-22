@@ -76,7 +76,7 @@ pub fn (mut s StellarClient) address() !string {
 	return s.client.send_json_rpc[[]string, string]('stellar.Address', []string{}, default_timeout)!
 }
 
-// Swap tokens from one asset type to the other
+// Swap tokens from one asset type to the other (for example from tft to xlm)
 pub fn (mut s StellarClient) swap(args Swap) !string {
 	return s.client.send_json_rpc[[]Swap, string]('stellar.Swap', [args], default_timeout)!
 }

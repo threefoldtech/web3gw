@@ -143,7 +143,7 @@ func (c *Client) Address(ctx context.Context, conState jsonrpc.State) (string, e
 	return state.Client.Address(), nil
 }
 
-// TODO
+// Swap some amount from one asset to the other (for example from tft to xlm)
 func (c *Client) Swap(ctx context.Context, conState jsonrpc.State, args Swap) error {
 	state := State(conState)
 	if state.Client == nil {
