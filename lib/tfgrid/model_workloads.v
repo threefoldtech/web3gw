@@ -39,7 +39,7 @@ pub:
 	console_url string [json: 'console_url']
 }
 
-pub struct MachineNetwork {
+struct MachineNetwork {
 	public_ip  string             [json: 'public_ip']
 	planetary  bool               [json: 'planetary']
 	interfaces []MachineInterface [json: 'interfaces']

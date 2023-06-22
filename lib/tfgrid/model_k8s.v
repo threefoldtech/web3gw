@@ -1,72 +1,28 @@
 module tfgrid
 
-[params]
-pub struct K8sCluster {
-	name    string    [required]
-	token   string    [required]
-	ssh_key string    [required]
-	master  K8sNode   [required]
-	workers []K8sNode
-}
-
 pub struct K8sClusterResult {
-	name    string
-	token   string
-	ssh_key string
-	master  K8sNode
-	workers []K8sNode
-}
-
-pub struct K8sNode {
-	name       string [required]
-	node_id    u32
-	farm_id    u32
-	public_ip  bool
-	public_ip6 bool
-	planetary  bool   = true
-	flist      string = 'https://hub.grid.tf/tf-official-apps/threefoldtech-k3s-latest.flist'
-	cpu        u32    [required] // number of vcpu cores.
-	memory     u32    [required] // in MBs
-	disk_size  u32 = 10 // in GB, monted in /mydisk
+	name                 string    // cluster name
+	token                string    // cluster token, workers must have this token to join the cluster
+	ssh_key              string    // public ssh key to access the instance in a later stage
+	master               K8sNode   // master configs
+	workers              []K8sNode // workers configs
+	add_wireguard_access bool      // if true, adds a wireguard access point to the network
 }
 
 pub struct K8sNodeResult {
-	name       string
-	node_id    u32
-	farm_id    u32
-	public_ip  bool
-	public_ip6 bool
-	planetary  bool
-	flist      string
-	cpu        u32
-	memory     u32
-	disk_size  u32
+	name       string // name of the cluster node
+	node_id    u32    // node id that this node was deployed on
+	farm_id    u32    // farm id that this node was deployed on
+	public_ip  bool   // whether or not a public ipv4 was added to this node
+	public_ip6 bool   // whether or not a public ipv6 was added to this node
+	planetary  bool   // whether or not a yggdrasil ip was added to this node
+	flist      string // flist of this node
+	cpu        u32    // number of vcpu cores
+	memory     u32    // node memory in MBs
+	disk_size  u32    // size of disk mounted on this node in GB
 	// computed
-	computed_ip4 string
-	computed_ip6 string
-	wg_ip        string
-	ygg_ip       string
-}
-
-// GetK8sParams defines the params needed to get a k8s cluster
-pub struct GetK8sParams {
-pub:
-	cluster_name string // cluster name
-	master_name  string // master node's name
-}
-
-// AddK8sWorker defines the params needed to add a new worker to an existing cluster
-pub struct AddK8sWorker {
-pub:
-	worker       K8sNode // the new worker
-	cluster_name string  // cluster name
-	master_name  string  // master node's name
-}
-
-// RemoveK8sWorker defines the params needed to remove a worker from an existing cluster
-pub struct RemoveK8sWorker {
-pub:
-	cluster_name string // cluster name
-	worker_name  string // worker name
-	master_name  string // master node's name
+	computed_ip4 string // public ipv4 attached to this node, if any
+	computed_ip6 string // public ipv6 attached to this node, if any
+	wg_ip        string // wireguard private ip of this node
+	ygg_ip       string // ygg ip attached to this node, if any
 }

@@ -1,40 +1,115 @@
 module main
 
-import threefoldtech.threebot.tfgrid
-import log
+import threefoldtech.threebot.tfgrid { GatewayName, GatewayNameResult, TFGridClient }
+import log { Logger }
+import flag { FlagParser }
+import os
+import freeflowuniverse.crystallib.rpcwebsocket
 
-fn test_name_gw_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
-	gw_name := 'qowienfoiqw'
+const (
+	default_server_address = 'ws://127.0.0.1:8080'
+)
 
-	res := client.gateways_deploy_name(tfgrid.GatewayName{
-		name: gw_name
-		backends: ['http://1.1.1.1:9000']
-		node_id: 2
+fn deploy_gateway_name(mut fp FlagParser, mut t TFGridClient) !GatewayNameResult {
+	fp.usage_example('deploy [options]')
+
+	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
+	node_id := fp.int('node_id', `i`, 0, 'Node ID to deploy on')
+	tls_passthrough := fp.bool('tls_passthrough', `t`, false, 'Enable TLS passthrough')
+	backend := fp.string_opt('backend', `b`, 'Backend of the gateway')!
+	_ := fp.finalize()!
+
+	return t.gateways_deploy_name(GatewayName{
+		name: name
+		node_id: u32(node_id)
+		tls_passthrough: tls_passthrough
+		backends: [backend]
 	})!
-	logger.info('${res}')
+}
 
-	defer {
-		client.gateways_delete_name(gw_name) or {
-			logger.error('failed to delete gateway name: ${err}')
-		}
-	}
+fn get_gateway_name(mut fp FlagParser, mut t TFGridClient) !GatewayNameResult {
+	fp.usage_example('get [options]')
 
-	res_2 := client.gateways_get_name(gw_name)!
-	logger.info('${res_2}')
+	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
+	_ := fp.finalize()!
+
+	return t.gateways_get_name(name)!
+}
+
+fn delete_gateway_name(mut fp FlagParser, mut t TFGridClient) ! {
+	fp.usage_example('delete [options]')
+
+	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
+	_ := fp.finalize()!
+
+	return t.gateways_delete_name(name)
 }
 
 fn main() {
-	mut logger := log.Log{
-		level: .info
-	}
+	mut fp := flag.new_flag_parser(os.args)
+	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
+	fp.description('')
+	fp.skip_executable()
+	fp.allow_unknown_args()
 
-	mut tfgrid_client, _ := tfgrid.cli(mut logger) or {
-		logger.error('failed to initialize tfgrid client: ${err}')
+	mnemonic := fp.string_opt('mnemonic', `m`, 'The mnemonic to be used to call any function') or {
+		eprintln('${err}')
+		exit(1)
+	}
+	network := fp.string('network', `n`, 'dev', 'TF network to use')
+	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
+	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
+	operation := fp.string_opt('operation', `o`, 'Required operation to perform ')!
+	remainig_args := fp.finalize() or {
+		eprintln('${err}')
 		exit(1)
 	}
 
-	test_name_gw_ops(mut tfgrid_client, mut logger) or {
-		logger.error('${err}')
+	mut logger := Logger(&log.Log{
+		level: if debug_log { .debug } else { .info }
+	})
+
+	mut myclient := rpcwebsocket.new_rpcwsclient(address, &logger) or {
+		logger.error('Failed creating rpc websocket client: ${err}')
 		exit(1)
+	}
+
+	_ := spawn myclient.run()
+
+	mut tfgrid_client := tfgrid.new(mut myclient)
+
+	tfgrid_client.load(tfgrid.Credentials{
+		mnemonic: mnemonic
+		network: network
+	})!
+
+	match operation {
+		'deploy' {
+			mut new_fp := flag.new_flag_parser(remainig_args)
+			res := deploy_gateway_name(mut new_fp, mut tfgrid_client) or {
+				logger.error('${err}')
+				exit(1)
+			}
+			logger.info('${res}')
+		}
+		'get' {
+			mut new_fp := flag.new_flag_parser(remainig_args)
+			res := get_gateway_name(mut new_fp, mut tfgrid_client) or {
+				logger.error('${err}')
+				exit(1)
+			}
+			logger.info('${res}')
+		}
+		'delete' {
+			mut new_fp := flag.new_flag_parser(remainig_args)
+			delete_gateway_name(mut new_fp, mut tfgrid_client) or {
+				logger.error('${err}')
+				exit(1)
+			}
+		}
+		else {
+			logger.error('operation ${operation} is invalid')
+			exit(1)
+		}
 	}
 }

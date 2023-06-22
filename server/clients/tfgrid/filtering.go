@@ -207,7 +207,7 @@ func GetFarmerBotResult(action FarmerBotAction, key string) (string, error) {
 
 	}
 
-	return "", fmt.Errorf("Couldn't found a result for the same key: %s", key)
+	return "", fmt.Errorf("couldn't found a result for the same key: %s", key)
 }
 
 func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOptions) ([]uint32, error) {
@@ -218,7 +218,7 @@ func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 	// make farmerbot request
 	farmerTwinID, err := r.GetFarmerTwinIDByFarmID(options.FarmID)
 	if err != nil {
-		return []uint32{}, errors.Wrapf(err, "Failed to get TwinID for FarmID %+v", options.FarmID)
+		return []uint32{}, errors.Wrapf(err, "failed to get TwinID for FarmID %+v", options.FarmID)
 	}
 
 	sourceTwinID := r.TwinID

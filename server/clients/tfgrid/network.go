@@ -7,7 +7,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
-	"golang.org/x/exp/slices"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -66,18 +65,6 @@ func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []ui
 	}
 
 	return &znet, nil
-}
-
-func (c *Client) ensureNodeBelongsToNetwork(ctx context.Context, znet *workloads.ZNet, nodeID uint32) error {
-	if !slices.Contains(znet.Nodes, nodeID) {
-		znet.Nodes = append(znet.Nodes, nodeID)
-		err := c.GridClient.DeployNetwork(ctx, znet)
-		if err != nil {
-			return errors.Wrap(err, "failed to deploy network")
-		}
-	}
-
-	return nil
 }
 
 func (c *Client) removeNodeFromNetwork(ctx context.Context, znet *workloads.ZNet, nodeID uint32) error {

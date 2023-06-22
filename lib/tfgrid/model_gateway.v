@@ -1,45 +1,24 @@
 module tfgrid
 
-// NOTE: is there any need to translate json here?
-
-[params]
-pub struct GatewayFQDN {
-pub:
-	name            string   [required]
-	node_id         u32      [required]
-	tls_passthrough bool
-	backends        []string [required]
-	fqdn            string   [required]
-}
-
 pub struct GatewayFQDNResult {
 pub:
-	name            string
-	node_id         u32
-	tls_passthrough bool
-	backends        []string
-	fqdn            string
+	name            string   // name of the instance
+	node_id         u32      // node id that the instance was deployed on
+	tls_passthrough bool     // whether or not tls was enables
+	backends        []string // backends that this gateway is pointing to
+	fqdn            string   // fully qualified domain name pointing to this gatewat
 	// computed
-	contract_id u32
-}
-
-[params]
-pub struct GatewayName {
-pub:
-	name            string   [json: 'name'; required]
-	node_id         u32      [json: 'node_id']
-	tls_passthrough bool     [json: 'tls_passthrough']
-	backends        []string [json: 'backends'; required]
+	contract_id u32 // contract id for the gateway
 }
 
 pub struct GatewayNameResult {
 pub:
-	name            string   [json: 'name']
-	node_id         u32      [json: 'node_id']
-	tls_passthrough bool     [json: 'tls_passthrough']
-	backends        []string [json: 'backends']
+	name            string   // name of the instance
+	node_id         u32      // node id that the instance was deployed on
+	tls_passthrough bool     // whether or not tls was enabled
+	backends        []string // backends that this gateway is pointing to
 	// computed
-	fqdn             string [json: 'fqdn'] // the full domain name
-	name_contract_id u32    [json: 'name_contract_id']
-	contract_id      u32    [json: 'contract_id']
+	fqdn             string // the full domain name for this instance
+	name_contract_id u32    // name contract id
+	contract_id      u32    // contract id for the gateway
 }

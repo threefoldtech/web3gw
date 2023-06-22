@@ -154,7 +154,15 @@ func (c *tfgridClient) GetNodeDomain(ctx context.Context, nodeID uint32) (string
 }
 
 func (c *tfgridClient) SetContractState(contracts map[uint32]state.ContractIDs) {
-	c.client.State.CurrentNodeDeployments = contracts
+	mp := map[uint32]state.ContractIDs{}
+	for k, v := range contracts {
+		contractsCopy := state.ContractIDs{}
+		contractsCopy = append(contractsCopy, v...)
+
+		mp[k] = contractsCopy
+	}
+
+	c.client.State.CurrentNodeDeployments = mp
 }
 
 func (c *tfgridClient) LoadNetwork(networkName string) (workloads.ZNet, error) {

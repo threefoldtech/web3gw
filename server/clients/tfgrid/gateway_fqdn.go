@@ -72,7 +72,7 @@ func (c *Client) deployGWFQDN(ctx context.Context, gridGW *workloads.GatewayFQDN
 }
 
 func (c *Client) GatewayFQDNDelete(ctx context.Context, modelName string) error {
-	if err := c.GridClient.CancelProject(ctx, modelName); err != nil {
+	if err := c.cancelModel(ctx, modelName); err != nil {
 		return errors.Wrapf(err, "failed to delete gateway fqdn model contracts")
 	}
 

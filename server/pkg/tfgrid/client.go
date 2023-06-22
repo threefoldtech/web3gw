@@ -6,44 +6,29 @@ import (
 	"github.com/LeeSmet/go-jsonrpc"
 	tfgridBase "github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
 	"github.com/threefoldtech/web3_proxy/server/pkg"
-	"github.com/threefoldtech/web3_proxy/server/pkg/state"
 )
 
 const (
-	// keyType for the TF grid
-	keyType = "sr25519"
-
-	// NetworkMain is the TF grid mainnet
-	NetworkMain = "main"
-	// NetworkTest is the TF grid testnet
-	NetworkTest = "test"
-	// NetworkQa is the TF grid qanet
-	NetworkQA = "qa"
-	// NetworkDev is the TF grid devnet
-	NetworkDev = "dev"
-
-	// DeployerTimeoutSeconds is the amount of seconds before deployment operations time out
-	DeployerTimeoutSeconds = 600 // 10 minutes
-
 	TFGridID = "tfgrid"
 )
 
 type (
 	// Client exposing tfgrid methods
-	Client struct {
-		state *state.StateManager[*tfgridState]
-	}
+	Client struct{}
 
 	tfgridState struct {
 		cl *tfgridBase.Client
+	}
+
+	Load struct {
+		Mnemonic string `json:"mnemonic"`
+		Network  string `json:"network"`
 	}
 )
 
 // NewClient creates a new Client ready for use
 func NewClient() *Client {
-	return &Client{
-		state: state.NewStateManager[*tfgridState](),
-	}
+	return &Client{}
 }
 
 // State from a connection. If no state is present, it is initialized
@@ -71,7 +56,7 @@ func (s *tfgridState) Close() {
 }
 
 // Load an identity for the tfgrid with the given network
-func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic string, network string) error {
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
 	state := State(conState)
 	if state.cl != nil {
 		state.Close()
@@ -82,8 +67,8 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, mnemonic stri
 	}
 
 	err := tfgrid_client.Login(ctx, tfgridBase.Credentials{
-		Mnemonics: mnemonic,
-		Network:   network,
+		Mnemonics: args.Mnemonic,
+		Network:   args.Network,
 	})
 	if err != nil {
 		return err
@@ -272,15 +257,4 @@ func (c *Client) FilterNodes(ctx context.Context, conState jsonrpc.State, filter
 	}
 
 	return state.cl.FilterNodes(ctx, filters)
-}
-
-func (c *Client) Logout(ctx context.Context) error {
-	st, ok := c.state.Get(state.IDFromContext(ctx))
-	if !ok || st.cl == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	st.cl.GridClient.Close()
-
-	return nil
 }
