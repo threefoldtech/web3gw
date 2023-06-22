@@ -45,13 +45,6 @@ Swapping is converting tokens from one type to another on the same chain.
             to:tft
             amount:100
         ```
-    - Swap `xlm` to `tft` on stellar chain
-        ```
-        !!web3gw.money.swap
-            from:xlm
-            to:tft
-            amount:100
-        ```
 
 ### Get balance
 Get the balance of the loaded client on a chain.
