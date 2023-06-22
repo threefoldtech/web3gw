@@ -31,7 +31,7 @@ pub fn new(mut rpc RpcWsClient, logger Logger) Web3GWHandler {
 
 pub fn (mut h Web3GWHandler) handle(action Action) ! {
 	match action.actor {
-		'client' { h.handle_client(action)! }
+		'keys' { h.handle_keys(action)! }
 		'money' { h.handle_money(action)! }
 		else { return error("unknown actor") }
 	}

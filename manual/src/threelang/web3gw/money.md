@@ -3,78 +3,70 @@ Is an inter-chain centralized actor that can do all money related actions on sup
 
 ## Actions
 
-### Send tokens between accounts
-Send tokens from one account to another account on the same chain.
-- supported sends:
-    - btc on bitcoin -> btc on bitcoin
-    - eth on ethereum -> eth on ethereum
-    - token on ethereum -> token on ethereum
-    - tft on stellar -> tft on stellar
-    - tft on tfchain -> tft on tfchain
-
+### Send tokens
+Sending the same type of token from one account to another account on the same chain or on another chain via the bridge.
 - action name: `!!web3gw.money.send`
 - parameters:
-    - `channel`: the chain where the transaction will be done. (`tfchain`, `stellar`, `ethereum`, `bitcoin`, ...)
-    - `currency`: the currency to send (`tft`, `btc`, `eth`, `xlm`, ...). If the channel or the target_channel is `tfchain` then the currency is `tft` by default.
-    - `from`: the source address or twin_id if the channel is `tfchain`
-    - `to`: the destination address or twin_id if the target_channel is `tfchain`
-    - `amount`: the amount to send
+    - `channel`: `[required]` the chain where the transaction will be done. (`tfchain`, `stellar`, `ethereum`, `bitcoin`, ...)
+    - `bridge_to`: `[optional]` the destination chain to send the `TFT` to. (`stellar`, `ethereum`, `tfchain`, ...)
+    - `to`: `[required]` the destination address or twin_id if destination chain is `tfchain`
+    - `amount`: `[required]` the amount to send
 
 - examples:
-    ```md
-    !!web3gw.money.send
-        channel:tfchain
-        from:29
-        to:28
-        currency:tft
-        amount:100
-    ```
+    - Send tft on tfchain from the loaded account
+        ```
+        !!web3gw.money.send
+            channel:tfchain
+            to:28
+            amount:100
+        ```
+    - Send tft from the loaded stellar account to tfchian twin
+        ```
+        !!web3gw.money.send
+            channel:stellar
+            bridge_to:tfchain
+            to:28
+            amount:100
+        ```
 
-### Swap tokens on the same chain
-Swap from token to another token on the same chain.
-- supported swaps:
-    - eth on ethereum -> tft on ethereum
-    - tft on ethereum -> eth on ethereum
-    - tft on stellar -> xlm on stellar
-
+### Swap tokens
+Swapping is converting tokens from one type to another on the same chain.
 - action name: `!!web3gw.money.swap`
 - parameters: 
-    - `channel`: the chain where the transaction will be done. (`stellar`, `ethereum`, ...)
-    - `from`: the source address or twin_id if the channel is `tfchain`
-    - `to`: the destination address or twin_id if the target_channel is `tfchain`
-    - `currency`: the currency to send (`tft`, `eth`, `xlm`, ...).
-    - `target_currency`: the target currency to swap to (`tft`, `eth`, `xlm`, ...).
-    - `amount`: the amount to swap
-- examples:
-    ```md
-    !!web3gw.money.swap
-        channel:stellar
-        currency:tft
-        target_currency:xlm
-        from:GCCVPYFOHY7ZB7557JKENAX62LUAPLMGIWNZJAFV2MITK6T32V37KEJU
-        to:GCCVPYFOHY7ZB7557JKENAX62LUAPLMGIWNZJAFV2MITK6T32V37KEJU
-        amount:100
-    ```
-### Bridge TFT between chains
-Transfer TFT from one chain to another chain.
-- supported bridges:
-    - tft on ethereum -> tft on stellar
-    - tft on stellar -> tft on ethereum
-    - tft on stellar -> tft on tfchain
+    - `from`: `[required]` the token you want to swap from.
+    - `to`: `[required]` the token you want to swap to.
+    - `amount`: `[required]` the amount to swap.
 
-- action name: `!!web3gw.money.bridge`
-- parameters:
-    - `channel`: the source chain to send the TFT from. (`stellar`, `ethereum`, ...)
-    - `target_channel`: the destination chain to send the TFT to. (`stellar`, `ethereum`, `tfchain`, ...)
-    - `from`: the source address or twin_id if the channel is `tfchain`
-    - `to`: the destination address or twin_id if the target_channel is `tfchain`
-    - `amount`: the amount to send
 - examples:
-    ```md
-    !!web3gw.money.bridge
-        channel:stellar
-        target_channel:tfchain
-        from:GCCVPYFOHY7ZB7557JKENAX62LUAPLMGIWNZJAFV2MITK6T32V37KEJU
-        to:28
-        amount:100
+    - Swap `tft` to `eth` on ethereum chain
+        ```
+        !!web3gw.money.swap
+            from:eth
+            to:tft
+            amount:100
+        ```
+    - Swap `xlm` to `tft` on stellar chain
+        ```
+        !!web3gw.money.swap
+            from:xlm
+            to:tft
+            amount:100
+        ```
+
+### Get balance
+Get the balance of the loaded client on a chain.
+- action name: `!!web3gw.money.balance`
+- parameters:
+    - `channel`: `[required]` the chain where you want to check the balance. (`tfchain`, `stellar`, `ethereum`, `bitcoin`, ...)
+    - `currency`: `[required]` the currency to get balance for (`tft`, `btc`, `eth`, `xlm`, ...).
+- examples:
+    ```
+    !!web3gw.money.balance
+        channel:tfchain
+        currency:tft
+    ```
+    ```
+    !!web3gw.money.balance
+        channel:ethereum
+        currency:tft
     ```

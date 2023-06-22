@@ -7,11 +7,11 @@ import threefoldtech.threebot.btc
 
 import freeflowuniverse.crystallib.actionsparser { Action }
 
-pub fn (mut h Web3GWHandler) handle_client(action Action) ! {
+pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 	match action.name {
-		'load' {
+		'define' {
 			tfc_mnemonic := action.params.get_default('tfc_mnemonic', '')!
-			tfc_network := action.params.get_default('tfc_network', '')!
+			tfc_network := action.params.get_default('tfc_network', 'main')!
 			if tfc_mnemonic != '' {
 				h.tfc_client.load(tfchain.Load{
 					network: tfc_network,
