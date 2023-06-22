@@ -6,8 +6,8 @@ An actor that loads all the needed clients to interact with the supported chains
 - parameters:
     
     TFChain client configuration:
-    - `tfc_mnemonic`
-    - `tfc_network`
+    - `tfc_mnemonic`: required, mnemonic to load the tfchain client with
+    - `tfc_network`: default to `dev`, tfchain network to connect to
     
     Bitcoin client configuration:
     - `btc_host`
@@ -19,7 +19,7 @@ An actor that loads all the needed clients to interact with the supported chains
     - `eth_secret`
     
     Stellar client configuration:
-    - `str_network`
+    - `str_network`: default to `public`, stellar network to connect to
     - `str_secret`
 
 - examples:

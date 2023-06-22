@@ -4,6 +4,7 @@ import freeflowuniverse.crystallib.actionsparser
 import freeflowuniverse.crystallib.rpcwebsocket
 import log
 import threefoldtech.threebot.threelang.tfgrid { TFGridHandler }
+import threefoldtech.threebot.threelang.web3gw { Web3GWHandler }
 
 const (
 	tfgrid_book = 'tfgrid'
@@ -14,6 +15,7 @@ pub mut:
 	path string
 
 	tfgrid_handler TFGridHandler
+	web3gw_handler Web3GWHandler
 }
 
 [params]
@@ -37,10 +39,12 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	_ := spawn myclient.run()
 
 	tfgrid_handler := tfgrid.new(mut myclient, logger)
+	web3gw_handler := web3gw.new(mut myclient, logger)
 
 	mut runner := Runner{
 		path: args.path
 		tfgrid_handler: tfgrid_handler
+		web3gw_handler: web3gw_handler
 	}
 
 	runner.run(mut ap)!
@@ -52,6 +56,9 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 		match action.book {
 			'tfgrid' {
 				r.tfgrid_handler.handle_action(action)!
+			}
+			'web3gw' {
+				r.web3gw_handler.handle(action)!
 			}
 			else {
 				return error('module ${action.book} is invalid')

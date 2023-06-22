@@ -1,5 +1,5 @@
 # Money
-Is an inter-chains centerilized actor that can do all the money related actions on the supported chains (`tfchain`, `stellar`, `etherum`, `bitcoin`, ...).
+Is an inter-chain centralized actor that can do all money related actions on supported chains (`tfchain`, `stellar`, `etherum`, `bitcoin`, ...).
 
 ## Actions
 
