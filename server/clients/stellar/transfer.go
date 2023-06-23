@@ -1,14 +1,11 @@
 package stellargoclient
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/support/errors"
 	"github.com/stellar/go/txnbuild"
 )
@@ -22,11 +19,54 @@ const (
 	// Tfchain
 	stellarPublicNetworkTfchainBridgeAddress  = "GBNOTAYUMXVO5QDYWYO2SOCOYIJ3XFIP65GKOQN7H65ZZSO6BK4SLWSC"
 	stellarTestnetNetworkTfchainBridgeAddress = "GDHJP6TF3UXYXTNEZ2P36J5FH7W4BJJQ4AYYAXC66I2Q2AH5B6O6BCFG"
+
+	minimumDestAmountToReceive = "0.001"
 )
 
+func (c *Client) Swap(sourceAsset string, destinationAsset string, amount string) error {
+	assetFrom, err := c.GetAssetFromString(sourceAsset)
+	if err != nil {
+		return err
+	}
+	assetTo, err := c.GetAssetFromString(destinationAsset)
+	if err != nil {
+		return err
+	}
+	hAccount, err := c.AccountData(c.kp.Address())
+	if err != nil {
+		return errors.Wrap(err, "account does not exist")
+	}
+
+	payment := txnbuild.PathPaymentStrictSend{
+		SendAsset:     assetFrom,
+		DestAsset:     assetTo,
+		SourceAccount: c.kp.Address(),
+		Destination:   c.kp.Address(),
+		SendAmount:    amount,
+		DestMin:       minimumDestAmountToReceive,
+	}
+
+	params := txnbuild.TransactionParams{
+		SourceAccount:        &hAccount,
+		IncrementSequenceNum: true,
+		Operations:           []txnbuild.Operation{&payment},
+		BaseFee:              BaseFee,
+		Preconditions: txnbuild.Preconditions{
+			TimeBounds: txnbuild.NewInfiniteTimeout(),
+		},
+		Memo: txnbuild.MemoText(fmt.Sprintf("swap %s %s for %s", amount, sourceAsset, destinationAsset)),
+	}
+
+	tx, err := txnbuild.NewTransaction(params)
+	if err != nil {
+		return err
+	}
+
+	return c.SignAndSubmit(tx)
+}
+
 func (c *Client) Transfer(destination, memo string, amount string) (string, error) {
-	accountRequest := horizonclient.AccountRequest{AccountID: c.kp.Address()}
-	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	hAccount, err := c.AccountData(c.kp.Address())
 	if err != nil {
 		return "", errors.Wrap(err, "account does not exist")
 	}
@@ -35,8 +75,7 @@ func (c *Client) Transfer(destination, memo string, amount string) (string, erro
 		return "", errors.New("source account does not have trustline")
 	}
 
-	destAccountRequest := horizonclient.AccountRequest{AccountID: destination}
-	destHAccount, err := c.horizon.AccountDetail(destAccountRequest)
+	destHAccount, err := c.AccountData(destination)
 	if err != nil {
 		return "", errors.Wrap(err, "account does not exist")
 	}
@@ -145,50 +184,4 @@ func (c *Client) GetTfchainBridgeAddress() (string, error) {
 	} else {
 		return "", errors.New("bsc address not available for networks other than public")
 	}
-}
-
-func (c *Client) AwaitTransactionWithMemo(ctx context.Context, account string, memo string, timeout int) error {
-	memo = strings.TrimPrefix(memo, "0x")
-	for i := 0; i < int(timeout); i++ {
-		select {
-		case <-time.After(1 * time.Second):
-
-			transactionRequest := horizonclient.TransactionRequest{
-				ForAccount: account,
-				Order:      horizonclient.OrderDesc,
-			}
-			txs, err := c.horizon.Transactions(transactionRequest)
-			if err != nil {
-				return err
-			}
-			for _, tx := range txs.Embedded.Records {
-				decodedMemo, err := base64.StdEncoding.DecodeString(tx.Memo)
-				if err == nil {
-					hexDecodedMemo := hex.EncodeToString(decodedMemo)
-					if hexDecodedMemo == memo {
-						return nil
-					}
-				}
-			}
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-	}
-	return errors.New("transaction not found")
-}
-
-func (c *Client) AwaitTransactionWithMemoOnEthBridge(ctx context.Context, memo string, timeout int) error {
-	bridgeAddress, err := c.GetEthBridgeAddress()
-	if err != nil {
-		return err
-	}
-	return c.AwaitTransactionWithMemo(ctx, bridgeAddress, memo, timeout)
-}
-
-func (c *Client) AwaitForTransactionWithMemoOnTfchainBridge(ctx context.Context, memo string, timeout int) error {
-	bridgeAddress, err := c.GetTfchainBridgeAddress()
-	if err != nil {
-		return err
-	}
-	return c.AwaitTransactionWithMemo(ctx, bridgeAddress, memo, timeout)
 }

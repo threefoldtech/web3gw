@@ -10,12 +10,19 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, network string, account string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, network string, source string, destination string, amount string) ! {
 	mut stellar_client := stellar.new(mut client)
 
 	stellar_client.load(secret: secret, network: network)!
 
-	balance := stellar_client.balance(account)!
+	account := stellar_client.address()!
+
+	mut balance := stellar_client.balance(account)!
+	logger.info('Balance: ${balance}')
+
+	stellar_client.swap(amount: amount, source_asset: source, destination_asset: destination)!
+
+	balance = stellar_client.balance(account)!
 	logger.info('Balance: ${balance}')
 }
 
@@ -25,10 +32,12 @@ fn main() {
 	fp.limit_free_args(0, 0)!
 	fp.description('')
 	fp.skip_executable()
-	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
+	address := fp.string('address', `d`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	secret := fp.string('secret', `s`, '', 'The secret of your stellar key')
-	account := fp.string('account', `d`, '', 'The account to ask the balance of, if empty the account of the secret will be used')
 	network := fp.string('network', `n`, 'public', 'The network to connect to. Should be testnet or public.')
+	source := fp.string('source', `o`, 'xlm', 'The source asset to transfer tokens from')
+	destination := fp.string('destination', `d`, 'tft', 'The destination asset to transfer tokens from')
+	amount := fp.string('amount', `a`, '100.0', 'The amount to tranfser')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
 	_ := fp.finalize() or {
@@ -48,7 +57,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, secret, network, account) or {
+	execute_rpcs(mut myclient, mut logger, secret, network, source, destination, amount) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}

@@ -14,6 +14,7 @@ import (
 )
 
 type Client struct {
+	Secret  string
 	Url     string
 	Eth     *ethclient.Client
 	Key     *ecdsa.PrivateKey

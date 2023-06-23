@@ -15,8 +15,9 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 
 	stellar_client.load(secret: secret, network: network)!
 
-	balance := stellar_client.balance(account)!
-	logger.info('Balance: ${balance}')
+	// empty string to account_data results in account data of loaded key
+	account_data := stellar_client.account_data(account)!
+	logger.info('Account data: ${account_data}')
 }
 
 fn main() {
@@ -27,7 +28,7 @@ fn main() {
 	fp.skip_executable()
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	secret := fp.string('secret', `s`, '', 'The secret of your stellar key')
-	account := fp.string('account', `d`, '', 'The account to ask the balance of, if empty the account of the secret will be used')
+	account := fp.string('account', `d`, '', 'The account to ask the account data of, if empty the account of the secret will be used')
 	network := fp.string('network', `n`, 'public', 'The network to connect to. Should be testnet or public.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 

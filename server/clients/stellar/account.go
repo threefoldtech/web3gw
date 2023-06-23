@@ -1,85 +1,124 @@
 package stellargoclient
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
+	"github.com/stellar/go/protocols/horizon"
 	"github.com/stellar/go/txnbuild"
 )
 
-// Generates and activates an account on the stellar testnet
-func (c *Client) GenerateAccount() (*keypair.Full, error) {
+func (c *Client) Load(secret string) error {
+	k, err := GetKeypairFromSeed(secret)
+	if err != nil {
+		return err
+	}
+	c.kp = k
+
+	// check if account has trustline, if not add it
+	hAccount, err := c.AccountData(k.Address())
+	if err != nil {
+		return errors.Wrap(err, "account does not exist")
+	}
+
+	if !hasTrustline(hAccount, c.GetTftBaseAsset()) {
+		log.Debug().Msgf("Adding trustline for account %s", k.Address())
+		c.setTrustLine()
+	}
+
+	return nil
+}
+
+func (c *Client) CreateAccount() (string, error) {
 	kp, err := keypair.Random()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	// Don't activate account on public network
-	if c.stellarNetwork == "public" {
-		return kp, nil
-	}
+	c.kp = kp
 
-	err = activateAccount(kp.Address())
+	err = c.activateAccount()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	err = c.SetTrustLine()
+	err = c.setTrustLine()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return kp, nil
+	return kp.Seed(), nil
 }
 
-func (c *Client) SetTrustLine() error {
-	createTftTrustlineOperation := txnbuild.ChangeTrust{
-		Line: txnbuild.ChangeTrustAssetWrapper{
-			Asset: c.GetTftAsset(),
-		},
-		Limit:         "",
-		SourceAccount: c.kp.Address(),
+// Activates the account using the activation service https://github.com/threefoldfoundation/tft-stellar/tree/master/ThreeBotPackages/activation_service
+func (c *Client) activateAccount() error {
+	url := c.GetActivationServiceUrl()
+	binaryPostdata, err := json.Marshal(map[string]string{
+		"address": c.kp.Address(),
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed Mashal data")
 	}
-
-	// Get information about the account we just created
-	accountRequest := horizonclient.AccountRequest{AccountID: c.kp.Address()}
-	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	postDataReader := bytes.NewBuffer(binaryPostdata)
+	resp, err := http.Post(url+"/activate_account", "application/json", postDataReader)
+	if err != nil {
+		return errors.Wrap(err, "failed sending post")
+	}
+	responseData := ""
+	err = json.NewDecoder(resp.Body).Decode(&responseData)
 	if err != nil {
 		return err
 	}
-
-	params := txnbuild.TransactionParams{
-		SourceAccount:        &hAccount,
-		IncrementSequenceNum: true,
-		Operations:           []txnbuild.Operation{&createTftTrustlineOperation},
-		BaseFee:              txnbuild.MinBaseFee,
-		Memo:                 nil,
-		Preconditions: txnbuild.Preconditions{
-			TimeBounds: txnbuild.NewInfiniteTimeout(),
-		},
-	}
-	tx, err := txnbuild.NewTransaction(params)
+	responseDataJson := map[string]string{}
+	err = json.Unmarshal([]byte(responseData), &responseDataJson)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed decoding http post response")
+	}
+	if errorMsg, errorPresent := responseDataJson["error"]; errorPresent {
+		return errors.New(errorMsg)
 	}
 
-	return c.SignAndSubmit(tx)
+	xdr, ok := responseDataJson["activation_transaction"]
+	if !ok {
+		return errors.Errorf("activation_transaction not found in response")
+	}
+	return c.SignTransactionXdr(xdr)
 }
 
-// Generates and activates accounts on the stellar testnet
-func (c *Client) GenerateAndActivateAccounts(count int) ([]keypair.Full, error) {
-	accounts := make([]keypair.Full, 0)
-	for i := 0; i < count; i++ {
-		kp, err := c.GenerateAccount()
-		if err != nil {
-			return nil, err
-		}
-
-		accounts = append(accounts, *kp)
+// Sets trustline using the activation service https://github.com/threefoldfoundation/tft-stellar/tree/master/ThreeBotPackages/activation_service
+func (c *Client) setTrustLine() error {
+	url := c.GetActivationServiceUrl()
+	asset := c.GetTftAsset()
+	binaryPostdata, err := json.Marshal(map[string]string{
+		"address": c.kp.Address(),
+		"asset":   asset.Code + ":" + asset.Issuer,
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed Mashal data")
 	}
-
-	return accounts, nil
+	postDataReader := bytes.NewBuffer(binaryPostdata)
+	resp, err := http.Post(url+"/fund_trustline", "application/json", postDataReader)
+	if err != nil {
+		return errors.Wrap(err, "failed sending post")
+	}
+	responseDataJson := map[string]string{}
+	err = json.NewDecoder(resp.Body).Decode(&responseDataJson)
+	if err != nil {
+		return errors.Wrap(err, "failed decoding http post response")
+	}
+	if errorMsg, errorPresent := responseDataJson["error"]; errorPresent {
+		return errors.New(errorMsg)
+	}
+	xdr, ok := responseDataJson["addtrustline_transaction"]
+	if !ok {
+		return errors.Errorf("addtrustline_transaction not found in response")
+	}
+	return c.SignTransactionXdr(xdr)
 }
 
 func (c *Client) SetAccountOptions(keypairs []keypair.Full) error {
@@ -106,8 +145,7 @@ func (c *Client) SetAccountOptions(keypairs []keypair.Full) error {
 	}
 
 	// Get information about the account we just created
-	accountRequest := horizonclient.AccountRequest{AccountID: masterKey.Address()}
-	hAccount, err := c.horizon.AccountDetail(accountRequest)
+	hAccount, err := c.AccountData(masterKey.Address())
 	if err != nil {
 		return err
 	}
@@ -130,13 +168,10 @@ func (c *Client) SetAccountOptions(keypairs []keypair.Full) error {
 	return c.SignAndSubmit(tx)
 }
 
-// Activates an account on the stellar testnet
-// This is done by sending a request to the friendbot
-func activateAccount(addr string) error {
-	_, err := http.Get("https://friendbot.stellar.org/?addr=" + addr)
-	if err != nil {
-		return err
+func (c *Client) AccountData(account string) (horizon.Account, error) {
+	accountRequest := horizonclient.AccountRequest{
+		AccountID: account,
 	}
 
-	return nil
+	return c.horizon.AccountDetail(accountRequest)
 }
