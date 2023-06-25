@@ -95,10 +95,20 @@ pub fn (mut h Web3GWHandler) handle_money(action Action) ! {
 			} else if from == 'tft' && to == 'eth' {
 				res := h.eth_client.swap_tft_for_eth(amount)!
 				h.logger.info(res)
-				// } else if from == 'tft' && to == 'xlm' {
-				// 	return error('not supported')
-				// } else if from == 'xlm' && to == 'tft' {
-				// 	return error('not supported')
+			} else if from == 'tft' && to == 'xlm' {
+				res := h.str_client.swap(stellar.Swap{
+					amount: amount
+					source_asset:from
+					destination_asset:to
+				})!
+				h.logger.info(res)
+			} else if from == 'xlm' && to == 'tft' {
+				res := h.str_client.swap(stellar.Swap{
+					amount: amount
+					source_asset:from
+					destination_asset:to
+				})!
+				h.logger.info(res)
 			} else {
 				return error('unsupported swap')
 			}
