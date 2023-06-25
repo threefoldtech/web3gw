@@ -21,7 +21,7 @@ pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 			btc_host := action.params.get_default('btc_host', '')!
 			btc_user := action.params.get_default('btc_user', '')!
 			btc_pass := action.params.get_default('btc_pass', '')!
-			if btc_host != '' && btc_user != '' && btc_pass != '' {
+			if btc_host != '' || btc_user != '' || btc_pass != '' {
 				h.btc_client.load(btc.Load{
 					host: btc_host
 					user: btc_user
@@ -31,7 +31,7 @@ pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 
 			eth_url := action.params.get_default('eth_url', '')!
 			eth_secret := action.params.get_default('eth_secret', '')!
-			if eth_url != '' && eth_secret != '' {
+			if eth_url != '' || eth_secret != '' {
 				h.eth_client.load(eth.Load{
 					url: eth_url
 					secret: eth_secret
