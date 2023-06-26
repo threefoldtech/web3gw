@@ -24,8 +24,8 @@ pub fn new(mut rpc RpcWsClient, logger Logger, wg_clients &Clients) Web3GWHandle
 		clients: wg_clients
 	}
 	h.handlers = {
-		"keys": h.handle_keys,
-		"money": h.handle_money,
+		"keys": h.keys,
+		"money": h.money,
 	}
 	return h
 }
