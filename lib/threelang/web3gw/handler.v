@@ -8,24 +8,20 @@ import log { Logger }
 import freeflowuniverse.crystallib.actionsparser { Action }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
+import threefoldtech.threebot.threelang.clients { Clients }
+
 [heap]
 pub struct Web3GWHandler {
 pub mut:
-	tfc_client TfChainClient
-	btc_client BtcClient
-	eth_client EthClient
-	str_client StellarClient
 	logger     Logger
+	clients    &Clients
 	handlers  map[string]fn(Action)!
 }
 
-pub fn new(mut rpc RpcWsClient, logger Logger) Web3GWHandler {
+pub fn new(mut rpc RpcWsClient, logger Logger, wg_clients &Clients) Web3GWHandler {
 	mut h := Web3GWHandler{
-		tfc_client: tfchain.new(mut rpc)
-		btc_client: btc.new(mut rpc)
-		eth_client: eth.new(mut rpc)
-		str_client: stellar.new(mut rpc)
 		logger: logger
+		clients: wg_clients
 	}
 	h.handlers = {
 		"keys": h.handle_keys,

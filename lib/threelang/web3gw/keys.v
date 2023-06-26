@@ -12,7 +12,7 @@ pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 			tfc_mnemonic := action.params.get_default('tfc_mnemonic', '')!
 			tfc_network := action.params.get_default('tfc_network', 'main')!
 			if tfc_mnemonic != '' {
-				h.tfc_client.load(tfchain.Load{
+				h.clients.tfc_client.load(tfchain.Load{
 					network: tfc_network
 					mnemonic: tfc_mnemonic
 				})!
@@ -22,7 +22,7 @@ pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 			btc_user := action.params.get_default('btc_user', '')!
 			btc_pass := action.params.get_default('btc_pass', '')!
 			if btc_host != '' || btc_user != '' || btc_pass != '' {
-				h.btc_client.load(btc.Load{
+				h.clients.btc_client.load(btc.Load{
 					host: btc_host
 					user: btc_user
 					pass: btc_pass
@@ -32,7 +32,7 @@ pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 			eth_url := action.params.get_default('eth_url', '')!
 			eth_secret := action.params.get_default('eth_secret', '')!
 			if eth_url != '' || eth_secret != '' {
-				h.eth_client.load(eth.Load{
+				h.clients.eth_client.load(eth.Load{
 					url: eth_url
 					secret: eth_secret
 				})!
@@ -41,7 +41,7 @@ pub fn (mut h Web3GWHandler) handle_keys(action Action) ! {
 			str_network := action.params.get_default('str_network', 'public')!
 			str_secret := action.params.get_default('str_secret', '')!
 			if str_secret != '' {
-				h.str_client.load(stellar.Load{
+				h.clients.str_client.load(stellar.Load{
 					network: str_network
 					secret: str_secret
 				})!
