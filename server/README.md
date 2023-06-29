@@ -4,11 +4,11 @@
 
 ### Build and Run
 
-```
+```sh
 go build . && ./server --debug
 ```
 
-Server will now listen on `ws://localhost:8080`
+The server will now listen on `ws://localhost:8080`
 
 ### Remote procedure calls
 
@@ -21,16 +21,16 @@ A couple of things to notice:
 - We use only one argument (next to the context and the connection state) that represents the required argument(s) for that remote procedure call (this is the decoded parameters from the params field of the incoming json 2.0 rpc). If a rpc requires more then one argument a new struct should be created to collect those arguments. You can look at the existing clients for inspiration.
 - Each function returns either error or (<SOME_OBJECT>, error). If the latter is used the returned object will be serialized and put into the result field of the json 2.0 rpc response.
 
-```
+```go
 func (c *Client) ServiceContractSetMetadata(ctx context.Context, conState jsonrpc.State, args ServiceContractSetMetadata) error {
-	log.Debug().Msgf("Tfchain: setting metadata for service contract %s", args.ContractID)
+ log.Debug().Msgf("Tfchain: setting metadata for service contract %s", args.ContractID)
 
-	state := State(conState)
-	if state.client == nil {
-		return false, pkg.ErrClientNotConnected{}
-	}
+ state := State(conState)
+ if state.client == nil {
+  return false, pkg.ErrClientNotConnected{}
+ }
 
-	return state.client.ServiceContractSetMetadata(*state.identity, args.ContractID, args.Metadata)
+ return state.client.ServiceContractSetMetadata(*state.identity, args.ContractID, args.Metadata)
 }
 ```
 
@@ -40,7 +40,6 @@ func (c *Client) ServiceContractSetMetadata(ctx context.Context, conState jsonrp
 2) Add the functions following the guidelines mentioned above
 3) Register the client in main.go
 4) Add the V client in [the V library](../lib)
-
 
 ### Examples with websocat
 

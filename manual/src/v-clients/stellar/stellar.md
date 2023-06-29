@@ -8,13 +8,14 @@ mut stellar_client := stellar.new(mut rpc_client)
 
 ## Create a stellar account
 
-You can create a stellar account using the `create_account` method. It takes one argument: the network to create the account on. During the execution of that method the generated key is loaded thus allowing you to call other methodes right after this method without having to load the key first. 
+You can create a stellar account using the `create_account` method. It takes one argument: the network to create the account on. During the execution of that method the generated key is loaded thus allowing you to call other methodes right after this method without having to load the key first.
 
 ```v
 seed := stellar_client.create_account("public")
 ```
 
 ## Load a client
+
 If you already possess a stellar account you can just load the key by calling the `load` method. This requires the `secret` of your stellar account and optionally the network to connect to (the default network is public).
 
 ```v
@@ -42,7 +43,7 @@ account_data := stellar_client.account_data('')!
 
 ## Transfer TFT from one account to the other on stellar
 
-Calling `transfer` allows you to transfer tft on stellar from one account to the other. 
+Calling `transfer` allows you to transfer tft on stellar from one account to the other.
 
 ```v
 amount := '1651.12'
@@ -52,7 +53,7 @@ stellar_client.transfer(destination: destination, amount: amount)!
 
 ## Swap tokens from one asset to the other
 
-If you wish to swap some tokens into another asset, for example from XLM (lumen) to TFT you can do so by calling the `swap` method. 
+If you wish to swap some tokens into another asset, for example from XLM (lumen) to TFT you can do so by calling the `swap` method.
 
 ```v
 amount := '500.0'
@@ -98,7 +99,7 @@ The conversion from TFT on Ethereum to TFT on Stellar is part of the [Ethereum c
 
 The Stellar-Tfchain bridge allows you to convert your TFTs on stellar to TFTs on Tfchain. Calling the method `bridge_to_tfchain` will initiate that process. It requires the amount and the twin id of the recipient on Tfchain.
 
-Note that the `bridge_to_tfchain` will return once that the transaction has been executed on Stellar. This does not mean that the amount transferred will be on the Tfchain account right away. The bridge has to recognize the transaction and create a similar transaction on Tfchain. It is therefore encouraged to execute the `await_transaction_on_tfchain_bridge` method (from [Tfchain client](../tfchain)) right after the `bridge_to_tfchain` method. This function returns once it recognizes the transaction with the hash return by `bridge_to_tfchain`. The example demonstrates the process. 
+Note that the `bridge_to_tfchain` will return once that the transaction has been executed on Stellar. This does not mean that the amount transferred will be on the Tfchain account right away. The bridge has to recognize the transaction and create a similar transaction on Tfchain. It is therefore encouraged to execute the `await_transaction_on_tfchain_bridge` method (from [Tfchain client](../tfchain)) right after the `bridge_to_tfchain` method. This function returns once it recognizes the transaction with the hash return by `bridge_to_tfchain`. The example demonstrates the process.
 
 ```v
 amount := '3000.50'
