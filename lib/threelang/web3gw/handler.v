@@ -14,11 +14,11 @@ import threefoldtech.threebot.threelang.clients { Clients }
 pub struct Web3GWHandler {
 pub mut:
 	logger     Logger
-	clients    &Clients
-	handlers  map[string]fn(Action)!
+	clients    Clients
+	handlers  map[string]fn(&Action)!
 }
 
-pub fn new(mut rpc RpcWsClient, logger Logger, wg_clients &Clients) Web3GWHandler {
+pub fn new(mut rpc RpcWsClient, logger &Logger, mut wg_clients Clients) Web3GWHandler {
 	mut h := Web3GWHandler{
 		logger: logger
 		clients: wg_clients
@@ -30,7 +30,7 @@ pub fn new(mut rpc RpcWsClient, logger Logger, wg_clients &Clients) Web3GWHandle
 	return h
 }
 
-pub fn (mut h Web3GWHandler) handle(action Action) ! {
+pub fn (mut h Web3GWHandler) handle(action &Action) ! {
 	if action.actor in h.handlers {
 		handler := h.handlers[action.actor]
 		handler(action)!

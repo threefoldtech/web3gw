@@ -6,7 +6,6 @@ import threefoldtech.threebot.stellar { StellarClient }
 import threefoldtech.threebot.eth { EthClient }
 import threefoldtech.threebot.btc { BtcClient }
 
-[heap]
 pub struct Clients {
 pub mut:
 	tfg_client TFGridClient

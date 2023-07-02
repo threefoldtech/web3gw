@@ -24,7 +24,7 @@ const (
 pub struct Runner {
 pub mut:
 	path string
-	clients &Clients
+	clients Clients
 	tfgrid_handler TFGridHandler
 	web3gw_handler Web3GWHandler
 }
@@ -49,16 +49,16 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	}
 	_ := spawn rpc_client.run()
 
-	gw_clients := get_clients(mut rpc_client)!
+	mut	gw_clients := get_clients(mut rpc_client)!
 
 	tfgrid_handler := tfgrid.new(mut rpc_client, logger)
-	web3gw_handler := web3gw.new(mut rpc_client, logger, &gw_clients)
+	web3gw_handler := web3gw.new(mut rpc_client, &logger, mut gw_clients)
 
 	mut runner := Runner{
 		path: args.path
 		tfgrid_handler: tfgrid_handler
 		web3gw_handler: web3gw_handler
-		clients: &gw_clients
+		clients: gw_clients
 	}
 
 	runner.run(mut ap)!
@@ -72,7 +72,7 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 				r.tfgrid_handler.handle_action(action)!
 			}
 			web3gw_book {
-				r.web3gw_handler.handle(action)!
+				r.web3gw_handler.handle(&action)!
 			}
 			else {
 				return error('module ${action.book} is invalid')
@@ -81,7 +81,7 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 	}
 }
 
-pub fn get_clients(mut rpc_client &RpcWsClient) !Clients {
+pub fn get_clients(mut rpc_client RpcWsClient) !Clients {
 	return Clients{
 		tfg_client: tfgrid_client.new(mut rpc_client)
 		tfc_client: tfchain_client.new(mut rpc_client)

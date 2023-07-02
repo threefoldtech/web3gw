@@ -164,6 +164,6 @@ fn balance(mut h Web3GWHandler, action Action) ! {
 		res := h.clients.tfc_client.balance(address)!
 		h.logger.info('balance on ${channel} is ${res}')
 	} else {
-		return error('unsupported balance')
+		return error('unsupported channel. should be one of: ${default_currencies.keys()}')
 	}
 }
