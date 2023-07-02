@@ -38,11 +38,12 @@ fn send(mut h Web3GWHandler, action Action) ! {
 
 	if bridge_to != '' {
 		if channel == 'ethereum' && bridge_to == 'stellar' {
-			res := h.clients.eth_client.bridge_to_stellar(
+			hash_bridge_to_stellar := h.clients.eth_client.bridge_to_stellar(
 				amount: amount
 				destination: to
 			)!
-			h.logger.info(res)
+			h.clients.str_client.await_transaction_on_eth_bridge(hash_bridge_to_stellar)!
+			h.logger.info('bridge to stellar done')
 		} else if channel == 'stellar' && bridge_to == 'ethereum' {
 			res := h.clients.str_client.bridge_to_eth(
 				amount: amount
@@ -56,11 +57,13 @@ fn send(mut h Web3GWHandler, action Action) ! {
 				res := h.clients.tfc_client.get_twin_by_pubkey(to)!
 				twin_id = int(res)
 			}
-			res := h.clients.str_client.bridge_to_tfchain(
+
+			hash_bridge_to_tfchain := h.clients.str_client.bridge_to_tfchain(
 				amount: amount
 				twin_id: u32(twin_id)
 			)!
-			h.logger.info(res)
+			h.clients.tfc_client.await_transaction_on_tfchain_bridge(hash_bridge_to_tfchain)!
+			h.logger.info('bridge to tfchain done')
 		} else if channel == 'tfchain' && bridge_to == 'stellar' {
 			h.clients.tfc_client.swap_to_stellar(
 				amount: amount.u64()
