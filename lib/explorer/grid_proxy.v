@@ -6,7 +6,8 @@ const (
 	default_timeout = 500000
 )
 
-[noinit; openrpc: exclude]
+[openrpc: exclude]
+[noinit]
 pub struct ExplorerClient {
 mut:
 	client &RpcWsClient
@@ -29,21 +30,23 @@ pub fn (mut e ExplorerClient) ping() !string {
 	return e.client.send_json_rpc[[]string, string]('explorer.Ping', []string{}, explorer.default_timeout)!
 }
 
-// Fetches grid nodes based on some filters. A list of nodes is returned and the total amount of nodes too. 
+// Fetches grid nodes based on some filters. A list of nodes is returned and the total amount of nodes too.
 pub fn (mut e ExplorerClient) nodes(params NodesRequestParams) !NodesResult {
-	return e.client.send_json_rpc[[]NodesRequestParams, NodesResult]('explorer.Nodes', [
+	return e.client.send_json_rpc[[]NodesRequestParams, NodesResult]('explorer.Nodes',
+		[
 		params,
 	], explorer.default_timeout)!
 }
 
-// Fetches grid farms based on some filters. A list of farms is returned and the total amount of farms too. 
+// Fetches grid farms based on some filters. A list of farms is returned and the total amount of farms too.
 pub fn (mut e ExplorerClient) farms(params FarmsRequestParams) !FarmsResult {
-	return e.client.send_json_rpc[[]FarmsRequestParams, FarmsResult]('explorer.Farms', [
+	return e.client.send_json_rpc[[]FarmsRequestParams, FarmsResult]('explorer.Farms',
+		[
 		params,
 	], explorer.default_timeout)!
 }
 
-// Fetches grid contracts based on some filters. A list of contracts is returned and the total amount of contracts too. 
+// Fetches grid contracts based on some filters. A list of contracts is returned and the total amount of contracts too.
 pub fn (mut e ExplorerClient) contracts(params ContractsRequestParams) !ContractsResult {
 	return e.client.send_json_rpc[[]ContractsRequestParams, ContractsResult]('explorer.Contracts',
 		[params], explorer.default_timeout)!
@@ -51,7 +54,8 @@ pub fn (mut e ExplorerClient) contracts(params ContractsRequestParams) !Contract
 
 // Fetches grid twins based on some filters. A list of the twins is returned and the total amount of twins too.
 pub fn (mut e ExplorerClient) twins(params TwinsRequestParams) !TwinsResult {
-	return e.client.send_json_rpc[[]TwinsRequestParams, TwinsResult]('explorer.Twins', [
+	return e.client.send_json_rpc[[]TwinsRequestParams, TwinsResult]('explorer.Twins',
+		[
 		params,
 	], explorer.default_timeout)!
 }
@@ -65,7 +69,8 @@ pub fn (mut e ExplorerClient) node(node_id u32) !NodeWithNestedCapacity {
 
 // Checks the status of node (if it is up or down).
 pub fn (mut e ExplorerClient) node_status(node_id u32) !NodeStatus {
-	return e.client.send_json_rpc[[]u32, NodeStatus]('explorer.NodeStatus', [node_id], explorer.default_timeout)!
+	return e.client.send_json_rpc[[]u32, NodeStatus]('explorer.NodeStatus', [node_id],
+		explorer.default_timeout)!
 }
 
 // Counters fetches statistics of the grid (amount nodes, amount of farms, amount of contracts, etc).
