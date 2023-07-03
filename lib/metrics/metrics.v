@@ -31,6 +31,7 @@ const (
 	}
 )
 
+[openrpc: exclude]
 pub fn get_metrics_url(args MetricsURLArgs, mut explorer_cl explorer.ExplorerClient, mut logger log.Logger) !string{
 
 	env := envs[args.network] or {panic('env not found')}
