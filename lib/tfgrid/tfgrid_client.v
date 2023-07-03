@@ -7,12 +7,14 @@ import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 [noinit]
 pub struct TFGridClient {
 mut:
-	client &RpcWsClient
+	client  &RpcWsClient
+	timeout int
 }
 
 [openrpc: exclude]
 pub fn new(mut client RpcWsClient) TFGridClient {
 	return TFGridClient{
 		client: &client
+		timeout: 500000
 	}
 }

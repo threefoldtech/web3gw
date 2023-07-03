@@ -25,26 +25,26 @@ pub:
 
 // Deploys a vm with the posibility to add a gateway. if the there is already a network with the same name, the the vms are added to this network
 pub fn (mut t TFGridClient) deploy_vm(vm VM) !VMResult {
-	return t.client.send_json_rpc[[]VM, VMResult]('tfgrid.DeployVM', [vm], default_timeout)!
+	return t.client.send_json_rpc[[]VM, VMResult]('tfgrid.DeployVM', [vm], t.timeout)!
 }
 
 // Removes a vm from a network
 pub fn (mut t TFGridClient) remove_vm(args RemoveVM) !VMResult {
 	return t.client.send_json_rpc[[]RemoveVM, VMResult]('tfgrid.RemoveVM', [
 		args,
-	], default_timeout)!
+	], t.timeout)!
 }
 
 // Gets a deployed network of vms
 pub fn (mut t TFGridClient) get_vm(network string) !VMResult {
 	return t.client.send_json_rpc[[]string, VMResult]('tfgrid.GetVM', [
 		network,
-	], default_timeout)!
+	], t.timeout)!
 }
 
 // Deletes a deployed network of vms
 pub fn (mut t TFGridClient) delete_vm(network string) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfgrid.DeleteVM', [
 		network,
-	], default_timeout)!
+	], t.timeout)!
 }
