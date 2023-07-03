@@ -24,7 +24,7 @@ fn deploy_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
 	wg := fp.bool('wg', `w`, false, 'True to add a wireguard access point to the network')
 	add_public_ipv4 := fp.bool('add_public_ipv4', `4`, false, 'True to add a public ipv4 to each vm')
 	add_public_ipv6 := fp.bool('add_public_ipv6', `6`, false, 'True to add a public ipv6 to each vm')
-	ssh_key := fp.string('ssh_key', `s`, '', 'Public SSH Key to access the instance')
+	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
 	_ := fp.finalize()!
 
 	vm := VM{

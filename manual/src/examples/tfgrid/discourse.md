@@ -22,7 +22,7 @@ The [discourse cli](../../../../examples/tfgrid/discourse.v) has the following a
 - farm_id: Farm ID to deploy the instance on. If 0, a random eligible node on a random farm will be selected. defaults to `0`.
 - capacity: Capacity of the discourse instance. must be one of `small`, `medium`, `large`, or `extra-large`. defaults to `medium`.
 - disk: Size in GB of disk to be mounted. defaults to `0`
-- ssh: ssh Public SSH key to access the discourse machine.
+- ssh: public SSH key to access the Presearch machine. should be in `~/.ssh/id_rsa.pub` on linux systems.
 - dev_email: Developer email
 - smtp_address: SMTP server domain address.
 - smtp_username: SMTP username
@@ -32,7 +32,7 @@ The [discourse cli](../../../../examples/tfgrid/discourse.v) has the following a
 - public_ipv6: Add public ipv6 to the instance. defaults to `false`
   
 ```sh
-    v run discourse.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name mydiscourse --capacity large
+    v run discourse.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name mydiscourse --capacity large --ssh "YOUR PUBLIC SSH KEY"
 ```
 
 ### Get Operation Arguments

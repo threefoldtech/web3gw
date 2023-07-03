@@ -15,7 +15,7 @@ fn deploy_presearch(mut fp FlagParser, mut t TFGridClient) !PresearchResult {
 
 	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
-	ssh_key := fp.string('ssh_key', `s`, '', 'Public SSH Key to access the instance')
+	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
 	disk_size := fp.int('disk_size', `d`, 0, 'Size of disk mounted on the presearch instance')
 	public_ipv4 := fp.bool('public_ipv4', `i`, false, 'True to add public ipv4 to presearch instance')
 	registration_code := fp.string_opt('registration_code', `r`, 'You need to sign up on Presearch in order to get your Presearch Registration Code.')!
