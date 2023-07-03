@@ -16,5 +16,5 @@ pub struct FilterOptions {
 pub fn (mut t TFGridClient) filter_nodes(filters FilterOptions) ![]u32 {
 	return t.client.send_json_rpc[[]FilterOptions, []u32]('tfgrid.FilterNodes', [
 		filters,
-	], default_timeout)
+	], t.timeout)
 }
