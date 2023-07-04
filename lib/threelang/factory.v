@@ -51,7 +51,7 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 
 	mut	gw_clients := get_clients(mut rpc_client)!
 
-	tfgrid_handler := tfgrid.new(mut rpc_client, logger)
+	tfgrid_handler := tfgrid.new(mut rpc_client, logger) // TODO: pass tfgrid client
 	web3gw_handler := web3gw.new(mut rpc_client, &logger, mut gw_clients)
 
 	mut runner := Runner{
@@ -72,7 +72,7 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 				r.tfgrid_handler.handle_action(action)!
 			}
 			web3gw_book {
-				r.web3gw_handler.handle(&action)!
+				r.web3gw_handler.handle(action)!
 			}
 			else {
 				return error('module ${action.book} is invalid')

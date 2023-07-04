@@ -1,21 +1,16 @@
 module web3gw
 
-import threefoldtech.threebot.tfchain { TfChainClient }
-import threefoldtech.threebot.stellar { StellarClient }
-import threefoldtech.threebot.eth { EthClient }
-import threefoldtech.threebot.btc { BtcClient }
 import log { Logger }
 import freeflowuniverse.crystallib.actionsparser { Action }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
 import threefoldtech.threebot.threelang.clients { Clients }
 
 [heap]
 pub struct Web3GWHandler {
 pub mut:
-	logger     Logger
-	clients    Clients
-	handlers  map[string]fn(&Action)!
+	logger   Logger
+	clients  Clients
+	handlers map[string]fn (Action) !
 }
 
 pub fn new(mut rpc RpcWsClient, logger &Logger, mut wg_clients Clients) Web3GWHandler {
@@ -24,17 +19,20 @@ pub fn new(mut rpc RpcWsClient, logger &Logger, mut wg_clients Clients) Web3GWHa
 		clients: wg_clients
 	}
 	h.handlers = {
-		"keys": h.keys,
-		"money": h.money,
+		'keys.define':   h.keys_define
+		'money.send':    h.money_send
+		'money.swap':    h.money_swap
+		'money.balance': h.money_balance
 	}
 	return h
 }
 
-pub fn (mut h Web3GWHandler) handle(action &Action) ! {
-	if action.actor in h.handlers {
-		handler := h.handlers[action.actor]
+pub fn (mut h Web3GWHandler) handle(action Action) ! {
+	key := '${action.actor}.${action.name}'
+	if key in h.handlers {
+		handler := h.handlers[key]
 		handler(action)!
 	} else {
-		h.logger.error("unknown actor: ${action.actor}")
+		h.logger.error('unknown actor: ${action.actor}')
 	}
 }

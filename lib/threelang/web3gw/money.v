@@ -1,10 +1,6 @@
 module web3gw
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfchain
-import threefoldtech.threebot.stellar
-import threefoldtech.threebot.eth
-import threefoldtech.threebot.btc
 import strconv
 
 const (
@@ -14,23 +10,9 @@ const (
 		'stellar':  'xlm'
 		'tfchain':  'tft'
 	}
-	operations = {
-		'send':    send
-		'swap':    swap
-		'balance': balance
-	}
 )
 
-pub fn (mut h Web3GWHandler) money(action Action) ! {
-	if action.name in web3gw.operations {
-		op := web3gw.operations[action.name]
-		op(mut h, action)!
-	} else {
-		return error('Unknown operation: ${action.name}')
-	}
-}
-
-fn send(mut h Web3GWHandler, action Action) ! {
+pub fn (mut h Web3GWHandler) money_send(action Action) ! {
 	channel := action.params.get('channel')!
 	bridge_to := action.params.get_default('channel_to', '')!
 	to := action.params.get('to')!
@@ -109,7 +91,7 @@ fn send(mut h Web3GWHandler, action Action) ! {
 	}
 }
 
-fn swap(mut h Web3GWHandler, action Action) ! {
+pub fn (mut h Web3GWHandler) money_swap(action Action) ! {
 	from := action.params.get('from')!
 	to := action.params.get('to')!
 	amount := action.params.get('amount')!
@@ -139,7 +121,7 @@ fn swap(mut h Web3GWHandler, action Action) ! {
 	}
 }
 
-fn balance(mut h Web3GWHandler, action Action) ! {
+pub fn (mut h Web3GWHandler) money_balance(action Action) ! {
 	channel := action.params.get('channel')!
 	mut currency := action.params.get_default('currency', '')!
 
@@ -167,6 +149,6 @@ fn balance(mut h Web3GWHandler, action Action) ! {
 		res := h.clients.tfc_client.balance(address)!
 		h.logger.info('balance on ${channel} is ${res}')
 	} else {
-		return error('unsupported channel. should be one of: ${default_currencies.keys()}')
+		return error('unsupported channel. should be one of: ${web3gw.default_currencies.keys()}')
 	}
 }
