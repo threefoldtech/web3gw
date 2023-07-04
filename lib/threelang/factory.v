@@ -51,7 +51,7 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 
 	mut	gw_clients := get_clients(mut rpc_client)!
 
-	tfgrid_handler := tfgrid.new(mut rpc_client, logger) // TODO: pass tfgrid client
+	tfgrid_handler := tfgrid.new(mut rpc_client, logger, mut gw_clients.tfg_client)
 	web3gw_handler := web3gw.new(mut rpc_client, &logger, mut gw_clients)
 
 	mut runner := Runner{

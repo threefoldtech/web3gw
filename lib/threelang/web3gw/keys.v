@@ -10,6 +10,10 @@ pub fn (mut h Web3GWHandler) keys_define(action Action) ! {
 			network: tfc_network
 			mnemonic: tfc_mnemonic
 		)!
+		h.clients.tfg_client.load(
+			network: tfc_network
+			mnemonic: tfc_mnemonic
+		)!
 	}
 
 	btc_host := action.params.get_default('bitcoin_host', '')!
