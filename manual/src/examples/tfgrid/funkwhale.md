@@ -21,14 +21,14 @@ The [funkwhale cli](../../../../examples/tfgrid/funkwhale.v) has the following a
 - name: identifier for the instance, must be unique
 - farm_id: farm id to deploy on, if 0, a random eligible node on a random farm will be selected. defaults to `0`.
 - capacity: capacity of the funkwhale instance. must be one of `small`, `medium`, `large`, or `extra-large`. defaults to `medium`.
-- ssh: ssh key name defined by a previous action. defaults to `default`
+- ssh: public SSH key to access the Funkwhale machine. should be in `~/.ssh/id_rsa.pub` on linux systems.
 - admin_email: admin email to access admin dashboard
 - admin_username: admin username to access admin dashboard
 - admin_password: admin password to access admin dashboard
 - public_ipv6: add public ipv6 to the instance. defaults to `false`
   
 ```sh
-    v run funkwhale.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name myfunkwhale --capacity small --ssh my_ssh_key
+    v run funkwhale.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name myfunkwhale --capacity small --ssh "YOUR PUBLIC SSH KEY" --admin_email e@email.com --admin_username user1 --admin_password pass1
 ```
 
 ### Get Operation Arguments

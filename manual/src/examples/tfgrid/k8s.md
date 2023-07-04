@@ -22,7 +22,7 @@ The [k8s cli](../../../../examples/tfgrid/k8s.v) has the following arguments:
 
 - name: Name of the cluster
 - token: Token for the cluster, used to let workers join the cluster. defaults to a random string from 20 english letter characters.
-- ssh: Public SSH Key to access any cluster node
+- ssh: public SSH Key to access any cluster node. should be in `~/.ssh/id_rsa.pub` on linux systems.
 - workers: Number of workers to add to the cluster. defaults to `1`.
 - farm_id: Farm id to deploy on, if 0, a random eligible node on a random farm will be selected for each cluster node. defaults to `0`.
 - capacity: capacity of the cluster nodes. must be one of `small`, `medium`, `large`, or `extra-large`. defaults to `medium`.

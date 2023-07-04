@@ -16,7 +16,7 @@ fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
 	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the instance')
-	ssh_key := fp.string('ssh_key', `s`, '', 'Public SSH Key to access the instance')
+	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
 	admin_email := fp.string('admin_email', `e`, '', 'Admin Email')
 	db_username := fp.string('db_username', `d`, '', 'DB username')
 	db_password := fp.string('db_password', `b`, '', 'DB password')

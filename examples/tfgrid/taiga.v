@@ -16,7 +16,7 @@ fn deploy_taiga(mut fp FlagParser, mut t TFGridClient) !TaigaResult {
 	name := fp.string_opt('name', `n`, 'Name of the Taiga instance')!
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
 	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the instance')
-	ssh_key := fp.string('ssh_key', `s`, '', 'Public SSH Key to access the instance')
+	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
 	admin_username := fp.string('admin_username', `u`, '', 'Admin username')
 	admin_password := fp.string('admin_password', `p`, '', 'Admin password')
 	admin_email := fp.string('admin_email', `e`, '', 'Admin email')

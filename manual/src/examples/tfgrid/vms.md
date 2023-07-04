@@ -30,10 +30,10 @@ The [vm cli](../../../../examples/tfgrid/vm.v) has the following arguments:
 - wg: true to add a wireguard access point to the network.
 - add_public_ipv4: true to add public ipv4 to each vm.
 - add_public_ipv6: true to add public ipv6 to each vm.
-- ssh_key: public ssh key to access the instance.
+- ssh: public SSH key to access the any VM. should be in `~/.ssh/id_rsa.pub` on linux systems.
   
 ```sh
-    v run vm.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name myvm --vm_network mynetwork --capacity small --times 3 --wg true --ssh_key "YOUR SSH KEY"
+    v run vm.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --vm_name myvm --vm_network mynetwork --capacity small --times 3 --wg true --ssh "YOUR PUBLIC SSH KEY"
 ```
 
 ### Remove Operation Arguments

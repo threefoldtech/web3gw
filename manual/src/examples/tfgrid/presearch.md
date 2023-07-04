@@ -20,7 +20,7 @@ The [presearch cli](../../../../examples/tfgrid/presearch.v) has the following a
 
 - name: identifier for the instance, must be unique
 - farm_id: farm id to deploy on, if 0, a random eligible node on a random farm will be selected. defaults to `0`.
-- ssh: ssh key name defined by a previous action. defaults to `default`
+- ssh: public SSH key to access the Presearch machine. should be in `~/.ssh/id_rsa.pub` on linux systems.
 - disk_size: size of disk mounted on the presearch instance
 - public_ipv4: true to add public ipv4 to presearch instance
 - registration_code: You need to sign up on Presearch in order to get your Presearch Registration Code.
@@ -28,7 +28,7 @@ The [presearch cli](../../../../examples/tfgrid/presearch.v) has the following a
 - private_restore_key: presearch private key for restoring old nodes
   
 ```sh
-    v run presearch.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name mypresearch --ssh my_ssh_key --registration_code "YOUR REGISTRATION CODE"
+    v run presearch.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name mypresearch --ssh "YOUR PUBLIC SSH KEY" --registration_code "YOUR REGISTRATION CODE"
 ```
 
 ### Get Operation Arguments

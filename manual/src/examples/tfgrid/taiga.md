@@ -21,13 +21,13 @@ The [taiga cli](../../../../examples/tfgrid/taiga.v) has the following arguments
 - name: identifier for the instance, must be unique
 - farm_id: farm id to deploy on, if 0, a random eligible node on a random farm will be selected. defaults to `0`.
 - capacity: capacity of the taiga instance. must be one of `small`, `medium`, `large`, or `extra-large`. defaults to `medium`.
-- ssh: ssh key name defined by a previous action. defaults to `default`
+- ssh: public SSH key to access the Taiga machine. should be in `~/.ssh/id_rsa.pub` on linux systems.
 - admin_username: admin username
 - admin_password: admin password
 - admin_email: admin email
   
 ```sh
-    v run taiga.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name mytaiga --capacity small --ssh my_ssh_key
+    v run taiga.v --network main --mnemonic "YOUR MNEMONIC" --operation deploy --name mytaiga --capacity small --ssh "YOUR PUBLIC SSH KEY"
 ```
 
 ### Get Operation Arguments
