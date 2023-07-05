@@ -1,7 +1,9 @@
-module tfgrid
+module discourse
+
+import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
 [params]
-pub struct Discourse {
+pub struct Deploy {
 pub:
 	name            string // identifier for the instance, must be unique
 	farm_id         u64    // farm id to deploy on, if 0, a random eligible node on a random farm will be selected
@@ -18,21 +20,29 @@ pub:
 	smtp_enable_tls bool   // if true, tls encryption will be used in the smtp server
 }
 
+// DiscourseClient is a client containig an RpcWsClient instance, and provides access for discourse applications on tfgrid
+[openrpc: exclude]
+pub struct DiscourseClient {
+mut:
+	client  &RpcWsClient
+	timeout int
+}
+
 // Deploys a discourse instance
-pub fn (mut t TFGridClient) deploy_discourse(discourse Discourse) !DiscourseResult {
-	return t.client.send_json_rpc[[]Discourse, DiscourseResult]('tfgrid.DeployDiscourse',
-		[discourse], t.timeout)!
+pub fn (mut t DiscourseClient) deploy(args Deploy) !DiscourseResult {
+	return t.client.send_json_rpc[[]Deploy, DiscourseResult]('tfgrid.DeployDiscourse',
+		[args], t.timeout)!
 }
 
 // Gets a deployed discourse instance
-pub fn (mut t TFGridClient) get_discourse(discourse_name string) !DiscourseResult {
+pub fn (mut t DiscourseClient) get(discourse_name string) !DiscourseResult {
 	return t.client.send_json_rpc[[]string, DiscourseResult]('tfgrid.GetDiscourse', [
 		discourse_name,
 	], t.timeout)!
 }
 
 // Deletes a deployed discourse instance.
-pub fn (mut t TFGridClient) delete_discourse(discourse_name string) ! {
+pub fn (mut t DiscourseClient) delete(discourse_name string) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfgrid.DeleteDiscourse', [
 		discourse_name,
 	], t.timeout)!

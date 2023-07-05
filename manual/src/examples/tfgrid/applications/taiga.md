@@ -8,7 +8,7 @@ The taiga example exposes the following functionality:
 
 ## CLI Arguments
 
-The [taiga cli](../../../../examples/tfgrid/taiga.v) has the following arguments:
+The [taiga cli](../../../../examples/tfgrid/applications/taiga.v) has the following arguments:
 
 - mnemonic: user mnemonic.
 - network: chain network to use. defaults to `dev`

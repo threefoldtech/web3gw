@@ -1,7 +1,9 @@
-module tfgrid
+module presearch
+
+import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
 [params]
-pub struct Presearch {
+pub struct Deploy {
 pub:
 	name              string [required] // identifier for the instance, must be unique
 	farm_id           u64    // farm id to deploy on, if 0, a random eligible node on a random farm will be selected
@@ -15,21 +17,29 @@ pub:
 	private_restore_key string
 }
 
+// PresearchClient is a client containig an RpcWsClient instance, and provides access for presearch applications on tfgrid
+[openrpc: exclude]
+pub struct PresearchClient {
+mut:
+	client  &RpcWsClient
+	timeout int
+}
+
 // Deploys a presearch instance
-pub fn (mut t TFGridClient) deploy_presearch(presearch Presearch) !PresearchResult {
-	return t.client.send_json_rpc[[]Presearch, PresearchResult]('tfgrid.DeployPresearch',
-		[presearch], t.timeout)!
+pub fn (mut t PresearchClient) deploy(args Deploy) !PresearchResult {
+	return t.client.send_json_rpc[[]Deploy, PresearchResult]('tfgrid.DeployPresearch',
+		[args], t.timeout)!
 }
 
 // Gets a deployed presearch instance
-pub fn (mut t TFGridClient) get_presearch(presearch_name string) !PresearchResult {
+pub fn (mut t PresearchClient) get(presearch_name string) !PresearchResult {
 	return t.client.send_json_rpc[[]string, PresearchResult]('tfgrid.GetPresearch', [
 		presearch_name,
 	], t.timeout)!
 }
 
 // Deletes a deployed presearch instance.
-pub fn (mut t TFGridClient) delete_presearch(presearch_name string) ! {
+pub fn (mut t PresearchClient) delete(presearch_name string) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfgrid.DeletePresearch', [
 		presearch_name,
 	], t.timeout)!

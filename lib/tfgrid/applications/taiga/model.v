@@ -1,6 +1,6 @@
-module tfgrid
+module taiga
 
-pub struct DiscourseResult {
+pub struct TaigaResult {
 pub:
 	name   string // identifier for the instance
 	ygg_ip string // instance ygg ip
