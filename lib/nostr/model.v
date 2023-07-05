@@ -5,7 +5,7 @@ pub struct Event {
 	pubkey     string
 	created_at u64
 	kind       int
-	tags       []string
+	tags       [][]string
 	content    string
 	sig        string
 	// extra map[string]any
@@ -73,25 +73,27 @@ pub struct ProductCreateInput {
 	product Product
 }
 
+[params]
 pub struct CreateChannelInput {
-	tags  []string
-	name  string
-	about string
+	tags    []string
+	name    string
+	about   string
 	picture string
 }
 
 pub struct CreateChannelMessageInput {
-	content string
+	content    string
 	channel_id string
 	// Message ID is used for replies
-	message_id string 
+	message_id string
 	// Public Key of author to reply to
 	public_key string
 }
 
+[params]
 pub struct SubscribeChannelMessageInput {
-	// Id of the channel or message for which the reply is intended
-	message_id string
+	// Id of the channel or message to make a subscription for
+	id string
 }
 
 pub struct Channel {
@@ -104,8 +106,8 @@ pub struct RelayChannel {
 	name    string
 	about   string
 	picture string
-	relay string
-	id    string
+	relay   string
+	id      string
 }
 
 pub struct FetchChannelMessageInput {
@@ -114,7 +116,7 @@ pub struct FetchChannelMessageInput {
 
 pub struct RelayChannelMessage {
 	content string
-	tags [][]string
-	relay string
-	id    string
+	tags    [][]string
+	relay   string
+	id      string
 }

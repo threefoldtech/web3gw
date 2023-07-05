@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"sort"
 	"sync"
 	"time"
 	"unsafe"
@@ -528,12 +529,18 @@ func (c *Client) SubscribeDirectMessagesDirect(swapTag string) (<-chan NostrEven
 // Get all historic events on active subscriptions for the client.
 // Note that only a limited amount of events are kept. If the actual client waits
 // too long to call this, events might be dropped.
+// returned events are sorted from oldes to newest
 func (c *Client) GetEvents() []NostrEvent {
 	subs := c.server.subscriptions(c.Id())
 	var events []NostrEvent
 	for _, sub := range subs {
 		events = append(events, sub.buffer.take()...)
 	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].CreatedAt.Unix() < events[j].CreatedAt.Unix()
+	})
+
 	return events
 }
 

@@ -123,7 +123,8 @@ pub fn (mut n NostrClient) publish_product(args ProductCreateInput) ! {
 
 // create_channel creates a new channel
 pub fn (mut n NostrClient) create_channel(args CreateChannelInput) !string {
-	return n.client.send_json_rpc[[]CreateChannelInput, string]('nostr.CreateChannel', [
+	return n.client.send_json_rpc[[]CreateChannelInput, string]('nostr.CreateChannel',
+		[
 		args,
 	], nostr.default_timeout)!
 }
@@ -141,6 +142,7 @@ pub fn (mut n NostrClient) create_channel_message(args CreateChannelMessageInput
 	], nostr.default_timeout)!
 }
 
+// subscribe_channel_message creates a subscription to channel or message events based on the provided id
 pub fn (mut n NostrClient) subscribe_channel_message(args SubscribeChannelMessageInput) !string {
 	return n.client.send_json_rpc[[]SubscribeChannelMessageInput, string]('nostr.SubscribeChannelMessage',
 		[

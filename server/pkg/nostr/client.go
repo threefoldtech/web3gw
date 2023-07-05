@@ -305,8 +305,8 @@ func (c *Client) CreateChannelMessage(ctx context.Context, conState jsonrpc.Stat
 }
 
 type SubscribeChannelMessageInput struct {
-	// Id of the channel or message for which the reply is intended
-	MessageId string `json:"message_id"`
+	// ID of the channel or message for which the reply is intended
+	ID string `json:"id"`
 }
 
 func (c *Client) SubscribeChannelMessage(ctx context.Context, conState jsonrpc.State, input SubscribeChannelMessageInput) (string, error) {
@@ -315,7 +315,7 @@ func (c *Client) SubscribeChannelMessage(ctx context.Context, conState jsonrpc.S
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	return state.Client.SubscribeChannelMessages(input.MessageId)
+	return state.Client.SubscribeChannelMessages(input.ID)
 }
 
 // ListChannels on connected relays

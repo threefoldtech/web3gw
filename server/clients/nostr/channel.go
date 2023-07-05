@@ -133,12 +133,12 @@ func (c *Client) SubscribeChannelCreation() (string, error) {
 	return c.subscribeWithFiler(filters)
 }
 
-// SubscribeChannelMessages subsribes to messages which are a reply to the given chanMessageId
-func (c *Client) SubscribeChannelMessages(chanMessageId string) (string, error) {
+// SubscribeChannelMessages subsribes to a messages sent to a channel with id `id`, or reply messages to the message with id `id`
+func (c *Client) SubscribeChannelMessages(id string) (string, error) {
 	filters := []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelMessage},
 		Limit: DEFAULT_LIMIT,
-		Tags:  nostr.TagMap{"e": []string{chanMessageId}},
+		Tags:  nostr.TagMap{"e": []string{id}},
 	}}
 
 	return c.subscribeWithFiler(filters)
