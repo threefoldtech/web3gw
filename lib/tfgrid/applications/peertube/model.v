@@ -1,4 +1,4 @@
-module tfgrid
+module peertube
 
 pub struct PeertubeResult {
 pub:

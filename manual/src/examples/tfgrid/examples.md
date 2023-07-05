@@ -15,6 +15,6 @@ cd examples/tfgrid
 - [Funkwhale](./funkwhale.md)
 - [Discourse](./discourse.md)
 - [Machine With QSFS](./machine_with_qsfs.md)
-- [Machines with Gateways](./machines_with_gateways.md)
-- [Peertube](./peertube.md)
 - [Presearch](./presearch.md)
+- [Applications](./applications/applications.md)
+  - [Peertube](./peertube.md)

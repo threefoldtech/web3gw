@@ -1,6 +1,7 @@
 module main
 
-import threefoldtech.threebot.tfgrid { Peertube, PeertubeResult, TFGridClient }
+import threefoldtech.threebot.tfgrid { TFGridClient }
+import threefoldtech.threebot.tfgrid.applications.peertube { PeertubeResult }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -23,7 +24,8 @@ fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 
 	_ := fp.finalize()!
 
-	peertube := Peertube{
+	mut peertube_client := t.applications().peertube()
+	return peertube_client.deploy(
 		name: name
 		farm_id: u64(farm_id)
 		capacity: capacity
@@ -31,9 +33,7 @@ fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 		admin_email: admin_email
 		db_username: db_username
 		db_password: db_password
-	}
-
-	return t.deploy_peertube(peertube)!
+	)!
 }
 
 fn get_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
@@ -41,8 +41,8 @@ fn get_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 
 	name := fp.string_opt('name', `n`, 'Name of the clusetr')!
 	_ := fp.finalize()!
-
-	return t.get_peertube(name)!
+	mut peertube_client := t.applications().peertube()
+	return peertube_client.get(name)!
 }
 
 fn delete_peertube(mut fp FlagParser, mut t TFGridClient) ! {
@@ -51,7 +51,8 @@ fn delete_peertube(mut fp FlagParser, mut t TFGridClient) ! {
 	name := fp.string_opt('name', `n`, 'Name of the cluster')!
 	_ := fp.finalize()!
 
-	return t.delete_peertube(name)
+	mut peertube_client := t.applications().peertube()
+	return peertube_client.delete(name)
 }
 
 fn main() {
