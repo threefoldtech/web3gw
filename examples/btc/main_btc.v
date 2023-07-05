@@ -38,7 +38,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user
 	logger.info("Fee estimation: ${fee_estimation}")
 
 	/*
-	result := btc_client.create_wallet(name:"mywallet2", passphrase:"mypassphrase")!
+	result := btc_client.create_wallet(name:"mywallet3", passphrase:"mypassphrase")!
 	logger.info("Result of creating wallet: ${result}")
 	*/
 
@@ -60,12 +60,20 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user
 
 	/*
 	by_label := btc_client.list_received_by_label()!
-	logger.info("Received by label: ${by_label}")
+	logger.info("Received by label: ${by_label}")	
 	*/
 
+	/*
 	peer_info := btc_client.get_peer_info()!
 	logger.info("Peer info: ${peer_info}")
+	*/
 
+	transactions := btc_client.list_transactions("*")!
+	logger.info("Transactions: ${transactions}")
+
+	btc_client.get_received_by_label("")!
+
+	//btc_client.rename_account(old_account: "", new_account: "")!
 }
 
 fn main() {

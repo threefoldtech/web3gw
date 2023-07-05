@@ -71,12 +71,6 @@ type (
 		Mode       btcjson.EstimateSmartFeeMode `json:"mode"`
 	}
 
-	GenerateToAddress struct {
-		NumBlocks int64  `json:"num_blocks"`
-		Address   string `json:"address"`
-		MaxTries  int64  `json:"max_tries"`
-	}
-
 	GetChainTxStatsNBlocksBlockHash struct {
 		AmountOfBlocks int32  `json:"amount_of_blocks"`
 		BlockHashEnd   string `json:"block_hash_end"`
@@ -159,7 +153,7 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 }
 
 func (c *Client) ImportAddress(ctx context.Context, conState jsonrpc.State, args ImportAddress) error {
-	log.Debug().Msgf("BTC: importing address %s with label %s (rescan: %t, p2sh: %s)", args.Address, args.Label, args.Rescan, args.P2SH)
+	log.Debug().Msgf("BTC: importing address %s with label %s (rescan: %t, p2sh: %t)", args.Address, args.Label, args.Rescan, args.P2SH)
 
 	state := State(conState)
 	if state.client == nil {
@@ -196,6 +190,7 @@ func (c *Client) ImportPubKey(ctx context.Context, conState jsonrpc.State, args 
 	return state.client.ImportPubKeyRescan(args.PubKey, args.Rescan)
 }
 
+// TODO ListAccounts is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
 func (c *Client) ListLabels(ctx context.Context, conState jsonrpc.State) (map[string]btcutil.Amount, error) {
 	log.Debug().Msg("BTC: listing labels")
 
@@ -207,6 +202,7 @@ func (c *Client) ListLabels(ctx context.Context, conState jsonrpc.State) (map[st
 	return state.client.ListAccounts()
 }
 
+// TODO RenameAccount is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
 func (c *Client) RenameAccount(ctx context.Context, conState jsonrpc.State, args RenameAccount) error {
 	log.Debug().Msgf("BTC: renaming account from %s to %s", args.OldAccount, args.NewAccount)
 
@@ -244,7 +240,7 @@ func (c *Client) SendToAddress(ctx context.Context, conState jsonrpc.State, args
 }
 
 func (c *Client) EstimateSmartFee(ctx context.Context, conState jsonrpc.State, args EstimateSmartFee) (*btcjson.EstimateSmartFeeResult, error) {
-	log.Debug().Msgf("BTC: estimating smart fee for %s blocks with estimation mode %s", args.ConfTarget, args.Mode)
+	log.Debug().Msgf("BTC: estimating smart fee for %d blocks with estimation mode %s", args.ConfTarget, args.Mode)
 
 	state := State(conState)
 	if state.client == nil {
@@ -264,43 +260,6 @@ func hashesToStrings(hashes []*chainhash.Hash) []string {
 		}
 	}
 	return blockHashes
-}
-
-func (c *Client) GenerateBlocks(ctx context.Context, conState jsonrpc.State, numBlocks uint32) ([]string, error) {
-	log.Debug().Msgf("BTC: generating %d blocks", numBlocks)
-
-	state := State(conState)
-	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	hashes, err := state.client.Generate(numBlocks)
-	if err != nil {
-		return []string{}, err
-	}
-
-	return hashesToStrings(hashes), err
-}
-
-func (c *Client) GenerateBlocksToAddress(ctx context.Context, conState jsonrpc.State, args GenerateToAddress) ([]string, error) {
-	log.Debug().Msgf("BTC: generating %d blocks for address %s", args.NumBlocks, args.Address)
-
-	state := State(conState)
-	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	address, err := btcutil.DecodeAddress(args.Address, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	hashes, err := state.client.GenerateToAddress(args.NumBlocks, address, &args.MaxTries)
-	if err != nil {
-		return nil, err
-	}
-
-	return hashesToStrings(hashes), err
 }
 
 func (c *Client) SetLabel(ctx context.Context, conState jsonrpc.State, args SetLabel) error {
@@ -541,6 +500,7 @@ func (c *Client) GetRawTransaction(ctx context.Context, conState jsonrpc.State, 
 	return state.client.GetRawTransaction(txHashDecoded)
 }
 
+// TODO GetReceivedByAccount is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
 func (c *Client) GetReceivedByLabel(ctx context.Context, conState jsonrpc.State, label string) (btcutil.Amount, error) {
 	log.Debug().Msgf("BTC: getting amount received by label %s", label)
 
@@ -550,17 +510,6 @@ func (c *Client) GetReceivedByLabel(ctx context.Context, conState jsonrpc.State,
 	}
 
 	return state.client.GetReceivedByAccount(label)
-}
-
-func (c *Client) ImportWallet(ctx context.Context, conState jsonrpc.State, walletDump string) error {
-	log.Debug().Msg("BTC: importing wallet")
-
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ImportWallet(walletDump)
 }
 
 func (c *Client) LoadWallet(ctx context.Context, conState jsonrpc.State, walletName string) error {
@@ -597,6 +546,7 @@ func (c *Client) GetWalletInfo(ctx context.Context, conState jsonrpc.State) (*bt
 	return state.client.GetWalletInfo()
 }
 
+// TODO ListReceivedByAccount is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
 func (c *Client) ListReceivedByLabel(ctx context.Context, conState jsonrpc.State) ([]btcjson.ListReceivedByAccountResult, error) {
 	log.Debug().Msg("BTC: listing received transactions by label")
 
