@@ -1,10 +1,10 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { Taiga }
 import rand
 
 fn (mut t TFGridHandler) taiga(action Action) ! {
+	mut taiga_client := t.tfgrid.applications().taiga()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(8).to_lower())!
@@ -17,7 +17,7 @@ fn (mut t TFGridHandler) taiga(action Action) ! {
 			admin_email := action.params.get('admin_email')!
 			disk_size := action.params.get_storagecapacity_in_gigabytes('disk_size') or { 50 }
 
-			deploy_res := t.tfgrid.deploy_taiga(Taiga{
+			deploy_res := taiga_client.deploy(
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -26,23 +26,21 @@ fn (mut t TFGridHandler) taiga(action Action) ! {
 				admin_password: admin_password
 				admin_email: admin_email
 				disk_size: u32(disk_size)
-			})!
+			)!
 
 			t.logger.info('${deploy_res}')
 		}
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfgrid.get_taiga(name)!
+			get_res := taiga_client.get(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfgrid.delete_taiga(name) or {
-				return error('failed to delete taiga instance: ${err}')
-			}
+			taiga_client.delete(name) or { return error('failed to delete taiga instance: ${err}') }
 		}
 		else {
 			return error('operation ${action.name} is not supported on taiga')
