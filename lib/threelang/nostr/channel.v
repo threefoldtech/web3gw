@@ -8,8 +8,8 @@ fn (mut n NostrHandler) channel(action Action) ! {
 		'create' {
 			// create a new channel
 			name := action.params.get('name')!
-			about := action.params.get_default('about', '')!
-			pic_url := action.params.get_default('pic_url', '')!
+			about := action.params.get_default('description', '')!
+			pic_url := action.params.get_default('picture', '')!
 
 			channel_id := n.client.create_channel(name: name, about: about, picture: pic_url)!
 			n.logger.info('Channel ID ${channel_id}')
@@ -18,8 +18,8 @@ fn (mut n NostrHandler) channel(action Action) ! {
 			// send message to channel
 			channel_id := action.params.get('channel_id')!
 			content := action.params.get('content')!
-			message_id := action.params.get_default('reply_msg_id', '')!
-			public_key := action.params.get_default('reply_usr_pk', '')!
+			message_id := action.params.get_default('reply_to', '')!
+			public_key := action.params.get_default('public_key_author', '')!
 
 			n.client.create_channel_message(
 				channel_id: channel_id
