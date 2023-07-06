@@ -1,10 +1,10 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { Peertube }
 import rand
 
 fn (mut t TFGridHandler) peertube(action Action) ! {
+	mut peertube_client := t.tfgrid.applications().peertube()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(8).to_lower())!
@@ -16,7 +16,7 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 			db_username := action.params.get_default('db_username', rand.string(8).to_lower())!
 			db_password := action.params.get_default('db_password', rand.string(8).to_lower())!
 
-			deploy_res := t.tfgrid.deploy_peertube(Peertube{
+			deploy_res := peertube_client.deploy(
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -24,21 +24,21 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 				admin_email: admin_email
 				db_username: db_username
 				db_password: db_password
-			})!
+			)!
 
 			t.logger.info('${deploy_res}')
 		}
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfgrid.get_peertube(name)!
+			get_res := peertube_client.get(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfgrid.delete_peertube(name) or {
+			peertube_client.delete(name) or {
 				return error('failed to delete peertube instance: ${err}')
 			}
 		}
