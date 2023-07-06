@@ -5,6 +5,8 @@ The channels example exposes the following functionality:
 - Listing all public channels in a relay
 - Reading all messages sent to a channel
 - Sending a message to a channel, with the ability to mark the message as a reply for another message/user.
+- Subscribing to a channel.
+- Creating a new channel
   
 ## CLI Arguments
 
@@ -27,7 +29,7 @@ There are no extra arguments for the list operation.
 - channel: this is the Channel ID to read messages from. a Channel ID is the event ID of the channel creation event.
 
 ```sh
-    v run channels.v -s "YOUR SECRET" -o list -channel "f27ffebc7314cbbb12ad24ff3c127ef8070f9f341b5561251c355c274984beea"
+    v run channels.v -s "YOUR SECRET" -o read  "CHANNEL ID"
 ```
 
 ### Send Operation Arguments
@@ -38,5 +40,23 @@ There are no extra arguments for the list operation.
 - public_key: this is the public key of the author of the message that you want to reply to, if any.
 
 ```sh
-    v run channels.v -s "YOUR SECRET" -o send -channel "f27ffebc7314cbbb12ad24ff3c127ef8070f9f341b5561251c355c274984beea" -content "Message content" -message "55d4bf31efac0bb926ca1127237f729051ca563fd74f6579e61e7c0d9ca60e0b"
+    v run channels.v -s "YOUR SECRET" -o send "CHANNEL ID" "Message content" -message "MESSAGE ID TO REPLY TO"
+```
+
+### Subscribe Operation Arguments
+
+- channel_id: this is the Channel ID to subscribe to. a Channel ID is the event ID of the channel creation event.
+
+```sh
+    v run channels.v -s "YOUR SECRET" -o subscribe "CHANNEL ID"
+```
+
+### Create Operation Arguments
+
+- name: New channel name.
+- description: Channel description.
+- picture: Picture URL for the channel.
+
+```sh
+    v run channels.v -s "YOUR SECRET" -o create my_new_channel_name -d "my channel description" -p "https://www.my_channel_picture_url.com
 ```
