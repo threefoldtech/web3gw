@@ -1,10 +1,10 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { Presearch }
 import rand
 
 fn (mut t TFGridHandler) presearch(action Action) ! {
+	mut presearch_client := t.tfgrid.applications().presearch()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
@@ -17,7 +17,7 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			public_restore_key := action.params.get_default('public_restore_key', '')!
 			private_restore_key := action.params.get_default('private_restore_key', '')!
 
-			deploy_res := t.tfgrid.deploy_presearch(Presearch{
+			deploy_res := presearch_client.deploy(
 				name: name
 				farm_id: u64(farm_id)
 				ssh_key: ssh_key
@@ -26,21 +26,21 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 				registration_code: registration_code
 				public_restore_key: public_restore_key
 				private_restore_key: private_restore_key
-			})!
+			)!
 
 			t.logger.info('${deploy_res}')
 		}
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfgrid.get_presearch(name)!
+			get_res := presearch_client.get(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfgrid.delete_presearch(name) or {
+			presearch_client.delete(name) or {
 				return error('failed to delete presearch instance: ${err}')
 			}
 		}
