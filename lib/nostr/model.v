@@ -88,6 +88,7 @@ pub struct RelayChannel {
 	id      string // event ID of channel creation
 }
 
+[params]
 pub struct CreateChannelMessageInput {
 	content    string // message content
 	channel_id string // event id of the channel to send the message to
@@ -100,6 +101,7 @@ pub struct SubscribeChannelMessageInput {
 	id string // Id of the channel or message to make a subscription for
 }
 
+[params]
 pub struct FetchChannelMessageInput {
 	channel_id string // channel ID to fetch messages from
 }
