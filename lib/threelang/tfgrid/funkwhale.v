@@ -1,10 +1,10 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { Funkwhale }
 import rand
 
 fn (mut t TFGridHandler) funkwhale(action Action) ! {
+	mut funkwhale_client := t.tfgrid.applications().funkwhale()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
@@ -16,7 +16,7 @@ fn (mut t TFGridHandler) funkwhale(action Action) ! {
 			admin_username := action.params.get_default('admin_username', '')!
 			admin_password := action.params.get_default('admin_password', '')!
 
-			deploy_res := t.tfgrid.deploy_funkwhale(Funkwhale{
+			deploy_res := funkwhale_client.deploy(
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -24,21 +24,21 @@ fn (mut t TFGridHandler) funkwhale(action Action) ! {
 				admin_email: admin_email
 				admin_username: admin_username
 				admin_password: admin_password
-			})!
+			)!
 
 			t.logger.info('${deploy_res}')
 		}
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfgrid.get_funkwhale(name)!
+			get_res := funkwhale_client.get(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfgrid.delete_funkwhale(name) or {
+			funkwhale_client.delete(name) or {
 				return error('failed to delete funkwhale instance: ${err}')
 			}
 		}
