@@ -1,6 +1,6 @@
-module tfgrid
+module presearch
 
-pub struct TaigaResult {
+pub struct PresearchResult {
 pub:
 	name   string // identifier for the instance
 	ygg_ip string // instance ygg ip

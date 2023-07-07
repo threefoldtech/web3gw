@@ -1,6 +1,7 @@
 module main
 
-import threefoldtech.threebot.tfgrid { Discourse, DiscourseResult, TFGridClient }
+import threefoldtech.threebot.tfgrid { TFGridClient }
+import threefoldtech.threebot.tfgrid.applications.peertube { PeertubeResult }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -10,55 +11,48 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_discourse(mut fp FlagParser, mut t TFGridClient) !DiscourseResult {
+fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 	fp.usage_example('deploy [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the discourse instance')!
-	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy the instance on')
-	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the discourse instance')
-	disk_size := fp.int('disk', `d`, 0, 'Size in GB of disk to be mounted')
-	ssh_key := fp.string('ssh', `k`, '', 'Public SSH key to access the discourse machine')
-	developer_email := fp.string('dev_email', `e`, '', 'Developer email')
-	smtp_address := fp.string('smtp_address', `a`, '', 'SMTP Address')
-	smtp_username := fp.string('smtp_username', `u`, '', 'SMTP username')
-	smtp_password := fp.string('smtp_password', `p`, '', 'SMTP password')
-	smtp_enable_tls := fp.bool('smtp_enable_tls', `t`, false, 'True to enable TLS for SMTP')
-	smtp_port := fp.int('smtp_port', `o`, 0, 'SMTP server port')
-	public_ipv6 := fp.bool('public_ipv6', `i`, false, 'Add public ipv6 to the instance')
+	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
+	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
+	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the instance')
+	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
+	admin_email := fp.string('admin_email', `e`, '', 'Admin Email')
+	db_username := fp.string('db_username', `d`, '', 'DB username')
+	db_password := fp.string('db_password', `b`, '', 'DB password')
+
 	_ := fp.finalize()!
 
-	return t.deploy_discourse(Discourse{
+	mut peertube_client := t.applications().peertube()
+	return peertube_client.deploy(
 		name: name
-		farm_id: u32(farm_id)
+		farm_id: u64(farm_id)
 		capacity: capacity
-		disk_size: u32(disk_size)
 		ssh_key: ssh_key
-		developer_email: developer_email
-		smtp_address: smtp_address
-		smtp_username: smtp_username
-		smtp_password: smtp_password
-		smtp_enable_tls: smtp_enable_tls
-		smtp_port: u32(smtp_port)
-		public_ipv6: public_ipv6
-	})!
+		admin_email: admin_email
+		db_username: db_username
+		db_password: db_password
+	)!
 }
 
-fn get_discourse(mut fp FlagParser, mut t TFGridClient) !DiscourseResult {
+fn get_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
 	fp.usage_example('get [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the discourse instance')!
+	name := fp.string_opt('name', `n`, 'Name of the clusetr')!
 	_ := fp.finalize()!
-
-	return t.get_discourse(name)!
+	mut peertube_client := t.applications().peertube()
+	return peertube_client.get(name)!
 }
 
-fn delete_discourse(mut fp FlagParser, mut t TFGridClient) ! {
+fn delete_peertube(mut fp FlagParser, mut t TFGridClient) ! {
 	fp.usage_example('delete [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the discourse instance')!
+	name := fp.string_opt('name', `n`, 'Name of the cluster')!
 	_ := fp.finalize()!
 
-	return t.delete_discourse(name)
+	mut peertube_client := t.applications().peertube()
+	return peertube_client.delete(name)
 }
 
 fn main() {
@@ -75,10 +69,7 @@ fn main() {
 	network := fp.string('network', `n`, 'dev', 'TF network to use')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
-	operation := fp.string_opt('operation', `o`, 'Required operation to perform on Discourse') or {
-		eprintln('${err}')
-		exit(1)
-	}
+	operation := fp.string_opt('operation', `o`, 'Required operation to perform ')!
 	remainig_args := fp.finalize() or {
 		eprintln('${err}')
 		exit(1)
@@ -105,7 +96,7 @@ fn main() {
 	match operation {
 		'deploy' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			res := deploy_discourse(mut new_fp, mut tfgrid_client) or {
+			res := deploy_peertube(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}
@@ -113,7 +104,7 @@ fn main() {
 		}
 		'get' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			res := get_discourse(mut new_fp, mut tfgrid_client) or {
+			res := get_peertube(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}
@@ -121,7 +112,7 @@ fn main() {
 		}
 		'delete' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			delete_discourse(mut new_fp, mut tfgrid_client) or {
+			delete_peertube(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}

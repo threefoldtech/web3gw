@@ -1,6 +1,7 @@
 module main
 
-import threefoldtech.threebot.tfgrid { Peertube, PeertubeResult, TFGridClient }
+import threefoldtech.threebot.tfgrid { TFGridClient }
+import threefoldtech.threebot.tfgrid.applications.funkwhale { FunkwhaleResult }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -10,48 +11,50 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
+fn deploy_funkwhale(mut fp FlagParser, mut t TFGridClient) !FunkwhaleResult {
 	fp.usage_example('deploy [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
+	name := fp.string_opt('name', `n`, 'Name of the funkwhale instance')!
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
-	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the instance')
-	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
-	admin_email := fp.string('admin_email', `e`, '', 'Admin Email')
-	db_username := fp.string('db_username', `d`, '', 'DB username')
-	db_password := fp.string('db_password', `b`, '', 'DB password')
-
+	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the funkwhale instance')
+	ssh_key := fp.string('ssh', `k`, '', 'Public SSH key to access the funkwhale machine')
+	admin_email := fp.string_opt('admin_email', `e`, 'admin email')!
+	admin_username := fp.string_opt('admin_username', `u`, 'admin username')!
+	admin_password := fp.string_opt('admin_password', `p`, 'admin password')!
+	public_ipv6 := fp.bool('public_ipv6', `i`, false, 'Add public ipv6 to the instance')
 	_ := fp.finalize()!
 
-	peertube := Peertube{
+	mut funkwhale_client := t.applications().funkwhale()
+	return funkwhale_client.deploy(
 		name: name
-		farm_id: u64(farm_id)
+		farm_id: u32(farm_id)
 		capacity: capacity
-		ssh_key: ssh_key
 		admin_email: admin_email
-		db_username: db_username
-		db_password: db_password
-	}
-
-	return t.deploy_peertube(peertube)!
+		ssh_key: ssh_key
+		admin_username: admin_username
+		admin_password: admin_password
+		public_ipv6: public_ipv6
+	)!
 }
 
-fn get_peertube(mut fp FlagParser, mut t TFGridClient) !PeertubeResult {
+fn get_funkwhale(mut fp FlagParser, mut t TFGridClient) !FunkwhaleResult {
 	fp.usage_example('get [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the clusetr')!
+	name := fp.string_opt('name', `n`, 'Name of the funkwhale instance')!
 	_ := fp.finalize()!
 
-	return t.get_peertube(name)!
+	mut funkwhale_client := t.applications().funkwhale()
+	return funkwhale_client.get(name)!
 }
 
-fn delete_peertube(mut fp FlagParser, mut t TFGridClient) ! {
+fn delete_funkwhale(mut fp FlagParser, mut t TFGridClient) ! {
 	fp.usage_example('delete [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the cluster')!
+	name := fp.string_opt('name', `n`, 'Name of the funkwhale instance')!
 	_ := fp.finalize()!
 
-	return t.delete_peertube(name)
+	mut funkwhale_client := t.applications().funkwhale()
+	return funkwhale_client.delete(name)
 }
 
 fn main() {
@@ -68,7 +71,10 @@ fn main() {
 	network := fp.string('network', `n`, 'dev', 'TF network to use')
 	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
-	operation := fp.string_opt('operation', `o`, 'Required operation to perform ')!
+	operation := fp.string_opt('operation', `o`, '') or {
+		eprintln('${err}')
+		exit(1)
+	}
 	remainig_args := fp.finalize() or {
 		eprintln('${err}')
 		exit(1)
@@ -95,7 +101,7 @@ fn main() {
 	match operation {
 		'deploy' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			res := deploy_peertube(mut new_fp, mut tfgrid_client) or {
+			res := deploy_funkwhale(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}
@@ -103,7 +109,7 @@ fn main() {
 		}
 		'get' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			res := get_peertube(mut new_fp, mut tfgrid_client) or {
+			res := get_funkwhale(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}
@@ -111,7 +117,7 @@ fn main() {
 		}
 		'delete' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			delete_peertube(mut new_fp, mut tfgrid_client) or {
+			delete_funkwhale(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}

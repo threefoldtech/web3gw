@@ -1,6 +1,6 @@
-module tfgrid
+module funkwhale
 
-pub struct PresearchResult {
+pub struct FunkwhaleResult {
 pub:
 	name   string // identifier for the instance
 	ygg_ip string // instance ygg ip

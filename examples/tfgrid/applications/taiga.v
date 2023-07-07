@@ -1,6 +1,7 @@
 module main
 
-import threefoldtech.threebot.tfgrid { Presearch, PresearchResult, TFGridClient }
+import threefoldtech.threebot.tfgrid { TFGridClient }
+import threefoldtech.threebot.tfgrid.applications.taiga { TaigaResult }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -10,49 +11,48 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_presearch(mut fp FlagParser, mut t TFGridClient) !PresearchResult {
+fn deploy_taiga(mut fp FlagParser, mut t TFGridClient) !TaigaResult {
 	fp.usage_example('deploy [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
+	name := fp.string_opt('name', `n`, 'Name of the Taiga instance')!
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
+	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the instance')
 	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
-	disk_size := fp.int('disk_size', `d`, 0, 'Size of disk mounted on the presearch instance')
-	public_ipv4 := fp.bool('public_ipv4', `i`, false, 'True to add public ipv4 to presearch instance')
-	registration_code := fp.string_opt('registration_code', `r`, 'You need to sign up on Presearch in order to get your Presearch Registration Code.')!
-	public_restore_key := fp.string('public_restore_key', `p`, '', 'presearch public key for restoring old nodes')
-	private_restore_key := fp.string('private_restore_key', `k`, '', 'presearch private key for restoring old nodes')
+	admin_username := fp.string('admin_username', `u`, '', 'Admin username')
+	admin_password := fp.string('admin_password', `p`, '', 'Admin password')
+	admin_email := fp.string('admin_email', `e`, '', 'Admin email')
 	_ := fp.finalize()!
 
-	presearch := Presearch{
+	mut taiga_client := t.applications().taiga()
+	return taiga_client.deploy(
 		name: name
 		farm_id: u64(farm_id)
+		capacity: capacity
 		ssh_key: ssh_key
-		disk_size: u32(disk_size)
-		public_ipv4: public_ipv4
-		registration_code: registration_code
-		public_restore_key: public_restore_key
-		private_restore_key: private_restore_key
-	}
-
-	return t.deploy_presearch(presearch)!
+		admin_username: admin_username
+		admin_password: admin_password
+		admin_email: admin_email
+	)!
 }
 
-fn get_presearch(mut fp FlagParser, mut t TFGridClient) !PresearchResult {
+fn get_taiga(mut fp FlagParser, mut t TFGridClient) !TaigaResult {
 	fp.usage_example('get [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the clusetr')!
+	name := fp.string_opt('name', `n`, 'Name of the Taiga instance')!
 	_ := fp.finalize()!
 
-	return t.get_presearch(name)!
+	mut taiga_client := t.applications().taiga()
+	return taiga_client.get(name)!
 }
 
-fn delete_presearch(mut fp FlagParser, mut t TFGridClient) ! {
+fn delete_taiga(mut fp FlagParser, mut t TFGridClient) ! {
 	fp.usage_example('delete [options]')
 
-	name := fp.string_opt('name', `n`, 'Name of the cluster')!
+	name := fp.string_opt('name', `n`, 'Name of the Taiga instance')!
 	_ := fp.finalize()!
 
-	return t.delete_presearch(name)
+	mut taiga_client := t.applications().taiga()
+	return taiga_client.delete(name)
 }
 
 fn main() {
@@ -96,7 +96,7 @@ fn main() {
 	match operation {
 		'deploy' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			res := deploy_presearch(mut new_fp, mut tfgrid_client) or {
+			res := deploy_taiga(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}
@@ -104,7 +104,7 @@ fn main() {
 		}
 		'get' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			res := get_presearch(mut new_fp, mut tfgrid_client) or {
+			res := get_taiga(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}
@@ -112,7 +112,7 @@ fn main() {
 		}
 		'delete' {
 			mut new_fp := flag.new_flag_parser(remainig_args)
-			delete_presearch(mut new_fp, mut tfgrid_client) or {
+			delete_taiga(mut new_fp, mut tfgrid_client) or {
 				logger.error('${err}')
 				exit(1)
 			}

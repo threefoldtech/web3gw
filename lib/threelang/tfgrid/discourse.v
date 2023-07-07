@@ -1,10 +1,10 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { Discourse }
 import rand
 
 fn (mut t TFGridHandler) discourse(action Action) ! {
+	mut discourse_client := t.tfgrid.applications().discourse()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
@@ -19,7 +19,7 @@ fn (mut t TFGridHandler) discourse(action Action) ! {
 			smtp_password := action.params.get_default('smtp_password', '')!
 			smtp_tls := action.params.get_default_false('smtp_tls')
 
-			deploy_res := t.tfgrid.deploy_discourse(Discourse{
+			deploy_res := discourse_client.deploy(
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -30,21 +30,21 @@ fn (mut t TFGridHandler) discourse(action Action) ! {
 				smtp_username: smtp_username
 				smtp_password: smtp_password
 				smtp_enable_tls: smtp_tls
-			})!
+			)!
 
 			t.logger.info('${deploy_res}')
 		}
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfgrid.get_discourse(name)!
+			get_res := discourse_client.get(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfgrid.delete_discourse(name) or {
+			discourse_client.delete(name) or {
 				return error('failed to delete discourse instance: ${err}')
 			}
 		}

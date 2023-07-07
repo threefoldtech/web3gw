@@ -1,6 +1,6 @@
-module tfgrid
+module peertube
 
-pub struct FunkwhaleResult {
+pub struct PeertubeResult {
 pub:
 	name   string // identifier for the instance
 	ygg_ip string // instance ygg ip

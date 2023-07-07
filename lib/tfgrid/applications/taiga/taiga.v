@@ -1,7 +1,9 @@
-module tfgrid
+module taiga
+
+import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 
 [params]
-pub struct Taiga {
+pub struct Deploy {
 pub:
 	name        string // identifier for the instance, must be unique
 	farm_id     u64    // farm id to deploy on, if 0, a random eligible node on a random farm will be selected
@@ -15,21 +17,29 @@ pub:
 	admin_email    string // admin email
 }
 
+// PeerTubeClient is a client containig an RpcWsClient instance, and provides access for peertube applications on tfgrid
+[openrpc: exclude]
+pub struct TaigaClient {
+mut:
+	client  &RpcWsClient
+	timeout int
+}
+
 // Deploys a taiga instance
-pub fn (mut t TFGridClient) deploy_taiga(taiga Taiga) !TaigaResult {
-	return t.client.send_json_rpc[[]Taiga, TaigaResult]('tfgrid.DeployTaiga', [taiga],
+pub fn (mut t TaigaClient) deploy(args Deploy) !TaigaResult {
+	return t.client.send_json_rpc[[]Deploy, TaigaResult]('tfgrid.DeployTaiga', [args],
 		t.timeout)!
 }
 
 // Gets a deployed taiga instance
-pub fn (mut t TFGridClient) get_taiga(taiga_name string) !TaigaResult {
+pub fn (mut t TaigaClient) get(taiga_name string) !TaigaResult {
 	return t.client.send_json_rpc[[]string, TaigaResult]('tfgrid.GetTaiga', [
 		taiga_name,
 	], t.timeout)!
 }
 
 // Deletes a deployed taiga instance.
-pub fn (mut t TFGridClient) delete_taiga(taiga_name string) ! {
+pub fn (mut t TaigaClient) delete(taiga_name string) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfgrid.DeleteTaiga', [
 		taiga_name,
 	], t.timeout)!
