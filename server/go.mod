@@ -3,7 +3,7 @@ module github.com/threefoldtech/web3_proxy/server
 go 1.20
 
 require (
-	github.com/LeeSmet/go-jsonrpc v0.0.0-20230525114004-084cdb6d9fe8
+	github.com/LeeSmet/go-jsonrpc v0.0.0-20230707093347-d03e3a5f9ba0
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
@@ -110,7 +110,6 @@ require (
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/fclairamb/ftpserverlib v0.21.0 // indirect
 	github.com/fclairamb/go-log v0.4.1 // indirect
-	github.com/filecoin-project/go-jsonrpc v0.2.3 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
