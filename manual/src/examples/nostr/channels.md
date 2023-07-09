@@ -12,7 +12,7 @@ The channels example exposes the following functionality:
 
 The [channels cli](../../../../examples/nostr/channels.v) has the following arguments:
 
-- secret: this is your secret for nostr. if none was provided, a new secret will be generated for you.
+- secret: this is your secret for nostr. if none was provided, a new secret will be generated, used, and printed out to terminal.
 - realy_url: this is the relay URL to connect to. this defaults to `https://nostr01.grid.tf/`
 - operation: this is the operation that you want to perform. must be one of `list`, `read`, or `send`.
 
@@ -36,11 +36,11 @@ There are no extra arguments for the list operation.
 
 - channel: this is the Channel ID to send the message to. a Channel ID is the event ID of the channel creation event.
 - content: this is the content of the message.
-- message: this is the message ID to reply to, if any.
-- public_key: this is the public key of the author of the message that you want to reply to, if any.
+- reply_msg_id: this is the message ID to reply to, if any.
+- reply_user_pk: this is the public key of the author of the message that you want to reply to, if any.
 
 ```sh
-    v run channels.v -s "YOUR SECRET" -o send "CHANNEL ID" "Message content" -message "MESSAGE ID TO REPLY TO"
+    v run channels.v -s "YOUR SECRET" -o send "CHANNEL ID" "Message content" -reply_msg_id "MESSAGE ID TO REPLY TO"
 ```
 
 ### Subscribe Operation Arguments

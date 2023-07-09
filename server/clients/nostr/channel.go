@@ -56,7 +56,7 @@ const (
 // CreateChannel creates a new channel
 func (c *Client) CreateChannel(ctx context.Context, tags []string, content Channel) (string, error) {
 	if content.Name == "" {
-		return "", errors.New("Channel must have a name")
+		return "", errors.New("invalid channel name, cannot be empty")
 	}
 	marshalledContent, err := json.Marshal(content)
 	if err != nil {
@@ -69,7 +69,7 @@ func (c *Client) CreateChannel(ctx context.Context, tags []string, content Chann
 // UpdateChannelMetadata updates the channel metdata. ChannelID is the event ID of the create channel event used to create the channel to update
 func (c *Client) UpdateChannelMetadata(ctx context.Context, tags []string, channelID string, content Channel) error {
 	if content.Name == "" {
-		return errors.New("Channel must have a name")
+		return errors.New("invalid channel name, cannot be empty")
 	}
 	marshalledContent, err := json.Marshal(content)
 	if err != nil {
@@ -86,7 +86,7 @@ func (c *Client) UpdateChannelMetadata(ctx context.Context, tags []string, chann
 // CreateChannelRootMessage creates a message in channel. If replyTo is the empty string, it is marked as a root
 func (c *Client) CreateChannelRootMessage(ctx context.Context, message ChannelMessage) (string, error) {
 	if message.Content == "" {
-		return "", errors.New("Refusing to submit empty message")
+		return "", errors.New("refusing to submit empty message")
 	}
 
 	tags := [][]string{}
@@ -144,6 +144,7 @@ func (c *Client) SubscribeChannelMessages(id string) (string, error) {
 	return c.subscribeWithFiler(filters)
 }
 
+// FetchChannelCreation fetches and returns channel creation events
 func (c *Client) FetchChannelCreation() ([]RelayChannel, error) {
 	filters := []nostr.Filter{{
 		Kinds: []int{nostr.KindChannelCreation},
@@ -189,12 +190,6 @@ func (c *Client) FetchChannelMessages(channelID string) ([]RelayChannelMessage, 
 	rm := make([]RelayChannelMessage, 0, len(channelMessageEvents))
 
 	for _, cme := range channelMessageEvents {
-		log.Debug().Msgf("incoming channel message event: %+v", cme)
-		// var m ChannelMessage
-		// if err := json.Unmarshal([]byte(cme.Event.Content), &c); err != nil {
-		// 	log.Warn().Err(err).Msg("could not decode channel message")
-		// 	continue
-		// }
 		rm = append(rm, RelayChannelMessage{
 			Content: cme.Event.Content,
 			Tags:    getTags(cme.Event.Tags),

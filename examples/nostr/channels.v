@@ -16,14 +16,14 @@ fn create_channel(mut fp FlagParser, mut nostr_client NostrClient, mut logger Lo
 	fp.description('Creates a new channel on the specified relay')
 	fp.limit_free_args_to_exactly(1)!
 
-	name := fp.args[0] or { return error('failed to get channel name') }
+	name := fp.args[0] or { return error('channel name is required to create a new channel') }
 	about := fp.string('description', `d`, '', 'Channel description')
 	pic_url := fp.string('picture', `p`, '', 'Channel picture URL')
 
 	_ := fp.finalize()!
 
 	channel_id := nostr_client.create_channel(name: name, about: about, picture: pic_url)!
-	println('Channel ID  ${channel_id}')
+	logger.info('Channel ID  ${channel_id}')
 }
 
 fn list_channels(mut fp FlagParser, mut nostr_client NostrClient, mut logger Logger) ! {
@@ -33,7 +33,7 @@ fn list_channels(mut fp FlagParser, mut nostr_client NostrClient, mut logger Log
 	_ := fp.finalize()!
 
 	channels := nostr_client.list_channels()!
-	println('Channels:\n${channels}')
+	logger.info('Channels:\n${channels}')
 }
 
 fn read_messages(mut fp FlagParser, mut nostr_client NostrClient, mut logger Logger) ! {
@@ -41,14 +41,16 @@ fn read_messages(mut fp FlagParser, mut nostr_client NostrClient, mut logger Log
 	fp.description('Reads all messages on a specific channel')
 	fp.limit_free_args_to_exactly(1)!
 
-	channel_id := fp.args[0] or { return error('failed to get channel id') }
+	channel_id := fp.args[0] or {
+		return error('channel id is required to read messages from a channel')
+	}
 
 	_ := fp.finalize()!
 
 	messages := nostr_client.get_channel_message(FetchChannelMessageInput{
 		channel_id: channel_id
 	})!
-	println('Channel messages:\n${messages}')
+	logger.info('Channel messages:\n${messages}')
 }
 
 fn send_message(mut fp FlagParser, mut nostr_client NostrClient, mut logger Logger) ! {
@@ -56,10 +58,12 @@ fn send_message(mut fp FlagParser, mut nostr_client NostrClient, mut logger Logg
 	fp.description('Sends a message to the specified channel')
 	fp.limit_free_args_to_exactly(2)!
 
-	channel_id := fp.args[0] or { return error('failed to get channel id') }
-	content := fp.args[1] or { return error('failed to get message content') }
-	message_id := fp.string('message', `m`, '', 'Message ID to reply to')
-	public_key := fp.string('public_key', `p`, '', 'Public Key of user to reply to')
+	channel_id := fp.args[0] or {
+		return error('channel id is required to read messages from a channel')
+	}
+	content := fp.args[1] or { return error('message content is required to send a new message') }
+	message_id := fp.string('reply_msg_id', `m`, '', 'Message ID to reply to')
+	public_key := fp.string('reply_user_pk	', `p`, '', 'Public Key of user to reply to')
 	_ := fp.finalize()!
 
 	nostr_client.create_channel_message(CreateChannelMessageInput{
@@ -75,7 +79,7 @@ fn subscribe_channel(mut fp FlagParser, mut nostr_client NostrClient, mut logger
 	fp.description('Subscribes to the specified channel')
 	fp.limit_free_args_to_exactly(1)!
 
-	channel_id := fp.args[0] or { return error('failed to get channel id') }
+	channel_id := fp.args[0] or { return error('channel id is required to subscribe to a channel') }
 
 	_ := fp.finalize()!
 
@@ -97,7 +101,7 @@ fn main() {
 	})
 
 	mut fp := flag.new_flag_parser(os.args)
-	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
+	fp.application('Nostr channels CLI to interact with Nostr channels')
 	fp.description('')
 	fp.skip_executable()
 	fp.allow_unknown_args()
@@ -126,6 +130,7 @@ fn main() {
 	mut nostr_client := nostr.new(mut myclient)
 	if secret == '' {
 		secret = nostr_client.generate_keypair()!
+		logger.info('Your new secret is: ${secret}')
 	}
 	nostr_client.load(secret)!
 	nostr_client.connect_to_relay(relay_url) or {
@@ -138,7 +143,7 @@ fn main() {
 			mut new_fp := flag.new_flag_parser(remainig_args)
 			create_channel(mut new_fp, mut nostr_client, mut logger) or {
 				logger.error('${err}')
-				println(new_fp.usage())
+				logger.info(new_fp.usage())
 				exit(1)
 			}
 		}
@@ -146,7 +151,7 @@ fn main() {
 			mut new_fp := flag.new_flag_parser(remainig_args)
 			list_channels(mut new_fp, mut nostr_client, mut logger) or {
 				logger.error('${err}')
-				println(new_fp.usage())
+				logger.info(new_fp.usage())
 				exit(1)
 			}
 		}
@@ -154,7 +159,7 @@ fn main() {
 			mut new_fp := flag.new_flag_parser(remainig_args)
 			read_messages(mut new_fp, mut nostr_client, mut logger) or {
 				logger.error('${err}')
-				println(new_fp.usage())
+				logger.info(new_fp.usage())
 				exit(1)
 			}
 		}
@@ -162,7 +167,7 @@ fn main() {
 			mut new_fp := flag.new_flag_parser(remainig_args)
 			send_message(mut new_fp, mut nostr_client, mut logger) or {
 				logger.error('${err}')
-				println(new_fp.usage())
+				logger.info(new_fp.usage())
 				exit(1)
 			}
 		}
@@ -170,7 +175,7 @@ fn main() {
 			mut new_fp := flag.new_flag_parser(remainig_args)
 			subscribe_channel(mut new_fp, mut nostr_client, mut logger) or {
 				logger.error('${err}')
-				println(new_fp.usage())
+				logger.info(new_fp.usage())
 				exit(1)
 			}
 		}

@@ -110,12 +110,14 @@ pub fn (mut n NostrClient) get_subscription_ids() ![]string {
 		nostr.default_timeout)!
 }
 
+// publixh_stall publishes a new stall to the relay
 pub fn (mut n NostrClient) publish_stall(args StallCreateInput) ! {
 	_ := n.client.send_json_rpc[[]StallCreateInput, string]('nostr.PublishStall', [
 		args,
 	], nostr.default_timeout)!
 }
 
+// publish_product publishes a new product to the relay
 pub fn (mut n NostrClient) publish_product(args ProductCreateInput) ! {
 	_ := n.client.send_json_rpc[[]ProductCreateInput, string]('nostr.PublishProduct',
 		[args], nostr.default_timeout)!
@@ -135,6 +137,7 @@ pub fn (mut n NostrClient) subscribe_channel_creation() !string {
 		[]string{}, nostr.default_timeout)!
 }
 
+// create_channel_message creates a new channel message event 
 pub fn (mut n NostrClient) create_channel_message(args CreateChannelMessageInput) ! {
 	_ := n.client.send_json_rpc[[]CreateChannelMessageInput, string]('nostr.CreateChannelMessage',
 		[
@@ -150,11 +153,13 @@ pub fn (mut n NostrClient) subscribe_channel_message(args SubscribeChannelMessag
 	], nostr.default_timeout)!
 }
 
+// list_channels lists all channels on the connected relay
 pub fn (mut n NostrClient) list_channels() ![]RelayChannel {
 	return n.client.send_json_rpc[[]string, []RelayChannel]('nostr.ListChannels', []string{},
 		nostr.default_timeout)!
 }
 
+// get_channel_message fetches all messages sent to a channel
 pub fn (mut n NostrClient) get_channel_message(args FetchChannelMessageInput) ![]RelayChannelMessage {
 	return n.client.send_json_rpc[[]FetchChannelMessageInput, []RelayChannelMessage]('nostr.GetChannelMessages',
 		[

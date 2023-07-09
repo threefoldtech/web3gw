@@ -70,13 +70,13 @@ var (
 	relayAuthTimeout = time.Second * 5
 
 	// ErrRelayAuthFailed indicates the authentication on a relay completed, but failed
-	ErrRelayAuthFailed = errors.New("Failed to authenticate to the relay")
+	ErrRelayAuthFailed = errors.New("failed to authenticate to the relay")
 	// ErrRelayAuthTimeout indicates the authentication on a relay did not complete in time
-	ErrRelayAuthTimeout = errors.New("Timeout authenticating to the relay")
+	ErrRelayAuthTimeout = errors.New("timeout authenticating to the relay")
 	// ErrFailedToPublishEvent indicates the event could not be published to the relay
-	ErrFailedToPublishEvent = errors.New("Failed to publish event to relay")
+	ErrFailedToPublishEvent = errors.New("failed to publish event to relay")
 	/// ErrNoRelayConnected inidcates that we try to perform an action on a realay, but we aren't connected to any.
-	ErrNoRelayConnected = errors.New("No relay connected currently")
+	ErrNoRelayConnected = errors.New("no relay connected currently")
 )
 
 func GenerateKeyPair() string {
@@ -87,7 +87,7 @@ func GenerateKeyPair() string {
 func (c *Client) Id() string {
 	id, err := nip19.EncodePublicKey(c.pk)
 	if err != nil {
-		panic(fmt.Sprintf("Can't encode public key, although this was previously validated. This should not happen (%s)", err))
+		panic(fmt.Sprintf("can't encode public key, although this was previously validated. this should not happen (%s)", err))
 	}
 
 	return id
@@ -154,10 +154,9 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 
 	relays := c.server.connectedRelays[c.Id()]
 	if len(relays) == 0 {
-		return "", errors.New("No relays connected")
+		return "", errors.New("no relays connected")
 	}
 
-	// FIXME: A tag is itself a list of strings
 	parsedTags := make(nostr.Tags, 0, len(tags))
 	for _, rawTag := range tags {
 		parsedTags = append(parsedTags, nostr.Tag(rawTag))
