@@ -6,7 +6,7 @@
 
 - Query and filter nodes on the chain.
 
-- action name: !!tfgrid.explorer.nodes
+- action name: !!tfgrid.nodes.get
 - parameters:
   - `network`: chain network to query. one of (`main`, `test`, `qa`, `dev`). defaults to `main`.
   - `status`: node status (`up`, `down`)
@@ -43,21 +43,21 @@
   - get specific node by it's id
   
     ```md
-    !!tfgrid.explorer.nodes
+    !!tfgrid.nodes.get
         node_id: 11
     ```
 
   - get all nodes that has public access
 
       ```md
-      !!tfgrid.explorer.nodes
+      !!tfgrid.nodes.get
           gateway: true
       ```
 
   - filter nodes based on capacity
   
       ```md
-      !!tfgrid.explorer.nodes
+      !!tfgrid.nodes.get
           free_mru: 2GB
           free_hru: 100GB
           free_sru: 50GB
@@ -75,7 +75,7 @@
 - example:
   
     ```md
-    !!tfgrid.explorer.nodes
+    !!tfgrid.nodes.get
         node_id: 11
     ```
 
@@ -99,7 +99,7 @@
 
 - Query and filter contracts on the chain.
 
-- action name: !!tfgrid.explorer.contracts
+- action name: !!tfgrid.contracts.get
 - parameters:
   - `network`: chain network to query. one of (`main`, `test`, `qa`, `dev`). defaults to `main`.
   - `contract_id`: contract id
@@ -121,14 +121,14 @@
   - get specific contract by it's id
   
       ```md
-      !!tfgrid.explorer.contracts
+      !!tfgrid.contracts.get
           contract_id: 2014
       ```
 
   - get all contracts on a node
 
       ```md
-      !!tfgrid.explorer.contracts
+      !!tfgrid.contracts.get
           node_id: 11
       ```
 
@@ -136,7 +136,7 @@
 
 - Get counters from the explorer
 
-- action name: !!tfgrid.explorer.stats
+- action name: !!tfgrid.stats.get
 - paramters:
   - `network`: chain network to query. one of (`main`, `test`, `qa`, `dev`). defaults to `main`.
   - `status`: status of the nodes (`up`, `down`)
@@ -144,7 +144,7 @@
 - example:
   
     ```md
-    !!tfgrid.explorer.stats
+    !!tfgrid.stats.get
         status: up
     ```
 
@@ -152,7 +152,7 @@
 
 - Query and filter farms on the chain.
 
-- action name: !!tfgrid.explorer.farms
+- action name: !!tfgrid.farms.get
 - parameters:
   - `network`: chain network to query. one of (`main`, `test`, `qa`, `dev`). defaults to `main`.
   - `free_ips`: number of free public IPs on the farm
@@ -175,21 +175,21 @@
   - get specific farm by it's id
 
       ```md
-      !!tfgrid.explorer.farms
+      !!tfgrid.farms.get
           farm_id: 1
       ```
 
   - get all farms that marked as dedicated
 
       ```md
-      !!tfgrid.explorer.farms
+      !!tfgrid.farms.get
           dedicated: true
       ```
 
   - filter farms based on capacity
 
       ```md
-      !!tfgrid.explorer.farms
+      !!tfgrid.farms.get
           free_ips: 2
       ```
 
@@ -197,7 +197,7 @@
 
 - Query and filter twins on the chain.
 
-- action name: !!tfgrid.explorer.twins
+- action name: !!tfgrid.twins.get
 - parameters:
   - `network`: chain network to query. one of (`main`, `test`, `qa`, `dev`). defaults to `main`.
   - `twin_id`: twin id
@@ -214,13 +214,13 @@
   - get specific twin by it's id
 
       ```md
-      !!tfgrid.explorer.twins
+      !!tfgrid.twins.get
           twin_id: 29
       ```
 
   - get twin by it's account address
 
       ```md
-      !!tfgrid.explorer.twins
+      !!tfgrid.twins.get
           account_id:'5FiC58mQ3J8dbfpUwDvSxYAgnW5uibmubJoATMFwkT6tC2Sn'
       ```

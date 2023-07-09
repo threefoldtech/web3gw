@@ -2,31 +2,28 @@
 
 - This example uses the tfgrid explorer to retrieve information about the grid
 
-!!tfgrid.explorer.nodes
+!!tfgrid.nodes.get
     network: dev
     count: true
     node_id: 33
     size: 100
     page: 1
 
-!!tfgrid.explorer.farms
+!!tfgrid.farms.get
     network: test
     count: true
     free_ips: 3
 
-!!tfgrid.explorer.contracts
+!!tfgrid.contracts.get
     network: qa
     count: true
     state: Created
     size: 10
     page: 5
 
-!!tfgrid.explorer.node
-    node_id: 1234
-
-!!tfgrid.explorer.stats
+!!tfgrid.stats.get
     network: dev
     status: up
 
-!!tfgrid.explorer.twins
+!!tfgrid.twins.get
     twin_id: 1234
