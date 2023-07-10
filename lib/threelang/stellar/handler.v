@@ -23,9 +23,6 @@ pub fn (mut h StellarHandler) handle_action(action Action) ! {
 		'account' {
 			h.account(action)!
 		}
-		'bridge' {
-			h.bridge(action)!
-		}
 		else {
 			return error('action actor ${action.actor} is invalid')
 		}
