@@ -36,11 +36,11 @@ There are no extra arguments for the list operation.
 
 - channel: this is the Channel ID to send the message to. a Channel ID is the event ID of the channel creation event.
 - content: this is the content of the message.
-- reply_msg_id: this is the message ID to reply to, if any.
-- reply_user_pk: this is the public key of the author of the message that you want to reply to, if any.
+- reply_to: this is the message ID to reply to, if any.
+- public_key_author: this is the public key of the author of the message that you want to reply to, if any.
 
 ```sh
-    v run channels.v -s "YOUR SECRET" -o send "CHANNEL ID" "Message content" -reply_msg_id "MESSAGE ID TO REPLY TO"
+    v run channels.v -s "YOUR SECRET" -o send "CHANNEL ID" "Message content" -reply_to "MESSAGE ID TO REPLY TO"
 ```
 
 ### Subscribe Operation Arguments

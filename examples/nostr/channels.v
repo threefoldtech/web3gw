@@ -54,7 +54,7 @@ fn read_messages(mut fp FlagParser, mut nostr_client NostrClient, mut logger Log
 }
 
 fn send_message(mut fp FlagParser, mut nostr_client NostrClient, mut logger Logger) ! {
-	fp.usage_example('send channel_id message_content [-m reply_msg_id] [-p reply_usr_pk]')
+	fp.usage_example('send channel_id message_content [-m reply_to] [-p reply_usr_pk]')
 	fp.description('Sends a message to the specified channel')
 	fp.limit_free_args_to_exactly(2)!
 
@@ -62,8 +62,8 @@ fn send_message(mut fp FlagParser, mut nostr_client NostrClient, mut logger Logg
 		return error('channel id is required to read messages from a channel')
 	}
 	content := fp.args[1] or { return error('message content is required to send a new message') }
-	message_id := fp.string('reply_msg_id', `m`, '', 'Message ID to reply to')
-	public_key := fp.string('reply_user_pk	', `p`, '', 'Public Key of user to reply to')
+	message_id := fp.string('reply_to', `m`, '', 'Message ID to reply to')
+	public_key := fp.string('public_key_author	', `p`, '', 'Public Key of user to reply to')
 	_ := fp.finalize()!
 
 	nostr_client.create_channel_message(CreateChannelMessageInput{
