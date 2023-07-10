@@ -23,6 +23,7 @@ Threelang is an intermediate language to tell the web3 proxy what to do. The lan
 
 - [TFGrid Actions](./tfgrid/grid_actions.md)
 - [TFChain Actions](./tfchain/tfchain.md)
+- [Web3GW Actions](./web3gw/actions.md)
 
 ## Example
 

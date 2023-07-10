@@ -16,8 +16,7 @@ pub mut:
 	handlers map[string]fn (action Action) !
 }
 
-pub fn new(mut rpc_client RpcWsClient, logger Logger) TFGridHandler {
-	mut grid_client := tfgrid_client.new(mut rpc_client)
+pub fn new(mut rpc_client RpcWsClient, logger Logger, mut grid_client TFGridClient) TFGridHandler {
 	mut explorer_client := explorer.new(mut rpc_client)
 
 	mut t := TFGridHandler{
