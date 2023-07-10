@@ -20,14 +20,8 @@ pub fn new(mut rpc_client RpcWsClient, logger Logger, mut client StellarClient) 
 
 pub fn (mut h StellarHandler) handle_action(action Action) ! {
 	match action.actor {
-		'core' {
-			h.core(action)!
-		}
 		'account' {
 			h.account(action)!
-		}
-		'balance' {
-			h.balance(action)!
 		}
 		'bridge' {
 			h.bridge(action)!
