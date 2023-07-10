@@ -1,7 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { ZDB }
+import threefoldtech.threebot.tfgrid as tfgrid_client { ZDB }
 import rand
 
 fn (mut t TFGridHandler) zdb(action Action) ! {

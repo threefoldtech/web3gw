@@ -1,7 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { GatewayName }
+import threefoldtech.threebot.tfgrid as tfgrid_client { GatewayName }
 import rand
 
 fn (mut t TFGridHandler) gateway_name(action Action) ! {

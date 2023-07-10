@@ -1,7 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.threebot.tfgrid { AddK8sWorker, GetK8sParams, K8sCluster, K8sNode, RemoveK8sWorker }
+import threefoldtech.threebot.tfgrid as tfgrid_client { AddK8sWorker, GetK8sParams, K8sCluster, K8sNode, RemoveK8sWorker }
 import rand
 
 fn (mut t TFGridHandler) k8s(action Action) ! {
