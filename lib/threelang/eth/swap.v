@@ -23,24 +23,10 @@ fn (mut h EthHandler) swap(action Action) ! {
 
 			h.logger.info('${res}')
 		}
-		'eth_for_tft' {
-			amount_in := action.params.get('amount_in')!
-
-			res := h.client.swap_eth_for_tft(amount_in)!
-
-			h.logger.info('${res}')
-		}
 		'quote_tft_for_eth' {
 			amount_in := action.params.get('amount_in')!
 
 			res := h.client.quote_tft_for_eth(amount_in)!
-
-			h.logger.info('${res}')
-		}
-		'tft_for_eth' {
-			amount_in := action.params.get('amount_in')!
-
-			res := h.client.swap_tft_for_eth(amount_in)!
 
 			h.logger.info('${res}')
 		}

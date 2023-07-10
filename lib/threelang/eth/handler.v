@@ -11,9 +11,7 @@ pub mut:
 	logger Logger
 }
 
-pub fn new(mut rpc_client RpcWsClient, logger Logger) EthHandler {
-	mut client := eth_client.new(mut rpc_client)
-
+pub fn new(mut rpc_client RpcWsClient, logger Logger, mut client EthClient) EthHandler {
 	return EthHandler{
 		client: client
 		logger: logger
@@ -22,17 +20,11 @@ pub fn new(mut rpc_client RpcWsClient, logger Logger) EthHandler {
 
 pub fn (mut h EthHandler) handle_action(action Action) ! {
 	match action.actor {
-		'core' {
-			h.core(action)!
-		}
 		'account' {
 			h.account(action)!
 		}
 		'transfer' {
 			h.transfer(action)!
-		}
-		'balance' {
-			h.balance(action)!
 		}
 		'block' {
 			h.block(action)!
@@ -43,17 +35,11 @@ pub fn (mut h EthHandler) handle_action(action Action) ! {
 		'swap' {
 			h.swap(action)!
 		}
-		'bridge' {
-			h.bridge(action)!
-		}
 		'fungible' {
 			h.fungible(action)!
 		}
 		'token' {
 			h.token(action)!
-		}
-		'tft' {
-			h.tft(action)!
 		}
 		else {
 			return error('actor ${action.actor} is invalid')

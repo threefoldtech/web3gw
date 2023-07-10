@@ -4,14 +4,6 @@ import freeflowuniverse.crystallib.actionsparser { Action }
 
 fn (mut h EthHandler) transfer(action Action) ! {
 	match action.name {
-		'eth' {
-			destination := action.params.get('destination')!
-			amount := action.params.get('amount')!
-
-			res := h.client.transfer(destination: destination, amount: amount)!
-
-			h.logger.info('${res}')
-		}
 		'tft' {
 			destination := action.params.get('destination')!
 			amount := action.params.get('amount')!
