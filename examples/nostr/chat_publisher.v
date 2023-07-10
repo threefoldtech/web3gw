@@ -1,9 +1,7 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
 import threefoldtech.threebot.nostr
-
 import flag
 import log
 import os
@@ -15,27 +13,31 @@ const (
 fn send_message(mut client RpcWsClient, mut logger log.Logger, receiver string, secret string) ! {
 	mut nostr_client := nostr.new(mut client)
 
-	key := if secret == "" {
+	key := if secret == '' {
 		k := nostr_client.generate_keypair()!
-		logger.info("Key: ${k}")
+		logger.info('Key: ${k}')
 		k
 	} else {
 		secret
 	}
 
-	if receiver == "" {
-		return error("No receiver specified")
+	if receiver == '' {
+		return error('No receiver specified')
 	}
 
 	nostr_client.load(key)!
 
 	nostr_id := nostr_client.get_id()!
-	logger.info("Nostr: ID: ${nostr_id}")
+	logger.info('Nostr: ID: ${nostr_id}')
 
-	nostr_client.connect_to_relay("https://nostr01.grid.tf/")!
+	nostr_client.connect_to_relay('https://nostr01.grid.tf/')!
 
 	// Send a message to a receiver
-	nostr_client.publish_direct_message(receiver: receiver, tags: [""], content: "hi, from ${nostr_id}")!
+	nostr_client.publish_direct_message(
+		receiver: receiver
+		tags: ['']
+		content: 'hi, from ${nostr_id}'
+	)!
 }
 
 fn main() {
@@ -64,10 +66,9 @@ fn main() {
 	}
 
 	_ := spawn myclient.run()
-	
-	
+
 	send_message(mut myclient, mut logger, receiver, secret) or {
-		logger.error("Failed executing calls: $err")
+		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
 }

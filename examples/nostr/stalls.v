@@ -1,9 +1,7 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
 import threefoldtech.threebot.nostr
-
 import flag
 import log
 import os
@@ -16,9 +14,9 @@ const (
 fn create_stall_and_product(mut client RpcWsClient, mut logger log.Logger, secret string) ! {
 	mut nostr_client := nostr.new(mut client)
 
-	key := if secret == "" {
+	key := if secret == '' {
 		k := nostr_client.generate_keypair()!
-		logger.info("Key: ${k}")
+		logger.info('Key: ${k}')
 		k
 	} else {
 		secret
@@ -27,62 +25,64 @@ fn create_stall_and_product(mut client RpcWsClient, mut logger log.Logger, secre
 	nostr_client.load(key)!
 
 	nostr_id := nostr_client.get_id()!
-	logger.info("Nostr: ID: ${nostr_id}")
+	logger.info('Nostr: ID: ${nostr_id}')
 
-	nostr_client.connect_to_relay("https://nostr01.grid.tf/")!
-	
+	nostr_client.connect_to_relay('https://nostr01.grid.tf/')!
+
 	nostr_client.subscribe_to_stall_creation()!
 	nostr_client.subscribe_to_product_creation()!
 
-	stall := nostr.Stall {
-		id: "stall1",
-		name: "stall1",
-		description: "stall1",
-		currency: "TFT",
-		shipping: [nostr.Shipping {
-			id: "shipping1",
-			name: "shipping1",
-			cost: 10000.00,
-			countries: [""]
-		}]
+	stall := nostr.Stall{
+		id: 'stall1'
+		name: 'stall1'
+		description: 'stall1'
+		currency: 'TFT'
+		shipping: [
+			nostr.Shipping{
+				id: 'shipping1'
+				name: 'shipping1'
+				cost: 10000.00
+				countries: ['']
+			},
+		]
 	}
 
-	input := nostr.StallCreateInput {
-		tags: [""],
+	input := nostr.StallCreateInput{
+		tags: ['']
 		stall: stall
 	}
 
 	nostr_client.publish_stall(input)!
 
-	product := nostr.Product {
-		id: "product1",
-		stall_id: "stall1",
-		name: "product1",
-		description: "product1",
-		images: [""],
-		currency: "TFT",
-		price: 10000.00,
-		quantity: 1,
+	product := nostr.Product{
+		id: 'product1'
+		stall_id: 'stall1'
+		name: 'product1'
+		description: 'product1'
+		images: ['']
+		currency: 'TFT'
+		price: 10000.00
+		quantity: 1
 		specs: [][]string{}
 	}
 
-	product_input := nostr.ProductCreateInput {
-		tags: [""],
+	product_input := nostr.ProductCreateInput{
+		tags: ['']
 		product: product
 	}
 
 	nostr_client.publish_product(product_input)!
 
-	logger.info("published stall and product")
+	logger.info('published stall and product')
 
 	time.sleep(5 * time.second)
 
 	events := nostr_client.get_events()!
-	logger.info("Events: ${events}")
+	logger.info('Events: ${events}')
 
 	// Close subscriptions
 	subscription_ids := nostr_client.get_subscription_ids()!
-	logger.info("Subscription IDs: ${subscription_ids}")
+	logger.info('Subscription IDs: ${subscription_ids}')
 	for id in subscription_ids {
 		nostr_client.close_subscription(id)!
 	}
@@ -113,10 +113,9 @@ fn main() {
 	}
 
 	_ := spawn myclient.run()
-	
-	
+
 	create_stall_and_product(mut myclient, mut logger, secret) or {
-		logger.error("Failed executing calls: $err")
+		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
 }

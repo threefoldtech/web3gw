@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"sort"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -18,6 +20,11 @@ import (
 
 type (
 	NostrEvent = nostr.Event
+
+	RelayEvent struct {
+		Relay string     `json:"relay"`
+		Event NostrEvent `json:"event"`
+	}
 
 	// Client for nostr protocol
 	Client struct {
@@ -63,13 +70,13 @@ var (
 	relayAuthTimeout = time.Second * 5
 
 	// ErrRelayAuthFailed indicates the authentication on a relay completed, but failed
-	ErrRelayAuthFailed = errors.New("Failed to authenticate to the relay")
+	ErrRelayAuthFailed = errors.New("failed to authenticate to the relay")
 	// ErrRelayAuthTimeout indicates the authentication on a relay did not complete in time
-	ErrRelayAuthTimeout = errors.New("Timeout authenticating to the relay")
+	ErrRelayAuthTimeout = errors.New("timeout authenticating to the relay")
 	// ErrFailedToPublishEvent indicates the event could not be published to the relay
-	ErrFailedToPublishEvent = errors.New("Failed to publish event to relay")
+	ErrFailedToPublishEvent = errors.New("failed to publish event to relay")
 	/// ErrNoRelayConnected inidcates that we try to perform an action on a realay, but we aren't connected to any.
-	ErrNoRelayConnected = errors.New("No relay connected currently")
+	ErrNoRelayConnected = errors.New("no relay connected currently")
 )
 
 func GenerateKeyPair() string {
@@ -80,7 +87,7 @@ func GenerateKeyPair() string {
 func (c *Client) Id() string {
 	id, err := nip19.EncodePublicKey(c.pk)
 	if err != nil {
-		panic(fmt.Sprintf("Can't encode public key, although this was previously validated. This should not happen (%s)", err))
+		panic(fmt.Sprintf("can't encode public key, although this was previously validated. this should not happen (%s)", err))
 	}
 
 	return id
@@ -140,17 +147,16 @@ func (c *Client) ConnectAuthRelay(ctx context.Context, relayURL string) error {
 	return nil
 }
 
-// Add function to publish events to a set of relays
-func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]string, content string) error {
+// Add function to publish events to a set of relays, and returns the published event ID if successful
+func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]string, content string) (string, error) {
 	c.server.mutex.RLock()
 	defer c.server.mutex.RUnlock()
 
 	relays := c.server.connectedRelays[c.Id()]
 	if len(relays) == 0 {
-		return errors.New("No relays connected")
+		return "", errors.New("no relays connected")
 	}
 
-	// FIXME: A tag is itself a list of strings
 	parsedTags := make(nostr.Tags, 0, len(tags))
 	for _, rawTag := range tags {
 		parsedTags = append(parsedTags, nostr.Tag(rawTag))
@@ -172,17 +178,17 @@ func (c *Client) publishEventToRelays(ctx context.Context, kind int, tags [][]st
 		log.Debug().Str("component", "nostr").Msgf("publising event to relay: %+v", ev)
 		status, err := relay.Publish(ctx, ev)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
+			return "", errors.Wrap(err, fmt.Sprintf("could not publish event to relay %s", relay.URL))
 		}
 
 		log.Debug().Str("component", "nostr").Msgf("published event to relay: %+v with status:%s", ev, status)
 
 		if status == nostr.PublishStatusFailed {
-			return ErrFailedToPublishEvent
+			return "", ErrFailedToPublishEvent
 		}
 	}
 
-	return nil
+	return ev.ID, nil
 }
 
 // PublishMetadata to connected relays. If metadata was published previously, the old metadata should be overwritten conforming relays
@@ -191,17 +197,30 @@ func (c *Client) PublishMetadata(ctx context.Context, tags []string, content Met
 	if err != nil {
 		return errors.Wrap(err, "could not encode metadata")
 	}
-	return c.publishEventToRelays(ctx, kindSetMetadata, [][]string{tags}, string(marshalledContent))
+
+	if _, err := c.publishEventToRelays(ctx, kindSetMetadata, [][]string{tags}, string(marshalledContent)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // PublishTextNote to connected relays
 func (c *Client) PublishTextNote(ctx context.Context, tags []string, content string) error {
-	return c.publishEventToRelays(ctx, kindTextNote, [][]string{tags}, content)
+	if _, err := c.publishEventToRelays(ctx, kindTextNote, [][]string{tags}, content); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // PublishRecommendServer to connected relays. The content is supposed to be the URL of the relay being recommended
 func (c *Client) PublishRecommendServer(ctx context.Context, tags []string, content string) error {
-	return c.publishEventToRelays(ctx, kindRecommendServer, [][]string{tags}, content)
+	if _, err := c.publishEventToRelays(ctx, kindRecommendServer, [][]string{tags}, content); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // / PublishDirectMessage publishes a direct message for a given peer identified by the given pubkey on the connected relays
@@ -215,8 +234,12 @@ func (c *Client) PublishDirectMessage(ctx context.Context, receiver string, tags
 	if err != nil {
 		return errors.Wrap(err, "could not encrypt message")
 	}
-	return c.publishEventToRelays(ctx, kindDirectMessage, [][]string{{"p", receiver}, tags}, msg)
 
+	if _, err := c.publishEventToRelays(ctx, kindDirectMessage, [][]string{{"p", receiver}, tags}, msg); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SubscribeTextNotes to textnote events on a relay
@@ -291,6 +314,81 @@ func (c *Client) SubscribeProductCreation(tag string) (string, error) {
 	}
 
 	return c.subscribeWithFiler(filters)
+}
+
+func (c *Client) fetchEventsWithFilter(filters nostr.Filters) ([]RelayEvent, error) {
+	relays := c.server.clientRelays(c.Id())
+	if len(relays) == 0 {
+		return nil, ErrNoRelayConnected
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	mu := sync.Mutex{}
+	events := []RelayEvent{}
+	wg := sync.WaitGroup{}
+	wg.Add(len(relays))
+
+	for _, relay := range relays {
+		log.Debug().Msgf("NOSTR: Connected to relay %s", relay.URL)
+		sub, err := relay.Subscribe(ctx, filters)
+		if err != nil {
+			log.Error().Msgf("error subscribing to relay: %s", err.Error())
+			return nil, errors.Wrapf(err, "could not subscribe to relay %s", relay.URL)
+		}
+
+		go func() {
+			<-sub.EndOfStoredEvents
+			cancel()
+			log.Debug().Msg("End of stored events")
+		}()
+
+		go func(relay *nostr.Relay) {
+			defer wg.Done()
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case ev := <-sub.Events:
+					{
+						log.Debug().Msgf("NOSTR: Received event from relay, kind: %d", ev.Kind)
+
+						// Decrypt direct messages
+						if ev.Kind == kindDirectMessage {
+							log.Debug().Msgf("NOSTR: Decrypting message from relay")
+
+							ss, err := nip04.ComputeSharedSecret(ev.PubKey, c.sk)
+							if err != nil {
+								log.Error().Msgf("could not compute shared secret for receiver %s", err.Error())
+								continue
+							}
+							msg, err := nip04.Decrypt(ev.Content, ss)
+							if err != nil {
+								log.Error().Msgf("could not decrypt message %s", err.Error())
+								continue
+							}
+
+							// Set decrypted content
+							ev.Content = msg
+						}
+
+						mu.Lock()
+						events = append(events, RelayEvent{
+							Relay: relay.URL,
+							Event: *ev,
+						})
+						mu.Unlock()
+					}
+				}
+			}
+		}(relay)
+	}
+
+	wg.Wait()
+
+	return events, nil
 }
 
 func (c *Client) subscribeWithFiler(filters nostr.Filters) (string, error) {
@@ -430,12 +528,18 @@ func (c *Client) SubscribeDirectMessagesDirect(swapTag string) (<-chan NostrEven
 // Get all historic events on active subscriptions for the client.
 // Note that only a limited amount of events are kept. If the actual client waits
 // too long to call this, events might be dropped.
+// returned events are sorted from oldes to newest
 func (c *Client) GetEvents() []NostrEvent {
 	subs := c.server.subscriptions(c.Id())
 	var events []NostrEvent
 	for _, sub := range subs {
 		events = append(events, sub.buffer.take()...)
 	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].CreatedAt.Unix() < events[j].CreatedAt.Unix()
+	})
+
 	return events
 }
 

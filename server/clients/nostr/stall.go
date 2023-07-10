@@ -75,7 +75,12 @@ func (c *Client) PublishStall(ctx context.Context, tags []string, content Stall)
 	if err != nil {
 		return errors.Wrap(err, "could not encode metadata")
 	}
-	return c.publishEventToRelays(ctx, kindSetStall, [][]string{{"d", content.Id}, tags}, string(marshalledContent))
+
+	if _, err := c.publishEventToRelays(ctx, kindSetStall, [][]string{{"d", content.Id}, tags}, string(marshalledContent)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // PublishProduct to connected relays. If a product with the given ID was already published, conforming relays should update it
@@ -111,5 +116,10 @@ func (c *Client) PublishProduct(ctx context.Context, tags []string, content Prod
 	if err != nil {
 		return errors.Wrap(err, "could not encode metadata")
 	}
-	return c.publishEventToRelays(ctx, kindSetProduct, [][]string{{"d", content.Id}, tags}, string(marshalledContent))
+
+	if _, err := c.publishEventToRelays(ctx, kindSetProduct, [][]string{{"d", content.Id}, tags}, string(marshalledContent)); err != nil {
+		return err
+	}
+
+	return nil
 }
