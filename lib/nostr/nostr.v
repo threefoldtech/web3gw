@@ -77,8 +77,8 @@ pub fn (mut n NostrClient) subscribe_text_notes() ! {
 }
 
 // subscribe to the relays for direct messages
-pub fn (mut n NostrClient) subscribe_to_direct_messages() ! {
-	_ := n.client.send_json_rpc[[]string, string]('nostr.SubscribeDirectMessages', []string{},
+pub fn (mut n NostrClient) subscribe_to_direct_messages() !string {
+	return n.client.send_json_rpc[[]string, string]('nostr.SubscribeDirectMessages', []string{},
 		nostr.default_timeout)!
 }
 
@@ -97,6 +97,12 @@ pub fn (mut n NostrClient) subscribe_to_product_creation() ! {
 // get all the events for the subscriptions
 pub fn (mut n NostrClient) get_events() ![]Event {
 	return n.client.send_json_rpc[[]string, []Event]('nostr.GetEvents', []string{}, nostr.default_timeout)!
+}
+
+// get all the events for the subscription with the specified id
+pub fn (mut n NostrClient) get_subscription_events(args GetSubscriptionEvents) ![]Event {
+	return n.client.send_json_rpc[[]GetSubscriptionEvents, []Event]('nostr.GetSubscriptionEvents',
+		[args], nostr.default_timeout)!
 }
 
 // close a subscription given an id
@@ -137,7 +143,7 @@ pub fn (mut n NostrClient) subscribe_channel_creation() !string {
 		[]string{}, nostr.default_timeout)!
 }
 
-// create_channel_message creates a new channel message event 
+// create_channel_message creates a new channel message event
 pub fn (mut n NostrClient) create_channel_message(args CreateChannelMessageInput) ! {
 	_ := n.client.send_json_rpc[[]CreateChannelMessageInput, string]('nostr.CreateChannelMessage',
 		[

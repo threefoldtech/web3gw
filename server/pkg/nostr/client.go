@@ -74,6 +74,12 @@ type (
 		Tags     []string       `json:"tags"`
 		Metadata nostr.Metadata `json:"metadata"`
 	}
+
+	// GetSubscriptionEventsInput specifies subscription events retrieval information
+	GetSubscriptionEventsInput struct {
+		ID    string `json:"id"`
+		Count uint32 `json:"count"`
+	}
 )
 
 // State from a connection. If no state is present, it is initialized
@@ -263,6 +269,18 @@ func (c *Client) GetEvents(ctx context.Context, conState jsonrpc.State) ([]nostr
 	}
 
 	evs := state.Client.GetEvents()
+
+	return evs, nil
+}
+
+// GetSubscriptionEvents returns all events for a subscription with the specified id
+func (c *Client) GetSubscriptionEvents(ctx context.Context, conState jsonrpc.State, args GetSubscriptionEventsInput) ([]nostr.NostrEvent, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	evs := state.Client.GetSubscriptionEventsWithCount(args.ID, args.Count)
 
 	return evs, nil
 }

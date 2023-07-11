@@ -66,3 +66,20 @@ func (eb *eventBuffer) take() []nostr.Event {
 
 	return s
 }
+
+// Consume and return `cnt` events
+func (eb *eventBuffer) consume(cnt uint32) []nostr.Event {
+	eb.mutex.Lock()
+	defer eb.mutex.Unlock()
+
+	var s []nostr.Event
+	for i := eb.idx; i < eb.idx+BUFFER_SIZE && cnt > 0; i++ {
+		if eb.buf[i%BUFFER_SIZE] != nil {
+			s = append(s, *eb.buf[i%BUFFER_SIZE])
+			eb.buf[i%BUFFER_SIZE] = nil
+			cnt--
+		}
+	}
+
+	return s
+}
