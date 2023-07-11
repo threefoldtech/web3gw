@@ -26,7 +26,7 @@ pub:
 pub struct CreateTwin {
 pub:
 	relay string
-	pk    []byte
+	pk    []u8
 }
 
 [params]
@@ -38,7 +38,7 @@ pub struct AcceptTermsAndConditions {
 [params]
 pub struct GetContractWithHash {
 	node_id u32
-	hash    []byte
+	hash    []u8
 }
 
 [params]

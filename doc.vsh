@@ -38,7 +38,7 @@ fn build_openrpc_docs() ! {
 		client_name := client.path.all_after_last('/')
 		sh('mkdir docs/openrpc/$client_name')
 		doc_title := "$client_name JSON-RPC API"
-		sh('$cli docgen -t "$doc_title" -p -o docs/openrpc/$client_name $client.path')
+		sh('$cli docgen -exclude_dirs threelang -t "$doc_title" -p -o docs/openrpc/$client_name $client.path')
 	}
 }
 

@@ -5,18 +5,21 @@ This section of the repository contains the implementation of a V client library
 For example:
 
 ```
-[noinit]
+[noinit; openrpc: exclude]
 pub struct TfChainClient {
 mut:
 	client &RpcWsClient
 }
 
+[openrpc: exclude]
 pub fn new(mut client RpcWsClient) TfChainClient {
 	return TfChainClient{
 		client: &client
 	}
 }
 ```
+
+Note that in the above example, the `openrpc: exclude` attribute is used to tell the OpenRPC Document generator to exclude the client struct and factory function from the OpenRPC Document.
 
 For each of the remote procedure calls on the server side (in go) there should be a V function. You can find two examples below. The first example does not return anything, the second does. Each function sends a json rpc message using the RpcWsClient. That function has two generics (the values between square brackets). The first generic defines the type of parameters that you want to send (this will be serialized in the params field of the json 2.0 rpc request). The second defines the type of object that you expect to receive (the result field of a json 2.0 rpc response).
 
