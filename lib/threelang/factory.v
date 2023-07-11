@@ -16,6 +16,7 @@ import threefoldtech.threebot.threelang.stellar { StellarHandler }
 const (
 	tfgrid_book = 'tfgrid'
 	web3gw_book = 'web3gw'
+	stellar_book = 'stellar'
 )
 
 pub struct Runner {
@@ -72,9 +73,9 @@ pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
 				r.tfgrid_handler.handle_action(action)!
 			}
 			threelang.web3gw_book {
-				r.web3gw_handler.handle(action)!
+				r.web3gw_handler.handle_action(action)!
 			}
-			'stellar' {
+			threelang.stellar_book {
 				r.stellar_handler.handle_action(action)!
 			}
 			else {
