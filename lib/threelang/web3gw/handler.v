@@ -27,7 +27,7 @@ pub fn new(mut rpc RpcWsClient, logger &Logger, mut wg_clients Clients) Web3GWHa
 	return h
 }
 
-pub fn (mut h Web3GWHandler) handle(action Action) ! {
+pub fn (mut h Web3GWHandler) handle_action(action Action) ! {
 	key := '${action.actor}.${action.name}'
 	if key in h.handlers {
 		handler := h.handlers[key]
