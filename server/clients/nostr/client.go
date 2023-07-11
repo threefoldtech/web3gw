@@ -554,6 +554,17 @@ func (c *Client) GetSubscriptionEvents(id string) []NostrEvent {
 	return nil
 }
 
+// GetSubscriptionEventsWithCount returns a number of events for a subscription with the given ID. Returned events are removed from the subscription
+func (c *Client) GetSubscriptionEventsWithCount(id string, count uint32) []NostrEvent {
+	subs := c.server.subscriptions(c.Id())
+	for _, sub := range subs {
+		if sub.id == id {
+			return sub.buffer.consume(count)
+		}
+	}
+	return nil
+}
+
 // Get the ID's of all active subscriptions
 func (c *Client) SubscriptionIds() []string {
 	subs := c.server.subscriptions(c.Id())

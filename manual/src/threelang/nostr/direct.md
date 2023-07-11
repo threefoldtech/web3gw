@@ -24,11 +24,16 @@ Nostr Direct Actions allow you to:
 
 ## Receive Direct Messages
 
-- action name: !!nostr.direct.receive
+- action name: !!nostr.direct.read
 - paramters:
+  - id [optional]
+    - subscription id. if not provided, a new subscription is created and the subscription id is printed in logs.
+  - count [optional]
+    - count of messages to read. defaults to `10`
 
 - Example:
 
 ```md
-    !!nostr.direct.receive
+    !!nostr.direct.read
+        count: 20
 ```
