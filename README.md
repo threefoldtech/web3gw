@@ -39,8 +39,10 @@ Follow the steps [here](server/) to add the client to the json rpc 2.0 server an
 
 To generate the documentation for the project, run `v run doc.vsh`. This builds: 
 - MDBook Documentation in html format from content in manual folder in `docs`. 
-- OpenRPC Documents for the JSON-RPC API's at `docs/openrpc`.
+- OpenRPC Documents for the JSON-RPC API's at `docs/openrpc` from V clients in `lib`.
 - OpenRPC Playground for the JSON-RPC API's at `docs/playground`.
+
+Find out more about how comments in code are used to generate OpenRPC Documents for domains, and how to annotate your code accordingly [here](https://github.com/freeflowuniverse/crystallib/tree/development/openrpc)
 
 To locally generate specific documents and not all of the aforementioned artifacts, comment out the [lines](https://github.com/threefoldtech/web3_proxy/blob/596331a5051d15502681d200fa408ee0983debc0/doc.vsh#LL88-L91) in the doc.vsh script accordingly.
 
