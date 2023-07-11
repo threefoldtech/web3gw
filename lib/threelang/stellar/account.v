@@ -10,7 +10,7 @@ fn (mut h StellarHandler) account(action Action) ! {
 			h.logger.info(res)
 		}
 		'create' {
-			network := action.params.get_default('network', 'testnet')!
+			network := action.params.get_default('network', 'public')!
 
 			res := h.client.create_account(network)!
 
