@@ -88,3 +88,22 @@ Nostr Channel Actions allow you to:
     !!nostr.channel.subscribe
         channel: f27ffebc7314cbbb12ad24ff3c127ef8070f9f341b5561251c355c274984beea
 ```
+
+## Read Channel Subscription messages
+
+- action name: !!nostr.channel.read_sub
+- parameters:
+  - channel [required]
+    - this is the Channel ID to read messages from. a Channel ID is the event ID of the channel creation event.
+  - id [optional]
+    - subscription id. if not provided, a new subscription is created and the subscription id is printed in logs.
+  - count [optional]
+    - number of messages to read. defaults to `10`
+
+- Example
+
+```md
+    !!nostr.channel.read_sub
+        id: "SUBSCRIPTION ID" 
+        count: 30
+```

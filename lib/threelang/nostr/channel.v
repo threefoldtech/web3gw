@@ -1,7 +1,6 @@
 module nostr
 
 import freeflowuniverse.crystallib.actionsparser { Action }
-import time
 
 fn (mut n NostrHandler) channel(action Action) ! {
 	match action.name {
@@ -16,7 +15,7 @@ fn (mut n NostrHandler) channel(action Action) ! {
 		}
 		'send' {
 			// send message to channel
-			channel_id := action.params.get('channel_id')!
+			channel_id := action.params.get('channel')!
 			content := action.params.get('content')!
 			message_id := action.params.get_default('reply_to', '')!
 			public_key := action.params.get_default('public_key_author', '')!
@@ -28,24 +27,22 @@ fn (mut n NostrHandler) channel(action Action) ! {
 				public_key: public_key
 			)!
 		}
-		'subscribe' {
-			// subscribe to channel
-			channel_id := action.params.get('channel_id')!
-
-			n.client.subscribe_channel_message(id: channel_id)!
-
-			for {
-				time.sleep(2 * time.second)
-				events := n.client.get_events()!
-				if events.len == 0 {
-					continue
-				}
-				n.logger.info('Message Events: ${events}')
+		'read_sub' {
+			// read subscription messages
+			channel_id := action.params.get('channel')!
+			mut id := action.params.get_default('id', '')!
+			if id == '' {
+				id = n.client.subscribe_channel_message(id: channel_id)!
+				n.logger.info('Subscription ID: ${id}')
 			}
+			count := action.params.get_u32_default('count', 10)!
+
+			messages := n.client.get_subscription_events(id: id, count: count)!
+			n.logger.info('Channel Messages: ${messages}')
 		}
 		'read' {
-			// read channel messages
-			channel_id := action.params.get('channel_id')!
+			// read all channel messages
+			channel_id := action.params.get('channel')!
 
 			messages := n.client.get_channel_message(channel_id: channel_id)!
 			n.logger.info('Channel Messages: ${messages}')
