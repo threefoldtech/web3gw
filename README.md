@@ -1,6 +1,10 @@
-# Web 3 Proxy
+# 3bot
 
-The web3 proxy implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
+> :warning: The repository has recently modified its name from web3_proxy to 3bot. Although Github will redirect the fetches, pushes, etc to the new name they do strongly recommend to change the remote:
+>
+> ```git remote set-url origin git@github.com:threefoldtech/3bot.git```
+
+The 3bot implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
 
 Project setup:
 
