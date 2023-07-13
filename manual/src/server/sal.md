@@ -103,7 +103,7 @@ func (c *Client) RemoveWorkerFromK8sCluster(args tfgridBase.RemoveWorkerFromK8sC
 ```
 
 ### DeployZDB
-- Deploy a Zero DB
+- Deploy a ZDB
 - Provide everything required to deploy the zero db (size, node id, etc)
 
 ```
@@ -436,6 +436,11 @@ func (c *Client) Height() (uint64, error)
 - Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
 
 ```
+Transfer struct {
+	Amount      string `json:"amount"` // how much should be transfered
+	Destination string `json:"destination"` // the eth public address of the destination account 
+    Asset       string `json:"asset"` // the asset to transfer to the destination account, default will be eth
+}
 func (c *Client) Transfer(args Transfer) (string, error)
 ```
 
@@ -453,18 +458,15 @@ func (c *Client) Quote(args Quote) (string, error)
 func (c *Client) Swap(args Swap) (string, error)
 ```
 
-### TransferEthTft
-- transfers tft from an account on ethereum to another
-
-```
-func (c *Client) TransferEthTft(args TftEthTransfer) (string, error)
-```
-
 ### BridgeToStellar
 - withdraws eth tft to stellar
 
 ```
-func (c *Client) BridgeToStellar(args TftEthTransfer) (string, error)
+TftTransfer struct {
+	Amount      string `json:"amount"` // how much should be transfered
+	Destination string `json:"destination"` // the eth public address of the destination account 
+}
+func (c *Client) BridgeToStellar(args TftTransfer) (string, error)
 ```
 
 ### ApproveTftSpending
