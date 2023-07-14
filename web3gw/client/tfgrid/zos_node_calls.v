@@ -1,6 +1,8 @@
 module tfgrid
 
 import json
+/*
+TODO: Do we really want to be able to talk to ZOS nodes through web3gw?
 
 // Deploys a deployment on a ZOS node and returns a string containing system hypervisor info.
 pub fn (mut t TFGridClient) zos_deployment_deploy(request ZOSNodeRequest) ! {
@@ -184,3 +186,4 @@ fn decode_result(workload_type string, result ResultRaw) !Result {
 		data: result_data
 	}
 }
+*/

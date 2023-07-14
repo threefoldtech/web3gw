@@ -1,5 +1,6 @@
 module tfgrid
 
+/*
 // A request that contains zos node calls information
 pub struct ZOSNodeRequest {
 pub:
@@ -176,3 +177,4 @@ pub struct Capacity {
 	mru   u64 [json: 'mru']
 	ipv4u u64 [json: 'ipv4u']
 }
+*/

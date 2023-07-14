@@ -1,5 +1,6 @@
 module tfgrid
 
+/*
 pub const (
 	zdb_workload_type                = 'zdb'
 	zmachine_workload_type           = 'zmachine'
@@ -143,3 +144,5 @@ pub:
 	backends        []string [json: 'backends'] // Backends are list of backend ips (only one is supported atm)
 	fqdn            string   [json: 'fqdn'] // // FQDN the fully qualified domain name to use (cannot be present with Name)
 }
+
+*/

@@ -5,7 +5,7 @@ The web3gateway implements a json rpc 2.0 server which opens up remote procedure
 Project setup:
 
 - [Server](server/): the implementation for the json rpc 2.0 server
-- [Lib](lib/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
+- [Client](client/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
 - [Examples](examples): contains some examples of V scripts for each client that the json rpc 2.0 server supports, these scripts show you how you can use the V library
 
 ## How to run the web3 proxy server (json rpc 2.0 server)
