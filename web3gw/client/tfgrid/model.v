@@ -191,7 +191,7 @@ pub mut:
 	name            string   [json: 'name'] // identifier for the gateway, must be unique
 	node_id         u32      [json: 'node_id'] // node to deploy the gateway workload on, if 0, a random elibile node will be selected
 	tls_passthrough bool     [json: 'tls_passthrough'] // True to enable TLS encryption
-	backends        []string [json: 'backends'] // The backend that the gateway wwill point to
+	backends        []string [json: 'backends'] // The backend that the gateway will point to
 
 	// computed
 	fqdn             string // the full domain name for this instance
