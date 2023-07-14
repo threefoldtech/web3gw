@@ -8,18 +8,17 @@ pub struct Load {
 
 [params]
 pub struct DeployVM {
-pub mut:
 	VMConfiguration
+pub mut:
 	add_wireguard_access bool
-	gateway	bool
+	gateway              bool
 }
 
 pub struct VMDeployment {
-pub mut:
 	VMConfiguration
-
-	network		string
-	wireguard_config	string	
+pub mut:
+	network          string
+	wireguard_config string
 }
 
 pub struct VMConfiguration {
@@ -40,13 +39,11 @@ pub mut:
 	qsfss       []QSFS // qsfss configs
 	env_vars    map[string]string // env vars to attach to the machine
 	description string // machine description
-
 	// computed
 	computed_ip4 string // public ipv4 attached to this machine, if any
 	computed_ip6 string // public ipv6 attached to this machine, if any
 	wireguard_ip string // private wireguard ip of this machine
 	ygg_ip       string // yggdrasil ip attached to this machine, if any
-
 }
 
 pub struct Disk {
@@ -54,7 +51,6 @@ pub:
 	size        u32    [required] // disk size in GBs
 	mountpoint  string [required] // mountpoint of the disk on the machine
 	description string // disk description
-
 	// computed
 	name string [required] // disk name
 }
@@ -75,9 +71,8 @@ pub:
 
 	max_zdb_data_dir_size u32     [required] // Maximum size of the data dir in MiB, if this is set and the sum of the file sizes in the data dir gets higher than this value, the least used, already encoded file will be removed.
 	groups                []Group [required] // groups configs
-
 	// computed
-	name	string // qsfs name
+	name             string // qsfs name
 	metrics_endpoint string // metrics endpoint for the qsfs
 }
 
@@ -93,43 +88,41 @@ pub mut:
 	metadata    string // metadata for the model
 	description string // description of the model
 	network     NetworkConfiguration // network configuration
-	vms    		[]VMConfiguration // VM configurations
+	vms         []VMConfiguration    // VM configurations
 }
 
 [params]
 pub struct NetworkConfiguration {
 pub mut:
-	name string // network name
-	add_wireguard_access bool // if true, a wireguard access point will be added to the network
-	ip_range string = '10.1.0.0/16' // network ip range, must have a subnet mask of 16
-
+	name                 string // network name
+	add_wireguard_access bool   // if true, a wireguard access point will be added to the network
+	ip_range             string = '10.1.0.0/16' // network ip range, must have a subnet mask of 16
 	// computed
 	wireguard_config string // wireguard configuration, if any
 }
 
 [params]
 pub struct AddVMToNetworkDeployment {
-pub mut:
 	VMConfiguration
-
+pub mut:
 	network_deployment string // unique id of the networkdeployment where the new vm should be added to
 }
 
 [params]
 pub struct RemoveVMFromNetworkDeployment {
 pub mut:
-	vm	string // unique id of the vm that should be removed from the network deployment
+	vm                 string // unique id of the vm that should be removed from the network deployment
 	network_deployment string // unique id of the networkdeployment where the new vm should be removed from
 }
 
 [params]
 pub struct K8sCluster {
 pub mut:
-	name                 string    // cluster name
-	token                string    // cluster token, workers must have this token to join the cluster
-	ssh_key              string    // public ssh key to access the instance in a later stage
-	master               K8sNode   // master config
-	workers              []K8sNode // workers configs
+	name          string    // cluster name
+	token         string    // cluster token, workers must have this token to join the cluster
+	ssh_key       string    // public ssh key to access the instance in a later stage
+	master        K8sNode   // master config
+	workers       []K8sNode // workers configs
 	add_wg_access bool      // if true, adds a wireguard access point to the network
 }
 
@@ -145,8 +138,6 @@ pub mut:
 	cpu        u32    // number of vcpu cores.
 	memory     u32    // node memory in MBs
 	disk_size  u32 = 10 // size of disk mounted on the node in GB, monted in /mydisk
-
-
 	// computed
 	computed_ip4 string // public ipv4 attached to this node, if any
 	computed_ip6 string // public ipv6 attached to this node, if any
@@ -158,7 +149,7 @@ pub mut:
 pub struct AddWorkerToK8sCluster {
 pub mut:
 	worker       K8sNode // the new worker to add to the cluster
-	cluster_name	string // the name of the k8s cluster to add the new worker to
+	cluster_name string  // the name of the k8s cluster to add the new worker to
 }
 
 [params]
@@ -170,7 +161,7 @@ pub mut:
 
 [params]
 pub struct ZDBDeployment {
-pub mut: 
+pub mut:
 	node_id     u32    // node id of the ZDB
 	name        string // zdb name, must be unique
 	password    string // zdb password
@@ -178,7 +169,6 @@ pub mut:
 	size        u32    // size of the zdb in GB
 	description string // zdb description
 	mode        string // Mode of the ZDB, `user` or `seq`. `user` is the default mode where a user can SET their own keys, like any key-value store. All keys are kept in memory. in `seq` mode, keys are sequential and autoincremented.
-	
 	// computed
 	namespace string   // namespace of the zdb
 	port      u32      // port of the zdb
@@ -192,23 +182,20 @@ pub mut:
 	node_id         u32      [json: 'node_id'] // node to deploy the gateway workload on, if 0, a random elibile node will be selected
 	tls_passthrough bool     [json: 'tls_passthrough'] // True to enable TLS encryption
 	backends        []string [json: 'backends'] // The backend that the gateway will point to
-
 	// computed
 	fqdn             string // the full domain name for this instance
 	name_contract_id u32    // name contract id
 	contract_id      u32    // contract id for the gateway
 }
 
-
 [params]
 pub struct GatewayFQDN {
 pub mut:
-	name            string  [json: 'name'] // name of the instance
-	node_id         u32     [json: 'node_id'] // node id that the instance was deployed on
-	tls_passthrough bool    [json: 'tls_passthrough'] // whether or not tls was enables
-	backends        []string [json: 'backends']// backends that this gateway is pointing to
+	name            string   [json: 'name'] // name of the instance
+	node_id         u32      [json: 'node_id'] // node id that the instance was deployed on
+	tls_passthrough bool     [json: 'tls_passthrough'] // whether or not tls was enables
+	backends        []string [json: 'backends'] // backends that this gateway is pointing to
 	fqdn            string   [json: 'fqdn'] // fully qualified domain name pointing to this gatewat
-
 	// computed
 	contract_id u32 // contract id for the gateway
 }
@@ -223,28 +210,28 @@ pub:
 [params]
 pub struct FindNodes {
 pub mut:
-	filters NodeFilter
+	filters    NodeFilter
 	pagination Limit
 }
 
 [params]
 pub struct FindFarms {
 pub mut:
-	filters FarmFilter
+	filters    FarmFilter
 	pagination Limit
 }
 
 [params]
 pub struct FindContracts {
 pub mut:
-	filters ContractFilter
+	filters    ContractFilter
 	pagination Limit
 }
 
 [params]
 pub struct FindTwins {
 pub mut:
-	filters TwinFilter
+	filters    TwinFilter
 	pagination Limit
 }
 
@@ -523,7 +510,6 @@ pub:
 
 	admin_email string // admin email
 }
-
 
 pub struct PeertubeDeployment {
 pub:

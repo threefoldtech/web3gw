@@ -144,5 +144,4 @@ pub:
 	backends        []string [json: 'backends'] // Backends are list of backend ips (only one is supported atm)
 	fqdn            string   [json: 'fqdn'] // // FQDN the fully qualified domain name to use (cannot be present with Name)
 }
-
 */
