@@ -3,7 +3,7 @@ module tfgrid
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import threefoldtech.web3gw.tfgrid.applications
 
-// TFGridClient is a client containig an RpcWsClient instance, and implements all tfgrid functionality
+// TFGridClient is a client containing an RpcWsClient instance, and implements all tfgrid functionality
 [openrpc: exclude]
 [noinit]
 pub struct TFGridClient {
