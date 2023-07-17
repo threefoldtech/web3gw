@@ -8,97 +8,6 @@ const (
 	default_timeout = 500000
 )
 
-[params]
-pub struct Load {
-pub:
-	network string
-	mnemonic string
-}
-
-[params]
-pub struct Transfer {
-pub:
-	amount      u64
-	destination string
-}
-
-[params]
-pub struct CreateTwin {
-pub:
-	relay string
-	pk    []byte
-}
-
-[params]
-pub struct AcceptTermsAndConditions {
-	link string
-	hash string
-}
-
-[params]
-pub struct GetContractWithHash {
-	node_id u32
-	hash    []byte
-}
-
-[params]
-pub struct CreateNodeContract {
-	node_id              u32
-	body                 string
-	hash                 string
-	public_ips           u32
-	solution_provider_id ?u64
-}
-
-[params]
-pub struct CreateRentContract {
-	node_id              u32
-	solution_provider_id ?u64
-}
-
-[params]
-pub struct ServiceContractCreate {
-	service  string
-	consumer string
-}
-
-[params]
-pub struct ServiceContractBill {
-	contract_id     u64
-	variable_amount u64
-	metadata        string
-}
-
-[params]
-pub struct SetServiceContractFees {
-	contract_id  u64
-	base_fee     u64
-	variable_fee u64
-}
-
-[params]
-pub struct ServiceContractSetMetadata {
-	contract_id u64
-	metadata    string
-}
-
-pub struct PublicIPInput {
-	ip      string
-	gateway string
-}
-
-[params]
-pub struct CreateFarm {
-	name       string
-	public_ips []PublicIPInput
-}
-
-[params]
-pub struct SwapToStellar {
-	target_stellar_address string 
-	amount u64
-}
-
 [noinit; openrpc: exclude]
 pub struct TfChainClient {
 mut:
@@ -146,17 +55,6 @@ pub fn (mut t TfChainClient) height() !u64 {
 	return t.client.send_json_rpc[[]string, u64]('tfchain.Height', []string{}, tfchain.default_timeout)!
 }
 
-// Get a twin by id. 
-pub fn (mut t TfChainClient) get_twin(id u32) !Twin {
-	return t.client.send_json_rpc[[]u32, Twin]('tfchain.GetTwin', [id], tfchain.default_timeout)!
-}
-
-// Get the twin id that is bound to a SS58 address. 
-pub fn (mut t TfChainClient) get_twin_by_pubkey(address string) !u32 {
-	return t.client.send_json_rpc[[]string, u32]('tfchain.GetTwinByPubKey', [address],
-		tfchain.default_timeout)!
-}
-
 // Create a twin. Provide the relay and your public key in this call. The result of this call contains
 // your twin id. 
 pub fn (mut t TfChainClient) create_twin(args CreateTwin) !u32 {
@@ -169,55 +67,9 @@ pub fn (mut t TfChainClient) accept_terms_and_conditions(args AcceptTermsAndCond
 		[args], tfchain.default_timeout)!
 }
 
-// Get a node by id.
-pub fn (mut t TfChainClient) get_node(id u32) !Node {
-	return t.client.send_json_rpc[[]u32, Node]('tfchain.GetNode', [id], tfchain.default_timeout)!
-}
-
-// Get the nodes that belong to the farm with id. Returns a list of node ids. 
-pub fn (mut t TfChainClient) get_nodes(farm_id u32) ![]u32 {
-	return t.client.send_json_rpc[[]u32, []u32]('tfchain.GetNodes', [farm_id], tfchain.default_timeout)!
-}
-
-// Get farm by id. 
-pub fn (mut t TfChainClient) get_farm(id u32) !Farm {
-	return t.client.send_json_rpc[[]u32, Farm]('tfchain.GetFarm', [id], tfchain.default_timeout)!
-}
-
-// Get farm by name. 
-pub fn (mut t TfChainClient) get_farm_by_name(name string) !u32 {
-	return t.client.send_json_rpc[[]string, u32]('tfchain.GetFarmByName', [name], tfchain.default_timeout)!
-}
-
 // Create a farm. Provide a name an a list of public ips if there are any.
 pub fn (mut t TfChainClient) create_farm(args CreateFarm) ! {
 	_ := t.client.send_json_rpc[[]CreateFarm, string]('tfchain.CreateFarm', [args], tfchain.default_timeout)!
-}
-
-// Get a contract by id. Contract can be any of the following types: node contract, name contract or rent 
-// contract.
-pub fn (mut t TfChainClient) get_contract(contract_id u64) !Contract {
-	return t.client.send_json_rpc[[]u64, Contract]('tfchain.GetContract', [
-		contract_id,
-	], tfchain.default_timeout)!
-}
-
-// Get contract by name registration. Returns the id of the contract.
-pub fn (mut t TfChainClient) get_contract_id_by_name_registration(name string) !u64 {
-	return t.client.send_json_rpc[[]string, u64]('tfchain.GetContractIDByNameRegistration',
-		[name], tfchain.default_timeout)!
-}
-
-// Get contract by hash. Returns the contract id.
-pub fn (mut t TfChainClient) get_contract_with_hash(args GetContractWithHash) !u64 {
-	return t.client.send_json_rpc[[]GetContractWithHash, u64]('tfchain.GetContractWithHash',
-		[args], tfchain.default_timeout)!
-}
-
-// Get contracts belonging to a node. Returns a list of contract ids.
-pub fn (mut t TfChainClient) get_node_contracts(node_id u32) ![]u64 {
-	return t.client.send_json_rpc[[]u32, []u64]('tfchain.GetNodeContracts', [node_id],
-		tfchain.default_timeout)!
 }
 
 // Create a name contract. Provide the dns name via this call. Returns the id of the contract it 
@@ -323,8 +175,8 @@ pub fn (mut t TfChainClient) swap_to_stellar(args SwapToStellar) ! {
 		tfchain.default_timeout)!
 }
 
-// Await till a transaction is processed on tfchain bridge that contains a specific memo
-pub fn (mut t TfChainClient) await_transaction_on_tfchain_bridge(memo string) ! {
-	_ := t.client.send_json_rpc[[]string, string]('tfchain.AwaitTransactionOnTfchainBridge', [memo],
+// Await till a transaction is processed on stellar-tfchain bridge that contains a specific memo, that transaction is the result of a bridge from stellar to the loaded tfchain account
+pub fn (mut t TfChainClient) await_bridged_from_stellar(memo string) ! {
+	_ := t.client.send_json_rpc[[]string, string]('tfchain.AwaitBridgedFromStellar', [memo],
 		tfchain.default_timeout)!
 }
