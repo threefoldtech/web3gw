@@ -1,39 +1,38 @@
 module btc
 
+// configurations to load bitcoin client
+[params]
+pub struct Load {
+	host string
+	user string
+	pass string
+}
+
+// send amount of token to address, with/without comment
+[params]
+pub struct Transfer {
+	address    string
+	amount     i64
+	comment    string // is intended to be used for the purpose of the transaction, keep empty if you don't wat to provide any comment.
+	comment_to string // is intended to be used for who the transaction is being sent to.
+}
+
+[params]
+pub struct EstimateSmartFee {
+	conf_target i64 = 1 // confirmation target in blocks
+	mode        string = "CONSERVATIVE" // defines the different fee estimation modes, should be one of UNSET, ECONOMICAL or CONSERVATIVE
+}
+
 pub struct EstimateSmartFeeResult {
 	feerate f64
 	errors  []string
 	blocks  i64
 }
 
-pub struct GetAddressInfoResult {
-	EmbeddedAddressInfo
-	ismine      bool
-	iswatchonly bool
-	timestamp   int
-	hdkeypath   string
-	hdseedid    string
-	embedded    EmbeddedAddressInfo
-}
-
-pub struct EmbeddedAddressInfo {
-	address             string
-	script_pub_key      string   [json: 'scriptPubKey']
-	solvable            bool
-	desc                string
-	isscript            bool
-	ischange            bool
-	iswitness           bool
-	witness_version     int
-	witness_program     string
-	script              byte
-	hex                 string
-	pubkeys             []string
-	sigsrequired        int
-	pubkey              string
-	iscompressed        bool
-	hdmasterfingerprint string
-	labels              []string
+[params]
+pub struct GetChainTxStats {
+	amount_of_blocks int // provide statistics for amount_of_blocks blocks, if 0 for all blocks
+	block_hash_end   string // provide statistics for amount_of_blocks blocks up until the block with the hash provided in block_hash_end
 }
 
 pub struct GetBlockStatsResult {
@@ -98,15 +97,15 @@ pub struct TxRawResult {
 	weight        int
 	version       u32
 	locktime      u32
-	vin           []Vin
-	vout          []Vout
+	vin           []VIn
+	vout          []VOut
 	blockhash     string
 	confirmations u64
 	time          i64
 	blocktime     i64
 }
 
-pub struct Vin {
+pub struct VIn {
 	coinbase    string
 	txid        string
 	vout        u32
@@ -120,7 +119,7 @@ pub struct ScriptSig {
 	hex  string
 }
 
-pub struct Vout {
+pub struct VOut {
 	value          f64
 	n              u32
 	script_pub_key ScriptPubKeyResult [json: 'scriptPubKey']
@@ -226,10 +225,4 @@ pub struct OutPoint {
 pub struct TxOut {
 	value     i64
 	pk_script []byte
-}
-
-// CreateWalletResult models the result of the createwallet command.
-pub struct CreateWalletResult {
-	name    string
-	warning string
 }
