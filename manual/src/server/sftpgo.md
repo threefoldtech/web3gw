@@ -60,6 +60,7 @@ There is a config file at the root of the repo that can be used, although it mig
 - `httpd.static_files_path`: this points to the absolute path of additional static files needed for the UI, should also be in the root of the fork
 - `data_provider.name`: path for the sqlite DB file that would be created if not already there, required
 - `data_provider.users_base_dir`: absolute path to hold the users data, required
+- `smtp.templates_path`: this should point to the absolute templates path used by SFTPGO to generate the UI. This usually can be found at the root of the sftpgo fork
 
 In addition to the above configuration the following env variables need to be specified:
 

@@ -407,7 +407,7 @@
     "auth_type": 0,
     "encryption": 0,
     "domain": "",
-    "templates_path": "templates"
+    "templates_path": "/sftpgo/templates"
   },
   "plugins": []
 }
