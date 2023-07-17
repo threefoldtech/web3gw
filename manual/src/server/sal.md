@@ -476,11 +476,11 @@ func (c *Client) BridgeToStellar(args TftTransfer) (string, error)
 func (c *Client) ApproveTftSpending(amount string) (string, error)
 ```
 
-### TftSpendingAllowance
+### GetTftSpendingAllowance
 - returns the amount of TFT approved to be swapped
 
 ```
-func (c *Client) TftSpendingAllowance() (string, error)
+func (c *Client) GetTftSpendingAllowance() (string, error)
 ```
 
 ### Address
@@ -494,7 +494,7 @@ func (c *Client) Address() (string, error)
 - Creates and activates stellar account using ethereum
 
 ```
-func (c *Client) CreateAndActivateStellarAccount(network string) (string, error)
+func (c *Client) CreateStellarAccount(network string) (string, error)
 ```
 
 ### GetTokenBalance
@@ -511,7 +511,7 @@ func (c *Client) GetTokenBalance(contractAddress string) (string, error)
 func (c *Client) TransferTokens(args TokenTransfer) (string, error)
 ```
 
-### TransferFromTokens
+### TransferTokensFrom
 - transfers tokens from an account to another account (can be executed by anyone that is approved to spend)
 
 ```

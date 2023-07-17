@@ -6,47 +6,6 @@ const (
 	default_timeout = 500000
 )
 
-[params]
-pub struct Load {
-	network string = 'public'
-	secret  string
-}
-
-[params]
-pub struct Swap {
-	amount string
-	source_asset string = "xlm"
-	destination_asset string
-}
-
-[params]
-pub struct Transfer {
-	amount      string
-	destination string
-	memo        string
-}
-
-[params]
-pub struct BridgeTransfer {
-	amount      string
-	destination string
-}
-
-[params]
-pub struct TfchainBridgeTransfer {
-	amount  string
-	twin_id u32
-}
-
-[params]
-pub struct Transactions {
-	account string  // filter the transactions on the account with the address from this argument, leave empty for your account
-	limit u32 // limit the amount of transactions to gather with this argument, this is 10 by default
-	include_failed bool // include the failed arguments
-	cursor string // list the last transactions starting from this cursor, leave empty to start from the top
-	ascending bool // order the transactions in ascending order
-}
-
 [openrpc: exclude]
 [noinit]
 pub struct StellarClient {
@@ -68,32 +27,54 @@ pub fn (mut s StellarClient) load(args Load) ! {
 
 // Creates an account on the provided network and returns the seed. Consecutive calls will be using the newly created account.
 pub fn (mut s StellarClient) create_account(network string) !string {
-	return s.client.send_json_rpc[[]string, string]('stellar.CreateAccount', [network], stellar.default_timeout)!
+	return s.client.send_json_rpc[[]string, string]('stellar.CreateAccount', [network],
+		stellar.default_timeout)!
 }
 
 // Get the public address of the loaded stellar secret
 pub fn (mut s StellarClient) address() !string {
-	return s.client.send_json_rpc[[]string, string]('stellar.Address', []string{}, default_timeout)!
+	return s.client.send_json_rpc[[]string, string]('stellar.Address', []string{}, stellar.default_timeout)!
+}
+
+// Return a limited amount of transactions bound to a specific account
+pub fn (mut s StellarClient) transactions(args Transactions) ![]Transaction {
+	return s.client.send_json_rpc[[]Transactions, []Transaction]('stellar.Transactions',
+		[args], stellar.default_timeout)!
+}
+
+// Height of the chain for the connected rpc remote
+pub fn (mut s StellarClient) height() !u64 {
+	return s.client.send_json_rpc[[]string, u64]('stellar.Height', []string{}, stellar.default_timeout)!
+}
+
+// Get data related to a stellar account, leave account empty for account data of loaded account
+pub fn (mut s StellarClient) account_data(account string) !AccountData {
+	return s.client.send_json_rpc[[]string, AccountData]('stellar.AccountData', [
+		account,
+	], stellar.default_timeout)!
 }
 
 // Swap tokens from one asset type to the other (for example from tft to xlm)
 pub fn (mut s StellarClient) swap(args Swap) !string {
-	return s.client.send_json_rpc[[]Swap, string]('stellar.Swap', [args], default_timeout)!
+	return s.client.send_json_rpc[[]Swap, string]('stellar.Swap', [args], stellar.default_timeout)!
 }
 
-// Transfer an amount of TFT from the loaded account to the destination.
+// Transfer an amount of TFT from the loaded account to the destination
 pub fn (mut s StellarClient) transfer(args Transfer) !string {
-	return s.client.send_json_rpc[[]Transfer, string]('stellar.Transfer', [args], default_timeout)!
+	return s.client.send_json_rpc[[]Transfer, string]('stellar.Transfer', [args], stellar.default_timeout)!
 }
 
-// Balance of an account for TFT on stellar.
-pub fn (mut s StellarClient) balance(address string) !string {
-	return s.client.send_json_rpc[[]string, string]('stellar.Balance', [address], default_timeout)!
+// Get the balance of a specific address, if address is empty the balance of the loaded account will be returned, you can ask the balance of different assets (tft, xlm), default will be xlm
+pub fn (mut s StellarClient) balance(args AccountBalance) !string {
+	return s.client.send_json_rpc[[]AccountBalance, string]('stellar.Balance', [args],
+		stellar.default_timeout)!
 }
 
-// bridge_to_eth bridge to eth from stellar
-pub fn (mut s StellarClient) bridge_to_eth(args BridgeTransfer) !string {
-	return s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToEth', [args], default_timeout)!
+// Bridge tokens of your stellar account to an account on ethereum
+pub fn (mut s StellarClient) bridge_to_eth(args BridgeToEth) !string {
+	return s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToEth', [
+		args,
+	], stellar.default_timeout)!
 }
 
 // Reinstate later
@@ -103,22 +84,14 @@ pub fn (mut s StellarClient) bridge_to_eth(args BridgeTransfer) !string {
 // 	_ := s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToBsc', [args], default_timeout)!
 // }
 
-// bridge_to_tfchain bridge to tfchain from stellar
-pub fn (mut s StellarClient) bridge_to_tfchain(args TfchainBridgeTransfer) !string {
- 	return s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain', [args], default_timeout)!
+// Bridge tokens of your stellar account to an account on tfchain (provide twinid)
+pub fn (mut s StellarClient) bridge_to_tfchain(args BridgeToTfchain) !string {
+	return s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain',
+		[args], stellar.default_timeout)!
 }
 
-// Await till a transaction is processed on ethereum bridge that contains a specific memo
-pub fn (mut s StellarClient) await_transaction_on_eth_bridge(memo string) ! {
-	_ := s.client.send_json_rpc[[]string, string]('stellar.AwaitTransactionOnEthBridge', [memo], default_timeout)!
-}
-
-// Return a limited amount of transactions bound to a specific account
-pub fn (mut s StellarClient) transactions(args Transactions) ![]Transaction {
-	return s.client.send_json_rpc[[]Transactions, []Transaction]('stellar.Transactions', [args], default_timeout)!
-}
-
-// Return the data that is related to an account
-pub fn (mut s StellarClient) account_data(account string) !AccountData {
-	return s.client.send_json_rpc[[]string, AccountData]('stellar.AccountData', [account], default_timeout)!
+// Await till a transaction is processed on ethereum bridge that contains a specific memo, that transaction is the result of a bridge from ethereum to the loaded stellar account
+pub fn (mut s StellarClient) await_bridged_from_ethereum(args AwaitBridgedFromEthereum) ! {
+	_ := s.client.send_json_rpc[[]string, string]('stellar.AwaitBridgedFromEthereum',
+		[args], stellar.default_timeout)!
 }
