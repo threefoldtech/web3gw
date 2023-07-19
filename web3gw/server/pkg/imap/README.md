@@ -1,0 +1,1 @@
+The IMAP Server implementation in this repo is taken from https://github.com/emersion/go-imap/tree/v2/imapserver/imapmemserver. The IMAP functions, alongside any state held in the memory server must be hollowed out, and state readings and updates should instead be requested via JSON-RPC from Threebot's Mail OpenRPC WS Server.
