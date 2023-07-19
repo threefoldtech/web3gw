@@ -1,7 +1,6 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.web3gw.tfgrid.applications
 
 // TFGridClient is a client containing an RpcWsClient instance, and implements all tfgrid functionality
 [openrpc: exclude]
@@ -40,7 +39,7 @@ pub fn (mut t TFGridClient) get_vm_deployment(name string) !VMDeployment {
 
 // Cancels the deployment of the VM with the provided name
 pub fn (mut t TFGridClient) cancel_vm_deployment(name string) ! {
-	_ := t.client.send_json_rpc[[]string, VMResult]('tfgrid.CancelVMDeployment', [
+	_ := t.client.send_json_rpc[[]string, string]('tfgrid.CancelVMDeployment', [
 		name,
 	], t.timeout)!
 }

@@ -19,6 +19,7 @@ pub struct VMDeployment {
 pub mut:
 	network          string
 	wireguard_config string
+	gateway_name     string
 }
 
 pub struct VMConfiguration {
@@ -52,7 +53,7 @@ pub:
 	mountpoint  string [required] // mountpoint of the disk on the machine
 	description string // disk description
 	// computed
-	name string [required] // disk name
+	name string // disk name
 }
 
 pub struct QSFS {
@@ -74,6 +75,27 @@ pub:
 	// computed
 	name             string // qsfs name
 	metrics_endpoint string // metrics endpoint for the qsfs
+}
+
+pub struct Metadata {
+pub:
+	type_                string    [json: 'type'] = 'zdb' // configuration for the metadata store to use, currently only ZDB is supported.
+	prefix               string    [required] // Data stored on the remote metadata is prefixed with.
+	encryption_algorithm string = 'AES' // configuration to use for the encryption stage. Currently only AES is supported.
+	encryption_key       string    [required] // 64 long hex encoded encryption key (e.g. 0000000000000000000000000000000000000000000000000000000000000000).
+	backends             []Backend // backends configs
+}
+
+pub struct Group {
+pub:
+	backends []Backend
+}
+
+pub struct Backend {
+pub:
+	address   string [required] // Address of backend ZDB (e.g. [300:a582:c60c:df75:f6da:8a92:d5ed:71ad]:9900 or 60.60.60.60:9900).
+	namespace string [required] // ZDB namespace.
+	password  string [required] // Namespace password.
 }
 
 pub struct Zlog {
@@ -105,14 +127,14 @@ pub mut:
 pub struct AddVMToNetworkDeployment {
 	VMConfiguration
 pub mut:
-	network_deployment string // unique id of the networkdeployment where the new vm should be added to
+	network string // unique id of the networkdeployment where the new vm should be added to
 }
 
 [params]
 pub struct RemoveVMFromNetworkDeployment {
 pub mut:
-	vm                 string // unique id of the vm that should be removed from the network deployment
-	network_deployment string // unique id of the networkdeployment where the new vm should be removed from
+	vm      string // unique id of the vm that should be removed from the network deployment
+	network string // unique id of the networkdeployment where the new vm should be removed from
 }
 
 [params]

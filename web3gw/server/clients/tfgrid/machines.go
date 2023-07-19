@@ -15,32 +15,34 @@ import (
 )
 
 // Machines model ensures that each node has one deployment that includes all workloads
-type MachinesModel struct {
-	Name     string    `json:"name"`     // this is the name of the deployment, should be unique
-	Network  Network   `json:"network"`  // network specs
-	Machines []Machine `json:"machines"` // machines specs
+type NetworkDeployment struct {
+	Name        string               `json:"name"`        // this is the name of the deployment, should be unique
+	Metadata    string               `json:"metadata"`    // metadata for the model
+	Description string               `json:"description"` // description of the model
+	Network     NetworkConfiguration `json:"network"`     // network configuration
+	VMs         []VMConfiguration    `json:"vms"`         // vm configurations
 }
 
-type Network struct {
+type NetworkConfiguration struct {
+	Name               string `json:"name"`                 // network name will be (projectname.network)
 	AddWireguardAccess bool   `json:"add_wireguard_access"` // true to add access node
-	IPRange            string `json:"ip_range"`
+	IPRange            string `json:"ip_range"`             // network ip range, must have a subnet mask of 16
 
 	// computed
-	Name            string `json:"name"` // network name will be (projectname.network)
-	WireguardConfig string `json:"wireguard_config"`
+	WireguardConfig string `json:"wireguard_config"` // wireguard configuration, if any
 }
 
-type AddMachineParams struct {
-	ModelName string  `json:"model_name"`
-	Machine   Machine `json:"machine"`
+type AddVMToNetworkDeployment struct {
+	VMConfiguration
+	Network string `json:"network"`
 }
 
-type RemoveMachineParams struct {
-	ModelName   string `json:"model_name"`
-	MachineName string `json:"machine_name"`
+type RemoveVMFromNetworkDeployment struct {
+	VM      string `json:"vm"`
+	Network string `json:"network"`
 }
 
-type Machine struct {
+type VMConfiguration struct {
 	NodeID      uint32            `json:"node_id"`
 	FarmID      uint32            `json:"farm_id"`
 	Name        string            `json:"name"`
@@ -131,26 +133,26 @@ type gridMachinesModel struct {
 }
 
 // nodes should always be provided
-func (c *Client) MachinesDeploy(ctx context.Context, model MachinesModel) (MachinesModel, error) {
+func (c *Client) DeployNetwork(ctx context.Context, args NetworkDeployment) (NetworkDeployment, error) {
 	// validation
-	if err := c.validateProjectName(ctx, model.Name); err != nil {
-		return MachinesModel{}, err
+	if err := c.validateProjectName(ctx, args.Name); err != nil {
+		return NetworkDeployment{}, err
 	}
 
-	if err := c.assignNodesIDsForMachines(ctx, model); err != nil {
-		return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
+	if err := c.assignNodesIDsForMachines(ctx, args); err != nil {
+		return NetworkDeployment{}, errors.Wrapf(err, "Couldn't find node for all machines model")
 	}
 
-	gridMachinesModel, err := toGridMachinesModel(&model)
+	gridMachinesModel, err := toGridMachinesModel(&args)
 	if err != nil {
-		return MachinesModel{}, err
+		return NetworkDeployment{}, err
 	}
 
 	if err := c.deployMachinesModel(ctx, &gridMachinesModel); err != nil {
-		return MachinesModel{}, err
+		return NetworkDeployment{}, err
 	}
 
-	return c.MachinesGet(ctx, model.Name)
+	return c.GetNetworkDeployment(ctx, args.Name)
 }
 
 func (c *Client) deployMachinesModel(ctx context.Context, model *gridMachinesModel) error {
@@ -188,7 +190,7 @@ func (c *Client) updateLocalState(g *gridMachinesModel) error {
 	return nil
 }
 
-func (r *Client) MachinesDelete(ctx context.Context, modelName string) error {
+func (r *Client) CancelNetworkDeployment(ctx context.Context, modelName string) error {
 	if err := r.cancelModel(ctx, modelName); err != nil {
 		return errors.Wrapf(err, "failed to cancel model %s contracts", modelName)
 	}
@@ -196,49 +198,49 @@ func (r *Client) MachinesDelete(ctx context.Context, modelName string) error {
 	return nil
 }
 
-func (c *Client) MachinesGet(ctx context.Context, modelName string) (MachinesModel, error) {
+func (c *Client) GetNetworkDeployment(ctx context.Context, modelName string) (NetworkDeployment, error) {
 	gridMachinesModel, err := c.loadGridMachinesModel(ctx, modelName)
 	if err != nil {
-		return MachinesModel{}, errors.Wrapf(err, "failed to load machines model %s deployments", modelName)
+		return NetworkDeployment{}, errors.Wrapf(err, "failed to load machines model %s deployments", modelName)
 	}
 
 	return c.toMachinesModel(&gridMachinesModel)
 }
 
-func (c *Client) MachineAdd(ctx context.Context, params AddMachineParams) (MachinesModel, error) {
-	log.Debug().Msgf("adding machine %s", params.Machine.Name)
+func (c *Client) AddVMToNetworkDeployment(ctx context.Context, params AddVMToNetworkDeployment) (NetworkDeployment, error) {
+	log.Debug().Msgf("adding machine %s", params.Name)
 
-	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.Network)
 	if err != nil {
-		return MachinesModel{}, err
+		return NetworkDeployment{}, err
 	}
 
-	if params.Machine.NodeID == 0 {
-		if err := c.assignNodesIDForMachine(ctx, &params.Machine); err != nil {
-			return MachinesModel{}, errors.Wrapf(err, "Couldn't find node for all machines model")
+	if params.NodeID == 0 {
+		if err := c.assignNodesIDForMachine(ctx, &params.VMConfiguration); err != nil {
+			return NetworkDeployment{}, errors.Wrapf(err, "Couldn't find node for all machines model")
 		}
 	}
 
 	if err := c.addMachine(ctx, &gridMachinesModel, &params); err != nil {
-		return MachinesModel{}, errors.Wrapf(err, "failed to add machine %s", params.Machine.Name)
+		return NetworkDeployment{}, errors.Wrapf(err, "failed to add machine %s", params.Name)
 	}
 
-	return c.MachinesGet(ctx, params.ModelName)
+	return c.GetNetworkDeployment(ctx, params.Network)
 }
 
-func (c *Client) MachineRemove(ctx context.Context, params RemoveMachineParams) (MachinesModel, error) {
-	log.Debug().Msgf("removeing machine %s", params.MachineName)
+func (c *Client) RemoveVMFromNetworkDeployment(ctx context.Context, params RemoveVMFromNetworkDeployment) (NetworkDeployment, error) {
+	log.Debug().Msgf("removeing machine %s", params.VM)
 
-	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.ModelName)
+	gridMachinesModel, err := c.loadGridMachinesModel(ctx, params.Network)
 	if err != nil {
-		return MachinesModel{}, err
+		return NetworkDeployment{}, err
 	}
 
 	if err := c.removeMachine(ctx, &gridMachinesModel, &params); err != nil {
-		return MachinesModel{}, errors.Wrapf(err, "failed to remove machine from model %s", params.ModelName)
+		return NetworkDeployment{}, errors.Wrapf(err, "failed to remove machine from model %s", params.Network)
 	}
 
-	return c.MachinesGet(ctx, params.ModelName)
+	return c.GetNetworkDeployment(ctx, params.Network)
 }
 
 func (c *Client) deployMachinesDeployments(ctx context.Context, g *gridMachinesModel) error {
@@ -268,33 +270,33 @@ func (c *Client) deployMachinesDeployments(ctx context.Context, g *gridMachinesM
 	return nil
 }
 
-func (c *Client) toMachinesModel(g *gridMachinesModel) (MachinesModel, error) {
-	model := MachinesModel{
-		Name:     g.modelName,
-		Network:  fromGridNetwork(g.network),
-		Machines: []Machine{},
+func (c *Client) toMachinesModel(g *gridMachinesModel) (NetworkDeployment, error) {
+	model := NetworkDeployment{
+		Name:    g.modelName,
+		Network: fromGridNetwork(g.network),
+		VMs:     []VMConfiguration{},
 	}
 
 	for _, dl := range g.deployments {
 		model.Name = dl.Name
 		farmID, err := c.GridClient.GetNodeFarm(dl.NodeID)
 		if err != nil {
-			return MachinesModel{}, err
+			return NetworkDeployment{}, err
 		}
 
 		disks := getDiskMap(dl)
 		qsfss := getQSFSMap(dl)
 
 		for _, vm := range dl.Vms {
-			machine := toGridVM(dl.NodeID, &vm, disks, farmID, qsfss)
-			model.Machines = append(model.Machines, machine)
+			grid_vm := toGridVM(dl.NodeID, &vm, disks, farmID, qsfss)
+			model.VMs = append(model.VMs, grid_vm)
 		}
 	}
 
 	return model, nil
 }
 
-func (machine *Machine) createReservationFromMachine() (string, *PlannedReservation) {
+func (machine *VMConfiguration) createReservationFromMachine() (string, *PlannedReservation) {
 	neededSRU := 0
 	neededHRU := 0
 	for _, disk := range machine.Disks {
@@ -315,11 +317,11 @@ func (machine *Machine) createReservationFromMachine() (string, *PlannedReservat
 	}
 }
 
-func (machine *Machine) assignNodeIdforMachine(reservations Reservations) {
+func (machine *VMConfiguration) assignNodeIdforMachine(reservations Reservations) {
 	machine.NodeID = uint32(reservations[machine.Name].NodeID)
 }
 
-func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) error {
+func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *VMConfiguration) error {
 	name, vm := machine.createReservationFromMachine()
 	reservation := Reservations{name: vm}
 	if err := c.AssignNodes(ctx, reservation); err != nil {
@@ -330,13 +332,13 @@ func (c *Client) assignNodesIDForMachine(ctx context.Context, machine *Machine) 
 }
 
 // Assign chosen NodeIds to machines vm. with both way conversions to/from Reservations array.
-func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines MachinesModel) error {
+func (c *Client) assignNodesIDsForMachines(ctx context.Context, args NetworkDeployment) error {
 	// all units unified in bytes
 
 	reservations := Reservations{}
 
-	for idx := range machines.Machines {
-		name, vm := machines.Machines[idx].createReservationFromMachine()
+	for idx := range args.VMs {
+		name, vm := args.VMs[idx].createReservationFromMachine()
 		reservations[name] = vm
 	}
 
@@ -345,16 +347,16 @@ func (c *Client) assignNodesIDsForMachines(ctx context.Context, machines Machine
 		return err
 	}
 
-	for idx := range machines.Machines {
-		if machines.Machines[idx].NodeID == 0 {
-			machines.Machines[idx].assignNodeIdforMachine(reservations)
+	for idx := range args.VMs {
+		if args.VMs[idx].NodeID == 0 {
+			args.VMs[idx].assignNodeIdforMachine(reservations)
 		}
 	}
 
 	return nil
 }
 
-func (c *Client) addMachine(ctx context.Context, g *gridMachinesModel, params *AddMachineParams) error {
+func (c *Client) addMachine(ctx context.Context, g *gridMachinesModel, params *AddVMToNetworkDeployment) error {
 	if err := c.prepareModelForUpdate(g, params); err != nil {
 		return err
 	}
@@ -366,16 +368,16 @@ func (c *Client) addMachine(ctx context.Context, g *gridMachinesModel, params *A
 	return nil
 }
 
-func (c *Client) prepareModelForUpdate(g *gridMachinesModel, params *AddMachineParams) error {
+func (c *Client) prepareModelForUpdate(g *gridMachinesModel, params *AddVMToNetworkDeployment) error {
 	// update network
-	if !slices.Contains(g.network.Nodes, params.Machine.NodeID) {
-		g.network.Nodes = append(g.network.Nodes, params.Machine.NodeID)
+	if !slices.Contains(g.network.Nodes, params.NodeID) {
+		g.network.Nodes = append(g.network.Nodes, params.NodeID)
 	}
 
 	// update deployment
-	vm, disks, qsfss := extractMachineWorkloads(&params.Machine, g.network.Name)
+	vm, disks, qsfss := extractMachineWorkloads(&params.VMConfiguration, g.network.Name)
 
-	if dl, ok := g.deployments[params.Machine.NodeID]; ok && dl != nil {
+	if dl, ok := g.deployments[params.NodeID]; ok && dl != nil {
 		dl.Vms = append(dl.Vms, vm)
 		dl.QSFS = append(dl.QSFS, qsfss...)
 		dl.Disks = append(dl.Disks, disks...)
@@ -383,9 +385,9 @@ func (c *Client) prepareModelForUpdate(g *gridMachinesModel, params *AddMachineP
 	}
 
 	newDl := workloads.NewDeployment(
-		params.ModelName,
-		params.Machine.NodeID,
-		generateProjectName(params.ModelName),
+		params.Name,
+		params.NodeID,
+		generateProjectName(params.Name),
 		nil,
 		g.network.Name,
 		disks,
@@ -393,18 +395,18 @@ func (c *Client) prepareModelForUpdate(g *gridMachinesModel, params *AddMachineP
 		[]workloads.VM{vm},
 		qsfss)
 
-	g.deployments[params.Machine.NodeID] = &newDl
+	g.deployments[params.NodeID] = &newDl
 
 	return nil
 }
 
-func (c *Client) removeMachine(ctx context.Context, g *gridMachinesModel, params *RemoveMachineParams) error {
+func (c *Client) removeMachine(ctx context.Context, g *gridMachinesModel, params *RemoveVMFromNetworkDeployment) error {
 	model, err := c.toMachinesModel(g)
 	if err != nil {
 		return err
 	}
 
-	machine, err := model.findMachine(params.MachineName)
+	machine, err := model.findMachine(params.VM)
 	if err != nil {
 		return err
 	}
@@ -426,7 +428,7 @@ func (c *Client) removeMachine(ctx context.Context, g *gridMachinesModel, params
 	return nil
 }
 
-func (c *Client) removeMachineFromModel(ctx context.Context, g *gridMachinesModel, machine *Machine) error {
+func (c *Client) removeMachineFromModel(ctx context.Context, g *gridMachinesModel, machine *VMConfiguration) error {
 	dl := g.deployments[machine.NodeID]
 
 	if len(dl.Vms) == 1 {
@@ -446,8 +448,8 @@ func (c *Client) removeMachineFromModel(ctx context.Context, g *gridMachinesMode
 	return nil
 }
 
-func toGridMachinesModel(model *MachinesModel) (gridMachinesModel, error) {
-	dls := toGridDeployments(model.Machines, model.Name)
+func toGridMachinesModel(model *NetworkDeployment) (gridMachinesModel, error) {
+	dls := toGridDeployments(model.VMs, model.Name)
 
 	nodeIDs := []uint32{}
 	for node := range dls {
@@ -466,10 +468,10 @@ func toGridMachinesModel(model *MachinesModel) (gridMachinesModel, error) {
 	}, nil
 }
 
-func toGridDeployments(machines []Machine, modelName string) map[uint32]*workloads.Deployment {
+func toGridDeployments(machines []VMConfiguration, modelName string) map[uint32]*workloads.Deployment {
 	dls := map[uint32]*workloads.Deployment{}
 
-	nodeMachineMap := map[uint32][]*Machine{}
+	nodeMachineMap := map[uint32][]*VMConfiguration{}
 	for idx, machine := range machines {
 		nodeMachineMap[machine.NodeID] = append(nodeMachineMap[machine.NodeID], &machines[idx])
 	}
@@ -496,7 +498,7 @@ func toGridDeployments(machines []Machine, modelName string) map[uint32]*workloa
 	return dls
 }
 
-func toGridZnet(network *Network, nodeIDs []uint32, modelName string) (workloads.ZNet, error) {
+func toGridZnet(network *NetworkConfiguration, nodeIDs []uint32, modelName string) (workloads.ZNet, error) {
 	IPRange, err := gridtypes.ParseIPNet(network.IPRange)
 	if err != nil {
 		return workloads.ZNet{}, errors.Wrapf(err, "failed to parse network ip range %s", network.IPRange)
@@ -510,8 +512,8 @@ func toGridZnet(network *Network, nodeIDs []uint32, modelName string) (workloads
 	}, nil
 }
 
-func fromGridNetwork(znet *workloads.ZNet) Network {
-	return Network{
+func fromGridNetwork(znet *workloads.ZNet) NetworkConfiguration {
+	return NetworkConfiguration{
 		AddWireguardAccess: znet.AddWGAccess,
 		IPRange:            znet.IPRange.String(),
 		Name:               znet.Name,
@@ -599,7 +601,7 @@ func generateGridQSFS(qsfs *QSFS, qsfsName string) workloads.QSFS {
 	}
 }
 
-func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
+func extractMachineWorkloads(machine *VMConfiguration, networkName string) (workloads.VM, []workloads.Disk, []workloads.QSFS) {
 	disks := []workloads.Disk{}
 	qsfss := []workloads.QSFS{}
 	mounts := []workloads.Mount{}
@@ -644,7 +646,7 @@ func extractMachineWorkloads(machine *Machine, networkName string) (workloads.VM
 	return vm, disks, qsfss
 }
 
-func toGridVM(nodeID uint32, vm *workloads.VM, diskMap map[string]workloads.Disk, farmID uint32, qsfsMap map[string]workloads.QSFS) Machine {
+func toGridVM(nodeID uint32, vm *workloads.VM, diskMap map[string]workloads.Disk, farmID uint32, qsfsMap map[string]workloads.QSFS) VMConfiguration {
 	zlogs := []Zlog{}
 	for _, zlog := range vm.Zlogs {
 		zlogs = append(zlogs, Zlog{
@@ -667,7 +669,7 @@ func toGridVM(nodeID uint32, vm *workloads.VM, diskMap map[string]workloads.Disk
 		}
 	}
 
-	machine := Machine{
+	machine := VMConfiguration{
 		NodeID:      nodeID,
 		Name:        vm.Name,
 		Flist:       vm.Flist,
@@ -764,17 +766,17 @@ func generateQSFSName(machineName string, id int) string {
 	return fmt.Sprintf("%s_qsfs_%d", machineName, id)
 }
 
-func (m *MachinesModel) findMachine(machineName string) (*Machine, error) {
-	for idx, machine := range m.Machines {
+func (n *NetworkDeployment) findMachine(machineName string) (*VMConfiguration, error) {
+	for idx, machine := range n.VMs {
 		if machine.Name == machineName {
-			return &m.Machines[idx], nil
+			return &n.VMs[idx], nil
 		}
 	}
 
-	return nil, fmt.Errorf("failed to find machine %s in model %s", machineName, m.Name)
+	return nil, fmt.Errorf("failed to find machine %s in model %s", machineName, n.Name)
 }
 
-func removeMachineFromDeployment(dl *workloads.Deployment, machine *Machine) {
+func removeMachineFromDeployment(dl *workloads.Deployment, machine *VMConfiguration) {
 	removeVMFromDeployment(dl, machine.Name)
 	removeDisksFromDeployment(dl, machine.Disks)
 	removeQSFSSFromDeployment(dl, machine.QSFSs)

@@ -66,13 +66,13 @@ func (c *Client) DeployTaiga(ctx context.Context, taiga Taiga) (TaigaResult, err
 		return TaigaResult{}, err
 	}
 
-	machinesModel, err = c.MachinesDeploy(ctx, machinesModel)
+	machinesModel, err = c.DeployNetwork(ctx, machinesModel)
 	if err != nil {
 		return TaigaResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	gwModel := taiga.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -88,18 +88,18 @@ func (c *Client) DeployTaiga(ctx context.Context, taiga Taiga) (TaigaResult, err
 	}, nil
 }
 
-func (t *Taiga) generateMachinesModel(gwNode types.Node) (MachinesModel, error) {
+func (t *Taiga) generateMachinesModel(gwNode types.Node) (NetworkDeployment, error) {
 	cap, ok := taigaCapacity[t.Capacity]
 	if !ok {
-		return MachinesModel{}, fmt.Errorf("capacity %s is invalid", t.Capacity)
+		return NetworkDeployment{}, fmt.Errorf("capacity %s is invalid", t.Capacity)
 	}
 
-	model := MachinesModel{
+	model := NetworkDeployment{
 		Name: generateTaigaModelName(t.Name),
-		Network: Network{
+		Network: NetworkConfiguration{
 			IPRange: "10.1.0.0/16",
 		},
-		Machines: []Machine{
+		VMs: []VMConfiguration{
 			{
 				Name:       fmt.Sprintf("%sVM", t.Name),
 				Flist:      "https://hub.grid.tf/tf-official-apps/grid3_taiga_docker-latest.flist",
@@ -141,7 +141,7 @@ func (d *Taiga) generateGWModel(gwNode types.Node, yggIP string) GatewayNameMode
 }
 
 func (c *Client) GetTaiga(ctx context.Context, name string) (TaigaResult, error) {
-	machinesModel, err := c.MachinesGet(ctx, generateTaigaModelName(name))
+	machinesModel, err := c.GetNetworkDeployment(ctx, generateTaigaModelName(name))
 	if err != nil {
 		return TaigaResult{}, err
 	}
@@ -151,8 +151,8 @@ func (c *Client) GetTaiga(ctx context.Context, name string) (TaigaResult, error)
 		return TaigaResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	return TaigaResult{
 		Name:         name,

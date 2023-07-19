@@ -31,14 +31,14 @@ func (c *Client) DeployPresearch(ctx context.Context, presearch Presearch) (Pres
 
 	machinesModel := presearch.generateMachinesModel()
 
-	machinesModel, err := c.MachinesDeploy(ctx, machinesModel)
+	machinesModel, err := c.DeployNetwork(ctx, machinesModel)
 	if err != nil {
 		return PresearchResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
-	publicIP := machinesModel.Machines[0].ComputedIP4
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
+	publicIP := machinesModel.VMs[0].ComputedIP4
 
 	return PresearchResult{
 		Name:         presearch.Name,
@@ -48,13 +48,13 @@ func (c *Client) DeployPresearch(ctx context.Context, presearch Presearch) (Pres
 	}, nil
 }
 
-func (p *Presearch) generateMachinesModel() MachinesModel {
-	model := MachinesModel{
+func (p *Presearch) generateMachinesModel() NetworkDeployment {
+	model := NetworkDeployment{
 		Name: p.Name,
-		Network: Network{
+		Network: NetworkConfiguration{
 			IPRange: "10.1.0.0/16",
 		},
-		Machines: []Machine{
+		VMs: []VMConfiguration{
 			{
 				Name:   fmt.Sprintf("%sVM", p.Name),
 				Flist:  "https://hub.grid.tf/tf-official-apps/presearch-v2.2.flist",
@@ -78,14 +78,14 @@ func (p *Presearch) generateMachinesModel() MachinesModel {
 }
 
 func (c *Client) GetPresearch(ctx context.Context, name string) (PresearchResult, error) {
-	machinesModel, err := c.MachinesGet(ctx, name)
+	machinesModel, err := c.GetNetworkDeployment(ctx, name)
 	if err != nil {
 		return PresearchResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
-	publicIP := machinesModel.Machines[0].ComputedIP4
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
+	publicIP := machinesModel.VMs[0].ComputedIP4
 
 	return PresearchResult{
 		Name:         name,

@@ -65,13 +65,13 @@ func (c *Client) Deployfunkwhale(ctx context.Context, funkwhale Funkwhale) (Funk
 		return FunkwhaleResult{}, err
 	}
 
-	machinesModel, err = c.MachinesDeploy(ctx, machinesModel)
+	machinesModel, err = c.DeployNetwork(ctx, machinesModel)
 	if err != nil {
 		return FunkwhaleResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	gwModel := funkwhale.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -87,18 +87,18 @@ func (c *Client) Deployfunkwhale(ctx context.Context, funkwhale Funkwhale) (Funk
 	}, nil
 }
 
-func (f *Funkwhale) generateMachinesModel(gwNode types.Node) (MachinesModel, error) {
+func (f *Funkwhale) generateMachinesModel(gwNode types.Node) (NetworkDeployment, error) {
 	cap, ok := funkwhaleCapacity[f.Capacity]
 	if !ok {
-		return MachinesModel{}, fmt.Errorf("capacity %s is invalid", f.Capacity)
+		return NetworkDeployment{}, fmt.Errorf("capacity %s is invalid", f.Capacity)
 	}
 
-	model := MachinesModel{
+	model := NetworkDeployment{
 		Name: generatefunkwhaleModelName(f.Name),
-		Network: Network{
+		Network: NetworkConfiguration{
 			IPRange: "10.1.0.0/16",
 		},
-		Machines: []Machine{
+		VMs: []VMConfiguration{
 			{
 				Name:       fmt.Sprintf("%sVM", f.Name),
 				Flist:      "https://hub.grid.tf/tf-official-apps/funkwhale-dec21.flist",
@@ -134,7 +134,7 @@ func (d *Funkwhale) generateGWModel(gwNode types.Node, yggIP string) GatewayName
 }
 
 func (c *Client) Getfunkwhale(ctx context.Context, name string) (FunkwhaleResult, error) {
-	machinesModel, err := c.MachinesGet(ctx, generatefunkwhaleModelName(name))
+	machinesModel, err := c.GetNetworkDeployment(ctx, generatefunkwhaleModelName(name))
 	if err != nil {
 		return FunkwhaleResult{}, err
 	}
@@ -144,8 +144,8 @@ func (c *Client) Getfunkwhale(ctx context.Context, name string) (FunkwhaleResult
 		return FunkwhaleResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	return FunkwhaleResult{
 		Name:         name,

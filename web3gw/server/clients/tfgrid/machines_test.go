@@ -31,13 +31,13 @@ func TestMachines(t *testing.T) {
 		projectName := generateProjectName(modelName)
 		networkContratID := uint64(1)
 		deploymentContractID := uint64(2)
-		model := MachinesModel{
+		model := NetworkDeployment{
 			Name: modelName,
-			Network: Network{
+			Network: NetworkConfiguration{
 				IPRange:            "10.1.0.0/16",
 				AddWireguardAccess: false,
 			},
-			Machines: []Machine{
+			VMs: []VMConfiguration{
 				{
 					NodeID:    nodeID,
 					Name:      "vm1",
@@ -59,14 +59,14 @@ func TestMachines(t *testing.T) {
 			},
 		}
 
-		want := MachinesModel{
+		want := NetworkDeployment{
 			Name: modelName,
-			Network: Network{
+			Network: NetworkConfiguration{
 				AddWireguardAccess: false,
 				IPRange:            "10.1.0.0/16",
 				Name:               generateNetworkName(model.Name),
 			},
-			Machines: []Machine{
+			VMs: []VMConfiguration{
 				{
 					NodeID:    nodeID,
 					Name:      "vm1",
@@ -171,7 +171,7 @@ func TestMachines(t *testing.T) {
 			ContractID: 2,
 		}, nil)
 
-		got, err := r.MachinesDeploy(context.Background(), model)
+		got, err := r.DeployNetwork(context.Background(), model)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)
@@ -186,14 +186,14 @@ func TestMachines(t *testing.T) {
 		nodeContractID := uint64(2)
 		vmName := "vm1"
 
-		want := MachinesModel{
+		want := NetworkDeployment{
 			Name: modelName,
-			Network: Network{
+			Network: NetworkConfiguration{
 				AddWireguardAccess: false,
 				IPRange:            "10.1.0.0/16",
 				Name:               generateNetworkName(modelName),
 			},
-			Machines: []Machine{
+			VMs: []VMConfiguration{
 				{
 					NodeID:    nodeID,
 					FarmID:    1,
@@ -301,7 +301,7 @@ func TestMachines(t *testing.T) {
 			ContractID: nodeContractID,
 		}, nil)
 
-		got, err := r.MachinesGet(context.Background(), modelName)
+		got, err := r.GetNetworkDeployment(context.Background(), modelName)
 		assert.NoError(t, err)
 
 		assert.Equal(t, want, got)

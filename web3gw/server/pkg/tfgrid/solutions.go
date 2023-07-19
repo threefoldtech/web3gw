@@ -142,39 +142,3 @@ func (c *Client) DeleteTaiga(ctx context.Context, conState jsonrpc.State, taigaN
 
 	return state.cl.DeleteTaiga(ctx, taigaName)
 }
-
-func (c *Client) DeployVM(ctx context.Context, conState jsonrpc.State, vm tfgridBase.VM) (tfgridBase.VMResult, error) {
-	state := State(conState)
-	if state.cl == nil {
-		return tfgridBase.VMResult{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.DeployVM(ctx, vm)
-}
-
-func (c *Client) GetVM(ctx context.Context, conState jsonrpc.State, networkName string) (tfgridBase.VMResult, error) {
-	state := State(conState)
-	if state.cl == nil {
-		return tfgridBase.VMResult{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.GetVM(ctx, networkName)
-}
-
-func (c *Client) DeleteVM(ctx context.Context, conState jsonrpc.State, networkName string) error {
-	state := State(conState)
-	if state.cl == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.DeleteVM(ctx, networkName)
-}
-
-func (c *Client) RemoveVM(ctx context.Context, conState jsonrpc.State, args tfgridBase.RemoveVM) (tfgridBase.VMResult, error) {
-	state := State(conState)
-	if state.cl == nil {
-		return tfgridBase.VMResult{}, pkg.ErrClientNotConnected{}
-	}
-
-	return state.cl.RemoveVM(ctx, args)
-}

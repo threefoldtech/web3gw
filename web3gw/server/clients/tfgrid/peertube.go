@@ -66,13 +66,13 @@ func (c *Client) DeployPeertube(ctx context.Context, peertube Peertube) (Peertub
 		return PeertubeResult{}, err
 	}
 
-	machinesModel, err = c.MachinesDeploy(ctx, machinesModel)
+	machinesModel, err = c.DeployNetwork(ctx, machinesModel)
 	if err != nil {
 		return PeertubeResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	gwModel := peertube.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -88,18 +88,18 @@ func (c *Client) DeployPeertube(ctx context.Context, peertube Peertube) (Peertub
 	}, nil
 }
 
-func (p *Peertube) generateMachinesModel(gwNode types.Node) (MachinesModel, error) {
+func (p *Peertube) generateMachinesModel(gwNode types.Node) (NetworkDeployment, error) {
 	cap, ok := peertubeCapacity[p.Capacity]
 	if !ok {
-		return MachinesModel{}, fmt.Errorf("capacity %s is invalid", p.Capacity)
+		return NetworkDeployment{}, fmt.Errorf("capacity %s is invalid", p.Capacity)
 	}
 
-	model := MachinesModel{
+	model := NetworkDeployment{
 		Name: generatePeertubeModelName(p.Name),
-		Network: Network{
+		Network: NetworkConfiguration{
 			IPRange: "10.1.0.0/16",
 		},
-		Machines: []Machine{
+		VMs: []VMConfiguration{
 			{
 				Name:       fmt.Sprintf("%sVM", p.Name),
 				Flist:      "https://hub.grid.tf/tf-official-apps/peertube-v3.1.1.flist",
@@ -137,7 +137,7 @@ func (d *Peertube) generateGWModel(gwNode types.Node, yggIP string) GatewayNameM
 }
 
 func (c *Client) GetPeertube(ctx context.Context, name string) (PeertubeResult, error) {
-	machinesModel, err := c.MachinesGet(ctx, generatePeertubeModelName(name))
+	machinesModel, err := c.GetNetworkDeployment(ctx, generatePeertubeModelName(name))
 	if err != nil {
 		return PeertubeResult{}, err
 	}
@@ -147,8 +147,8 @@ func (c *Client) GetPeertube(ctx context.Context, name string) (PeertubeResult, 
 		return PeertubeResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	return PeertubeResult{
 		Name:         name,

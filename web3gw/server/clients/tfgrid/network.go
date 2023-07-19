@@ -61,7 +61,7 @@ func (r *Client) deployNetwork(ctx context.Context, modelName string, nodes []ui
 
 	err = r.GridClient.DeployNetwork(ctx, &znet)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to deploy network")
+		return nil, errors.Wrap(err, "failed to deploy Z network")
 	}
 
 	return &znet, nil

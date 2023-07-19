@@ -27,11 +27,11 @@ require (
 	github.com/threefoldfoundation/tft/accountactivation v0.0.0-20230614055139-d1dc4bd1e000
 	github.com/threefoldfoundation/tft/bridge/stellar v0.0.0-20230508132830-d010388c1877
 	github.com/threefoldtech/atomicswap v1.1.2-0.20230505141614-c15887bd0054
-	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230511085814-333413419983
-	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.7.1-0.20230525071905-d132c3dbe280
-	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.7.1-0.20230525071905-d132c3dbe280
-	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.7.1-0.20230525071905-d132c3dbe280
-	github.com/threefoldtech/zos v0.5.6-0.20230426125942-0ea2f91b21f5
+	github.com/threefoldtech/tfchain/clients/tfchain-client-go v0.0.0-20230718094615-0e20bc81b066
+	github.com/threefoldtech/tfgrid-sdk-go/grid-client v0.10.0
+	github.com/threefoldtech/tfgrid-sdk-go/grid-proxy v0.10.0
+	github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go v0.10.0
+	github.com/threefoldtech/zos v0.5.6-0.20230526112430-f620733482d7
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 	golang.org/x/net v0.11.0
 	golang.org/x/sync v0.3.0
@@ -100,7 +100,7 @@ require (
 	github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/deckarep/golang-set/v2 v2.3.0 // indirect
-	github.com/decred/base58 v1.0.4 // indirect
+	github.com/decred/base58 v1.0.5 // indirect
 	github.com/decred/dcrd/crypto/blake256 v1.0.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
@@ -310,7 +310,7 @@ require (
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/oauth2 v0.9.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.10.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect

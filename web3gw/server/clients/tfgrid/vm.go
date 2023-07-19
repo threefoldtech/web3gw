@@ -36,28 +36,21 @@ var vmCapacity = map[string]capacityPackage{
 	},
 }
 
-type VM struct {
-	Name               string `json:"name"`
-	FarmID             uint64 `json:"farm_id"`
-	Network            string `json:"network"`
-	Capacity           string `json:"capacity"`
-	Times              uint32 `json:"times"`
-	DiskSize           uint32 `json:"disk_size"`
-	SSHKey             string `json:"ssh_key"`
-	Gateway            bool   `json:"gateway"`
-	AddWireguardAccess bool   `json:"add_wireguard_access"`
-	AddPublicIPv4      bool   `json:"add_public_ipv4"`
-	AddPublicIPv6      bool   `json:"add_public_ipv6"`
+type DeployVM struct {
+	VMConfiguration    `json:"VMConfiguration"`
+	AddWireguardAccess bool `json:"add_wireguard_access"`
 }
 
-type VMResult struct {
-	Network         string              `json:"network"`
-	WireguardConfig string              `json:"wireguard_config"`
-	VMs             []GatewayedMachines `json:"vms"`
+type VMDeployment struct {
+	VMConfiguration `json:"VMConfiguration"`
+
+	Network         string `json:"network"`
+	WireguardConfig string `json:"wireguard_config"`
+	GatewayName     string `json:"gateway_name"`
 }
 
 type GatewayedMachines struct {
-	Machine Machine          `json:"machine"`
+	Machine VMConfiguration  `json:"machine"`
 	Gateway GatewayNameModel `json:"gateway"`
 }
 
@@ -66,124 +59,114 @@ type RemoveVM struct {
 	VMName  string `json:"vm_name"`
 }
 
-func (c *Client) DeployVM(ctx context.Context, vm VM) (VMResult, error) {
-	_, err := c.MachinesGet(ctx, vm.Network)
+func (c *Client) DeployVM(ctx context.Context, args DeployVM) (VMDeployment, error) {
+	// TODO generate network name
+	// TODO return error if vm already exists!
+	_, err := c.GetNetworkDeployment(ctx, args.Name)
 	if err != nil {
 		log.Error().Msgf("error: %+v", err)
 		if strings.Contains(err.Error(), "found 0 contracts for model") {
 			// this is a new network
-			return c.deployVM(ctx, vm)
+			return c.createNetworkAndAddVM(ctx, args)
 		}
 
-		return VMResult{}, err
+		return VMDeployment{}, err
 	}
 
-	return c.addVM(ctx, vm)
+	return c.addVM(ctx, args)
 }
 
-func (c *Client) deployVM(ctx context.Context, vm VM) (VMResult, error) {
-	machinesModel := MachinesModel{
-		Name: vm.Network,
-		Network: Network{
-			AddWireguardAccess: vm.AddWireguardAccess,
+func (c *Client) createNetworkAndAddVM(ctx context.Context, args DeployVM) (VMDeployment, error) {
+	networkDeployment := NetworkDeployment{
+		Name: args.Name,
+		Network: NetworkConfiguration{
+			AddWireguardAccess: args.AddWireguardAccess,
 			IPRange:            "10.1.0.0/16",
 		},
-		Machines: []Machine{},
+		VMs: []VMConfiguration{args.VMConfiguration},
+		// todo check other arguments
 	}
 
-	machines, err := vm.generateMachines()
+	networkDeployment, err := c.DeployNetwork(ctx, networkDeployment)
 	if err != nil {
-		return VMResult{}, err
+		return VMDeployment{}, err
 	}
-
-	machinesModel.Machines = machines
-
-	machinesModel, err = c.MachinesDeploy(ctx, machinesModel)
-	if err != nil {
-		return VMResult{}, err
-	}
-
+	vm := networkDeployment.VMs[0]
 	gws := map[string]GatewayNameModel{}
-	for _, m := range machinesModel.Machines {
-		gwName, ok := m.EnvVars[gwNameEnvVar]
-		if !ok {
-			continue
-		}
-
+	gwName, ok := vm.EnvVars[gwNameEnvVar]
+	if ok {
 		gw := GatewayNameModel{
 			Name:     gwName,
-			Backends: []zos.Backend{zos.Backend(fmt.Sprintf("http://[%s]:9000", m.YggIP))},
+			Backends: []zos.Backend{zos.Backend(fmt.Sprintf("http://[%s]:9000", vm.YggIP))},
 		}
 
 		gw, err := c.GatewayNameDeploy(ctx, gw)
 		if err != nil {
-			return VMResult{}, err
+			return VMDeployment{}, err
 		}
 
-		gws[m.Name] = gw
+		gws[vm.Name] = gw
 	}
 
-	return newVMResult(machinesModel, gws), nil
+	return VMDeployment{
+		Network:         networkDeployment.Name,
+		WireguardConfig: networkDeployment.Network.WireguardConfig,
+		VMConfiguration: networkDeployment.VMs[0],
+		GatewayName:     gws[vm.Name].Name,
+	}, nil
 }
 
-func (c *Client) addVM(ctx context.Context, vm VM) (VMResult, error) {
+func (c *Client) addVM(ctx context.Context, args DeployVM) (VMDeployment, error) {
 	gws := map[string]GatewayNameModel{}
 
-	machines, err := vm.generateMachines()
+	networkDeployment, err := c.AddVMToNetworkDeployment(ctx, AddVMToNetworkDeployment{
+		Network:         args.Network,
+		VMConfiguration: args.VMConfiguration,
+	})
 	if err != nil {
-		return VMResult{}, err
+		return VMDeployment{}, err
 	}
 
-	machinesModel := MachinesModel{}
-	for _, m := range machines {
-		res, err := c.MachineAdd(ctx, AddMachineParams{
-			ModelName: vm.Network,
-			Machine:   m,
-		})
-		if err != nil {
-			return VMResult{}, err
-		}
+	res := VMDeployment{
+		Network: networkDeployment.Name,
+	}
 
-		machinesModel = res
-
-		gwName, ok := m.EnvVars[gwNameEnvVar]
-		if !ok {
-			continue
-		}
-
-		gws[m.Name] = GatewayNameModel{
+	gwName, ok := args.EnvVars[gwNameEnvVar]
+	if ok {
+		gws[args.Name] = GatewayNameModel{
 			Name: gwName,
 		}
-	}
+		for _, vm := range networkDeployment.VMs {
+			if vm.Name == args.Name {
+				gw := GatewayNameModel{
+					Name:     gwName,
+					Backends: []zos.Backend{zos.Backend(fmt.Sprintf("http://[%s]:9000", vm.YggIP))},
+				}
 
-	for _, m := range machinesModel.Machines {
-		gw, ok := gws[m.Name]
-		if !ok {
-			continue
+				gw, err := c.GatewayNameDeploy(ctx, gw)
+				if err != nil {
+					return VMDeployment{}, err
+				}
+				res.GatewayName = gw.Name
+				res.VMConfiguration = vm
+			}
 		}
-
-		gw.Backends = []zos.Backend{zos.Backend(fmt.Sprintf("http://[%s]:9000", m.YggIP))}
-
-		gw, err := c.GatewayNameDeploy(ctx, gw)
-		if err != nil {
-			return VMResult{}, err
-		}
-
-		gws[m.Name] = gw
 	}
-
-	return newVMResult(machinesModel, gws), nil
+	return res, nil
 }
 
-func (c *Client) GetVM(ctx context.Context, networkName string) (VMResult, error) {
-	gws := map[string]GatewayNameModel{}
-
-	machinesModel, err := c.MachinesGet(ctx, networkName)
+func (c *Client) GetVMDeployment(ctx context.Context, networkName string) (VMDeployment, error) {
+	networkDeployment, err := c.GetNetworkDeployment(ctx, networkName)
 	if err != nil {
-		return VMResult{}, err
+		return VMDeployment{}, err
 	}
 
-	for _, m := range machinesModel.Machines {
+	res := VMDeployment{
+		Network:         networkName,
+		WireguardConfig: networkDeployment.Network.WireguardConfig,
+	}
+
+	for _, m := range networkDeployment.VMs {
 		gwName, ok := m.EnvVars[gwNameEnvVar]
 		if !ok {
 			continue
@@ -191,35 +174,22 @@ func (c *Client) GetVM(ctx context.Context, networkName string) (VMResult, error
 
 		gw, err := c.GatewayNameGet(ctx, gwName)
 		if err != nil {
-			return VMResult{}, err
+			return VMDeployment{}, err
 		}
 
-		gws[m.Name] = gw
-	}
-
-	res := VMResult{
-		Network:         networkName,
-		WireguardConfig: machinesModel.Network.WireguardConfig,
-		VMs:             []GatewayedMachines{},
-	}
-
-	for _, m := range machinesModel.Machines {
-		res.VMs = append(res.VMs, GatewayedMachines{
-			Machine: m,
-			Gateway: gws[m.Name],
-		})
+		res.GatewayName = gw.Name
 	}
 
 	return res, nil
 }
 
-func (c *Client) DeleteVM(ctx context.Context, networkName string) error {
-	machinesModel, err := c.MachinesGet(ctx, networkName)
+func (c *Client) CancelVMDeployment(ctx context.Context, networkName string) error {
+	networkDeployment, err := c.GetNetworkDeployment(ctx, networkName)
 	if err != nil {
 		return err
 	}
 
-	for _, m := range machinesModel.Machines {
+	for _, m := range networkDeployment.VMs {
 		gwName, ok := m.EnvVars[gwNameEnvVar]
 		if !ok {
 			continue
@@ -237,102 +207,33 @@ func (c *Client) DeleteVM(ctx context.Context, networkName string) error {
 	return nil
 }
 
-func (c *Client) RemoveVM(ctx context.Context, args RemoveVM) (VMResult, error) {
-	machinesModel, err := c.MachinesGet(ctx, args.Network)
+func (c *Client) RemoveVM(ctx context.Context, args RemoveVM) (VMDeployment, error) {
+	networkDeployment, err := c.GetNetworkDeployment(ctx, args.Network)
 	if err != nil {
-		return VMResult{}, err
+		return VMDeployment{}, err
 	}
 
-	for _, m := range machinesModel.Machines {
-		if m.Name == args.VMName {
-			gwName, ok := m.EnvVars[gwNameEnvVar]
+	for _, vm := range networkDeployment.VMs {
+		if vm.Name == args.VMName {
+			gwName, ok := vm.EnvVars[gwNameEnvVar]
 			if ok {
 				if err := c.cancelModel(ctx, gwName); err != nil {
-					return VMResult{}, err
+					return VMDeployment{}, err
 				}
 			}
 
-			if _, err := c.MachineRemove(ctx, RemoveMachineParams{
-				ModelName:   args.Network,
-				MachineName: args.VMName,
+			if _, err := c.RemoveVMFromNetworkDeployment(ctx, RemoveVMFromNetworkDeployment{
+				VM:      args.VMName,
+				Network: args.Network,
 			}); err != nil {
-				return VMResult{}, err
+				return VMDeployment{}, err
 			}
 
 			break
 		}
 	}
 
-	return c.GetVM(ctx, args.Network)
-}
-
-func (vm *VM) generateMachines() ([]Machine, error) {
-	machines := []Machine{}
-
-	vmName := "vm"
-	if vm.Name != "" {
-		vmName = vm.Name
-	}
-
-	cap, ok := vmCapacity[vm.Capacity]
-	if !ok {
-		return nil, fmt.Errorf("capacity %s is invalid", vm.Capacity)
-	}
-
-	for i := 0; i < int(vm.Times); i++ {
-		name := vmName
-		if vm.Times > 0 {
-			name = fmt.Sprintf("%s%d", name, i)
-		}
-
-		m := Machine{
-			Name:       name,
-			FarmID:     uint32(vm.FarmID),
-			Flist:      "https://hub.grid.tf/tf-official-apps/base:latest.flist",
-			Planetary:  true,
-			PublicIP:   vm.AddPublicIPv4,
-			CPU:        int(cap.cru),
-			Memory:     int(cap.mru),
-			RootfsSize: int(cap.sru),
-			Entrypoint: "/sbin/zint init",
-			EnvVars: map[string]string{
-				"SSH_KEY": vm.SSHKey,
-			},
-		}
-
-		if vm.DiskSize > 0 {
-			m.Disks = append(m.Disks, Disk{
-				MountPoint: "/mnt/disk",
-				SizeGB:     int(vm.DiskSize),
-			})
-		}
-
-		if vm.Gateway {
-			gwName := generateRandomString(8)
-			m.EnvVars[gwNameEnvVar] = gwName
-		}
-
-		machines = append(machines, m)
-	}
-
-	return machines, nil
-}
-
-func newVMResult(model MachinesModel, gws map[string]GatewayNameModel) VMResult {
-	res := VMResult{
-		Network:         model.Name,
-		WireguardConfig: model.Network.WireguardConfig,
-		VMs:             []GatewayedMachines{},
-	}
-
-	for _, m := range model.Machines {
-		res.VMs = append(res.VMs, GatewayedMachines{
-			Machine: m,
-			Gateway: gws[m.Name],
-		})
-	}
-
-	return res
+	return c.GetVMDeployment(ctx, args.Network)
 }
 
 func generateRandomString(n int) string {

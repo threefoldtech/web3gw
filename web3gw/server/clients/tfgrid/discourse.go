@@ -69,13 +69,13 @@ func (c *Client) DeployDiscourse(ctx context.Context, discourse Discourse) (Disc
 		return DiscourseResult{}, err
 	}
 
-	machinesModel, err = c.MachinesDeploy(ctx, machinesModel)
+	machinesModel, err = c.DeployNetwork(ctx, machinesModel)
 	if err != nil {
 		return DiscourseResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	gwModel := discourse.generateGWModel(gwNode, yggIP)
 	gw, err := c.GatewayNameDeploy(ctx, gwModel)
@@ -91,7 +91,7 @@ func (c *Client) DeployDiscourse(ctx context.Context, discourse Discourse) (Disc
 	}, nil
 }
 
-func (d *Discourse) generateMachinesModel(gwNode types.Node) (MachinesModel, error) {
+func (d *Discourse) generateMachinesModel(gwNode types.Node) (NetworkDeployment, error) {
 	var disks []Disk
 	if d.DiskSize > 0 {
 		disks = []Disk{
@@ -105,15 +105,15 @@ func (d *Discourse) generateMachinesModel(gwNode types.Node) (MachinesModel, err
 
 	cap, ok := discourseCapacity[d.Capacity]
 	if !ok {
-		return MachinesModel{}, fmt.Errorf("capacity %s is invalid", d.Capacity)
+		return NetworkDeployment{}, fmt.Errorf("capacity %s is invalid", d.Capacity)
 	}
 
-	model := MachinesModel{
+	model := NetworkDeployment{
 		Name: generateDiscourseModelName(d.Name),
-		Network: Network{
+		Network: NetworkConfiguration{
 			IPRange: "10.1.0.0/16",
 		},
-		Machines: []Machine{
+		VMs: []VMConfiguration{
 			{
 				Name:       fmt.Sprintf("%sVM", d.Name),
 				Flist:      "https://hub.grid.tf/tf-official-apps/forum-docker-v3.1.2.flist",
@@ -155,7 +155,7 @@ func (d *Discourse) generateGWModel(gwNode types.Node, yggIP string) GatewayName
 }
 
 func (c *Client) GetDiscourse(ctx context.Context, name string) (DiscourseResult, error) {
-	machinesModel, err := c.MachinesGet(ctx, generateDiscourseModelName(name))
+	machinesModel, err := c.GetNetworkDeployment(ctx, generateDiscourseModelName(name))
 	if err != nil {
 		return DiscourseResult{}, err
 	}
@@ -165,8 +165,8 @@ func (c *Client) GetDiscourse(ctx context.Context, name string) (DiscourseResult
 		return DiscourseResult{}, err
 	}
 
-	yggIP := machinesModel.Machines[0].YggIP
-	ipv6 := machinesModel.Machines[0].ComputedIP6
+	yggIP := machinesModel.VMs[0].YggIP
+	ipv6 := machinesModel.VMs[0].ComputedIP6
 
 	return DiscourseResult{
 		Name:         name,

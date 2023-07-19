@@ -79,49 +79,76 @@ func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) er
 	return nil
 }
 
-func (c *Client) MachinesDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.MachinesModel) (tfgridBase.MachinesModel, error) {
+func (c *Client) DeployVM(ctx context.Context, conState jsonrpc.State, args tfgridBase.DeployVM) (tfgridBase.VMDeployment, error) {
 	state := State(conState)
 	if state.cl == nil {
-		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.VMDeployment{}, pkg.ErrClientNotConnected{}
 	}
 
-	return state.cl.MachinesDeploy(ctx, model)
+	return state.cl.DeployVM(ctx, args)
 }
 
-func (c *Client) MachinesGet(ctx context.Context, conState jsonrpc.State, modelName string) (tfgridBase.MachinesModel, error) {
+func (c *Client) GetVMDeployment(ctx context.Context, conState jsonrpc.State, networkName string) (tfgridBase.VMDeployment, error) {
 	state := State(conState)
 	if state.cl == nil {
-		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.VMDeployment{}, pkg.ErrClientNotConnected{}
 	}
 
-	return state.cl.MachinesGet(ctx, modelName)
+	return state.cl.GetVMDeployment(ctx, networkName)
 }
 
-func (c *Client) MachinesDelete(ctx context.Context, conState jsonrpc.State, modelName string) error {
+func (c *Client) CancelVMDeployment(ctx context.Context, conState jsonrpc.State, name string) error {
 	state := State(conState)
 	if state.cl == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.cl.MachinesDelete(ctx, modelName)
+	return state.cl.CancelVMDeployment(ctx, name)
 }
 
-func (c *Client) MachinesAdd(ctx context.Context, conState jsonrpc.State, machine tfgridBase.AddMachineParams) (tfgridBase.MachinesModel, error) {
+func (c *Client) DeployNetwork(ctx context.Context, conState jsonrpc.State, args tfgridBase.NetworkDeployment) (tfgridBase.NetworkDeployment, error) {
 	state := State(conState)
 	if state.cl == nil {
-		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.NetworkDeployment{}, pkg.ErrClientNotConnected{}
 	}
 
-	return state.cl.MachineAdd(ctx, machine)
+	return state.cl.DeployNetwork(ctx, args)
 }
 
-func (c *Client) MachinesRemove(ctx context.Context, conState jsonrpc.State, removeMachine tfgridBase.RemoveMachineParams) (tfgridBase.MachinesModel, error) {
+func (c *Client) GetNetworkDeployment(ctx context.Context, conState jsonrpc.State, name string) (tfgridBase.NetworkDeployment, error) {
 	state := State(conState)
 	if state.cl == nil {
-		return tfgridBase.MachinesModel{}, pkg.ErrClientNotConnected{}
+		return tfgridBase.NetworkDeployment{}, pkg.ErrClientNotConnected{}
 	}
 
-	return state.cl.MachineRemove(ctx, removeMachine)
+	return state.cl.GetNetworkDeployment(ctx, name)
+}
+
+func (c *Client) CancelNetworkDeployment(ctx context.Context, conState jsonrpc.State, name string) error {
+	state := State(conState)
+	if state.cl == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.CancelNetworkDeployment(ctx, name)
+}
+
+func (c *Client) AddVMToNetworkDeployment(ctx context.Context, conState jsonrpc.State, args tfgridBase.AddVMToNetworkDeployment) (tfgridBase.NetworkDeployment, error) {
+	state := State(conState)
+	if state.cl == nil {
+		return tfgridBase.NetworkDeployment{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.AddVMToNetworkDeployment(ctx, args)
+}
+
+func (c *Client) RemoveVMFromNetworkDeployment(ctx context.Context, conState jsonrpc.State, removeMachine tfgridBase.RemoveVMFromNetworkDeployment) (tfgridBase.NetworkDeployment, error) {
+	state := State(conState)
+	if state.cl == nil {
+		return tfgridBase.NetworkDeployment{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.RemoveVMFromNetworkDeployment(ctx, removeMachine)
 }
 
 func (c *Client) K8sDeploy(ctx context.Context, conState jsonrpc.State, model tfgridBase.K8sCluster) (tfgridBase.K8sCluster, error) {
