@@ -13,8 +13,8 @@ const (
 [params]
 pub struct Arguments {
 	network string = "main"
+	deployment_name  string
 	tfchain_mnemonic string
-	ssh_key          string
 }
 
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) ! {
@@ -22,22 +22,8 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 
 	tfgrid_client.load(network: args.network, mnemonic: args.tfchain_mnemonic)!
 
-	deployment := tfgrid_client.deploy_vm(
-		name: 'vm1'
-		farm_id: 1
-		cpu: 2
-		memory: 2048
-		rootfs_size: 1024
-		public_ip6: true
-		env_vars: {
-			'SSH_KEY': args.ssh_key
-		}
-		disks: [tfgrid.Disk{
-			size: 10
-			mountpoint: '/mnt/disk1'
-		}]
-	)!
-	logger.info('VM deployment: ${deployment}')
+	vm_deployment := tfgrid_client.get_vm_deployment(args.deployment_name)!
+	logger.info('${vm_deployment}')
 }
 
 fn main() {
@@ -52,7 +38,7 @@ fn main() {
 
 	tfchain_mnemonic := fp.string('tfchain-mnemonic', 0, '', 'The mnemonic of your tfchain account.')
 	network := fp.string('network', 0, 'main', 'The tfchain network to connect to.')
-	ssh_key := fp.string('ssh-key', 0, '', 'The SSH key that can be used to ssh into the vm later.')
+	vm_deployment_name := fp.string('name', 0, '', 'The name of the deployment to cancel.')
 
 	_ := fp.finalize() or {
 		eprintln(err)
@@ -72,9 +58,9 @@ fn main() {
 	_ := spawn myclient.run()
 
 	arguments := Arguments{
-		tfchain_mnemonic: tfchain_mnemonic
-		ssh_key: ssh_key
 		network: network
+		tfchain_mnemonic: tfchain_mnemonic
+		deployment_name: vm_deployment_name
 	}
 
 	execute_rpcs(mut myclient, mut logger, arguments) or {

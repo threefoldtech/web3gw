@@ -64,16 +64,15 @@ func (c *Client) DeployVM(ctx context.Context, args DeployVM) (VMDeployment, err
 	// TODO return error if vm already exists!
 	_, err := c.GetNetworkDeployment(ctx, args.Name)
 	if err != nil {
-		log.Error().Msgf("error: %+v", err)
 		if strings.Contains(err.Error(), "found 0 contracts for model") {
 			// this is a new network
 			return c.createNetworkAndAddVM(ctx, args)
 		}
-
+		log.Error().Msgf("error: %+v", err)
 		return VMDeployment{}, err
 	}
 
-	return c.addVM(ctx, args)
+	return VMDeployment{}, fmt.Errorf("there already is a vm with the name %s", args.Name)
 }
 
 func (c *Client) createNetworkAndAddVM(ctx context.Context, args DeployVM) (VMDeployment, error) {
@@ -116,75 +115,38 @@ func (c *Client) createNetworkAndAddVM(ctx context.Context, args DeployVM) (VMDe
 	}, nil
 }
 
-func (c *Client) addVM(ctx context.Context, args DeployVM) (VMDeployment, error) {
-	gws := map[string]GatewayNameModel{}
-
-	networkDeployment, err := c.AddVMToNetworkDeployment(ctx, AddVMToNetworkDeployment{
-		Network:         args.Network,
-		VMConfiguration: args.VMConfiguration,
-	})
+func (c *Client) GetVMDeployment(ctx context.Context, name string) (VMDeployment, error) {
+	networkDeployment, err := c.GetNetworkDeployment(ctx, name)
 	if err != nil {
 		return VMDeployment{}, err
 	}
 
 	res := VMDeployment{
-		Network: networkDeployment.Name,
-	}
-
-	gwName, ok := args.EnvVars[gwNameEnvVar]
-	if ok {
-		gws[args.Name] = GatewayNameModel{
-			Name: gwName,
-		}
-		for _, vm := range networkDeployment.VMs {
-			if vm.Name == args.Name {
-				gw := GatewayNameModel{
-					Name:     gwName,
-					Backends: []zos.Backend{zos.Backend(fmt.Sprintf("http://[%s]:9000", vm.YggIP))},
-				}
-
-				gw, err := c.GatewayNameDeploy(ctx, gw)
-				if err != nil {
-					return VMDeployment{}, err
-				}
-				res.GatewayName = gw.Name
-				res.VMConfiguration = vm
-			}
-		}
-	}
-	return res, nil
-}
-
-func (c *Client) GetVMDeployment(ctx context.Context, networkName string) (VMDeployment, error) {
-	networkDeployment, err := c.GetNetworkDeployment(ctx, networkName)
-	if err != nil {
-		return VMDeployment{}, err
-	}
-
-	res := VMDeployment{
-		Network:         networkName,
+		Network:         name,
 		WireguardConfig: networkDeployment.Network.WireguardConfig,
 	}
 
-	for _, m := range networkDeployment.VMs {
-		gwName, ok := m.EnvVars[gwNameEnvVar]
-		if !ok {
-			continue
-		}
+	for _, vm := range networkDeployment.VMs {
+		if vm.Name == name {
+			res.VMConfiguration = vm
+			gwName, ok := vm.EnvVars[gwNameEnvVar]
+			if !ok {
+				continue
+			}
 
-		gw, err := c.GatewayNameGet(ctx, gwName)
-		if err != nil {
-			return VMDeployment{}, err
+			gw, err := c.GatewayNameGet(ctx, gwName)
+			if err != nil {
+				return VMDeployment{}, err
+			}
+			res.GatewayName = gw.Name
 		}
-
-		res.GatewayName = gw.Name
 	}
 
 	return res, nil
 }
 
-func (c *Client) CancelVMDeployment(ctx context.Context, networkName string) error {
-	networkDeployment, err := c.GetNetworkDeployment(ctx, networkName)
+func (c *Client) CancelVMDeployment(ctx context.Context, name string) error {
+	networkDeployment, err := c.GetNetworkDeployment(ctx, name)
 	if err != nil {
 		return err
 	}
@@ -200,40 +162,11 @@ func (c *Client) CancelVMDeployment(ctx context.Context, networkName string) err
 		}
 	}
 
-	if err := c.cancelModel(ctx, networkName); err != nil {
+	if err := c.cancelModel(ctx, name); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (c *Client) RemoveVM(ctx context.Context, args RemoveVM) (VMDeployment, error) {
-	networkDeployment, err := c.GetNetworkDeployment(ctx, args.Network)
-	if err != nil {
-		return VMDeployment{}, err
-	}
-
-	for _, vm := range networkDeployment.VMs {
-		if vm.Name == args.VMName {
-			gwName, ok := vm.EnvVars[gwNameEnvVar]
-			if ok {
-				if err := c.cancelModel(ctx, gwName); err != nil {
-					return VMDeployment{}, err
-				}
-			}
-
-			if _, err := c.RemoveVMFromNetworkDeployment(ctx, RemoveVMFromNetworkDeployment{
-				VM:      args.VMName,
-				Network: args.Network,
-			}); err != nil {
-				return VMDeployment{}, err
-			}
-
-			break
-		}
-	}
-
-	return c.GetVMDeployment(ctx, args.Network)
 }
 
 func generateRandomString(n int) string {

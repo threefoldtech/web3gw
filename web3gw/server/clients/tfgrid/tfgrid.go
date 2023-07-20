@@ -198,7 +198,7 @@ func (c *tfgridClient) CancelContract(ctx context.Context, contractID uint64) er
 }
 
 func generateProjectName(modelName string) (projectName string) {
-	return fmt.Sprintf("%s.web3proxy", modelName)
+	return fmt.Sprintf("%s.web3gw", modelName)
 }
 
 func (c *tfgridClient) Close() {
