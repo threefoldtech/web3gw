@@ -26,7 +26,7 @@ func TestK8s(t *testing.T) {
 
 	t.Run("k8s_deploy_success", func(t *testing.T) {
 		modelName := "cluster1"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		model := K8sCluster{
 			Master: &K8sNode{
 				Name:      "master",
@@ -136,7 +136,7 @@ func TestK8s(t *testing.T) {
 
 	t.Run("k8s_get_success", func(t *testing.T) {
 		clusterName := "cluster1"
-		projectName := generateProjectName(clusterName)
+		projectName := projectNameFromName(clusterName)
 		token := "token"
 		sshKey := "key"
 

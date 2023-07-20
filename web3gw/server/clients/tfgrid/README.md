@@ -19,7 +19,7 @@
 - think of a better naming for contractsInfo struct
 - make a Contains function instead of using the one in workloads package
 - in k8s remove worker, check if there is no other worker on workerNodeID before updating network
-- hide names generate (like generateProjectName, ....)
+- hide names generate (like projectNameFromName, ....)
 
 ## deploy
 

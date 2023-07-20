@@ -25,7 +25,7 @@ func TestZDB(t *testing.T) {
 
 	t.Run("zdb_deploy_success", func(t *testing.T) {
 		modelName := "zdb"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 
@@ -87,7 +87,7 @@ func TestZDB(t *testing.T) {
 
 	t.Run("zdb_get_success", func(t *testing.T) {
 		modelName := "zdb2"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 

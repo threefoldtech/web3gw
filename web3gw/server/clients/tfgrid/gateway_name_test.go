@@ -27,7 +27,7 @@ func TestGatewayName(t *testing.T) {
 
 	t.Run("gateway_name_deploy_success", func(t *testing.T) {
 		modelName := "hamada"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		nodeID := uint32(1)
 		nameContractID := uint64(1)
 		contractID := uint64(2)
@@ -94,7 +94,7 @@ func TestGatewayName(t *testing.T) {
 
 	t.Run("gateway_name_get_success", func(t *testing.T) {
 		modelName := "hamada2"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		nodeID := uint32(1)
 		nameContractID := uint64(1)
 		nodeContractID := uint64(2)

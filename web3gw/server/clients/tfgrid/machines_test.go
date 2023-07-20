@@ -28,7 +28,7 @@ func TestMachines(t *testing.T) {
 	t.Run("machines_deploy_success", func(t *testing.T) {
 		nodeID := uint32(1)
 		modelName := "model1"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		networkContratID := uint64(1)
 		deploymentContractID := uint64(2)
 		model := NetworkDeployment{
@@ -180,7 +180,7 @@ func TestMachines(t *testing.T) {
 	t.Run("machines_get_success", func(t *testing.T) {
 		nodeID := uint32(1)
 		modelName := "model2"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		networkName := generateNetworkName(modelName)
 		networkContractID := uint64(1)
 		nodeContractID := uint64(2)

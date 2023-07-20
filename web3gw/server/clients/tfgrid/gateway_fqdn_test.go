@@ -26,7 +26,7 @@ func TestGatewayFQDN(t *testing.T) {
 
 	t.Run("fqdn_deploy_success", func(t *testing.T) {
 		modelName := "name1"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 		backends := []zos.Backend{
@@ -82,7 +82,7 @@ func TestGatewayFQDN(t *testing.T) {
 
 	t.Run("fqdn_deploy_fail_project_name_not_unique", func(t *testing.T) {
 		modelName := "name2"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		fqdnModel := GatewayFQDNModel{
 			NodeID: 1,
 			Backends: []zos.Backend{
@@ -109,7 +109,7 @@ func TestGatewayFQDN(t *testing.T) {
 
 	t.Run("fqdn_get_success", func(t *testing.T) {
 		modelName := "name3"
-		projectName := generateProjectName(modelName)
+		projectName := projectNameFromName(modelName)
 		nodeID := uint32(1)
 		contractID := uint64(1)
 		want := GatewayFQDNModel{

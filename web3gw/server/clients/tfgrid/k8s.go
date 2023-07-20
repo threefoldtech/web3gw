@@ -99,7 +99,7 @@ func (c *Client) K8sDeploy(ctx context.Context, cluster K8sCluster) (K8sCluster,
 	}
 
 	// update state for both network and cluster
-	c.updateState(&k8s, znet, generateProjectName(cluster.Name))
+	c.updateState(&k8s, znet, projectNameFromName(cluster.Name))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: cluster.Name,
@@ -196,7 +196,7 @@ func (c *Client) AddK8sWorker(ctx context.Context, params AddWorkerParams) (K8sC
 	}
 
 	// update state for both network and cluster
-	c.updateState(&cluster, &znet, generateProjectName(params.ClusterName))
+	c.updateState(&cluster, &znet, projectNameFromName(params.ClusterName))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: params.ClusterName,
@@ -244,7 +244,7 @@ func (c *Client) RemoveK8sWorker(ctx context.Context, worker RemoveWorkerParams)
 	}
 
 	// update state for both network and cluster
-	c.updateState(&cluster, &znet, generateProjectName(worker.ClusterName))
+	c.updateState(&cluster, &znet, projectNameFromName(worker.ClusterName))
 
 	return c.K8sGet(ctx, GetClusterParams{
 		ClusterName: worker.ClusterName,
@@ -320,7 +320,7 @@ func toGridK8s(model K8sCluster) workloads.K8sCluster {
 		Workers:      workers,
 		Token:        model.Token,
 		NetworkName:  model.NetworkName,
-		SolutionType: generateProjectName(model.Name),
+		SolutionType: projectNameFromName(model.Name),
 		SSHKey:       model.SSHKey,
 	}
 }

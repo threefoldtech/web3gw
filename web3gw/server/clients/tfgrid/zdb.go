@@ -48,12 +48,12 @@ func (c *Client) ZDBDeploy(ctx context.Context, zdb ZDB) (ZDB, error) {
 func (c *Client) deployZDB(ctx context.Context, gridZDB *workloads.ZDB, nodeID uint32) error {
 	log.Debug().Msgf("Deploying zdb: %+v", *gridZDB)
 
-	dl := workloads.NewDeployment(gridZDB.Name, nodeID, generateProjectName(gridZDB.Name), nil, "", nil, []workloads.ZDB{*gridZDB}, nil, nil)
+	dl := workloads.NewDeployment(gridZDB.Name, nodeID, projectNameFromName(gridZDB.Name), nil, "", nil, []workloads.ZDB{*gridZDB}, nil, nil)
 	if err := c.GridClient.DeployDeployment(ctx, &dl); err != nil {
 		return errors.Wrapf(err, "failed to deploy zdb with name: %s", gridZDB.Name)
 	}
 
-	projectName := generateProjectName(gridZDB.Name)
+	projectName := projectNameFromName(gridZDB.Name)
 
 	c.Projects[projectName] = ProjectState{
 		nodeContracts: map[uint32]state.ContractIDs{

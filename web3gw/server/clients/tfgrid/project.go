@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Client) validateProjectName(ctx context.Context, modelName string) error {
-	projectName := generateProjectName(modelName)
+	projectName := projectNameFromName(modelName)
 
 	if _, ok := c.Projects[projectName]; ok {
 		return fmt.Errorf("invalid project name. project %s is not unique", projectName)
@@ -27,7 +27,7 @@ func (c *Client) validateProjectName(ctx context.Context, modelName string) erro
 }
 
 func (c *Client) cancelModel(ctx context.Context, modelName string) error {
-	projectName := generateProjectName(modelName)
+	projectName := projectNameFromName(modelName)
 	if st, ok := c.Projects[projectName]; ok {
 		// project contracts are stored locally
 		for _, contractID := range st.nameContracts {

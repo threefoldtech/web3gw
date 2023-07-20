@@ -59,7 +59,7 @@ func (c *Client) deployGWName(ctx context.Context, gridGW *workloads.GatewayName
 		return errors.Wrapf(err, "failed to deploy gateway %s", gridGW.Name)
 	}
 
-	projectName := generateProjectName(gridGW.Name)
+	projectName := projectNameFromName(gridGW.Name)
 
 	c.Projects[projectName] = ProjectState{
 		nodeContracts: map[uint32]state.ContractIDs{
@@ -78,7 +78,7 @@ func toGridGWName(model GatewayNameModel) workloads.GatewayNameProxy {
 		Backends:       model.Backends,
 		TLSPassthrough: model.TLSPassthrough,
 		Description:    model.Description,
-		SolutionType:   generateProjectName(model.Name),
+		SolutionType:   projectNameFromName(model.Name),
 	}
 }
 

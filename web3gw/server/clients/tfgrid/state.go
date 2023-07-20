@@ -99,7 +99,7 @@ func (c *Client) loadZDB(ctx context.Context, modelName string) (workloads.ZDB, 
 }
 
 func (c *Client) loadModelContracts(ctx context.Context, modelName string) (ProjectState, error) {
-	projectName := generateProjectName(modelName)
+	projectName := projectNameFromName(modelName)
 
 	if projectState, ok := c.Projects[projectName]; ok {
 		c.GridClient.SetContractState(projectState.nodeContracts)
@@ -148,7 +148,7 @@ func (c *Client) loadGridMachinesModel(ctx context.Context, modelName string) (g
 	}
 
 	if len(modelContracts.nodeContracts) == 0 {
-		delete(c.Projects, generateProjectName(modelName))
+		delete(c.Projects, projectNameFromName(modelName))
 		return gridMachinesModel{}, fmt.Errorf("found 0 contracts for model %s", modelName)
 	}
 

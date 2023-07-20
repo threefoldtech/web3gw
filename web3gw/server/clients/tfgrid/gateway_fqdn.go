@@ -41,7 +41,7 @@ func (c *Client) GatewayFQDNDeploy(ctx context.Context, gw GatewayFQDNModel) (Ga
 		Name:           gw.Name,
 		TLSPassthrough: gw.TLSPassthrough,
 		Description:    gw.Description,
-		SolutionType:   generateProjectName(gw.Name),
+		SolutionType:   projectNameFromName(gw.Name),
 	}
 
 	if err := c.deployGWFQDN(ctx, &gridGW); err != nil {
@@ -58,7 +58,7 @@ func (c *Client) deployGWFQDN(ctx context.Context, gridGW *workloads.GatewayFQDN
 		return err
 	}
 
-	projectName := generateProjectName(gridGW.Name)
+	projectName := projectNameFromName(gridGW.Name)
 
 	projectState := map[uint32]state.ContractIDs{
 		gridGW.NodeID: {gridGW.ContractID},
