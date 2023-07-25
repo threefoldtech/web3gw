@@ -38,7 +38,7 @@ require (
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200609130330-bd2cb7843e1b
 )
 
-replace github.com/drakkan/sftpgo/v2 v2.4.5 => github.com/freeflowuniverse/aydo/v2 v2.0.0-20230619093935-ee2523f8471f
+replace github.com/drakkan/sftpgo/v2 v2.4.5 => github.com/freeflowuniverse/aydo/v2 v2.0.0-20230724110325-1aa405d380ec
 
 require (
 	cloud.google.com/go v0.110.2 // indirect
