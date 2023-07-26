@@ -7,6 +7,7 @@ The integration is done through our own fork of the project found [here](https:/
 - Allowing editing of office documents through the web client via OnlyOffice document server integration
 - Adding syntax highlighting in the code editor for Golang, Vlang, Yaml and Markdown.
 - Implementing a HTTP client to the SFTPGO API using Vlang
+- Extending the hooks system functionality by adding the pre-lsdir sync Fs action. This action allows you to execute an http service or an external command before listing the directory content. If the external command completes with a zero exit status or the HTTP notification response code is 200, SFTPGo will allow the operation, otherwise the client will get a permission denied error.
 
 You can start the server by using either one of the following two methods described below:
 
@@ -66,3 +67,8 @@ In addition to the above configuration the following env variables need to be sp
 - `SFTPGO_DEFAULT_ADMIN_PASSWORD`: the admin password for the admin created in initial startup
 - `SFTP_SERVER_ADDR`: The address on which the sftpgo server is reachable to both the user and the OnlyOffice service container, this is needed for the only office document server integration thus the address needs to be exposed to it for example: <http://172.17.0.1:8060>
 - `ONLYOFFICE_SERVER_ADDR`: The address for document server address, this is used to import the necessary javascript module to use the document server API and needs to be reachable by the web client for example: <http://localhost:8016>
+
+## `pre-lsdir` Sync Fs Action
+We have provided an example bash script to automate the creation of a demo user account and the setup of predefined event action and rule.
+Additionally, we have added a working V lang server to receive Fs events notifications from sftpgo.
+You can find the instructions on how to use this example here: https://github.com/freeflowuniverse/aydo/tree/development/examples/web-hook
