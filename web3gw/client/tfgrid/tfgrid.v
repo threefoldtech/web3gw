@@ -136,7 +136,7 @@ pub fn (mut t TFGridClient) cancel_zdb_deployment(name string) ! {
 
 // Deploys a gateway name given the name, the id of the node and the backends where the gateway should point to
 pub fn (mut t TFGridClient) deploy_gateway_name(args GatewayName) !GatewayName {
-	return t.client.send_json_rpc[[]GatewayName, GatewayName]('tfgrid.DeployGatewayName',
+	return t.client.send_json_rpc[[]GatewayName, GatewayName]('tfgrid.GatewayNameDeploy',
 		[
 		args,
 	], t.timeout)!
@@ -144,21 +144,21 @@ pub fn (mut t TFGridClient) deploy_gateway_name(args GatewayName) !GatewayName {
 
 // Retrieves information about the gateway name (backends, node, etc)
 pub fn (mut t TFGridClient) get_gateway_name(name string) !GatewayName {
-	return t.client.send_json_rpc[[]string, GatewayName]('tfgrid.GetGatewayName', [
+	return t.client.send_json_rpc[[]string, GatewayName]('tfgrid.GatewayNameGet', [
 		name,
 	], t.timeout)!
 }
 
 // Cancels the gateway name
 pub fn (mut t TFGridClient) cancel_gateway_name(name string) ! {
-	_ := t.client.send_json_rpc[[]string, string]('tfgrid.CancelGatewayName', [
+	_ := t.client.send_json_rpc[[]string, string]('tfgrid.GatewayNameDelete', [
 		name,
 	], t.timeout)!
 }
 
 // Adds a fully qualified domain name to the specified node and returns some computed information
 pub fn (mut t TFGridClient) deploy_gateway_fqdn(args GatewayFQDN) !GatewayFQDN {
-	return t.client.send_json_rpc[[]GatewayFQDN, GatewayFQDN]('tfgrid.DeployGatewayFQDN',
+	return t.client.send_json_rpc[[]GatewayFQDN, GatewayFQDN]('tfgrid.GatewayFQDNDeploy',
 		[
 		args,
 	], t.timeout)!
@@ -166,14 +166,14 @@ pub fn (mut t TFGridClient) deploy_gateway_fqdn(args GatewayFQDN) !GatewayFQDN {
 
 // Retrieves information about the fully qualified domain name
 pub fn (mut t TFGridClient) get_gateway_fqdn(name string) !GatewayFQDN {
-	return t.client.send_json_rpc[[]string, GatewayFQDN]('tfgrid.GetGatewayFQDN', [
+	return t.client.send_json_rpc[[]string, GatewayFQDN]('tfgrid.GatewayFQDNGet', [
 		name,
 	], t.timeout)!
 }
 
 // Cancels the fully qualified domain name specified in the arguments
 pub fn (mut t TFGridClient) cancel_gateway_fqdn(name string) ! {
-	_ := t.client.send_json_rpc[[]string, string]('tfgrid.CancelGatewayFQDN', [
+	_ := t.client.send_json_rpc[[]string, string]('tfgrid.GatewayFQDNDelete', [
 		name,
 	], t.timeout)!
 }

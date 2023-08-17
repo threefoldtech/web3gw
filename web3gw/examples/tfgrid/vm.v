@@ -1,6 +1,6 @@
 module main
 
-import threefoldtech.web3gw.tfgrid { RemoveVM, TFGridClient, VM, VMResult }
+import threefoldtech.web3gw.tfgrid { NetworkDeployment, TFGridClient, DeployVM, VMDeployment }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -11,68 +11,58 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
+fn deploy_vm(mut fp FlagParser, mut t TFGridClient) !VMDeployment {
 	fp.usage_example('deploy [options]')
 
 	name := fp.string('vm_name', `m`, rand.string(6), 'VM name')
-	network := fp.string_opt('vm_network', `v`, 'Name of the VM network')!
 	farm_id := fp.int('farm_id', `f`, 0, 'Farm ID to deploy on')
-	capacity := fp.string('capacity', `c`, 'medium', 'Capacity of the instance')
-	times := fp.int('times', `t`, 1, 'The number of vms to deploy')
 	disk_size := fp.int('disk_size', `d`, 0, 'Size of disk the will be mounted on each vm')
 	gateway := fp.bool('gateway', `g`, false, 'True to add a gateway for each vm')
 	wg := fp.bool('wg', `w`, false, 'True to add a wireguard access point to the network')
-	add_public_ipv4 := fp.bool('add_public_ipv4', `4`, false, 'True to add a public ipv4 to each vm')
-	add_public_ipv6 := fp.bool('add_public_ipv6', `6`, false, 'True to add a public ipv6 to each vm')
-	ssh_key := fp.string('ssh', `s`, '', 'Public SSH Key to access the instance')
 	_ := fp.finalize()!
 
-	vm := VM{
+	vm := DeployVM{
 		name: name
-		network: network
 		farm_id: u32(farm_id)
-		capacity: capacity
-		ssh_key: ssh_key
-		times: u32(times)
-		disk_size: u32(disk_size)
+		rootfs_size: u64(disk_size)
 		gateway: gateway
 		add_wireguard_access: wg
-		add_public_ipv4: add_public_ipv4
-		add_public_ipv6: add_public_ipv6
 	}
 
 	return t.deploy_vm(vm)!
 }
 
-fn get_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
+fn get_vm(mut fp FlagParser, mut t TFGridClient) !VMDeployment {
 	fp.usage_example('get [options]')
 
-	network := fp.string_opt('vm_network', `v`, 'Name of the VM network')!
+	vm := fp.string_opt('vm_name', `v`, 'Name of the VM')!
 	_ := fp.finalize()!
 
-	return t.get_vm(network)!
+	return t.get_vm_deployment(vm)!
 }
 
 fn delete_vm(mut fp FlagParser, mut t TFGridClient) ! {
 	fp.usage_example('delete [options]')
 
-	network := fp.string_opt('vm_network', `v`, 'Name of the VM network')!
+	vm_name := fp.string_opt('vm_name', `v`, 'Name of the VM to be deleted')!
+
 	_ := fp.finalize()!
 
-	return t.delete_vm(network)
+	t.cancel_vm_deployment(vm_name)!
 }
 
-fn remove_vm(mut fp FlagParser, mut t TFGridClient) !VMResult {
+fn remove_vm(mut fp FlagParser, mut t TFGridClient)!NetworkDeployment {
 	fp.usage_example('remove [options]')
 
+	vm_name := fp.string_opt('vm_name', `v`, 'Name of the VM to be removed')!
 	network := fp.string_opt('vm_network', `v`, 'Name of the VM network')!
-	vm_name := fp.string_opt('vm', `v`, 'Name of the VM to be removed')!
+
 	_ := fp.finalize()!
 
-	return t.remove_vm(RemoveVM{
+	return t.remove_vm_from_network_deployment(
 		network: network
-		vm_name: vm_name
-	})!
+		vm: vm_name
+	)!
 }
 
 fn main() {
@@ -108,7 +98,7 @@ fn main() {
 
 	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	tfgrid_client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Load{
 		mnemonic: mnemonic
 		network: network
 	})!

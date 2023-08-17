@@ -1,6 +1,6 @@
 module main
 
-import threefoldtech.web3gw.tfgrid { GatewayFQDN, GatewayFQDNResult, TFGridClient }
+import threefoldtech.web3gw.tfgrid { GatewayFQDN, TFGridClient }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -10,7 +10,7 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDNResult {
+fn deploy_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDN {
 	fp.usage_example('deploy [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
@@ -20,7 +20,7 @@ fn deploy_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDNResult
 	fqdn := fp.string_opt('fqdn', `f`, 'FQDN of the gateway')!
 	_ := fp.finalize()!
 
-	return t.gateways_deploy_fqdn(GatewayFQDN{
+	return t.deploy_gateway_fqdn(GatewayFQDN{
 		name: name
 		node_id: u32(node_id)
 		tls_passthrough: tls_passthrough
@@ -29,13 +29,13 @@ fn deploy_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDNResult
 	})!
 }
 
-fn get_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDNResult {
+fn get_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) !GatewayFQDN {
 	fp.usage_example('get [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
 	_ := fp.finalize()!
 
-	return t.gateways_get_fqdn(name)!
+	return t.get_gateway_fqdn(name)!
 }
 
 fn delete_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) ! {
@@ -44,7 +44,7 @@ fn delete_gateway_fqdn(mut fp FlagParser, mut t TFGridClient) ! {
 	name := fp.string_opt('name', `n`, 'Name of the gateway instance')!
 	_ := fp.finalize()!
 
-	return t.gateways_delete_fqdn(name)
+	return t.cancel_gateway_fqdn(name)
 }
 
 fn main() {
@@ -83,7 +83,7 @@ fn main() {
 
 	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	tfgrid_client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Load{
 		mnemonic: mnemonic
 		network: network
 	})!
