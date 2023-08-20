@@ -2,7 +2,7 @@ module gridproxy
 
 // client library for threefold gridproxy API.
 import json
-import model { Contract, ContractFilter, ContractIterator, Farm, FarmFilter, FarmIterator, GridStat, Node, NodeFilter, NodeIterator, Node_, StatFilter, Twin, TwinFilter, TwinIterator }
+import gridproxy.model { Contract, ContractFilter, ContractIterator, Farm, FarmFilter, FarmIterator, GridStat, Node, NodeFilter, NodeIterator, NodeStats, Node_, StatFilter, Twin, TwinFilter, TwinIterator }
 
 /*
 all errors returned by the gridproxy API or the client are wrapped in a standard `Error` object with two fields.
@@ -50,11 +50,39 @@ pub fn (mut c GridProxyClient) get_node_by_id(node_id u64) !Node {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	node := json.decode(Node, res.data) or {
+	node := json.decode(model.Node, res.data) or {
 		return error_with_code('error to get jsonstr for node data, json decode: node id: ${node_id}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return node
+}
+
+// get_node_stats_by_id fetchs specific node statistics by node id.
+//
+// * `node_id` (u64): node id.
+// statistics
+// returns: `Node_stats` or `Error`.
+pub fn (mut c GridProxyClient) get_node_stats_by_id(node_id u64) !NodeStats {
+	// needed to allow to use threads
+	mut http_client := c.http_client.clone()!
+
+	res := http_client.send(prefix: 'nodes/', id: '${node_id}/statistics') or {
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
+	}
+
+	if !res.is_ok() {
+		return error_with_code(res.data, res.code)
+	}
+
+	if res.data == '' {
+		return error_with_code('empty response', gridproxy.err_invalid_resp)
+	}
+
+	node_stats := json.decode(model.NodeStats, res.data) or {
+		return error_with_code('error to get jsonstr for node data, json decode: node id: ${node_id}, data: ${res.data}',
+			gridproxy.err_json_parse)
+	}
+	return node_stats
 }
 
 // get_gateway_by_id fetchs specific gateway information by node id.
@@ -78,7 +106,7 @@ pub fn (mut c GridProxyClient) get_gateway_by_id(node_id u64) !Node {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	node := json.decode(Node, res.data) or {
+	node := json.decode(model.Node, res.data) or {
 		return error_with_code('error to get jsonstr for gateway data, json decode: gateway id: ${node_id}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
@@ -124,7 +152,7 @@ pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ![]Node {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	nodes_ := json.decode([]Node_, res.data) or {
+	nodes_ := json.decode([]model.Node_, res.data) or {
 		return error_with_code('error to get jsonstr for node list data, json decode: node filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
@@ -171,7 +199,7 @@ pub fn (mut c GridProxyClient) get_gateways(params NodeFilter) ![]Node {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	nodes_ := json.decode([]Node_, res.data) or {
+	nodes_ := json.decode([]model.Node_, res.data) or {
 		return error_with_code('error to get jsonstr for gateways list data, json decode: gateway filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
@@ -205,7 +233,7 @@ pub fn (mut c GridProxyClient) get_stats(filter StatFilter) !GridStat {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	stats := json.decode(GridStat, res.data) or {
+	stats := json.decode(model.GridStat, res.data) or {
 		return error_with_code('error to get jsonstr for grid stats data, json decode: stats filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
@@ -237,7 +265,7 @@ pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ![]Twin {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	twins := json.decode([]Twin, res.data) or {
+	twins := json.decode([]model.Twin, res.data) or {
 		return error_with_code('error to get jsonstr for twin list data, json decode: twin filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
@@ -276,7 +304,7 @@ pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ![]Contract 
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	contracts := json.decode([]Contract, res.data) or {
+	contracts := json.decode([]model.Contract, res.data) or {
 		return error_with_code('error to get jsonstr for contract list data, json decode: contract filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
@@ -317,7 +345,7 @@ pub fn (mut c GridProxyClient) get_farms(params FarmFilter) ![]Farm {
 		return error_with_code('empty response', gridproxy.err_invalid_resp)
 	}
 
-	farms := json.decode([]Farm, res.data) or {
+	farms := json.decode([]model.Farm, res.data) or {
 		return error_with_code('error to get jsonstr for farm list data, json decode: farm filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}

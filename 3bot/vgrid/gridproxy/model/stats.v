@@ -16,3 +16,29 @@ pub:
 	contracts          u64
 	nodes_distribution map[string]u64 [json: nodesDistribution]
 }
+
+pub struct NodeStatisticsResources {
+pub:
+	cru   u64
+	hru   ByteUnit
+	ipv4u u64
+	mru   ByteUnit
+	sru   ByteUnit
+}
+
+pub struct NodeStatisticsUsers {
+pub:
+	deployments u64
+	workloads   u64
+}
+
+pub struct NodeStats {
+pub:
+	system NodeStatisticsResources
+
+	total NodeStatisticsResources
+
+	used NodeStatisticsResources
+
+	users NodeStatisticsUsers
+}

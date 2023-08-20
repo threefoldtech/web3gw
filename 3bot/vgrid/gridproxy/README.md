@@ -129,37 +129,37 @@ If you want to use the client, you need to import it in your code.
   ```v
   // create a client for the testnet, with API cache disabled
   // you can pass true as second arg to enable cache
-  mut gp_client := gridproxy.get(.test, false)
+  mut gp_client := gridproxy.get(.test, false)!
   ```
 
 * use the client to interact with the gridproxy API:
   ```v
   // get farm list
-  farms := gp_client.get_farms()? // you should handle any possible errors in your code
+  farms := gp_client.get_farms()! // you should handle any possible errors in your code
   // get gateway list
-  gateways := gp_client.get_gateways()?
+  gateways := gp_client.get_gateways()!
   // get node list
-  nodes := gp_client.get_nodes()?
+  nodes := gp_client.get_nodes()!
   // get contract list
-  contracts := gp_client.get_contracts()?
+  contracts := gp_client.get_contracts()!
   // get grid stats
-  stats := gp_client.get_stats()?
+  stats := gp_client.get_stats()!
   // get twins
-  twins := gp_client.get_twins()?
+  twins := gp_client.get_twins()!
   ```
   for all available methods on the client, see [GridProxy API client modules doc](./docs/)
 
 * filtering:
   ```v
   // getting only dedicated farms
-  farms_dedicated := gp_client.get_farms(dedicated: true)?
+  farms_dedicated := gp_client.get_farms(dedicated: true)!
   // getting only farms with at least one free ip
-  farms_with_free_ips := gp_client.get_farms(free_ips: u64(1))?
+  farms_with_free_ips := gp_client.get_farms(free_ips: u64(1))!
   // pagination options:
   // get first page of farms
-  farms_first_page := gp_client.get_farms(page: u64(1))?
+  farms_first_page := gp_client.get_farms(page: u64(1))!
   // you can mix any filters and pagination options
-  farms_first_page_dedicated := gp_client.get_farms(page: u64(1), dedicated: true)?
+  farms_first_page_dedicated := gp_client.get_farms(page: u64(1), dedicated: true)!
   // access the field of first farm in the list
   // the API could return an empty list if no farm is found
   // you should handle this case in your code

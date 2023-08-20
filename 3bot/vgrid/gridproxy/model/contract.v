@@ -2,9 +2,9 @@ module model
 
 pub struct ContractBilling {
 pub:
-	amount_billed     DropTFTUnit  [json: amountBilled]
-	discount_received string   [json: discountReceived]
-	timestamp         UnixTime [json: timestamp]
+	amount_billed     DropTFTUnit [json: amountBilled]
+	discount_received string      [json: discountReceived]
+	timestamp         UnixTime    [json: timestamp]
 }
 
 pub struct NodeContractDetails {

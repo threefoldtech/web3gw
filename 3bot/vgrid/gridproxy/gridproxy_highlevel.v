@@ -1,6 +1,6 @@
 module gridproxy
 
-import model {Contract, ContractFilter, Farm, FarmFilter, Node, Node_, NodeFilter, ResourceFilter, Twin, TwinFilter, NodeIterator, ContractIterator, FarmIterator, TwinIterator }
+import gridproxy.model { ContractFilter, ContractIterator, Farm, FarmFilter, FarmIterator, NodeFilter, NodeIterator, ResourceFilter, Twin }
 
 // fetch specific twin information by twin id.
 //
@@ -9,10 +9,10 @@ import model {Contract, ContractFilter, Farm, FarmFilter, Node, Node_, NodeFilte
 // returns: `Twin` or `Error`.
 pub fn (mut c GridProxyClient) get_twin_by_id(twin_id u64) ?Twin {
 	twins := c.get_twins(twin_id: twin_id) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
 	if twins.len == 0 {
-		return error_with_code('no twin found for id: $twin_id', gridproxy.err_not_found)
+		return error_with_code('no twin found for id: ${twin_id}', err_not_found)
 	}
 	return twins[0]
 }
@@ -24,10 +24,10 @@ pub fn (mut c GridProxyClient) get_twin_by_id(twin_id u64) ?Twin {
 // returns: `Twin` or `Error`.
 pub fn (mut c GridProxyClient) get_twin_by_account(account_id string) ?Twin {
 	twins := c.get_twins(account_id: account_id) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
 	if twins.len == 0 {
-		return error_with_code('no twin found for account_id: $account_id', gridproxy.err_not_found)
+		return error_with_code('no twin found for account_id: ${account_id}', err_not_found)
 	}
 	return twins[0]
 }
@@ -39,10 +39,10 @@ pub fn (mut c GridProxyClient) get_twin_by_account(account_id string) ?Twin {
 // returns: `Farm` or `Error`.
 pub fn (mut c GridProxyClient) get_farm_by_id(farm_id u64) ?Farm {
 	farms := c.get_farms(farm_id: farm_id) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
 	if farms.len == 0 {
-		return error_with_code('no farm found for id: $farm_id', gridproxy.err_not_found)
+		return error_with_code('no farm found for id: ${farm_id}', err_not_found)
 	}
 	return farms[0]
 }
@@ -54,10 +54,10 @@ pub fn (mut c GridProxyClient) get_farm_by_id(farm_id u64) ?Farm {
 // returns: `Farm` or `Error`.
 pub fn (mut c GridProxyClient) get_farm_by_name(farm_name string) ?Farm {
 	farms := c.get_farms(name: farm_name) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
 	if farms.len == 0 {
-		return error_with_code('no farm found with name: $farm_name', gridproxy.err_not_found)
+		return error_with_code('no farm found with name: ${farm_name}', err_not_found)
 	}
 	return farms[0]
 }
@@ -73,7 +73,6 @@ pub fn (mut c GridProxyClient) get_farms_by_twin_id(twin_id u64) FarmIterator {
 	}
 	mut iter := c.get_farms_iterator(filter)
 	return iter
-
 }
 
 // get_contracts_by_twin_id returns iterator over all contracts owned by specific twin.
@@ -82,9 +81,10 @@ pub fn (mut c GridProxyClient) get_farms_by_twin_id(twin_id u64) FarmIterator {
 //
 // returns: `ContractIterator`.
 pub fn (mut c GridProxyClient) get_contracts_by_twin_id(twin_id u64) ContractIterator {
-	/* contracts := c.get_contracts(twin_id: twin_id) or {
+	/*
+	contracts := c.get_contracts(twin_id: twin_id) or {
 		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
-	} */
+	}*/
 	mut filter := ContractFilter{
 		twin_id: twin_id
 	}
@@ -98,9 +98,10 @@ pub fn (mut c GridProxyClient) get_contracts_by_twin_id(twin_id u64) ContractIte
 //
 // returns: `ContractIterator`.
 pub fn (mut c GridProxyClient) get_contracts_by_node_id(node_id u64) ContractIterator {
-	/* contracts := c.get_contracts(node_id: node_id) or {
+	/*
+	contracts := c.get_contracts(node_id: node_id) or {
 		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
-	} */
+	}*/
 	mut filter := ContractFilter{
 		node_id: node_id
 	}

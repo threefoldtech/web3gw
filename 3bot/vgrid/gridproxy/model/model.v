@@ -1,7 +1,7 @@
 module model
 
 import time { Time }
-import math { pow10, floor }
+import math { floor, pow10 }
 
 type ByteUnit = u64
 
@@ -26,7 +26,6 @@ pub fn (u ByteUnit) str() string {
 		return '${u.to_megabytes():.2} MB'
 	}
 	return '${u64(u)} Bytes'
-
 }
 
 // SecondUnit represents a duration in seconds
@@ -46,24 +45,24 @@ pub fn (u SecondUnit) to_days() f64 {
 
 pub fn (u SecondUnit) str() string {
 	sec_num := u64(u)
-	d := math.floor(sec_num/86400)
-    h := math.fmod(math.floor(sec_num/3600), 24)
-    m := math.fmod(math.floor(sec_num/60), 60)
-    s := sec_num % 60
+	d := floor(sec_num / 86400)
+	h := math.fmod(floor(sec_num / 3600), 24)
+	m := math.fmod(floor(sec_num / 60), 60)
+	s := sec_num % 60
 	mut str := ''
 	if d > 0 {
-		str += '$d days '
+		str += '${d} days '
 	}
 	if h > 0 {
-		str += '$h hours '
+		str += '${h} hours '
 	}
 	if m > 0 {
-		str += '$m minutes '
+		str += '${m} minutes '
 	}
 	if s > 0 {
-		str += '$s seconds'
+		str += '${s} seconds'
 	}
-	return str 	
+	return str
 }
 
 // UnixTime represent time in seconds since epoch (timestamp)

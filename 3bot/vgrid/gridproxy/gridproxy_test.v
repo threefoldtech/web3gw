@@ -1,6 +1,6 @@
 module gridproxy
 
-import model
+import gridproxy.model
 import time
 
 const (
@@ -139,13 +139,10 @@ fn test_get_twins_test() {
 	assert twins.len > 0
 }
 
-
 fn test_get_twins_main() {
-	mut gp := get(.main, cache)!
-	twins := gp.get_twins() or {
-		panic("Failed to get twins")
-	}
-	assert(twins.len > 0)
+	mut gp := get(.main, gridproxy.cache)!
+	twins := gp.get_twins() or { panic('Failed to get twins') }
+	assert twins.len > 0
 }
 
 fn test_get_stats_qa() {
@@ -190,9 +187,8 @@ fn test_get_contracts_test() {
 	assert contracts.len > 0
 }
 
-
 fn test_get_contracts_main() {
-	mut gp := get(.main, cache)!
+	mut gp := get(.main, gridproxy.cache)!
 	contracts := gp.get_contracts() or { panic('Failed to get contracts') }
 	assert contracts.len > 0
 }
