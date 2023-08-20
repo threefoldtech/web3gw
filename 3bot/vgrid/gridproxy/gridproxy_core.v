@@ -2,7 +2,7 @@ module gridproxy
 
 // client library for threefold gridproxy API.
 import json
-import model {Contract, ContractFilter, Farm, FarmFilter, GridStat, Node, Node_, NodeFilter, ResourceFilter, StatFilter, Twin, TwinFilter, NodeIterator, FarmIterator, TwinIterator, ContractIterator }
+import model { Contract, ContractFilter, ContractIterator, Farm, FarmFilter, FarmIterator, GridStat, Node, NodeFilter, NodeIterator, Node_, StatFilter, Twin, TwinFilter, TwinIterator }
 
 /*
 all errors returned by the gridproxy API or the client are wrapped in a standard `Error` object with two fields.
@@ -34,12 +34,12 @@ const (
 // * `node_id` (u64): node id.
 //
 // returns: `Node` or `Error`.
-pub fn (mut c GridProxyClient) get_node_by_id(node_id u64) ?Node {
+pub fn (mut c GridProxyClient) get_node_by_id(node_id u64) !Node {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 
-	res := http_client.send(prefix: 'nodes/', id: '$node_id') or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+	res := http_client.send(prefix: 'nodes/', id: '${node_id}') or {
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -51,7 +51,7 @@ pub fn (mut c GridProxyClient) get_node_by_id(node_id u64) ?Node {
 	}
 
 	node := json.decode(Node, res.data) or {
-		return error_with_code('error to get jsonstr for node data, json decode: node id: $node_id, data: $res.data',
+		return error_with_code('error to get jsonstr for node data, json decode: node id: ${node_id}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return node
@@ -62,12 +62,12 @@ pub fn (mut c GridProxyClient) get_node_by_id(node_id u64) ?Node {
 // * `node_id` (u64): node id.
 //
 // returns: `Node` or `Error`.
-pub fn (mut c GridProxyClient) get_gateway_by_id(node_id u64) ?Node {
+pub fn (mut c GridProxyClient) get_gateway_by_id(node_id u64) !Node {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 
-	res := http_client.send(prefix: 'gateways/', id: '$node_id') or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+	res := http_client.send(prefix: 'gateways/', id: '${node_id}') or {
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -79,7 +79,7 @@ pub fn (mut c GridProxyClient) get_gateway_by_id(node_id u64) ?Node {
 	}
 
 	node := json.decode(Node, res.data) or {
-		return error_with_code('error to get jsonstr for gateway data, json decode: gateway id: $node_id, data: $res.data',
+		return error_with_code('error to get jsonstr for gateway data, json decode: gateway id: ${node_id}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return node
@@ -108,12 +108,12 @@ pub fn (mut c GridProxyClient) get_gateway_by_id(node_id u64) ?Node {
 // * `farm_ids` ([]u64): List of farm ids. [optional].
 //
 // returns: `[]Node` or `Error`.
-pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ?[]Node {
+pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ![]Node {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 	params_map := params.to_map()
 	res := http_client.send(prefix: 'nodes/', params: params_map) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -125,7 +125,7 @@ pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ?[]Node {
 	}
 
 	nodes_ := json.decode([]Node_, res.data) or {
-		return error_with_code('error to get jsonstr for node list data, json decode: node filter: $params_map, data: $res.data',
+		return error_with_code('error to get jsonstr for node list data, json decode: node filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	nodes := nodes_.map(it.with_nested_capacity())
@@ -155,12 +155,12 @@ pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ?[]Node {
 // * `farm_ids` ([]u64): List of farm ids. [optional].
 //
 // returns: `[]Node` or `Error`.
-pub fn (mut c GridProxyClient) get_gateways(params NodeFilter) ?[]Node {
+pub fn (mut c GridProxyClient) get_gateways(params NodeFilter) ![]Node {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 	params_map := params.to_map()
 	res := http_client.send(prefix: 'gateways/', params: params_map) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -172,7 +172,7 @@ pub fn (mut c GridProxyClient) get_gateways(params NodeFilter) ?[]Node {
 	}
 
 	nodes_ := json.decode([]Node_, res.data) or {
-		return error_with_code('error to get jsonstr for gateways list data, json decode: gateway filter: $params_map, data: $res.data',
+		return error_with_code('error to get jsonstr for gateways list data, json decode: gateway filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	nodes := nodes_.map(it.with_nested_capacity())
@@ -184,9 +184,9 @@ pub fn (mut c GridProxyClient) get_gateways(params NodeFilter) ?[]Node {
 // * `status` (string): Node status filter, set to 'up' to get online nodes only.. [optional].
 //
 // returns: `GridStat` or `Error`.
-pub fn (mut c GridProxyClient) get_stats(filter StatFilter) ?GridStat {
+pub fn (mut c GridProxyClient) get_stats(filter StatFilter) !GridStat {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 	mut params_map := map[string]string{}
 	params_map['status'] = match filter.status {
 		.all { '' }
@@ -194,7 +194,7 @@ pub fn (mut c GridProxyClient) get_stats(filter StatFilter) ?GridStat {
 	}
 
 	res := http_client.send(prefix: 'stats/', params: params_map) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -206,7 +206,7 @@ pub fn (mut c GridProxyClient) get_stats(filter StatFilter) ?GridStat {
 	}
 
 	stats := json.decode(GridStat, res.data) or {
-		return error_with_code('error to get jsonstr for grid stats data, json decode: stats filter: $params_map, data: $res.data',
+		return error_with_code('error to get jsonstr for grid stats data, json decode: stats filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return stats
@@ -221,12 +221,12 @@ pub fn (mut c GridProxyClient) get_stats(filter StatFilter) ?GridStat {
 // * `account_id` (string): account address. [optional].
 //
 // returns: `[]Twin` or `Error`.
-pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ?[]Twin {
+pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ![]Twin {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 	params_map := params.to_map()
 	res := http_client.send(prefix: 'twins/', params: params_map) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -238,7 +238,7 @@ pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ?[]Twin {
 	}
 
 	twins := json.decode([]Twin, res.data) or {
-		return error_with_code('error to get jsonstr for twin list data, json decode: twin filter: $params_map, data: $res.data',
+		return error_with_code('error to get jsonstr for twin list data, json decode: twin filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return twins
@@ -260,12 +260,12 @@ pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ?[]Twin {
 // * `number_of_public_ips` (u64): Min number of public ips in the 'node' contract. [optional].
 //
 // * returns: `[]Contract` or `Error`.
-pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ?[]Contract {
+pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ![]Contract {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 	params_map := params.to_map()
 	res := http_client.send(prefix: 'contracts/', params: params_map) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -277,7 +277,7 @@ pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ?[]Contract 
 	}
 
 	contracts := json.decode([]Contract, res.data) or {
-		return error_with_code('error to get jsonstr for contract list data, json decode: contract filter: $params_map, data: $res.data',
+		return error_with_code('error to get jsonstr for contract list data, json decode: contract filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return contracts
@@ -301,12 +301,12 @@ pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ?[]Contract 
 // * `stellar_address` (string): farm stellar_address. [optional].
 //
 // returns: `[]Farm` or `Error`.
-pub fn (mut c GridProxyClient) get_farms(params FarmFilter) ?[]Farm {
+pub fn (mut c GridProxyClient) get_farms(params FarmFilter) ![]Farm {
 	// needed to allow to use threads
-	mut http_client := c.http_client.clone()
+	mut http_client := c.http_client.clone()!
 	params_map := params.to_map()
 	res := http_client.send(prefix: 'farms/', params: params_map) or {
-		return error_with_code('http client error: $err.msg()', gridproxy.err_http_client)
+		return error_with_code('http client error: ${err.msg()}', gridproxy.err_http_client)
 	}
 
 	if !res.is_ok() {
@@ -318,7 +318,7 @@ pub fn (mut c GridProxyClient) get_farms(params FarmFilter) ?[]Farm {
 	}
 
 	farms := json.decode([]Farm, res.data) or {
-		return error_with_code('error to get jsonstr for farm list data, json decode: farm filter: $params_map, data: $res.data',
+		return error_with_code('error to get jsonstr for farm list data, json decode: farm filter: ${params_map}, data: ${res.data}',
 			gridproxy.err_json_parse)
 	}
 	return farms
@@ -327,8 +327,8 @@ pub fn (mut c GridProxyClient) get_farms(params FarmFilter) ?[]Farm {
 // is_pingable checks if API server is reachable and responding.
 //
 // returns: bool, `true` if API server is reachable and responding, `false` otherwise
-pub fn (mut c GridProxyClient) is_pingable() bool {
-	mut http_client := c.http_client.clone()
+pub fn (mut c GridProxyClient) is_pingable() !bool {
+	mut http_client := c.http_client.clone()!
 	res := http_client.send(prefix: 'ping/') or { return false }
 	if !res.is_ok() {
 		return false
@@ -341,6 +341,7 @@ pub fn (mut c GridProxyClient) is_pingable() bool {
 
 	return true
 }
+
 // Iterators have the next() method, which returns the next page of the objects.
 // to be used in a loop to get all available results, or to lazely traverse pages till a specific condition is met.
 
