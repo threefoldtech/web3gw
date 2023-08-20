@@ -11,6 +11,7 @@ pub mut:
 	page               OptionU64  = EmptyOption{}
 	size               OptionU64  = EmptyOption{}
 	ret_count          OptionBool = EmptyOption{}
+	randomize          OptionBool = EmptyOption{}
 	free_ips           OptionU64  = EmptyOption{}
 	total_ips          OptionU64  = EmptyOption{}
 	stellar_address    string
@@ -21,6 +22,15 @@ pub mut:
 	name_contains      string
 	certification_type string
 	dedicated          OptionBool = EmptyOption{}
+	country            string
+	node_free_mru      OptionU64 = EmptyOption{}
+	node_free_hru      OptionU64 = EmptyOption{}
+	node_free_sru      OptionU64 = EmptyOption{}
+	node_status        string
+	node_rented_by     OptionU64  = EmptyOption{}
+	node_available_for OptionU64  = EmptyOption{}
+	node_has_gpu       OptionBool = EmptyOption{}
+	node_certified     OptionBool = EmptyOption{}
 }
 
 // serialize FarmFilter to map
@@ -43,6 +53,12 @@ pub fn (f &FarmFilter) to_map() map[string]string {
 		EmptyOption {}
 		bool {
 			m['ret_count'] = f.ret_count.str()
+		}
+	}
+	match f.randomize {
+		EmptyOption {}
+		bool {
+			m['randomize'] = f.randomize.str()
 		}
 	}
 	match f.free_ips {
@@ -94,6 +110,51 @@ pub fn (f &FarmFilter) to_map() map[string]string {
 			m['dedicated'] = f.dedicated.str()
 		}
 	}
+	match f.node_available_for {
+		EmptyOption {}
+		u64 {
+			m['node_available_for'] = f.node_available_for.str()
+		}
+	}
+	match f.node_free_hru {
+		EmptyOption {}
+		u64 {
+			m['node_free_hru'] = f.node_free_hru.str()
+		}
+	}
+	match f.node_free_mru {
+		EmptyOption {}
+		u64 {
+			m['node_free_mru'] = f.node_free_mru.str()
+		}
+	}
+	match f.node_free_sru {
+		EmptyOption {}
+		u64 {
+			m['node_free_sru'] = f.node_free_sru.str()
+		}
+	}
+	match f.node_rented_by {
+		EmptyOption {}
+		u64 {
+			m['node_rented_by'] = f.node_rented_by.str()
+		}
+	}
+	match f.node_has_gpu {
+		EmptyOption {}
+		bool {
+			m['node_has_gpu'] = f.node_has_gpu.str()
+		}
+	}
+	match f.node_certified {
+		EmptyOption {}
+		bool {
+			m['node_certified'] = f.node_certified.str()
+		}
+	}
+	if f.node_status != '' {
+		m['node_status'] = f.node_status
+	}
 	return m
 }
 
@@ -103,6 +164,7 @@ pub mut:
 	page                 OptionU64  = EmptyOption{}
 	size                 OptionU64  = EmptyOption{}
 	ret_count            OptionBool = EmptyOption{}
+	randomize            OptionBool = EmptyOption{}
 	contract_id          OptionU64  = EmptyOption{}
 	twin_id              OptionU64  = EmptyOption{}
 	node_id              OptionU64  = EmptyOption{}
@@ -133,6 +195,12 @@ pub fn (f &ContractFilter) to_map() map[string]string {
 		EmptyOption {}
 		bool {
 			m['ret_count'] = f.ret_count.str()
+		}
+	}
+	match f.randomize {
+		EmptyOption {}
+		bool {
+			m['randomize'] = f.randomize.str()
 		}
 	}
 	match f.contract_id {
@@ -180,25 +248,43 @@ pub fn (f &ContractFilter) to_map() map[string]string {
 [params]
 pub struct NodeFilter {
 pub mut:
-	page          OptionU64  = EmptyOption{}
-	size          OptionU64  = EmptyOption{}
-	ret_count     OptionBool = EmptyOption{}
-	free_mru      OptionU64  = EmptyOption{}
-	free_sru      OptionU64  = EmptyOption{}
-	free_hru      OptionU64  = EmptyOption{}
-	free_ips      OptionU64  = EmptyOption{}
-	city          string
-	country       string
-	farm_name     string
-	ipv4          string
-	ipv6          string
-	domain        string
-	status        string
-	dedicated     OptionBool = EmptyOption{}
-	rentable      OptionBool = EmptyOption{}
-	rented_by     OptionU64  = EmptyOption{}
-	available_for OptionU64  = EmptyOption{}
-	farm_ids      []u64
+	page               OptionU64  = EmptyOption{}
+	size               OptionU64  = EmptyOption{}
+	ret_count          OptionBool = EmptyOption{}
+	randomize          OptionBool = EmptyOption{}
+	free_mru           OptionU64  = EmptyOption{}
+	free_sru           OptionU64  = EmptyOption{}
+	free_hru           OptionU64  = EmptyOption{}
+	free_ips           OptionU64  = EmptyOption{}
+	total_mru          OptionU64  = EmptyOption{}
+	total_sru          OptionU64  = EmptyOption{}
+	total_hru          OptionU64  = EmptyOption{}
+	total_cru          OptionU64  = EmptyOption{}
+	city               string
+	city_contains      string
+	country            string
+	country_contains   string
+	farm_name          string
+	farm_name_contains string
+	ipv4               OptionBool = EmptyOption{}
+	ipv6               OptionBool = EmptyOption{}
+	domain             OptionBool = EmptyOption{}
+	status             string
+	dedicated          OptionBool = EmptyOption{}
+	rentable           OptionBool = EmptyOption{}
+	rented_by          OptionU64  = EmptyOption{}
+	rented             OptionBool = EmptyOption{}
+	available_for      OptionU64  = EmptyOption{}
+	farm_ids           []u64
+	node_id            OptionU64 = EmptyOption{}
+	twin_id            OptionU64 = EmptyOption{}
+	certification_type string
+	has_gpu            OptionBool = EmptyOption{}
+	gpu_device_id      string
+	gpu_device_name    string
+	gpu_vendor_id      string
+	gpu_vendor_name    string
+	gpu_available      OptionBool = EmptyOption{}
 }
 
 // serialize NodeFilter to map
@@ -220,6 +306,12 @@ pub fn (p &NodeFilter) to_map() map[string]string {
 		EmptyOption {}
 		bool {
 			m['ret_count'] = p.ret_count.str()
+		}
+	}
+	match p.randomize {
+		EmptyOption {}
+		bool {
+			m['randomize'] = p.randomize.str()
 		}
 	}
 	match p.free_mru {
@@ -246,26 +338,68 @@ pub fn (p &NodeFilter) to_map() map[string]string {
 			m['free_ips'] = p.free_ips.str()
 		}
 	}
+	match p.total_cru {
+		EmptyOption {}
+		u64 {
+			m['total_cru'] = p.total_cru.str()
+		}
+	}
+	match p.total_hru {
+		EmptyOption {}
+		u64 {
+			m['total_hru'] = p.total_hru.str()
+		}
+	}
+	match p.total_mru {
+		EmptyOption {}
+		u64 {
+			m['total_mru'] = p.total_mru.str()
+		}
+	}
+	match p.total_sru {
+		EmptyOption {}
+		u64 {
+			m['total_sru'] = p.total_sru.str()
+		}
+	}
 	if p.status != '' {
 		m['status'] = p.status
 	}
 	if p.city != '' {
 		m['city'] = p.city
 	}
+	if p.city_contains != '' {
+		m['city_contains'] = p.city_contains
+	}
 	if p.country != '' {
 		m['country'] = p.country
+	}
+	if p.country_contains != '' {
+		m['country_contains'] = p.country_contains
 	}
 	if p.farm_name != '' {
 		m['farm_name'] = p.farm_name
 	}
-	if p.ipv4 != '' {
-		m['ipv4'] = p.ipv4
+	if p.farm_name_contains != '' {
+		m['farm_name_contains'] = p.farm_name_contains
 	}
-	if p.ipv6 != '' {
-		m['ipv6'] = p.ipv6
+	match p.ipv4 {
+		EmptyOption {}
+		bool {
+			m['ipv4'] = p.ipv4.str()
+		}
 	}
-	if p.domain != '' {
-		m['domain'] = p.domain
+	match p.ipv6 {
+		EmptyOption {}
+		bool {
+			m['ipv6'] = p.ipv6.str()
+		}
+	}
+	match p.domain {
+		EmptyOption {}
+		bool {
+			m['domain'] = p.domain.str()
+		}
 	}
 	match p.dedicated {
 		EmptyOption {}
@@ -285,15 +419,59 @@ pub fn (p &NodeFilter) to_map() map[string]string {
 			m['rented_by'] = p.rented_by.str()
 		}
 	}
+	match p.rented {
+		EmptyOption {}
+		bool {
+			m['rented'] = p.rented.str()
+		}
+	}
 	match p.available_for {
 		EmptyOption {}
 		u64 {
 			m['available_for'] = p.available_for.str()
 		}
 	}
-
 	if p.farm_ids.len > 0 {
 		m['farm_ids'] = json.encode(p.farm_ids).all_after('[').all_before(']')
+	}
+	match p.node_id {
+		EmptyOption {}
+		u64 {
+			m['node_id'] = p.node_id.str()
+		}
+	}
+	match p.twin_id {
+		EmptyOption {}
+		u64 {
+			m['twin_id'] = p.twin_id.str()
+		}
+	}
+	if p.certification_type != '' {
+		m['certification_type'] = p.certification_type
+	}
+	match p.has_gpu {
+		EmptyOption {}
+		bool {
+			m['has_gpu'] = p.has_gpu.str()
+		}
+	}
+	if p.gpu_device_id != '' {
+		m['gpu_device_id'] = p.gpu_device_id
+	}
+	if p.gpu_device_name != '' {
+		m['gpu_device_name'] = p.gpu_device_name
+	}
+	if p.gpu_vendor_id != '' {
+		m['gpu_vendor_id'] = p.gpu_vendor_id
+	}
+	if p.gpu_vendor_name != '' {
+		m['gpu_vendor_name'] = p.gpu_vendor_name
+	}
+	match p.gpu_available {
+		EmptyOption {}
+		bool {
+			m['gpu_available'] = p.gpu_available.str()
+		}
 	}
 	return m
 }
@@ -324,8 +502,11 @@ pub mut:
 	page       OptionU64  = EmptyOption{}
 	size       OptionU64  = EmptyOption{}
 	ret_count  OptionBool = EmptyOption{}
+	randomize  OptionBool = EmptyOption{}
 	twin_id    OptionU64  = EmptyOption{}
 	account_id string
+	relay      string
+	public_key string
 }
 
 // serialize TwinFilter to map
@@ -349,6 +530,12 @@ pub fn (p &TwinFilter) to_map() map[string]string {
 			m['ret_count'] = p.ret_count.str()
 		}
 	}
+	match p.randomize {
+		EmptyOption {}
+		bool {
+			m['randomize'] = p.randomize.str()
+		}
+	}
 	match p.twin_id {
 		EmptyOption {}
 		u64 {
@@ -357,6 +544,12 @@ pub fn (p &TwinFilter) to_map() map[string]string {
 	}
 	if p.account_id != '' {
 		m['account_id'] = p.account_id
+	}
+	if p.relay != '' {
+		m['relay'] = p.relay
+	}
+	if p.public_key != '' {
+		m['public_key'] = p.public_key
 	}
 	return m
 }
