@@ -144,6 +144,10 @@ If you want to use the client, you need to import it in your code.
   contracts := gp_client.get_contracts()!
   // get grid stats
   stats := gp_client.get_stats()!
+  // get node by id
+  node := gp_client.get_node_by_id(u64(16))!
+  // get node stats
+  node_stats := gp_client.get_node_stats_by_id(u64(16))!
   // get twins
   twins := gp_client.get_twins()!
   ```
