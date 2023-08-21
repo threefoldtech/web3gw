@@ -2,7 +2,7 @@
 
 ## definition 3script
 
-A VDC is defined through 3script. This declarative definition of how a VDC should be is parsed into an in-memory model.
+A VDC is defined through 3script. This declarative language to describe a VDC is parsed into an in-memory model.
 
 ## query 3script
 
