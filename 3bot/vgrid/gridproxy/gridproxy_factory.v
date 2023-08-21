@@ -75,5 +75,5 @@ pub fn get(net TFGridNet, use_redis_cache bool) !&GridProxyClient {
 		}
 		f.instances[netstr] = &connection
 	}
-	return f.instances[netstr]
+	return f.instances[netstr] or { return error_with_code('http client error: unknow error happened while trying to access the GridProxyClient instance', err_grid_client) }
 }

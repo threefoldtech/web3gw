@@ -27,6 +27,7 @@ const (
 	err_json_parse   = 10
 	err_http_client  = 11
 	err_invalid_resp = 24
+	err_grid_client = 30
 )
 
 // get_node_by_id fetchs specific node information by node id.

@@ -7,7 +7,7 @@ import gridproxy.model { ContractFilter, ContractIterator, Farm, FarmFilter, Far
 // * `twin_id`: twin id.
 //
 // returns: `Twin` or `Error`.
-pub fn (mut c GridProxyClient) get_twin_by_id(twin_id u64) ?Twin {
+pub fn (mut c GridProxyClient) get_twin_by_id(twin_id u64) !Twin {
 	twins := c.get_twins(twin_id: twin_id) or {
 		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
@@ -22,7 +22,7 @@ pub fn (mut c GridProxyClient) get_twin_by_id(twin_id u64) ?Twin {
 // * `account_id`: account id.
 //
 // returns: `Twin` or `Error`.
-pub fn (mut c GridProxyClient) get_twin_by_account(account_id string) ?Twin {
+pub fn (mut c GridProxyClient) get_twin_by_account(account_id string) !Twin {
 	twins := c.get_twins(account_id: account_id) or {
 		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
@@ -37,7 +37,7 @@ pub fn (mut c GridProxyClient) get_twin_by_account(account_id string) ?Twin {
 // * `farm_id`: farm id.
 //
 // returns: `Farm` or `Error`.
-pub fn (mut c GridProxyClient) get_farm_by_id(farm_id u64) ?Farm {
+pub fn (mut c GridProxyClient) get_farm_by_id(farm_id u64) !Farm {
 	farms := c.get_farms(farm_id: farm_id) or {
 		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
@@ -52,7 +52,7 @@ pub fn (mut c GridProxyClient) get_farm_by_id(farm_id u64) ?Farm {
 // * `farm_name`: farm name.
 //
 // returns: `Farm` or `Error`.
-pub fn (mut c GridProxyClient) get_farm_by_name(farm_name string) ?Farm {
+pub fn (mut c GridProxyClient) get_farm_by_name(farm_name string) !Farm {
 	farms := c.get_farms(name: farm_name) or {
 		return error_with_code('http client error: ${err.msg()}', err_http_client)
 	}
