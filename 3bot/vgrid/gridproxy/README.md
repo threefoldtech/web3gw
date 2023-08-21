@@ -213,6 +213,7 @@ We'd love to have your helping hand on `GridProxy Client`! See [CONTRIBUTING.md]
 TODO
 
 ## Authors
+[Sameh Farouk](https://github.com/sameh-farouk)
 
 You can also see the complete [list of contributors][contributors] who participated in this project.
 
