@@ -60,7 +60,7 @@ pub fn (mut c GridProxyClient) get_node_by_id(node_id u64) !Node {
 // get_node_stats_by_id fetchs specific node statistics by node id.
 //
 // * `node_id` (u64): node id.
-// statistics
+//
 // returns: `Node_stats` or `Error`.
 pub fn (mut c GridProxyClient) get_node_stats_by_id(node_id u64) !NodeStats {
 	// needed to allow to use threads
@@ -115,25 +115,41 @@ pub fn (mut c GridProxyClient) get_gateway_by_id(node_id u64) !Node {
 
 // get_nodes fetchs nodes information and public configurations with pagination.
 //
-// * `page` (u64): Page number. [optional].
-// * `size` (u64): Max result per page. [optional].
-// * `ret_count` (bool): Set nodes' count on headers based on filter. [optional].
-// * `free_mru` (u64): Min free reservable mru in bytes. [optional].
-// * `free_hru` (u64): Min free reservable hru in bytes. [optional].
-// * `free_sru` (u64): Min free reservable sru in bytes. [optional].
-// * `free_ips` (u64): Min number of free ips in the farm of the node. [optional].
-// * `status` (string): Node status filter, set to 'up' to get online nodes only. [optional].
+// * `available_for` (u64): Available for twin id. [optional].
+// * `certification_type` (string): Certificate type NotCertified, Silver or Gold. [optional].
+// * `city_contains` (string): Node partial city filter. [optional].
 // * `city` (string): Node city filter. [optional].
+// * `country_contains` (string): Node partial country filter. [optional].
 // * `country` (string): Node country filter. [optional].
+// * `dedicated` (bool): Set to true to get the dedicated nodes only. [optional].
+// * `domain` (string): Set to true to filter nodes with domain. [optional].
+// * `farm_ids` ([]u64): List of farm ids. [optional].
+// * `farm_name_contains` (string): Get nodes for specific farm. [optional].
 // * `farm_name` (string): Get nodes for specific farm. [optional].
+// * `free_hru` (u64): Min free reservable hru in bytes. [optional].
+// * `free_ips` (u64): Min number of free ips in the farm of the node. [optional].
+// * `free_mru` (u64): Min free reservable mru in bytes. [optional].
+// * `free_sru` (u64): Min free reservable sru in bytes. [optional].
+// * `gpu_available` (bool): Filter nodes that have available GPU. [optional].
+// * `gpu_device_id` (string): Filter nodes based on GPU device ID. [optional].
+// * `gpu_device_name` (string): Filter nodes based on GPU device partial name. [optional].
+// * `gpu_vendor_id` (string): Filter nodes based on GPU vendor ID. [optional].
+// * `gpu_vendor_name` (string): Filter nodes based on GPU vendor partial name. [optional].
+// * `has_gpu`: Filter nodes on whether they have GPU support or not. [optional].
 // * `ipv4` (string): Set to true to filter nodes with ipv4. [optional].
 // * `ipv6` (string): Set to true to filter nodes with ipv6. [optional].
-// * `domain` (string): Set to true to filter nodes with domain. [optional].
-// * `dedicated` (bool): Set to true to get the dedicated nodes only. [optional].
+// * `node_id` (u64): Node id. [optional].
+// * `page` (u64): Page number. [optional].
 // * `rentable` (bool): Set to true to filter the available nodes for renting. [optional].
-// * `rented_by` (u64): rented by twin id. [optional].
-// * `available_for` (u64): available for twin id. [optional].
-// * `farm_ids` ([]u64): List of farm ids. [optional].
+// * `rented_by` (u64): Rented by twin id. [optional].
+// * `ret_count` (bool): Set nodes' count on headers based on filter. [optional].
+// * `size` (u64): Max result per page. [optional].
+// * `status` (string): Node status filter, set to 'up' to get online nodes only. [optional].
+// * `total_cru` (u64): Min total cru in bytes. [optional].
+// * `total_hru` (u64): Min total hru in bytes. [optional].
+// * `total_mru` (u64): Min total mru in bytes. [optional].
+// * `total_sru` (u64): Min total sru in bytes. [optional].
+// * `twin_id` (u64): Twin id. [optional].
 //
 // returns: `[]Node` or `Error`.
 pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ![]Node {
@@ -162,25 +178,41 @@ pub fn (mut c GridProxyClient) get_nodes(params NodeFilter) ![]Node {
 
 // get_gateways fetchs gateways information and public configurations and domains with pagination.
 //
-// * `page` (u64): Page number. [optional].
-// * `size` (u64): Max result per page. [optional].
-// * `ret_count` (bool): Set nodes' count on headers based on filter. [optional].
-// * `free_mru` (u64): Min free reservable mru in bytes. [optional].
-// * `free_hru` (u64): Min free reservable hru in bytes. [optional].
-// * `free_sru` (u64): Min free reservable sru in bytes. [optional].
-// * `free_ips` (u64): Min number of free ips in the farm of the node. [optional].
-// * `status` (string): Node status filter, set to 'up' to get online nodes only.. [optional].
+// * `available_for` (u64): Available for twin id. [optional].
+// * `certification_type` (string): Certificate type NotCertified, Silver or Gold. [optional].
+// * `city_contains` (string): Node partial city filter. [optional].
 // * `city` (string): Node city filter. [optional].
+// * `country_contains` (string): Node partial country filter. [optional].
 // * `country` (string): Node country filter. [optional].
+// * `dedicated` (bool): Set to true to get the dedicated nodes only. [optional].
+// * `domain` (string): Set to true to filter nodes with domain. [optional].
+// * `farm_ids` ([]u64): List of farm ids. [optional].
+// * `farm_name_contains` (string): Get nodes for specific farm. [optional].
 // * `farm_name` (string): Get nodes for specific farm. [optional].
+// * `free_hru` (u64): Min free reservable hru in bytes. [optional].
+// * `free_ips` (u64): Min number of free ips in the farm of the node. [optional].
+// * `free_mru` (u64): Min free reservable mru in bytes. [optional].
+// * `free_sru` (u64): Min free reservable sru in bytes. [optional].
+// * `gpu_available` (bool): Filter nodes that have available GPU. [optional].
+// * `gpu_device_id` (string): Filter nodes based on GPU device ID. [optional].
+// * `gpu_device_name` (string): Filter nodes based on GPU device partial name. [optional].
+// * `gpu_vendor_id` (string): Filter nodes based on GPU vendor ID. [optional].
+// * `gpu_vendor_name` (string): Filter nodes based on GPU vendor partial name. [optional].
+// * `has_gpu`: Filter nodes on whether they have GPU support or not. [optional].
 // * `ipv4` (string): Set to true to filter nodes with ipv4. [optional].
 // * `ipv6` (string): Set to true to filter nodes with ipv6. [optional].
-// * `domain` (string): Set to true to filter nodes with domain. [optional].
-// * `dedicated` (bool): Set to true to get the dedicated nodes only. [optional].
+// * `node_id` (u64): Node id. [optional].
+// * `page` (u64): Page number. [optional].
 // * `rentable` (bool): Set to true to filter the available nodes for renting. [optional].
-// * `rented_by` (u64): rented by twin id. [optional].
-// * `available_for` (u64): available for twin id. [optional].
-// * `farm_ids` ([]u64): List of farm ids. [optional].
+// * `rented_by` (u64): Rented by twin id. [optional].
+// * `ret_count` (bool): Set nodes' count on headers based on filter. [optional].
+// * `size` (u64): Max result per page. [optional].
+// * `status` (string): Node status filter, set to 'up' to get online nodes only. [optional].
+// * `total_cru` (u64): Min total cru in bytes. [optional].
+// * `total_hru` (u64): Min total hru in bytes. [optional].
+// * `total_mru` (u64): Min total mru in bytes. [optional].
+// * `total_sru` (u64): Min total sru in bytes. [optional].
+// * `twin_id` (u64): Twin id. [optional].
 //
 // returns: `[]Node` or `Error`.
 pub fn (mut c GridProxyClient) get_gateways(params NodeFilter) ![]Node {
@@ -242,11 +274,13 @@ pub fn (mut c GridProxyClient) get_stats(filter StatFilter) !GridStat {
 
 // get_twins fetchs twins information with pagaination.
 //
+// * `account_id` (string): Account address. [optional].
 // * `page` (u64): Page number. [optional].
-// * `size` (u64): Max result per page. [optional].
+// * `public_key` (string): twin public key used for e2e encryption. [optional].
+// * `relay` (string): relay domain name. [optional].
 // * `ret_count` (bool): Set farms' count on headers based on filter. [optional].
-// * `twin_id` (u64): twin id. [optional].
-// * `account_id` (string): account address. [optional].
+// * `size` (u64): Max result per page. [optional].
+// * `twin_id` (u64): Twin id. [optional].
 //
 // returns: `[]Twin` or `Error`.
 pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ![]Twin {
@@ -274,18 +308,20 @@ pub fn (mut c GridProxyClient) get_twins(params TwinFilter) ![]Twin {
 
 // get_contracts fetchs contracts information with pagination.
 //
-// * `page` (u64): Page number. [optional].
-// * `size` (u64): Max result per page. [optional].
-// * `ret_count` (bool): Set farms' count on headers based on filter. [optional].
-// * `contract_id` (u64): contract id. [optional].
-// * `twin_id` (u64): twin id. [optional].
-// * `node_id` (u64): node id which contract is deployed on in case of ('rent' or 'node' contracts). [optional].
-// * `name` (string): contract name in case of 'name' contracts. [optional].
-// * `type` (string): contract type 'node', 'name', or 'rent'. [optional].
-// * `state` (string): contract state 'Created', or 'Deleted'. [optional].
-// * `deployment_data` (string): contract deployment data in case of 'node' contracts. [optional].
-// * `deployment_hash` (string): contract deployment hash in case of 'node' contracts. [optional].
+// * `contract_id` (u64): Contract id. [optional].
+// * `contract_type` (string): [optional].
+// * `deployment_data` (string): Contract deployment data in case of 'node' contracts. [optional].
+// * `deployment_hash` (string): Contract deployment hash in case of 'node' contracts. [optional].
+// * `name` (string): Contract name in case of 'name' contracts. [optional].
+// * `node_id` (u64): Node id which contract is deployed on in case of ('rent' or 'node' contracts). [optional].
 // * `number_of_public_ips` (u64): Min number of public ips in the 'node' contract. [optional].
+// * `page` (u64): Page number. [optional].
+// * `randomize` (bool): [optional].
+// * `ret_count` (bool): Set farms' count on headers based on filter. [optional].
+// * `size` (u64): Max result per page. [optional].
+// * `state` (string): Contract state 'Created', or 'Deleted'. [optional].
+// * `twin_id` (u64): Twin id. [optional].
+// * `type` (string): Contract type 'node', 'name', or 'rent'. [optional].
 //
 // * returns: `[]Contract` or `Error`.
 pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ![]Contract {
@@ -313,20 +349,30 @@ pub fn (mut c GridProxyClient) get_contracts(params ContractFilter) ![]Contract 
 
 // get_farms fetchs farms information and public ips.
 //
-// * `page` (u64): Page number. [optional].
-// * `size` (u64): Max result per page. [optional].
-// * `ret_count` (bool): Set farms' count on headers based on filter. [optional].
+// * `certification_type` (string): Certificate type DIY or Certified. [optional].
+// * `country` (string): Farm country. [optional].
+// * `dedicated` (bool): Farm is dedicated. [optional].
+// * `farm_id` (u64): Farm id. [optional].
 // * `free_ips` (u64): Min number of free ips in the farm. [optional].
-// * `total_ips` (u64): Min number of total ips in the farm. [optional].
+// * `name_contains` (string): Farm name contains. [optional].
+// * `name` (string): Farm name. [optional].
+// * `node_available_for` (u64): Twin ID of user for whom there is at least one node that is available to be deployed to in the farm. [optional].
+// * `node_certified` (bool): True for farms who have at least one certified node. [optional].
+// * `node_free_hru` (u64): Min free reservable hru for at least a single node that belongs to the farm, in bytes. [optional].
+// * `node_free_mru` (u64): Min free reservable mru for at least a single node that belongs to the farm, in bytes. [optional].
+// * `node_free_sru` (u64): Min free reservable sru for at least a single node that belongs to the farm, in bytes. [optional].
+// * `node_has_gpu` (bool): True for farms who have at least one node with a GPU
+// * `node_rented_by` (u64): Twin ID of user who has at least one rented node in the farm
+// * `node_status` (string): Node status for at least a single node that belongs to the farm
+// * `page` (u64): Page number. [optional].
 // * `pricing_policy_id` (u64): Pricing policy id. [optional].
-// * `version` (u64): farm version. [optional].
-// * `farm_id` (u64): farm id. [optional].
-// * `twin_id` (u64): twin id associated with the farm. [optional].
-// * `name` (string): farm name. [optional].
-// * `name_contains` (string): farm name contains. [optional].
-// * `certification_type` (string): certificate type DIY or Certified. [optional].
-// * `dedicated` (bool): farm is dedicated. [optional].
-// * `stellar_address` (string): farm stellar_address. [optional].
+// * `randomize` (bool): [optional].
+// * `ret_count` (bool): Set farms' count on headers based on filter. [optional].
+// * `size` (u64): Max result per page. [optional].
+// * `stellar_address` (string): Farm stellar_address. [optional].
+// * `total_ips` (u64): Min number of total ips in the farm. [optional].
+// * `twin_id` (u64): Twin id associated with the farm. [optional].
+// * `version` (u64): Farm version. [optional].
 //
 // returns: `[]Farm` or `Error`.
 pub fn (mut c GridProxyClient) get_farms(params FarmFilter) ![]Farm {
