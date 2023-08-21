@@ -1,4 +1,4 @@
-# module threefoldtech.vgrid.gridproxy.model
+# module gridproxy.model
 
 
 
@@ -273,6 +273,7 @@ pub mut:
 	page                 OptionU64  = EmptyOption{}
 	size                 OptionU64  = EmptyOption{}
 	ret_count            OptionBool = EmptyOption{}
+	randomize            OptionBool = EmptyOption{}
 	contract_id          OptionU64  = EmptyOption{}
 	twin_id              OptionU64  = EmptyOption{}
 	node_id              OptionU64  = EmptyOption{}
@@ -343,6 +344,7 @@ pub mut:
 	page               OptionU64  = EmptyOption{}
 	size               OptionU64  = EmptyOption{}
 	ret_count          OptionBool = EmptyOption{}
+	randomize          OptionBool = EmptyOption{}
 	free_ips           OptionU64  = EmptyOption{}
 	total_ips          OptionU64  = EmptyOption{}
 	stellar_address    string
@@ -353,6 +355,15 @@ pub mut:
 	name_contains      string
 	certification_type string
 	dedicated          OptionBool = EmptyOption{}
+	country            string
+	node_free_mru      OptionU64 = EmptyOption{}
+	node_free_hru      OptionU64 = EmptyOption{}
+	node_free_sru      OptionU64 = EmptyOption{}
+	node_status        string
+	node_rented_by     OptionU64  = EmptyOption{}
+	node_available_for OptionU64  = EmptyOption{}
+	node_has_gpu       OptionBool = EmptyOption{}
+	node_certified     OptionBool = EmptyOption{}
 }
 ```
 
@@ -527,25 +538,43 @@ pub:
 ```v
 struct NodeFilter {
 pub mut:
-	page          OptionU64  = EmptyOption{}
-	size          OptionU64  = EmptyOption{}
-	ret_count     OptionBool = EmptyOption{}
-	free_mru      OptionU64  = EmptyOption{}
-	free_sru      OptionU64  = EmptyOption{}
-	free_hru      OptionU64  = EmptyOption{}
-	free_ips      OptionU64  = EmptyOption{}
-	city          string
-	country       string
-	farm_name     string
-	ipv4          string
-	ipv6          string
-	domain        string
-	status        string
-	dedicated     OptionBool = EmptyOption{}
-	rentable      OptionBool = EmptyOption{}
-	rented_by     OptionU64  = EmptyOption{}
-	available_for OptionU64  = EmptyOption{}
-	farm_ids      []u64
+	page               OptionU64  = EmptyOption{}
+	size               OptionU64  = EmptyOption{}
+	ret_count          OptionBool = EmptyOption{}
+	randomize          OptionBool = EmptyOption{}
+	free_mru           OptionU64  = EmptyOption{}
+	free_sru           OptionU64  = EmptyOption{}
+	free_hru           OptionU64  = EmptyOption{}
+	free_ips           OptionU64  = EmptyOption{}
+	total_mru          OptionU64  = EmptyOption{}
+	total_sru          OptionU64  = EmptyOption{}
+	total_hru          OptionU64  = EmptyOption{}
+	total_cru          OptionU64  = EmptyOption{}
+	city               string
+	city_contains      string
+	country            string
+	country_contains   string
+	farm_name          string
+	farm_name_contains string
+	ipv4               OptionBool = EmptyOption{}
+	ipv6               OptionBool = EmptyOption{}
+	domain             OptionBool = EmptyOption{}
+	status             string
+	dedicated          OptionBool = EmptyOption{}
+	rentable           OptionBool = EmptyOption{}
+	rented_by          OptionU64  = EmptyOption{}
+	rented             OptionBool = EmptyOption{}
+	available_for      OptionU64  = EmptyOption{}
+	farm_ids           []u64
+	node_id            OptionU64 = EmptyOption{}
+	twin_id            OptionU64 = EmptyOption{}
+	certification_type string
+	has_gpu            OptionBool = EmptyOption{}
+	gpu_device_id      string
+	gpu_device_name    string
+	gpu_vendor_id      string
+	gpu_vendor_name    string
+	gpu_available      OptionBool = EmptyOption{}
 }
 ```
 
@@ -727,8 +756,11 @@ pub mut:
 	page       OptionU64  = EmptyOption{}
 	size       OptionU64  = EmptyOption{}
 	ret_count  OptionBool = EmptyOption{}
+	randomize  OptionBool = EmptyOption{}
 	twin_id    OptionU64  = EmptyOption{}
 	account_id string
+	relay      string
+	public_key string
 }
 ```
 
@@ -765,4 +797,4 @@ fn (mut i TwinIterator) next() ?[]Twin
 
 [[Return to contents]](#Contents)
 
-#### Powered by vdoc. Generated on: 20 Aug 2023 17:40:51
+#### Powered by vdoc. Generated on: 21 Aug 2023 13:39:52
