@@ -25,3 +25,9 @@ An extra benefit is that it gives auditing of the applied changes if it is store
 2. A query 3script is generated to query the reality.
 3. The query 3script is executed and an action 3script is generated (the web3gw sal is not called directly to align relity to the model)
 4. The action 3script is executed to bring reality in the desired state
+
+## Naming
+
+The name of any instance, being a vm or something else should be unique within a VDC regardless of the type.
+
+The name as created on the grid is `vdc.<vdc_name>.<instance_name>`. This implies that the `.` character is not allowed in a vdc name or an instance name.
