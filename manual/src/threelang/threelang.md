@@ -1,6 +1,6 @@
-# Threelang parser
+# Threelang
 
-Threelang is an intermediate language to tell the web3 proxy what to do. The language is markdown syntax augmented with actions. Actions tell the web3 proxy what to do. Each action contains a name and optionally parameters.
+Threelang is an easy to use language to tell the web3 gateway what to do. The language is markdown syntax augmented with actions. Each action contains a name and optionally parameters.
 
 ## Action properties
 
