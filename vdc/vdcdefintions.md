@@ -1,5 +1,7 @@
 # VDC definitions
 
+VDC  stands for Virtual DataCenter.
+
 ## restrictions
 
 - Name
