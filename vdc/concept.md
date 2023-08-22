@@ -10,10 +10,14 @@ A VDC is defined through 3script. It's a declarative language to describe a VDC 
 
 3script that queries the deployed state on the grid (reality). The output can be json for machine parsing or markdown for human interpretation.
 
-## action 3script
+## change actions 3script
 
 A 3script with the actions needed to bring the reality to the desired state defined in the definition 3script.
 These are 3script actions executed through the web3gw.
+
+This is also referred to as a "request for change script" as it can go to a person or DAO to approve or be executed immediately.
+
+An extra benefit is that it gives auditing of the applied changes if it is stored in a version control system for example.
 
 ## from definition to reality
 
