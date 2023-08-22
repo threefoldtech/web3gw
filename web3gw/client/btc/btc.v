@@ -27,8 +27,8 @@ pub fn (mut c BtcClient) load(params Load) !string {
 }
 
 // Get the public address of the loaded btc secret
-pub fn (mut s StellarClient) address() !string {
-	return s.client.send_json_rpc[[]string, string]('btc.Address', []string{}, stellar.default_timeout)!
+pub fn (mut s BtcClient) address() !string {
+	return s.client.send_json_rpc[[]string, string]('btc.Address', []string{}, btc.default_timeout)!
 }
 
 // Sends the passed amount to the given address with a comment if provided and returns the hash of the transaction
@@ -56,6 +56,11 @@ pub fn (mut c BtcClient) height() !i64 {
 // Returns the hash of the block in the best block chain at the given height.
 pub fn (mut c BtcClient) get_block_hash(block_height i64) !string {
 	return c.client.send_json_rpc[[]i64, string]('btc.GetBlockHash', [block_height], btc.default_timeout)!
+}
+
+// Returns the block count.
+pub fn (mut c BtcClient) get_block_count() !i64 {
+	return c.client.send_json_rpc[[]string, i64]('btc.GetBlockCount', []string{}, btc.default_timeout)!
 }
 
 // Returns block statistics given the hash of that block. 
