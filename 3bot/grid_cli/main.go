@@ -193,8 +193,12 @@ func main() {
 						return errors.Wrap(err, "failed to create identity from provided mnemonics")
 					}
 
-					hash := c.String("hash")
-					signatureBytes, err := identity.Sign([]byte(hash))
+					hashHex := c.String("hash")
+					hashByets, err := hex.DecodeString(hashHex)
+					if err != nil {
+						return errors.Wrap(err, "failed to decode deployment hash")
+					}
+					signatureBytes, err := identity.Sign(hashByets)
 					if err != nil {
 						return errors.Wrap(err, "failed to sign deployment hash")
 					}
