@@ -12,6 +12,6 @@
   - [Gateway Name](./tfgrid/gateway_name.md)
   - [Kubernetes](./tfgrid/k8s.md)
   - [Virtual machine](./tfgrid/vm.md)
-- [Money](./web3gw/money.md)
+- [Money](./blockchain/money.md)
 
 There is a [threelang.v](./threelang.v) to execute the examples.

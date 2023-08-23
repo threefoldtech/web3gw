@@ -22,8 +22,7 @@ Threelang is an easy to use language to tell the web3 gateway what to do. The la
 ### Module actions
 
 - [TFGrid Actions](./tfgrid/grid_actions.md)
-- [TFChain Actions](./tfchain/tfchain.md)
-- [Web3GW Actions](./web3gw/actions.md)
+- [Blockchain Actions](./blockchain/actions.md)
 
 ## Example
 
