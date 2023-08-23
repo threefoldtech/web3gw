@@ -180,3 +180,9 @@ pub fn (mut t TfChainClient) await_bridged_from_stellar(memo string) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfchain.AwaitBridgedFromStellar', [memo],
 		tfchain.default_timeout)!
 }
+
+// returns twin id via chain address
+pub fn (mut t TfChainClient) get_twin_by_pubkey(address string) !u32 {
+	return t.client.send_json_rpc[[]string, u32]('tfchain.GetTwinByPubKey', [address],
+		tfchain.default_timeout)!
+}
