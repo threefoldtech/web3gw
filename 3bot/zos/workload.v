@@ -103,6 +103,10 @@ pub fn (mut workload Workload) challenge() string {
 	return out.join('')
 }
 
+pub fn (mut w Workload) json_encode() !string {
+	return '{"version":${w.version},"name":"${w.name}","type":"${w.type_}","data":${w.data},"metadata":"${w.metadata}","description":"${w.description}"}'
+}
+
 type WorkloadData = Zdb | Zmachine | Zmount | Znet
 type WorkloadDataResult = ZdbResult | ZmachineResult | ZmountResult
 

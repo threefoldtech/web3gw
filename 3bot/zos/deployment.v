@@ -1,6 +1,7 @@
 module zos
 
 import crypto.md5
+import json
 
 pub struct SignatureRequest {
 pub mut:
@@ -131,4 +132,14 @@ pub fn (mut d Deployment) add_signature(twin u32, signature string) {
 		signature: signature
 		signature_type: 'sr25519'
 	}
+}
+
+pub fn (mut d Deployment) json_encode() !string {
+	mut encoded_workloads := []string{}
+	for mut w in d.workloads {
+		encoded_workloads << w.json_encode()!
+	}
+
+	workloads := '[${encoded_workloads.join(',')}]'
+	return '{"version":${d.version},"twin_id":${d.twin_id},"contract_id":${d.contract_id},"expiration":${d.expiration},"metadata":"${d.metadata}","description":"${d.description}","workloads":${workloads},"signature_requirement":${json.encode(d.signature_requirement)}}'
 }
