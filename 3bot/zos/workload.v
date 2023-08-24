@@ -4,11 +4,15 @@ import json
 
 pub struct WorkloadTypes {
 pub:
-	zmachine string = 'zmachine'
-	zmount   string = 'zmount'
-	network  string = 'network'
-	zdb      string = 'zdb'
-	ipv4     string = 'ipv4'
+	zmachine     string = 'zmachine'
+	zmount       string = 'zmount'
+	network      string = 'network'
+	zdb          string = 'zdb'
+	public_ip    string = 'ip'
+	qsfs         string = 'qsfs'
+	gateway_name string = 'gateway-name-proxy'
+	gateway_fqdn string = 'gateway-fqdn-proxy'
+	zlogs        string = 'zlogs'
 }
 
 pub const workload_types = WorkloadTypes{}
@@ -44,6 +48,26 @@ pub fn challenge(data string, type_ string) !string {
 			mut w := json.decode(Zmachine, data)!
 			return w.challenge()
 		}
+		zos.workload_types.qsfs {
+			mut w := json.decode(QuantumSafeFS, data)
+			return w.challenge()
+		}
+		zos.workload_types.ip {
+			mut w := json.decode(PublicIP, data)
+			return w.challenge()
+		}
+		zos.workload_types.gateway_name {
+			mut w := json.decode(GatewayNameProxy, data)
+			return w.challenge()
+		}
+		zos.workload_types.gateway_fqdn {
+			mut w := json.decode(GatewayFQDNProxy, data)
+			return w.challenge()
+		}
+		zos.workload_types.zlogs {
+			mut w := json.decode(ZLogs, data)
+			return w.challenge()
+		}
 		else {
 			return ''
 		}
@@ -64,7 +88,7 @@ pub struct ACE {
 	rights   []Right
 }
 
-pub struct DeploymentResult {
+pub struct WorkloadResult {
 pub mut:
 	created i64
 	state   ResultState
@@ -87,12 +111,13 @@ pub mut:
 	// not implemented in zos
 	// acl []ACE
 
-	result DeploymentResult
+	result WorkloadResult
 }
 
 pub fn (mut workload Workload) challenge() string {
-	mut out := []string{}
-
+	mut out := []string
+	{
+	}
 	out << '${workload.version}'
 	out << '${workload.name}'
 	out << '${workload.type_}'
@@ -107,8 +132,8 @@ pub fn (mut w Workload) json_encode() !string {
 	return '{"version":${w.version},"name":"${w.name}","type":"${w.type_}","data":${w.data},"metadata":"${w.metadata}","description":"${w.description}"}'
 }
 
-type WorkloadData = Zdb | Zmachine | Zmount | Znet
-type WorkloadDataResult = ZdbResult | ZmachineResult | ZmountResult
+type WorkloadData = Zdb | Zmachine | Zmount | Znet | PublicIP | GatewayFQDNProxy | GatewayNameProxy | ZLogs | QuantumSafeFS
+type WorkloadDataResult = ZdbResult | ZmachineResult | ZmountResult | PublicIPResult | GatewayProxyResult
 
 // pub fn(mut w WorkloadData) challenge() string {
 // 	return w.challenge()

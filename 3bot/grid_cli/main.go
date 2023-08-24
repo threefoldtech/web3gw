@@ -209,6 +209,38 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "node-twin",
+				Usage: "get node twin id",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "substrate",
+						Value: "wss://tfchain.grid.tf/ws",
+						Usage: "substrate URL",
+					},
+					cli.StringFlag{
+						Name:     "node_id",
+						Required: true,
+						Usage:    "node id",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					substrateURL := c.String("substrate")
+					manager := substrate.NewManager(substrateURL)
+					sub, err := manager.Substrate()
+					if err != nil {
+						return errors.Wrap(err, "failed to create substrate connection")
+					}
+					defer sub.Close()
+					nodeId := c.Uint("node_id")
+					node, err := sub.GetNode(uint32(nodeId))
+					if err != nil {
+						return errors.Wrapf(err, "failed to get node data for Id: %d", nodeId)
+					}
+					fmt.Printf("%d", node.TwinID)
+					return nil
+				},
+			},
 		},
 	}
 

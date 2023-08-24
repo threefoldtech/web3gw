@@ -99,26 +99,6 @@ pub fn (mut deployment Deployment) challenge_hash() []u8 {
 	return md5.sum(deployment.challenge().bytes())
 }
 
-// pub fn (mut deployment Deployment) sign(twin u32, signing_key libsodium.SigningKey) {
-// 	message := deployment.challenge_hash()
-// 	// signature returned contains original message (signature+message)
-// 	mut signature_bytes := signing_key.sign(message)
-// 	// zos expects only signature (and it will construct the message itself)
-// 	signature_bytes.trim(signature_bytes.len - message.len)
-// 	signature := signature_bytes.hex()
-
-// 	for mut sig in deployment.signature_requirement.signatures {
-// 		if sig.twin_id == twin {
-// 			sig.signature = signature
-// 		}
-// 	}
-
-// 	deployment.signature_requirement.signatures << Signature{
-// 		twin_id: twin
-// 		signature: signature
-// 	}
-// }
-
 pub fn (mut d Deployment) add_signature(twin u32, signature string) {
 	for mut sig in d.signature_requirement.signatures {
 		if sig.twin_id == twin {
@@ -142,4 +122,14 @@ pub fn (mut d Deployment) json_encode() !string {
 
 	workloads := '[${encoded_workloads.join(',')}]'
 	return '{"version":${d.version},"twin_id":${d.twin_id},"contract_id":${d.contract_id},"expiration":${d.expiration},"metadata":"${d.metadata}","description":"${d.description}","workloads":${workloads},"signature_requirement":${json.encode(d.signature_requirement)}}'
+}
+
+fn (mut dl Deployment) count_public_ips() u8{
+	count := 0
+	for wl in dl.workloads {
+		if wl.type_ == workload_types.public_ip {
+			count += 1
+		}		
+	}
+	return count
 }

@@ -46,3 +46,7 @@ pub struct QuantumSafeConfig {
 	encryption Encryption
 	backends   []ZDBBackend
 }
+
+pub fn(qsfs QuantumSafeFS) challenge() string{
+	return ''
+}

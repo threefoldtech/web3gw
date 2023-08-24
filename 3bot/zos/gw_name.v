@@ -18,3 +18,9 @@ pub fn (g GatewayNameProxy) challenge() string {
 
 	return output
 }
+
+// GatewayProxyResult results
+pub struct GatewayProxyResult {
+pub mut:
+	fqdn string
+}
