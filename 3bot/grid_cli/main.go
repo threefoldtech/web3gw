@@ -214,6 +214,7 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
 	}
 }
 
