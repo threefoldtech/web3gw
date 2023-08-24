@@ -114,22 +114,22 @@ pub fn (mut d Deployment) add_signature(twin u32, signature string) {
 	}
 }
 
-pub fn (mut d Deployment) json_encode() !string {
+pub fn (mut d Deployment) json_encode() string {
 	mut encoded_workloads := []string{}
 	for mut w in d.workloads {
-		encoded_workloads << w.json_encode()!
+		encoded_workloads << w.json_encode()
 	}
 
 	workloads := '[${encoded_workloads.join(',')}]'
 	return '{"version":${d.version},"twin_id":${d.twin_id},"contract_id":${d.contract_id},"expiration":${d.expiration},"metadata":"${d.metadata}","description":"${d.description}","workloads":${workloads},"signature_requirement":${json.encode(d.signature_requirement)}}'
 }
 
-fn (mut dl Deployment) count_public_ips() u8{
-	count := 0
+fn (dl Deployment) count_public_ips() u8 {
+	mut count := u8(0)
 	for wl in dl.workloads {
 		if wl.type_ == workload_types.public_ip {
 			count += 1
-		}		
+		}
 	}
 	return count
 }

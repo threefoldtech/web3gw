@@ -1,53 +1,62 @@
-module zos
+module main
 
 import freeflowuniverse.crystallib.threefold.rmb
 import json
+import threefoldtech.zos
+import log
 
-fn test_deploy_deployment() {
+fn main() {
+	mut logger := log.Logger(&log.Log{
+		level: .debug
+	})
+
 	mnemonics := '<YOUR MNEMONICS>'
 	substrate_url := 'wss://tfchain.dev.grid.tf/ws'
-	mut deployer := Deployer{
+	mut client := rmb.new(nettype: rmb.TFNetType.dev, tfchain_mnemonic: mnemonics)!
+	mut deployer := zos.Deployer{
 		mnemonics: mnemonics
 		substrate_url: substrate_url
+		twin_id: 49
+		rmb_cl: client
 	}
-	node_id := u32(14)
-	twin_id := u32(49)
-	node_twin_id := u32(22) // TODO: need to get this from chain
 
-	mut network := Znet{
+	node_id := u32(14)
+
+	mut network := zos.Znet{
 		ip_range: '10.1.0.0/16'
 		subnet: '10.1.1.0/24'
 		wireguard_private_key: 'GDU+cjKrHNJS9fodzjFDzNFl5su3kJXTZ3ipPgUjOUE='
-		wireguard_listen_port: 3011
+		wireguard_listen_port: 8080
 		peers: [
-			Peer{
+			zos.Peer{
 				subnet: '10.1.2.0/24'
 				wireguard_public_key: '4KTvZS2KPWYfMr+GbiUUly0ANVg8jBC7xP9Bl79Z8zM='
 				allowed_ips: ['10.1.2.0/24', '100.64.1.2/32']
 			},
 		]
 	}
-	mut znet_workload := Workload{
+
+	mut znet_workload := zos.Workload{
 		version: 0
 		name: 'network'
-		type_: workload_types.network
+		type_: zos.workload_types.network
 		data: json.encode_pretty(network)
 		description: 'test network2'
 	}
 
-	zmachine := Zmachine{
+	zmachine := zos.Zmachine{
 		flist: 'https://hub.grid.tf/tf-official-apps/base:latest.flist'
-		network: ZmachineNetwork{
+		network: zos.ZmachineNetwork{
 			public_ip: ''
 			interfaces: [
-				ZNetworkInterface{
+				zos.ZNetworkInterface{
 					network: 'network'
 					ip: '10.1.1.3'
 				},
 			]
 			planetary: true
 		}
-		compute_capacity: ComputeCapacity{
+		compute_capacity: zos.ComputeCapacity{
 			cpu: 1
 			memory: i64(1024) * 1024 * 1024 * 2
 		}
@@ -56,62 +65,54 @@ fn test_deploy_deployment() {
 		}
 	}
 
-	mut zmachine_workload := Workload{
+	mut zmachine_workload := zos.Workload{
 		version: 0
 		name: 'vm2'
-		type_: workload_types.zmachine
+		type_: zos.workload_types.zmachine
 		data: json.encode(zmachine)
 		description: 'zmachine test'
 	}
 
-	mut deployment := Deployment{
+	mut deployment := zos.Deployment{
 		version: 0
-		twin_id: twin_id
+		twin_id: deployer.twin_id
 		metadata: 'zm dep'
 		description: 'zm kjasdf1nafvbeaf1234t21'
 		workloads: [znet_workload, zmachine_workload]
-		signature_requirement: SignatureRequirement{
+		signature_requirement: zos.SignatureRequirement{
 			weight_required: 1
 			requests: [
-				SignatureRequest{
-					twin_id: twin_id
+				zos.SignatureRequest{
+					twin_id: deployer.twin_id
 					weight: 1
 				},
 			]
 		}
 	}
 
-	hash := deployment.challenge_hash()
-	hex_hash := hash.hex()
-
-	contract_id := deployer.create_node_contract(0, '', hex_hash, 0, 0)!
-	deployment.contract_id = contract_id
-
-	signature := deployer.sign_deployment(hex_hash)!
-	deployment.add_signature(twin_id, signature)
-
-	payload := deployment.json_encode()!
-	print('payload: ${payload}')
-	exit(0)
-	mut client := rmb.new(nettype: rmb.TFNetType.dev, tfchain_mnemonic: mnemonics)!
-	response := client.rmb_request('zos.deployment.deploy', node_twin_id, payload) or {
-		print('error: ${err}')
+	contract_id := deployer.deploy(node_id, mut deployment, '', 0) or {
+		logger.error('failed to deploy deployment: ${err}')
 		exit(1)
 	}
-	if response.err.code != 0 {
-		print(response.err.message)
+	logger.info('deployment contract id: ${contract_id}')
+
+	dl := deployer.get_deployment(contract_id, node_id) or {
+		logger.error('failed to get deployment: ${err}')
+		exit(1)
 	}
-	// mut mb := client.MessageBusClient
-	// {
-	// 	client:
-	// 	redisclient.connect('localhost:6379') or { panic(err) }
-	// }
-	// mut msg := client.prepare('zos.deployment.deploy', [2], 0, 2)
-	// mb.send(msg, payload)
-	// response := mb.read(msg)
-	// println('Result Received for reply: ${msg.retqueue}')
-	// for result in response {
-	// 	println(result)
-	// 	println(result.data)
-	// }
+	logger.info('deployment: ${dl}')
+
+	machine_res := get_machine_result(dl)!
+	logger.info('zmachine result: ${machine_res}')
+}
+
+fn get_machine_result(dl zos.Deployment) !zos.ZmachineResult {
+	for _, w in dl.workloads {
+		if w.type_ == zos.workload_types.zmachine {
+			res := json.decode(zos.ZmachineResult, w.result.data)!
+			return res
+		}
+	}
+
+	return error('failed to get zmachine workload')
 }

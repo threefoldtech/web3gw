@@ -87,3 +87,4 @@
       - [Kubernetes](threelang/examples/tfgrid/k8s.md)
       - [Virtual machine](threelang/examples/tfgrid/vm.md)
     - [Money](threelang/examples//blockchain/money.md)
+- [zos](examples/zos/zos.md)

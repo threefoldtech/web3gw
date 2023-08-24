@@ -49,23 +49,23 @@ pub fn challenge(data string, type_ string) !string {
 			return w.challenge()
 		}
 		zos.workload_types.qsfs {
-			mut w := json.decode(QuantumSafeFS, data)
+			mut w := json.decode(QuantumSafeFS, data)!
 			return w.challenge()
 		}
-		zos.workload_types.ip {
-			mut w := json.decode(PublicIP, data)
+		zos.workload_types.public_ip {
+			mut w := json.decode(PublicIP, data)!
 			return w.challenge()
 		}
 		zos.workload_types.gateway_name {
-			mut w := json.decode(GatewayNameProxy, data)
+			mut w := json.decode(GatewayNameProxy, data)!
 			return w.challenge()
 		}
 		zos.workload_types.gateway_fqdn {
-			mut w := json.decode(GatewayFQDNProxy, data)
+			mut w := json.decode(GatewayFQDNProxy, data)!
 			return w.challenge()
 		}
 		zos.workload_types.zlogs {
-			mut w := json.decode(ZLogs, data)
+			mut w := json.decode(ZLogs, data)!
 			return w.challenge()
 		}
 		else {
@@ -115,9 +115,7 @@ pub mut:
 }
 
 pub fn (mut workload Workload) challenge() string {
-	mut out := []string
-	{
-	}
+	mut out := []string{}
 	out << '${workload.version}'
 	out << '${workload.name}'
 	out << '${workload.type_}'
@@ -128,12 +126,24 @@ pub fn (mut workload Workload) challenge() string {
 	return out.join('')
 }
 
-pub fn (mut w Workload) json_encode() !string {
+pub fn (mut w Workload) json_encode() string {
 	return '{"version":${w.version},"name":"${w.name}","type":"${w.type_}","data":${w.data},"metadata":"${w.metadata}","description":"${w.description}"}'
 }
 
-type WorkloadData = Zdb | Zmachine | Zmount | Znet | PublicIP | GatewayFQDNProxy | GatewayNameProxy | ZLogs | QuantumSafeFS
-type WorkloadDataResult = ZdbResult | ZmachineResult | ZmountResult | PublicIPResult | GatewayProxyResult
+type WorkloadData = GatewayFQDNProxy
+	| GatewayNameProxy
+	| PublicIP
+	| QuantumSafeFS
+	| ZLogs
+	| Zdb
+	| Zmachine
+	| Zmount
+	| Znet
+type WorkloadDataResult = GatewayProxyResult
+	| PublicIPResult
+	| ZdbResult
+	| ZmachineResult
+	| ZmountResult
 
 // pub fn(mut w WorkloadData) challenge() string {
 // 	return w.challenge()
