@@ -2,6 +2,7 @@
 
 - This example deployes, gets, and deletes a discourse instance on the tfgrid.
 
+```md
 !!tfgrid.core.login
  mnemonic: 'YOUR MNEMONICS'
  network: dev
@@ -25,3 +26,4 @@
 
 !!tfgrid.discourse.delete
  name: discoursename
+```

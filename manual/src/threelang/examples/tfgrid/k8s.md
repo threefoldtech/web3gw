@@ -2,6 +2,7 @@
 
 - This example deployes, gets, updates, and deletes a kubernetes cluster on the tfgrid.
 
+```md
 !!tfgrid.core.login
     mnemonic: 'YOUR MNEMONIC'
     network: dev
@@ -31,3 +32,4 @@
 
 !!tfgrid.kubernetes.delete
     name: myk8s
+```

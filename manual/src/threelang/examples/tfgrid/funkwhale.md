@@ -2,6 +2,7 @@
 
 - This example deployes, gets, and deletes a Funkwhale instance on the tfgrid.
 
+```md
 !!tfgrid.core.login
  mnemonic: 'YOUR MNEMONICS'
  network: dev
@@ -23,3 +24,4 @@
 
 !!tfgrid.funkwhale.delete
     name: funkwhale_instance
+```

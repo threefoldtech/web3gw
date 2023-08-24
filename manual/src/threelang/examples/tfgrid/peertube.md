@@ -2,6 +2,7 @@
 
 - This example deployes, gets, and deletes a Peertube instance on the tfgrid.
 
+```md
 !!tfgrid.core.login
  mnemonic: 'YOUR MNEMONICS'
  network: dev
@@ -23,3 +24,4 @@
 
 !!tfgrid.peertube.delete
  name: mypeertube
+```

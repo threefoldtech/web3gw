@@ -2,6 +2,7 @@
 
 - This example deployes, gets, and deletes a Presearch instance on the tfgrid.
 
+```md
 !!tfgrid.core.login
  mnemonic: 'YOUR MNEMONICS'
  network: dev
@@ -21,3 +22,4 @@
 
 !!tfgrid.presearch.delete
  name: mypresearch
+```

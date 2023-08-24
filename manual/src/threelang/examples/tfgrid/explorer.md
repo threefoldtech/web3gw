@@ -2,6 +2,7 @@
 
 - This example uses the tfgrid explorer to retrieve information about the grid
 
+```md
 !!tfgrid.nodes.get
     network: dev
     count: true
@@ -27,3 +28,4 @@
 
 !!tfgrid.twins.get
     twin_id: 1234
+```
