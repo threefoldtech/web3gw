@@ -15,6 +15,32 @@ pub mut:
 	rmb_cl rmb.RMBClient
 }
 
+pub enum ChainNetwork {
+	dev
+	qa
+	test
+	main
+}
+
+const substrate_url = {
+	ChainNetwork.dev:  'wss://tfchain.dev.grid.tf/ws'
+	ChainNetwork.qa:   'wss://tfchain.qa.grid.tf/ws'
+	ChainNetwork.test: 'wss://tfchain.test.grid.tf/ws'
+	ChainNetwork.main: 'wss://tfchain.grid.tf/ws'
+}
+
+pub fn new_deployer(mnemonics string, chain_network ChainNetwork) !Deployer {
+	twin_id := get_user_twin(mnemonics, zos.substrate_url[chain_network])!
+	mut client := rmb.new(nettype: rmb.TFNetType.dev, tfchain_mnemonic: mnemonics)!
+
+	return Deployer{
+		mnemonics: mnemonics
+		substrate_url: zos.substrate_url[chain_network]
+		twin_id: twin_id
+		rmb_cl: client
+	}
+}
+
 pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solution_provider u64) !u64 {
 	hash_hex := dl.challenge_hash().hex()
 	public_ips := dl.count_public_ips()
@@ -99,4 +125,13 @@ pub fn (mut d Deployer) sign_deployment(hash string) !string {
 	}
 
 	return res.output
+}
+
+pub fn get_user_twin(mnemonics string, substrate_url string) !u32 {
+	res := os.execute("grid-cli user-twin --mnemonics \"${mnemonics}\" --substrate \"${substrate_url}\"")
+	if res.exit_code != 0 {
+		return error(res.output)
+	}
+
+	return u32(strconv.parse_uint(res.output, 10, 32)!)
 }

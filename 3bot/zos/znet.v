@@ -1,5 +1,7 @@
 module zos
 
+import json
+
 // wg network reservation (znet)
 
 pub struct Znet {
@@ -58,4 +60,16 @@ pub fn (mut p Peer) challenge() string {
 		out += ip
 	}
 	return out
+}
+
+pub fn (z Znet) to_workload(args WorkloadArgs) Workload {
+	return Workload{
+		version: args.version or { 0 }
+		name: args.name
+		type_: workload_types.network
+		data: json.encode(z)
+		metadata: args.metadata or { '' }
+		description: args.description or { '' }
+		result: args.result or { WorkloadResult{} }
+	}
 }

@@ -1,5 +1,7 @@
 module zos
 
+import json
+
 pub struct Zmachine {
 pub mut:
 	flist            string // if full url means custom flist meant for containers, if just name should be an official vm
@@ -9,8 +11,8 @@ pub mut:
 	mounts           []Mount
 	entrypoint       string // how to invoke that in a vm?
 	env              map[string]string // environment for the zmachine
-    corex 			 bool
-    gpu				 []string
+	corex            bool
+	gpu              []string
 }
 
 pub struct ZmachineNetwork {
@@ -75,8 +77,20 @@ pub fn (mut m Zmachine) challenge() string {
 pub struct ZmachineResult {
 pub mut:
 	// name unique per deployment, re-used in request & response
-	id string
-	ip string
-	ygg_ip string
+	id          string
+	ip          string
+	ygg_ip      string
 	console_url string
+}
+
+pub fn (z Zmachine) to_workload(args WorkloadArgs) Workload {
+	return Workload{
+		version: args.version or { 0 }
+		name: args.name
+		type_: workload_types.zmachine
+		data: json.encode(z)
+		metadata: args.metadata or { '' }
+		description: args.description or { '' }
+		result: args.result or { WorkloadResult{} }
+	}
 }

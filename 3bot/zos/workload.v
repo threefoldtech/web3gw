@@ -148,3 +148,12 @@ type WorkloadDataResult = GatewayProxyResult
 // pub fn(mut w WorkloadData) challenge() string {
 // 	return w.challenge()
 // }
+
+[params]
+pub struct WorkloadArgs {
+	version     ?int
+	name        string
+	description ?string
+	metadata    ?string
+	result      ?WorkloadResult
+}

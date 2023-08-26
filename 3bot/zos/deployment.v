@@ -78,6 +78,18 @@ pub mut:
 	signature_requirement SignatureRequirement
 }
 
+[params]
+pub struct DeploymentArgs {
+	version               ?int
+	twin_id               u32
+	contract_id           u64
+	expiration            ?i64
+	metadata              ?string
+	description           ?string
+	workloads             []Workload
+	signature_requirement SignatureRequirement
+}
+
 pub fn (mut deployment Deployment) challenge() string {
 	mut out := []string{}
 	out << '${deployment.version}'
@@ -132,4 +144,17 @@ fn (dl Deployment) count_public_ips() u8 {
 		}
 	}
 	return count
+}
+
+pub fn new_deployment(args DeploymentArgs) Deployment {
+	return Deployment{
+		version: args.version or { 0 }
+		twin_id: args.twin_id
+		contract_id: args.contract_id
+		expiration: args.expiration or { 0 }
+		metadata: args.metadata or { '' }
+		description: args.description or { '' }
+		workloads: args.workloads
+		signature_requirement: args.signature_requirement
+	}
 }

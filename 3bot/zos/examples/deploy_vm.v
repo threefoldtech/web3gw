@@ -1,6 +1,5 @@
 module main
 
-import freeflowuniverse.crystallib.threefold.rmb
 import json
 import threefoldtech.zos
 import log
@@ -11,14 +10,8 @@ fn main() {
 	})
 
 	mnemonics := '<YOUR MNEMONICS>'
-	substrate_url := 'wss://tfchain.dev.grid.tf/ws'
-	mut client := rmb.new(nettype: rmb.TFNetType.dev, tfchain_mnemonic: mnemonics)!
-	mut deployer := zos.Deployer{
-		mnemonics: mnemonics
-		substrate_url: substrate_url
-		twin_id: 49
-		rmb_cl: client
-	}
+	chain_network := zos.ChainNetwork.dev // User your desired network
+	mut deployer := zos.new_deployer(mnemonics, chain_network)!
 
 	node_id := u32(14)
 
@@ -35,14 +28,7 @@ fn main() {
 			},
 		]
 	}
-
-	mut znet_workload := zos.Workload{
-		version: 0
-		name: 'network'
-		type_: zos.workload_types.network
-		data: json.encode_pretty(network)
-		description: 'test network2'
-	}
+	mut znet_workload := network.to_workload(name: 'network', description: 'test_network')
 
 	zmachine := zos.Zmachine{
 		flist: 'https://hub.grid.tf/tf-official-apps/base:latest.flist'
@@ -64,31 +50,23 @@ fn main() {
 			'SSH_KEY': 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCs3qtlU13/hHKLE8KUkyt+yAH7z5IKs6PH63dhkeQBBG+VdxlTg/a+6DEXqc5VVL6etKRpKKKpDVqUFKuWIK1x3sE+Q6qZ/FiPN+cAAQZjMyevkr5nmX/ofZbvGUAQGo7erxypB0Ye6PFZZVlkZUQBs31dcbNXc6CqtwunJIgWOjCMLIl/wkKUAiod7r4O2lPvD7M2bl0Y/oYCA/FnY9+3UdxlBIi146GBeAvm3+Lpik9jQPaimriBJvAeb90SYIcrHtSSe86t2/9NXcjjN8O7Fa/FboindB2wt5vG+j4APOSbvbWgpDpSfIDPeBbqreSdsqhjhyE36xWwr1IqktX+B9ZuGRoIlPWfCHPJSw/AisfFGPeVeZVW3woUdbdm6bdhoRmGDIGAqPu5Iy576iYiZJnuRb+z8yDbtsbU2eMjRCXn1jnV2GjQcwtxViqiAtbFbqX0eQ0ZU8Zsf0IcFnH1W5Tra/yp9598KmipKHBa+AtsdVu2RRNRW6S4T3MO5SU= mario@mario-machine'
 		}
 	}
+	mut zmachine_workload := zmachine.to_workload(name: 'vm2', description: 'zmachine_test')
 
-	mut zmachine_workload := zos.Workload{
-		version: 0
-		name: 'vm2'
-		type_: zos.workload_types.zmachine
-		data: json.encode(zmachine)
-		description: 'zmachine test'
+	signature_requirement := zos.SignatureRequirement{
+		weight_required: 1
+		requests: [
+			zos.SignatureRequest{
+				twin_id: deployer.twin_id
+				weight: 1
+			},
+		]
 	}
 
-	mut deployment := zos.Deployment{
-		version: 0
+	mut deployment := zos.new_deployment(
 		twin_id: deployer.twin_id
-		metadata: 'zm dep'
-		description: 'zm kjasdf1nafvbeaf1234t21'
 		workloads: [znet_workload, zmachine_workload]
-		signature_requirement: zos.SignatureRequirement{
-			weight_required: 1
-			requests: [
-				zos.SignatureRequest{
-					twin_id: deployer.twin_id
-					weight: 1
-				},
-			]
-		}
-	}
+		signature_requirement: signature_requirement
+	)
 
 	contract_id := deployer.deploy(node_id, mut deployment, '', 0) or {
 		logger.error('failed to deploy deployment: ${err}')

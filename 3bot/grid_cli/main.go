@@ -241,6 +241,24 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "user-twin",
+				Usage: "get user twin id",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:  "substrate",
+						Value: "wss://tfchain.grid.tf/ws",
+						Usage: "substrate URL",
+					},
+				},
+				Action: substrateDecorator(getUserTwin),
+			},
 		},
 	}
 
@@ -344,4 +362,18 @@ func updateNodeContract(ctx *cli.Context, sub *substrate.Substrate, identity sub
 	}
 
 	return "", nil
+}
+
+func getUserTwin(ctx *cli.Context, sub *substrate.Substrate, identity substrate.Identity) (interface{}, error) {
+	keypair, err := identity.KeyPair()
+	if err != nil {
+		return nil, err
+	}
+
+	twin, err := sub.GetTwinByPubKey(keypair.Public())
+	if err != nil {
+		return nil, err
+	}
+
+	return twin, nil
 }
