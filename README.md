@@ -1,11 +1,15 @@
 # 3bot
 
+> :warning: The repository has recently modified its name from web3_proxy to 3bot. Although Github will redirect the fetches, pushes, etc to the new name they do strongly recommend to change the remote:
+>
+> ```git remote set-url origin git@github.com:threefoldtech/3bot.git```
+
 The 3bot implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
 
 Project setup:
 
 - [Server](server/): the implementation for the json rpc 2.0 server
-- [Client](client/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
+- [Lib](lib/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
 - [Examples](examples): contains some examples of V scripts for each client that the json rpc 2.0 server supports, these scripts show you how you can use the V library
 
 ## How to run the web3 proxy server (json rpc 2.0 server)
@@ -37,24 +41,22 @@ Follow the steps [here](server/) to add the client to the json rpc 2.0 server an
 
 ## Documentation
 
-To generate the documentation for the project, run `v run doc.vsh`. This builds:
-
-- MDBook Documentation in html format from content in manual folder in `docs`.
+To generate the documentation for the project, run `v run doc.vsh`. This builds: 
+- MDBook Documentation in html format from content in manual folder in `docs`. 
 - OpenRPC Documents for the JSON-RPC API's at `docs/openrpc` from V clients in `lib`.
 - OpenRPC Playground for the JSON-RPC API's at `docs/playground`.
 
 Find out more about how comments in code are used to generate OpenRPC Documents for domains, and how to annotate your code accordingly [here](https://github.com/freeflowuniverse/crystallib/tree/development/openrpc)
 
-To locally generate specific documents and not all of the aforementioned artifacts, comment out the [lines](https://github.com/threefoldtech/3bot/blob/596331a5051d15502681d200fa408ee0983debc0/doc.vsh#LL88-L91) in the doc.vsh script accordingly.
+To locally generate specific documents and not all of the aforementioned artifacts, comment out the [lines](https://github.com/threefoldtech/web3_proxy/blob/596331a5051d15502681d200fa408ee0983debc0/doc.vsh#LL88-L91) in the doc.vsh script accordingly.
 
-Note that running this command overwrites prebuilt content in docs if any, and is not necessary beyond testing locally as the script is run in CI workflow upon pushing / merging changes to the development branch. The docs are generated automatically and are made available on Github Pages at the [projects page](https://threefoldtech.github.io/3bot)
+Note that running this command overwrites prebuilt content in docs if any, and is not necessary beyond testing locally as the script is run in CI workflow upon pushing / merging changes to the development branch. The docs are generated automatically and are made available on Github Pages at the [projects page](https://threefoldtech.github.io/web3_proxy)
 
 Links to generated documents:
-
-- [Manual](https://threefoldtech.github.io/3bot)
-- [OpenRPC Document](https://threefoldtech.github.io/3bot/openrpc/openrpc.json) for all clients
-- OpenRPC Document for each client: <https://threefoldtech.github.io/3bot/openrpc/><client_name>/openrpc.json
-- [OpenRPC Playground](https://threefoldtech.github.io/3bot/playground/)
+- [Manual](https://threefoldtech.github.io/web3_proxy)
+- [OpenRPC Document](https://threefoldtech.github.io/web3_proxy/openrpc/openrpc.json) for all clients
+- OpenRPC Document for each client: https://threefoldtech.github.io/web3_proxy/openrpc/<client_name>/openrpc.json
+- [OpenRPC Playground](https://threefoldtech.github.io/web3_proxy/playground/)
 
 **While /docs is already in .gitignore, please avoid pushing generated docs.**
 

@@ -3,15 +3,15 @@ module threelang
 import log
 import freeflowuniverse.crystallib.actionsparser
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.web3gw.tfgrid as tfgrid_client
-import threefoldtech.web3gw.tfchain as tfchain_client
-import threefoldtech.web3gw.stellar as stellar_client
-import threefoldtech.web3gw.eth as eth_client
-import threefoldtech.web3gw.btc as btc_client
-import threefoldtech.web3gw.threelang.tfgrid { TFGridHandler }
-import threefoldtech.web3gw.threelang.web3gw { Web3GWHandler }
-import threefoldtech.web3gw.threelang.clients { Clients }
-import threefoldtech.web3gw.threelang.stellar { StellarHandler }
+import threefoldtech.threebot.tfgrid as tfgrid_client
+import threefoldtech.threebot.tfchain as tfchain_client
+import threefoldtech.threebot.stellar as stellar_client
+import threefoldtech.threebot.eth as eth_client
+import threefoldtech.threebot.btc as btc_client
+import threefoldtech.threebot.threelang.tfgrid { TFGridHandler }
+import threefoldtech.threebot.threelang.web3gw { Web3GWHandler }
+import threefoldtech.threebot.threelang.clients { Clients }
+import threefoldtech.threebot.threelang.stellar { StellarHandler }
 
 const (
 	tfgrid_book = 'tfgrid'

@@ -70,6 +70,30 @@ In addition to the above configuration the following env variables need to be sp
 - `ONLYOFFICE_SERVER_ADDR`: The address for document server address, this is used to import the necessary javascript module to use the document server API and needs to be reachable by the web client for example: <http://localhost:8016>
 
 ## `pre-lsdir` Sync Fs Action
+
 We have provided an example bash script to automate the creation of a demo user account and the setup of predefined event action and rule.
 Additionally, we have added a working V lang server to receive Fs events notifications from sftpgo.
 You can find the instructions on how to use this example here: https://github.com/freeflowuniverse/aydo/tree/development/examples/web-hook
+
+## Additional Features
+
+As mentioned above this project is built on what already exists in SFTPGO plus some additional Features. these features are:
+
+### Editing Documents via OnlyOffice
+
+The user can now edit documents using OnlyOffice and it supports different document extensions like (.docx, .xlsx, etc...)
+
+To edit a document via only office you simply need to click on the edit icon next to the desired file and that's it.
+
+![](../img/edit_doc.png)
+
+after that you will be redirected to OnlyOffice and have full access to its functionality.
+
+![](../img/OnlyOffice.gif)
+
+### Code Editor and Syntax Highlighting
+
+Code editing and syntax highlighting was also added for the following languages (Golang, Vlang, Yaml and Markdown) all you have to do is click on the edit icon next to the desired file and you will be redirected to the code editor.
+
+![](../img/editing_files.gif)
+
