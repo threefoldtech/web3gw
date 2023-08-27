@@ -1,6 +1,6 @@
 module main
 
-import threefoldtech.web3gw.tfgrid { AddK8sWorker, GetK8sParams, K8sCluster, K8sClusterResult, K8sNode, RemoveK8sWorker, TFGridClient }
+import threefoldtech.web3gw.tfgrid {K8sCluster, K8sNode, TFGridClient }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -11,7 +11,7 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_k8s(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
+fn deploy_k8s(mut fp FlagParser, mut t TFGridClient) !K8sCluster {
 	fp.usage_example('deploy [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the cluster')!
@@ -54,19 +54,16 @@ fn deploy_k8s(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
 		workers: workers
 	}
 
-	return t.k8s_deploy(cluster)!
+	return t.deploy_k8s_cluster(cluster)!
 }
 
-fn get_k8s(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
+fn get_k8s(mut fp FlagParser, mut t TFGridClient) !K8sCluster {
 	fp.usage_example('get [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the clusetr')!
 	_ := fp.finalize()!
 
-	return t.k8s_get(GetK8sParams{
-		cluster_name: name
-		master_name: 'master'
-	})!
+	return t.get_k8s_cluster(name)!
 }
 
 fn delete_k8s(mut fp FlagParser, mut t TFGridClient) ! {
@@ -75,10 +72,10 @@ fn delete_k8s(mut fp FlagParser, mut t TFGridClient) ! {
 	name := fp.string_opt('name', `n`, 'Name of the cluster')!
 	_ := fp.finalize()!
 
-	return t.k8s_delete(name)
+	return t.cancel_k8s_cluster(name)
 }
 
-fn add_k8s_worker(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
+fn add_k8s_worker(mut fp FlagParser, mut t TFGridClient) !K8sCluster {
 	fp.usage_example('add [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the cluster')!
@@ -98,25 +95,23 @@ fn add_k8s_worker(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
 		public_ip: public_ip
 	}
 
-	return t.k8s_add_worker(AddK8sWorker{
+	return t.add_worker_to_k8s_cluster(
 		cluster_name: name
-		master_name: 'master'
 		worker: worker
-	})!
+	)!
 }
 
-fn remove_k8s_worker(mut fp FlagParser, mut t TFGridClient) !K8sClusterResult {
+fn remove_k8s_worker(mut fp FlagParser, mut t TFGridClient) !K8sCluster {
 	fp.usage_example('remove [options]')
 
 	name := fp.string_opt('name', `n`, 'Name of the clusetr')!
 	worker_name := fp.string_opt('worker_name', `w`, 'Name of the worker to remove')!
 	_ := fp.finalize()!
 
-	return t.k8s_remove_worker(RemoveK8sWorker{
+	return t.remove_worker_from_k8s_cluster(
 		cluster_name: name
-		master_name: 'master'
 		worker_name: worker_name
-	})!
+	)!
 }
 
 fn main() {
@@ -152,7 +147,7 @@ fn main() {
 
 	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	tfgrid_client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Load{
 		mnemonic: mnemonic
 		network: network
 	})!

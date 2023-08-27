@@ -15,7 +15,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 
 	stellar_client.load(secret: secret, network: network)!
 
-	balance := stellar_client.balance(account)!
+	balance := stellar_client.balance(address: account)!
 	logger.info('Balance: ${balance}')
 }
 

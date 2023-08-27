@@ -5,6 +5,7 @@ import threefoldtech.web3gw.tfgrid
 import flag
 import log
 import os
+import json
 
 const (
 	default_server_address = 'ws://127.0.0.1:8080'
@@ -60,7 +61,6 @@ fn run_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 			tfgrid.Workload{
 				version: 0
 				name: 'wl12'
-				workload_type: tfgrid.zdb_workload_type
 				data: tfgrid.ZDBWorkload{
 					password: ''
 					mode: 'seq'
@@ -75,7 +75,7 @@ fn run_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 
 	request = tfgrid.ZOSNodeRequest{
 		node_id: 11
-		data: deploy_deployment
+		data: json.encode(deploy_deployment).u64()
 	}
 	client.zos_deployment_deploy(request)!
 
@@ -101,7 +101,6 @@ fn run_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 			tfgrid.Workload{
 				version: 2
 				name: 'wl1234'
-				workload_type: tfgrid.zdb_workload_type
 				data: tfgrid.ZDBWorkload{
 					password: ''
 					mode: 'seq'
@@ -115,7 +114,7 @@ fn run_zos_node_calls(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	}
 	request = tfgrid.ZOSNodeRequest{
 		node_id: 28
-		data: update_deployment
+		data: json.encode(update_deployment).u64()
 	}
 	client.zos_deployment_update(request)!
 
@@ -177,7 +176,7 @@ fn main() {
 
 	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	tfgrid_client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Load{
 		mnemonic: mnemonic
 		network: network
 	})!

@@ -1,6 +1,6 @@
 module main
 
-import threefoldtech.web3gw.tfgrid { TFGridClient, ZDB, ZDBResult }
+import threefoldtech.web3gw.tfgrid { TFGridClient, ZDBDeployment }
 import log { Logger }
 import flag { FlagParser }
 import os
@@ -11,7 +11,7 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn deploy_zdb(mut fp FlagParser, mut t TFGridClient) !ZDBResult {
+fn deploy_zdb(mut fp FlagParser, mut t TFGridClient) !ZDBDeployment {
 	fp.usage_example('deploy [options]')
 
 	name := fp.string('name', `z`, rand.string(6), 'zdb name')
@@ -22,7 +22,7 @@ fn deploy_zdb(mut fp FlagParser, mut t TFGridClient) !ZDBResult {
 	mode := fp.string('mode', `d`, 'user', 'Mode of the ZDB')
 	_ := fp.finalize()!
 
-	zdb := ZDB{
+	zdb := ZDBDeployment{
 		node_id: u32(node_id)
 		name: name
 		password: password
@@ -31,16 +31,16 @@ fn deploy_zdb(mut fp FlagParser, mut t TFGridClient) !ZDBResult {
 		mode: mode
 	}
 
-	return t.zdb_deploy(zdb)!
+	return t.deploy_zdb(zdb)!
 }
 
-fn get_zdb(mut fp FlagParser, mut t TFGridClient) !ZDBResult {
+fn get_zdb(mut fp FlagParser, mut t TFGridClient) !ZDBDeployment {
 	fp.usage_example('get [options]')
 
 	name := fp.string_opt('name', `z`, 'Name of the ZDB')!
 	_ := fp.finalize()!
 
-	return t.zdb_get(name)!
+	return t.get_zdb_deployment(name)!
 }
 
 fn delete_zdb(mut fp FlagParser, mut t TFGridClient) ! {
@@ -49,7 +49,7 @@ fn delete_zdb(mut fp FlagParser, mut t TFGridClient) ! {
 	name := fp.string_opt('name', `v`, 'Name of the ZDB')!
 	_ := fp.finalize()!
 
-	return t.zdb_delete(name)
+	return t.cancel_zdb_deployment(name)
 }
 
 fn main() {
@@ -85,7 +85,7 @@ fn main() {
 
 	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	tfgrid_client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Load{
 		mnemonic: mnemonic
 		network: network
 	})!
