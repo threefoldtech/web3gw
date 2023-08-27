@@ -37,9 +37,9 @@ pub:
 }
 
 fn deploy_machine_with_qsfs(mut client tfgrid.TFGridClient, machine_with_qsfs MachineWithQSFS) !MachineWithQSFSResult {
-	mut zdbs := []tfgrid.ZDBResult{}
+	mut zdbs := []tfgrid.ZDBDeployment{}
 	for i in 0 .. machine_with_qsfs.expected_shards {
-		zdb_seq := client.zdb_deploy(tfgrid.ZDB{
+		zdb_seq := client.deploy_zdb(tfgrid.ZDBDeployment{
 			name: generate_zdb_name(machine_with_qsfs.name, 'seq', i)
 			password: machine_with_qsfs.zdb_password
 			size: machine_with_qsfs.zdb_size
@@ -50,7 +50,7 @@ fn deploy_machine_with_qsfs(mut client tfgrid.TFGridClient, machine_with_qsfs Ma
 		}
 		zdbs << zdb_seq
 
-		zdb_user := client.zdb_deploy(tfgrid.ZDB{
+		zdb_user := client.deploy_zdb(tfgrid.ZDBDeployment{
 			name: generate_zdb_name(machine_with_qsfs.name, 'user', i)
 			password: machine_with_qsfs.zdb_password
 			size: machine_with_qsfs.zdb_size
@@ -83,66 +83,54 @@ fn deploy_machine_with_qsfs(mut client tfgrid.TFGridClient, machine_with_qsfs Ma
 		}
 	}
 
-	machines_model := client.machines_deploy(tfgrid.MachinesModel{
+	machines_model := client.deploy_vm(tfgrid.DeployVM{
 		name: machine_with_qsfs.name
-		network: tfgrid.Network{
-			add_wireguard_access: false
+		add_wireguard_access: false
+		farm_id: machine_with_qsfs.farm_id
+		cpu: machine_with_qsfs.cpu
+		memory: machine_with_qsfs.memory
+		rootfs_size: machine_with_qsfs.rootfs_size
+		env_vars: {
+			'SSH_KEY': machine_with_qsfs.ssh_key
 		}
-		machines: [
-			tfgrid.Machine{
-				name: 'vm1'
-				farm_id: machine_with_qsfs.farm_id
-				cpu: machine_with_qsfs.cpu
-				memory: machine_with_qsfs.memory
-				rootfs_size: machine_with_qsfs.rootfs_size
-				env_vars: {
-					'SSH_KEY': machine_with_qsfs.ssh_key
+		public_ip: machine_with_qsfs.public_ipv4
+		planetary: true
+		qsfss: [
+			tfgrid.QSFS{
+				mountpoint: '/qsfs'
+				encryption_key: machine_with_qsfs.encryption_key
+				cache: machine_with_qsfs.cache
+				minimal_shards: machine_with_qsfs.minimal_shards
+				expected_shards: machine_with_qsfs.expected_shards
+				redundant_groups: machine_with_qsfs.redundant_groups
+				redundant_nodes: machine_with_qsfs.redundant_nodes
+				encryption_algorithm: machine_with_qsfs.encryption_algorithm
+				compression_algorithm: machine_with_qsfs.compression_algorithm
+				metadata: tfgrid.Metadata{
+					type_: machine_with_qsfs.metadata_type
+					prefix: machine_with_qsfs.metadata_prefix
+					encryption_algorithm: machine_with_qsfs.metadata_encryption_algorithm
+					encryption_key: machine_with_qsfs.encryption_key
+					backends: metadata_backends
 				}
-				public_ip: machine_with_qsfs.public_ipv4
-				planetary: true
-				qsfss: [
-					tfgrid.QSFS{
-						mountpoint: '/qsfs'
-						encryption_key: machine_with_qsfs.encryption_key
-						cache: machine_with_qsfs.cache
-						minimal_shards: machine_with_qsfs.minimal_shards
-						expected_shards: machine_with_qsfs.expected_shards
-						redundant_groups: machine_with_qsfs.redundant_groups
-						redundant_nodes: machine_with_qsfs.redundant_nodes
-						encryption_algorithm: machine_with_qsfs.encryption_algorithm
-						compression_algorithm: machine_with_qsfs.compression_algorithm
-						metadata: tfgrid.Metadata{
-							type_: machine_with_qsfs.metadata_type
-							prefix: machine_with_qsfs.metadata_prefix
-							encryption_algorithm: machine_with_qsfs.metadata_encryption_algorithm
-							encryption_key: machine_with_qsfs.encryption_key
-							backends: metadata_backends
-						}
-						description: machine_with_qsfs.description
-						max_zdb_data_dir_size: machine_with_qsfs.max_zdb_data_dir_size
-						groups: [tfgrid.Group{
-							backends: groups_backends
-						}]
-					},
-				]
+				description: machine_with_qsfs.description
+				max_zdb_data_dir_size: machine_with_qsfs.max_zdb_data_dir_size
+				groups: [tfgrid.Group{
+					backends: groups_backends
+				}]
 			},
 		]
 	}) or {
-		client.machines_delete(machine_with_qsfs.name)!
+		client.cancel_vm_deployment(machine_with_qsfs.name)!
 		return error('failed to deploy machine: ${err}')
 	}
 
-	if machines_model.machines.len == 0 {
-		delete_machine_with_qsfs(mut client, machine_with_qsfs.name)!
-		return error('0 machines were found after deployment')
-	}
-
-	if machines_model.machines[0].qsfss.len == 0 {
+	if machines_model.qsfss.len == 0 {
 		delete_machine_with_qsfs(mut client, machine_with_qsfs.name)!
 		return error('0 qsfss were found after deployment')
 	}
 
-	machine := machines_model.machines[0]
+	machine := machines_model
 	return MachineWithQSFSResult{
 		name: machine_with_qsfs.name
 		ygg_ip: machine.ygg_ip
@@ -153,40 +141,32 @@ fn deploy_machine_with_qsfs(mut client tfgrid.TFGridClient, machine_with_qsfs Ma
 
 fn delete_qsfs_zdbs(mut client tfgrid.TFGridClient, machine_with_qsfs_name string, count u32) ! {
 	for i in 0 .. count {
-		client.zdb_delete(generate_zdb_name(machine_with_qsfs_name, 'seq', i))!
-		client.zdb_delete(generate_zdb_name(machine_with_qsfs_name, 'user', i))!
+		client.cancel_zdb_deployment(generate_zdb_name(machine_with_qsfs_name, 'seq', i))!
+		client.cancel_zdb_deployment(generate_zdb_name(machine_with_qsfs_name, 'user', i))!
 	}
 }
 
 fn delete_machine_with_qsfs(mut client tfgrid.TFGridClient, machine_with_qsfs_name string) ! {
 	// the zdbs must be deleted first
-	machines_model := client.machines_get(machine_with_qsfs_name)!
+	machines_model := client.get_vm_deployment(machine_with_qsfs_name)!
 
-	if machines_model.machines.len == 0 {
-		return error('no machine was found')
-	}
-
-	if machines_model.machines[0].qsfss.len == 0 {
+	if machines_model.qsfss.len == 0 {
 		return error('no qsfs was found')
 	}
 
-	delete_qsfs_zdbs(mut client, machine_with_qsfs_name, machines_model.machines[0].qsfss[0].expected_shards)!
+	delete_qsfs_zdbs(mut client, machine_with_qsfs_name, machines_model.qsfss[0].expected_shards)!
 
-	client.machines_delete(machine_with_qsfs_name)!
+	client.cancel_vm_deployment(machine_with_qsfs_name)!
 }
 
 fn get_machine_with_qsfs(mut client tfgrid.TFGridClient, machine_with_qsfs_name string) !MachineWithQSFSResult {
-	machines_model := client.machines_get(machine_with_qsfs_name)!
+	machines_model := client.get_vm_deployment(machine_with_qsfs_name)!
 
-	if machines_model.machines.len == 0 {
-		return error('no machine was found')
-	}
-
-	if machines_model.machines[0].qsfss.len == 0 {
+	if machines_model.qsfss.len == 0 {
 		return error('no qsfs was found')
 	}
 
-	machine := machines_model.machines[0]
+	machine := machines_model
 	return MachineWithQSFSResult{
 		name: machine_with_qsfs_name
 		ygg_ip: machine.ygg_ip

@@ -17,7 +17,6 @@ import (
 	atomicswap "github.com/threefoldtech/web3_proxy/server/pkg/atomic_swap"
 	"github.com/threefoldtech/web3_proxy/server/pkg/btc"
 	"github.com/threefoldtech/web3_proxy/server/pkg/eth"
-	"github.com/threefoldtech/web3_proxy/server/pkg/explorer"
 	"github.com/threefoldtech/web3_proxy/server/pkg/ipfs"
 	"github.com/threefoldtech/web3_proxy/server/pkg/nostr"
 	"github.com/threefoldtech/web3_proxy/server/pkg/stellar"
@@ -76,7 +75,6 @@ func main() {
 	rpcServer.Register("tfchain", tfchain.NewClient())
 	rpcServer.Register("tfgrid", tfgrid.NewClient())
 	rpcServer.Register("nostr", nostr.NewClient())
-	rpcServer.Register("explorer", explorer.NewClient())
 	rpcServer.Register("atomicswap", atomicswap.NewClient())
 	s := http.Server{
 		Addr: fmt.Sprintf(":%d", port),

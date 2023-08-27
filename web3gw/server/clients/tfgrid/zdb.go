@@ -127,7 +127,7 @@ func (c *Client) ensureZDBNodeIDExist(ctx context.Context, zdb *ZDB) error {
 }
 
 func (c *Client) getNodeForZdb(ctx context.Context, size uint64) (uint32, error) {
-	nodes, err := c.FilterNodesWithGridProxy(ctx, FilterOptions{HRU: size})
+	nodes, err := c.FilterNodesWithGridProxy(ctx, NodeFilterOptions{HRU: size})
 	if err != nil {
 		return 0, errors.Wrapf(err, "failed to filter nodes")
 	}

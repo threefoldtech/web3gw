@@ -180,3 +180,45 @@ pub fn (mut t TfChainClient) await_bridged_from_stellar(memo string) ! {
 	_ := t.client.send_json_rpc[[]string, string]('tfchain.AwaitBridgedFromStellar', [memo],
 		tfchain.default_timeout)!
 }
+
+// returns twin id via chain address
+pub fn (mut t TfChainClient) get_twin_by_pubkey(address string) !u32 {
+	return t.client.send_json_rpc[[]string, u32]('tfchain.GetTwinByPubKey', [address],
+		tfchain.default_timeout)!
+}
+
+// returns twin info via id
+pub fn (mut t TfChainClient) get_twin(id u32) !TwinData {
+	return t.client.send_json_rpc[[]u32, TwinData]('tfchain.GetTwin', [id],
+		tfchain.default_timeout)!
+}
+
+pub fn (mut t TfChainClient) get_node(id u32) !NodeData {
+	return t.client.send_json_rpc[[]u32, NodeData]('tfchain.GetNode', [id],
+		tfchain.default_timeout)!
+}
+
+pub fn (mut t TfChainClient) get_nodes(farm_id u32) ![]u32 {
+	return t.client.send_json_rpc[[]u32, []u32]('tfchain.GetNodes', [farm_id],
+		tfchain.default_timeout)!
+}
+
+pub fn (mut t TfChainClient) get_node_contracts(id u32) ![]u64 {
+	return t.client.send_json_rpc[[]u32, []u64]('tfchain.GetNodeContracts', [id],
+		tfchain.default_timeout)!
+}
+
+pub fn (mut t TfChainClient) get_contract(id u64) !ContractData {
+	return t.client.send_json_rpc[[]u64, ContractData]('tfchain.GetContract', [id],
+		tfchain.default_timeout)!
+}
+
+pub fn (mut t TfChainClient) get_farm(id u32) !FarmData {
+	return t.client.send_json_rpc[[]u32, FarmData]('tfchain.GetFarm', [id],
+		tfchain.default_timeout)!
+}
+
+pub fn (mut t TfChainClient) get_farm_by_name(name string) !u32 {
+	return t.client.send_json_rpc[[]string, u32]('tfchain.GetFarmByName', [name],
+		tfchain.default_timeout)!
+}

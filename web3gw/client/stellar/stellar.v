@@ -72,7 +72,7 @@ pub fn (mut s StellarClient) balance(args AccountBalance) !string {
 
 // Bridge tokens of your stellar account to an account on ethereum
 pub fn (mut s StellarClient) bridge_to_eth(args BridgeToEth) !string {
-	return s.client.send_json_rpc[[]BridgeTransfer, string]('stellar.BridgeToEth', [
+	return s.client.send_json_rpc[[]BridgeToEth, string]('stellar.BridgeToEth', [
 		args,
 	], stellar.default_timeout)!
 }
@@ -86,12 +86,12 @@ pub fn (mut s StellarClient) bridge_to_eth(args BridgeToEth) !string {
 
 // Bridge tokens of your stellar account to an account on tfchain (provide twinid)
 pub fn (mut s StellarClient) bridge_to_tfchain(args BridgeToTfchain) !string {
-	return s.client.send_json_rpc[[]TfchainBridgeTransfer, string]('stellar.BridgeToTfchain',
+	return s.client.send_json_rpc[[]BridgeToTfchain, string]('stellar.BridgeToTfchain',
 		[args], stellar.default_timeout)!
 }
 
 // Await till a transaction is processed on ethereum bridge that contains a specific memo, that transaction is the result of a bridge from ethereum to the loaded stellar account
 pub fn (mut s StellarClient) await_bridged_from_ethereum(args AwaitBridgedFromEthereum) ! {
-	_ := s.client.send_json_rpc[[]string, string]('stellar.AwaitBridgedFromEthereum',
+	_ := s.client.send_json_rpc[[]AwaitBridgedFromEthereum, string]('stellar.AwaitBridgedFromEthereum',
 		[args], stellar.default_timeout)!
 }

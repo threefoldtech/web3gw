@@ -586,3 +586,104 @@ pub:
 	ipv6   string // instance ipv6, if any
 	fqdn   string // fully qualified domain name pointing to the instance
 }
+
+pub struct ZOSNodeRequest {
+pub:
+	node_id int
+	data u64
+}
+
+pub struct NodeStatistics {
+pub:
+	total Capacity
+	used Capacity
+}
+
+pub struct SystemTooling {
+pub:
+	aggregator string
+	decoder string
+}
+
+pub struct SystemPropertyData {
+pub:
+	value string
+	items []string
+}
+
+pub struct SystemSubsection {
+pub:
+	title string
+	properties map[string]SystemPropertyData
+}
+
+pub struct SystemSection {
+pub:
+	handleline string
+	typestr string
+	section_type int [json: 'type']
+	subsections []SystemSubsection
+}
+
+pub struct SystemDMI {
+pub:
+	tooling SystemTooling
+	sections []SystemSection
+}
+
+pub struct ZOSVersion {
+pub:
+	zos string
+	zinit string
+}
+
+pub struct WorkloadResult {
+pub:
+	created u32
+	state string
+	message string
+	data u64
+}
+
+pub struct Workload {
+pub:
+	version u32
+	name string
+	workload_type string [json: 'type']
+	data ZDBWorkload
+	metadata string
+	description string
+	result WorkloadResult
+}
+
+pub struct SignatureRequest {
+	twin_id u32
+	required bool
+	weight u32
+}
+
+pub struct SignatureRequirement {
+pub:
+	weight_required int
+	requests []SignatureRequest
+}
+
+pub struct Deployment {
+pub:
+	version u32
+	twin_id u32
+	contract_id u64
+	metadata string
+	description string
+	expiration u64
+	signature_requirement SignatureRequirement
+	workloads []Workload
+}
+
+pub struct ZDBWorkload {
+pub:
+	password string
+	mode string
+	size u32
+	public bool
+}

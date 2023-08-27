@@ -17,12 +17,12 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, ne
 
 	account := stellar_client.address()!
 
-	mut balance := stellar_client.balance(account)!
+	mut balance := stellar_client.balance(address: account)!
 	logger.info('Balance: ${balance}')
 
 	stellar_client.swap(amount: amount, source_asset: source, destination_asset: destination)!
 
-	balance = stellar_client.balance(account)!
+	balance = stellar_client.balance(address: account)!
 	logger.info('Balance: ${balance}')
 }
 

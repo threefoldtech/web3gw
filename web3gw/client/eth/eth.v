@@ -91,7 +91,7 @@ pub fn (mut e EthClient) get_token_balance(contractAddress string) !string {
 
 // Transfers an erc20 compatible token to a destination address
 pub fn (mut e EthClient) transfer_tokens(args TransferTokens) !string {
-	return e.client.send_json_rpc[[]TokenTransfer, string]('eth.TransferTokens', [
+	return e.client.send_json_rpc[[]TransferTokens, string]('eth.TransferTokens', [
 		args,
 	], eth.default_timeout)!
 }

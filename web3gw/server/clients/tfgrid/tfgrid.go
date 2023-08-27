@@ -25,9 +25,12 @@ type TFGridClient interface {
 	RMBCall(ctx context.Context, twin uint32, fn string, data interface{}, result interface{}) error
 	FilterNodes(filter types.NodeFilter, pagination types.Limit) (res []types.Node, totalCount int, err error)
 	FilterFarms(filter types.FarmFilter, pagination types.Limit) (res []types.Farm, totalCount int, err error)
+	FilterContracts(filter types.ContractFilter, pagination types.Limit) (res []types.Contract, totalCount int, err error)
+	FilterTwins(filter types.TwinFilter, pagination types.Limit) (res []types.Twin, totalCount int, err error)
 	GetNode(nodeID uint32) (res types.NodeWithNestedCapacity, err error)
 	GetNodeDomain(ctx context.Context, nodeID uint32) (string, error)
 	GetNodeFarm(nodeID uint32) (uint32, error)
+	GetCounters(filter types.StatsFilter) (res types.Counters, err error)
 
 	SetContractState(contracts map[uint32]state.ContractIDs)
 
@@ -126,6 +129,15 @@ func (c *tfgridClient) FilterNodes(filter types.NodeFilter, pagination types.Lim
 func (c *tfgridClient) FilterFarms(filter types.FarmFilter, pagination types.Limit) (res []types.Farm, totalCount int, err error) {
 	return c.client.GridProxyClient.Farms(filter, pagination)
 }
+
+func (c *tfgridClient) FilterContracts(filter types.ContractFilter, pagination types.Limit) (res []types.Contract, totalCount int, err error) {
+	return c.client.GridProxyClient.Contracts(filter, pagination)
+}
+
+func (c *tfgridClient) FilterTwins(filter types.TwinFilter, pagination types.Limit) (res []types.Twin, totalCount int, err error) {
+	return c.client.GridProxyClient.Twins(filter, pagination)
+}
+
 func (c *tfgridClient) GetNode(nodeID uint32) (res types.NodeWithNestedCapacity, err error) {
 	return c.client.GridProxyClient.Node(nodeID)
 }
@@ -137,6 +149,10 @@ func (c *tfgridClient) GetNodeFarm(nodeID uint32) (uint32, error) {
 	}
 
 	return uint32(node.FarmID), nil
+}
+
+func (c *tfgridClient) GetCounters(filter types.StatsFilter) (res types.Counters, err error) {
+	return c.client.GridProxyClient.Counters(filter)
 }
 
 func (c *tfgridClient) GetNodeDomain(ctx context.Context, nodeID uint32) (string, error) {
