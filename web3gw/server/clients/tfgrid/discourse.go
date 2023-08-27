@@ -189,7 +189,7 @@ func (c *Client) DeleteDiscourse(ctx context.Context, name string) error {
 }
 
 func (c *Client) findDiscourseGWNode(farmID uint32) (types.Node, error) {
-	filter := BuildGridProxyFilters(FilterOptions{
+	filter := BuildGridProxyNodeFilters(NodeFilterOptions{
 		FarmID:       farmID,
 		PublicConfig: true,
 	}, uint64(c.TwinID))

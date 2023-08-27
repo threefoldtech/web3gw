@@ -277,11 +277,47 @@ func (c *Client) GatewayFQDNDelete(ctx context.Context, conState jsonrpc.State, 
 	return state.cl.GatewayFQDNDelete(ctx, modelName)
 }
 
-func (c *Client) FilterNodes(ctx context.Context, conState jsonrpc.State, filters tfgridBase.FilterOptions) ([]uint32, error) {
+func (c *Client) FindNodes(ctx context.Context, conState jsonrpc.State, filters tfgridBase.NodeFilterOptions) ([]uint32, error) {
 	state := State(conState)
 	if state.cl == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
 
 	return state.cl.FilterNodes(ctx, filters)
+}
+
+func (c *Client) FindFarms(ctx context.Context, conState jsonrpc.State, filters tfgridBase.FarmFilterOptions) ([]uint32, error) {
+	state := State(conState)
+	if state.cl == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.FilterFarms(ctx, filters)
+}
+
+func (c *Client) FindContracts(ctx context.Context, conState jsonrpc.State, filters tfgridBase.ContractFilterOptions) ([]uint32, error) {
+	state := State(conState)
+	if state.cl == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.FilterContracts(ctx, filters)
+}
+
+func (c *Client) FindTwins(ctx context.Context, conState jsonrpc.State, filters tfgridBase.TwinFilterOptions) ([]uint32, error) {
+	state := State(conState)
+	if state.cl == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.FilterTwins(ctx, filters)
+}
+
+func (c *Client) Statistics(ctx context.Context, conState jsonrpc.State, filters tfgridBase.StatsFilterOptions) (tfgridBase.CountersResult, error) {
+	state := State(conState)
+	if state.cl == nil {
+		return tfgridBase.CountersResult{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.cl.GetStatistics(ctx, filters)
 }

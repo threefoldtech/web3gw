@@ -24,7 +24,7 @@ const (
 	FarmerBotRMBFunction    = "execute_job"
 )
 
-type FilterOptions struct {
+type NodeFilterOptions struct {
 	FarmID         uint32 `json:"farm_id"`
 	PublicConfig   bool   `json:"public_config"`
 	PublicIpsCount uint64 `json:"public_ips_count"`
@@ -34,9 +34,31 @@ type FilterOptions struct {
 	SRU            uint64 `json:"sru"`
 }
 
-type FilterResult struct {
-	FilterOption   FilterOptions `json:"filter_options"`
-	AvailableNodes []uint32      `json:"available_nodes"`
+type FarmFilterOptions struct {
+	FarmID    uint64 `json:"farm_id"`
+	TwinID    uint32 `json:"twin_id"`
+	IPs       uint64 `json:"ips"`
+	Name      string `json:"name"`
+	Dedicated bool   `json:"dedicated"`
+	MRU       uint64 `json:"mru"`
+	HRU       uint64 `json:"hru"`
+	SRU       uint64 `json:"sru"`
+}
+
+type TwinFilterOptions struct {
+	TwinID    uint32 `json:"twin_id"`
+	AccountID string `json:"account_id"`
+	Relay     string `json:"relay"`
+	PublicKey string `json:"public_key"`
+}
+
+type ContractFilterOptions struct {
+	ContractID uint64 `json:"contract_id"`
+	TwinID     uint32 `json:"twin_id"`
+	NodeID     uint64 `json:"node_id"`
+	Type       string `json:"type"`
+	State      string `json:"state"`
+	Name       string `json:"name"`
 }
 
 type Reservations map[string]*PlannedReservation
@@ -90,7 +112,7 @@ type FarmerBotAction struct {
 	Dependencies []string      `json:"dependencies"`
 }
 
-func BuildGridProxyFilters(options FilterOptions, twinId uint64) proxyTypes.NodeFilter {
+func BuildGridProxyNodeFilters(options NodeFilterOptions, twinId uint64) proxyTypes.NodeFilter {
 	proxyFilters := proxyTypes.NodeFilter{
 		Status:       &Status,
 		AvailableFor: &twinId,
@@ -128,7 +150,86 @@ func BuildGridProxyFilters(options FilterOptions, twinId uint64) proxyTypes.Node
 	return proxyFilters
 }
 
-func BuildFarmerBotParams(options FilterOptions) []Params {
+func BuildGridProxyFarmFilters(options FarmFilterOptions, twinId uint64) proxyTypes.FarmFilter {
+	proxyFilters := proxyTypes.FarmFilter{
+		TwinID: &twinId,
+	}
+
+	if options.HRU != 0 {
+		proxyFilters.NodeFreeHRU = &options.HRU
+	}
+
+	if options.SRU != 0 {
+		proxyFilters.NodeFreeSRU = &options.SRU
+	}
+
+	if options.MRU != 0 {
+		proxyFilters.NodeFreeMRU = &options.MRU
+	}
+
+	if options.Dedicated {
+		proxyFilters.Dedicated = &options.Dedicated
+	}
+
+	if options.Name != "" {
+		proxyFilters.Name = &options.Name
+	}
+
+	if options.IPs > 0 {
+		proxyFilters.FreeIPs = &options.IPs
+	}
+
+	if options.FarmID != 0 {
+		proxyFilters.FarmID = &options.FarmID
+	}
+
+	return proxyFilters
+}
+
+func BuildGridProxyContractFilters(options ContractFilterOptions, twinId uint64) proxyTypes.ContractFilter {
+	proxyFilters := proxyTypes.ContractFilter{
+		TwinID: &twinId,
+	}
+	if options.Name != "" {
+		proxyFilters.Name = &options.Name
+	}
+
+	if options.State != "" {
+		proxyFilters.State = &options.Name
+	}
+	if options.Type != "" {
+		proxyFilters.Type = &options.Type
+	}
+
+	if options.ContractID != 0 {
+		proxyFilters.ContractID = &options.ContractID
+	}
+
+	if options.NodeID != 0 {
+		proxyFilters.NodeID = &options.NodeID
+	}
+
+	return proxyFilters
+}
+
+func BuildGridProxyTwinFilters(options TwinFilterOptions, twinId uint64) proxyTypes.TwinFilter {
+	proxyFilters := proxyTypes.TwinFilter{
+		TwinID: &twinId,
+	}
+	if options.AccountID != "" {
+		proxyFilters.AccountID = &options.AccountID
+	}
+	if options.Relay != "" {
+		proxyFilters.Relay = &options.Relay
+	}
+	if options.PublicKey != "" {
+		proxyFilters.PublicKey = &options.PublicKey
+	}
+
+	return proxyFilters
+}
+
+func BuildFarmerBotParams(options NodeFilterOptions) []Params {
 	params := []Params{}
 	if options.HRU != 0 {
 		params = append(params, Params{Key: "required_hru", Value: options.HRU})
@@ -210,7 +311,7 @@ func GetFarmerBotResult(action FarmerBotAction, key string) (string, error) {
 	return "", fmt.Errorf("couldn't found a result for the same key: %s", key)
 }
 
-func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOptions) ([]uint32, error) {
+func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options NodeFilterOptions) ([]uint32, error) {
 
 	// construct farmerbot request
 	params := BuildFarmerBotParams(options)
@@ -246,8 +347,8 @@ func (r *Client) FilterNodesWithFarmerBot(ctx context.Context, options FilterOpt
 	return []uint32{uint32(nodeId)}, nil
 }
 
-func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options FilterOptions) ([]uint32, error) {
-	proxyFilters := BuildGridProxyFilters(options, uint64(r.TwinID))
+func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options NodeFilterOptions) ([]uint32, error) {
+	proxyFilters := BuildGridProxyNodeFilters(options, uint64(r.TwinID))
 
 	nodes, _, err := r.GridClient.FilterNodes(proxyFilters, proxyTypes.Limit{})
 	if err != nil || len(nodes) == 0 {
@@ -259,11 +360,80 @@ func (r *Client) FilterNodesWithGridProxy(ctx context.Context, options FilterOpt
 	return nodesIDs, nil
 }
 
+func (r *Client) FilterFarmsWithGridProxy(ctx context.Context, options FarmFilterOptions) ([]uint32, error) {
+	proxyFilters := BuildGridProxyFarmFilters(options, uint64(r.TwinID))
+
+	farms, _, err := r.GridClient.FilterFarms(proxyFilters, proxyTypes.Limit{})
+	if err != nil || len(farms) == 0 {
+		return []uint32{}, errors.Wrapf(err, "Couldn't find farm for the provided filters: %+v", options)
+	}
+
+	farmIDs := GetFarmsIDs(farms)
+
+	return farmIDs, nil
+}
+
+func (r *Client) FilterContractsWithGridProxy(ctx context.Context, options ContractFilterOptions) ([]uint32, error) {
+	proxyFilters := BuildGridProxyContractFilters(options, uint64(r.TwinID))
+
+	contracts, _, err := r.GridClient.FilterContracts(proxyFilters, proxyTypes.Limit{})
+	if err != nil || len(contracts) == 0 {
+		return []uint32{}, errors.Wrapf(err, "Couldn't find contract for the provided filters: %+v", options)
+	}
+
+	contractsIDs := GetContractsIDs(contracts)
+
+	return contractsIDs, nil
+}
+
+func (r *Client) FilterTwinsWithGridProxy(ctx context.Context, options TwinFilterOptions) ([]uint32, error) {
+	proxyFilters := BuildGridProxyTwinFilters(options, uint64(r.TwinID))
+
+	twins, _, err := r.GridClient.FilterTwins(proxyFilters, proxyTypes.Limit{})
+	if err != nil || len(twins) == 0 {
+		return []uint32{}, errors.Wrapf(err, "Couldn't find twin for the provided filters: %+v", options)
+	}
+
+	twinsIDs := GetTwinsIDs(twins)
+
+	return twinsIDs, nil
+}
+
 func GetNodesIDs(nodes []proxyTypes.Node) []uint32 {
 	ids := []uint32{}
 
 	for _, node := range nodes {
 		ids = append(ids, uint32(node.NodeID))
+	}
+
+	return ids
+}
+
+func GetFarmsIDs(farms []proxyTypes.Farm) []uint32 {
+	ids := []uint32{}
+
+	for _, farm := range farms {
+		ids = append(ids, uint32(farm.FarmID))
+	}
+
+	return ids
+}
+
+func GetContractsIDs(contracts []proxyTypes.Contract) []uint32 {
+	ids := []uint32{}
+
+	for _, contract := range contracts {
+		ids = append(ids, uint32(contract.ContractID))
+	}
+
+	return ids
+}
+
+func GetTwinsIDs(twins []proxyTypes.Twin) []uint32 {
+	ids := []uint32{}
+
+	for _, twin := range twins {
+		ids = append(ids, uint32(twin.TwinID))
 	}
 
 	return ids
@@ -341,7 +511,7 @@ func (c *Client) AssignNodes(ctx context.Context, workloads Reservations) error 
 
 	for _, workload := range workloads {
 		if workload.NodeID == 0 {
-			options := FilterOptions{
+			options := NodeFilterOptions{
 				FarmID: workload.FarmID,
 				HRU:    workload.HRU,
 				SRU:    workload.SRU,
