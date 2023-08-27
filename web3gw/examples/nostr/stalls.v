@@ -29,8 +29,8 @@ fn create_stall_and_product(mut client RpcWsClient, mut logger log.Logger, secre
 
 	nostr_client.connect_to_relay('https://nostr01.grid.tf/')!
 
-	nostr_client.subscribe_stall_creation()!
-	nostr_client.subscribe_product_creation()!
+	nostr_client.subscribe_to_stall_creation()!
+	nostr_client.subscribe_to_product_creation()!
 
 	stall := nostr.Stall{
 		id: 'stall1'

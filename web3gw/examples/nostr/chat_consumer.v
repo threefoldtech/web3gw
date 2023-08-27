@@ -31,7 +31,7 @@ fn subscribe_messages(mut client RpcWsClient, mut logger log.Logger, secret stri
 	logger.info('Nostr: Public Key: ${public_key}')
 
 	nostr_client.connect_to_relay('https://nostr01.grid.tf/')!
-	nostr_client.subscribe_direct_messages()!
+	nostr_client.subscribe_to_direct_messages()!
 
 	for {
 		time.sleep(5 * time.second)
