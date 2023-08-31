@@ -1,7 +1,7 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.web3gw.explorer { Limit, NodeFilter, NodesRequestParams }
+import freeflowuniverse.crystallib.baobab.actions { Action }
+import threefoldtech.web3gw.tfgrid { FindNodes, Limit, NodeFilter }
 
 pub fn (mut h TFGridHandler) nodes(action Action) ! {
 	match action.name {
@@ -92,19 +92,17 @@ pub fn (mut h TFGridHandler) nodes(action Action) ! {
 			page := action.params.get_u64_default('page', 1)!
 			size := action.params.get_u64_default('size', 50)!
 			randomize := action.params.get_default_false('randomize')
-			count := action.params.get_default_false('count')
 
-			req := NodesRequestParams{
+			req := FindNodes{
 				filters: filter
 				pagination: Limit{
 					page: page
 					size: size
 					randomize: randomize
-					ret_count: count
 				}
 			}
 
-			res := h.explorer.nodes(req)!
+			res := h.tfgrid.find_nodes(req)!
 			h.logger.info('nodes: ${res}')
 		}
 		else {

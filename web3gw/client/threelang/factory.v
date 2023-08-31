@@ -1,7 +1,7 @@
 module threelang
 
 import log
-import freeflowuniverse.crystallib.actionsparser
+import freeflowuniverse.crystallib.baobab.actions
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import threefoldtech.threebot.tfgrid as tfgrid_client
 import threefoldtech.threebot.tfchain as tfchain_client
@@ -14,8 +14,8 @@ import threefoldtech.threebot.threelang.clients { Clients }
 import threefoldtech.threebot.threelang.stellar { StellarHandler }
 
 const (
-	tfgrid_book = 'tfgrid'
-	web3gw_book = 'web3gw'
+	tfgrid_book  = 'tfgrid'
+	web3gw_book  = 'web3gw'
 	stellar_book = 'stellar'
 )
 
@@ -37,7 +37,7 @@ pub mut:
 }
 
 pub fn new(args RunnerArgs, debug_log bool) !Runner {
-	mut ap := actionsparser.new(path: args.path, defaultbook: 'aaa')!
+	mut ap := actions.new(path: args.path)!
 
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }
@@ -66,8 +66,8 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	return runner
 }
 
-pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
-	for action in action_parser.actions {
+pub fn (mut r Runner) run(mut acs actions.Actions) ! {
+	for action in acs.actions {
 		match action.book {
 			threelang.tfgrid_book {
 				r.tfgrid_handler.handle_action(action)!

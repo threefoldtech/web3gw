@@ -1,14 +1,17 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.web3gw.explorer { ContractFilter, ContractsRequestParams, Limit }
+import freeflowuniverse.crystallib.baobab.actions { Action }
+import threefoldtech.web3gw.tfgrid as tfgrid_client { ContractFilter, FindContracts, Limit }
 
 pub fn (mut h TFGridHandler) contracts(action Action) ! {
 	match action.name {
 		'get' {
+			mnemonics := action.params.get_default('mnemonics', '')!
 			network := action.params.get_default('network', 'main')!
-			h.explorer.load(network)!
-
+			h.tfgrid.load(
+				mnemonic: mnemonics
+				network: network
+			)!
 			mut filter := ContractFilter{}
 			if action.params.exists('contract_id') {
 				filter.contract_id = action.params.get_u64('contract_id')!
@@ -41,19 +44,17 @@ pub fn (mut h TFGridHandler) contracts(action Action) ! {
 			page := action.params.get_u64_default('page', 1)!
 			size := action.params.get_u64_default('size', 50)!
 			randomize := action.params.get_default_false('randomize')
-			count := action.params.get_default_false('count')
 
-			req := ContractsRequestParams{
+			req := FindContracts{
 				filters: filter
 				pagination: Limit{
 					page: page
 					size: size
 					randomize: randomize
-					ret_count: count
 				}
 			}
 
-			res := h.explorer.contracts(req)!
+			res := h.tfgrid.find_contracts(req)!
 			h.logger.info('contracts: ${res}')
 		}
 		else {

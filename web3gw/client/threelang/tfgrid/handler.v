@@ -1,8 +1,7 @@
 module tfgrid
 
 import threefoldtech.web3gw.tfgrid as tfgrid_client { TFGridClient }
-import threefoldtech.web3gw.explorer { ExplorerClient }
-import freeflowuniverse.crystallib.actionsparser { Action }
+import freeflowuniverse.crystallib.baobab.actions { Action }
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
 import log { Logger }
 
@@ -10,18 +9,14 @@ import log { Logger }
 pub struct TFGridHandler {
 pub mut:
 	tfgrid   TFGridClient
-	explorer ExplorerClient
 	ssh_keys map[string]string
 	logger   Logger
 	handlers map[string]fn (action Action) !
 }
 
 pub fn new(mut rpc_client RpcWsClient, logger Logger, mut grid_client TFGridClient) TFGridHandler {
-	mut explorer_client := explorer.new(mut rpc_client)
-
 	mut t := TFGridHandler{
 		tfgrid: grid_client
-		explorer: explorer_client
 		logger: logger
 	}
 

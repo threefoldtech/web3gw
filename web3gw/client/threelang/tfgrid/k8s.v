@@ -1,6 +1,6 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser { Action }
+import freeflowuniverse.crystallib.baobab.actions { Action }
 import threefoldtech.web3gw.tfgrid as tfgrid_client { AddK8sWorker, GetK8sParams, K8sCluster, K8sNode, RemoveK8sWorker }
 import rand
 
