@@ -1,7 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.baobab.actions { Action }
-import threefoldtech.web3gw.tfgrid as tfgrid_client { AddK8sWorker, GetK8sParams, K8sCluster, K8sNode, RemoveK8sWorker }
+import threefoldtech.web3gw.tfgrid as tfgrid_client { AddWorkerToK8sCluster, K8sCluster, K8sNode, RemoveWorkerFromK8sCluster }
 import rand
 
 fn (mut t TFGridHandler) k8s(action Action) ! {
@@ -51,17 +51,14 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 				add_wg_access: add_wg_access
 			}
 
-			deploy_res := t.tfgrid.k8s_deploy(cluster)!
+			deploy_res := t.tfgrid.deploy_k8s_cluster(cluster)!
 
 			t.logger.info('${deploy_res}')
 		}
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := t.tfgrid.k8s_get(GetK8sParams{
-				cluster_name: name
-				master_name: 'master'
-			})!
+			get_res := t.tfgrid.get_k8s_cluster(name)!
 
 			t.logger.info('${get_res}')
 		}
@@ -82,9 +79,8 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 				public_ip: add_public_ip
 			}
 
-			add_res := t.tfgrid.k8s_add_worker(AddK8sWorker{
+			add_res := t.tfgrid.add_worker_to_k8s_cluster(AddWorkerToK8sCluster{
 				cluster_name: name
-				master_name: 'master'
 				worker: worker
 			})!
 
@@ -94,9 +90,8 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 			name := action.params.get('name')!
 			worker_name := action.params.get('worker_name')!
 
-			remove_res := t.tfgrid.k8s_remove_worker(RemoveK8sWorker{
+			remove_res := t.tfgrid.remove_worker_from_k8s_cluster(RemoveWorkerFromK8sCluster{
 				cluster_name: name
-				master_name: 'master'
 				worker_name: worker_name
 			})!
 			t.logger.info('${remove_res}')
@@ -104,7 +99,7 @@ fn (mut t TFGridHandler) k8s(action Action) ! {
 		'delete' {
 			name := action.params.get('name')!
 
-			t.tfgrid.k8s_delete(name) or { return error('failed to delete k8s cluster: ${err}') }
+			t.tfgrid.cancel_k8s_cluster(name) or { return error('failed to delete k8s cluster: ${err}') }
 		}
 		else {
 			return error('operation ${action.name} is not supported on k8s')

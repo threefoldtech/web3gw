@@ -6,8 +6,8 @@ import threefoldtech.web3gw.tfgrid { GetStatistics }
 pub fn (mut h TFGridHandler) stats(action Action) ! {
 	match action.name {
 		'get' {
-			network := action.params.get_default('network', 'main')!
-			h.explorer.load(network)!
+			// network := action.params.get_default('network', 'main')!
+			// h.explorer.load(network)!
 
 			mut filter := GetStatistics{}
 			if action.params.exists('status') {

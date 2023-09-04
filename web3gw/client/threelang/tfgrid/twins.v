@@ -1,7 +1,7 @@
 module tfgrid
 
 import freeflowuniverse.crystallib.baobab.actions { Action }
-import threefoldtech.web3gw.tfgrid { Limit, TwinFilter, TwinsRequestParams }
+import threefoldtech.web3gw.tfgrid { Limit, TwinFilter, FindTwins }
 
 pub fn (mut h TFGridHandler) twins(action Action) ! {
 	match action.name {
@@ -26,19 +26,17 @@ pub fn (mut h TFGridHandler) twins(action Action) ! {
 			page := action.params.get_u64_default('page', 1)!
 			size := action.params.get_u64_default('size', 50)!
 			randomize := action.params.get_default_false('randomize')
-			count := action.params.get_default_false('count')
 
-			req := TwinsRequestParams{
+			req := FindTwins{
 				filters: filter
 				pagination: Limit{
 					page: page
 					size: size
 					randomize: randomize
-					ret_count: count
 				}
 			}
 
-			res := h.explorer.twins(req)!
+			res := h.tfgrid.find_twins(req)!
 			h.logger.info('twins: ${res}')
 		}
 		else {

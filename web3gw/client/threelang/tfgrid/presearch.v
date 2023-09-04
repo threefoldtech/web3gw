@@ -4,7 +4,6 @@ import freeflowuniverse.crystallib.baobab.actions { Action }
 import rand
 
 fn (mut t TFGridHandler) presearch(action Action) ! {
-	mut presearch_client := t.tfgrid.applications().presearch()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(10).to_lower())!
@@ -17,7 +16,7 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 			public_restore_key := action.params.get_default('public_restore_key', '')!
 			private_restore_key := action.params.get_default('private_restore_key', '')!
 
-			deploy_res := presearch_client.deploy(
+			deploy_res := t.tfgrid.deploy_presearch(
 				name: name
 				farm_id: u64(farm_id)
 				ssh_key: ssh_key
@@ -33,14 +32,14 @@ fn (mut t TFGridHandler) presearch(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := presearch_client.get(name)!
+			get_res := t.tfgrid.get_presearch_deployment(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			presearch_client.delete(name) or {
+			t.tfgrid.cancel_presearch_deployment(name) or {
 				return error('failed to delete presearch instance: ${err}')
 			}
 		}

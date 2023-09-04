@@ -6,8 +6,8 @@ import threefoldtech.web3gw.tfgrid { FindNodes, Limit, NodeFilter }
 pub fn (mut h TFGridHandler) nodes(action Action) ! {
 	match action.name {
 		'get' {
-			network := action.params.get_default('network', 'main')!
-			h.explorer.load(network)!
+			// network := action.params.get_default('network', 'main')!
+			// h.tfgrid.load(network)!
 
 			mut filter := NodeFilter{}
 			if action.params.exists('status') {
