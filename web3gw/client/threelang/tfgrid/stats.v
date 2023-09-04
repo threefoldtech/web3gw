@@ -1,20 +1,20 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.web3gw.explorer { StatsFilter }
+import freeflowuniverse.crystallib.baobab.actions { Action }
+import threefoldtech.web3gw.tfgrid { GetStatistics }
 
 pub fn (mut h TFGridHandler) stats(action Action) ! {
 	match action.name {
 		'get' {
-			network := action.params.get_default('network', 'main')!
-			h.explorer.load(network)!
+			// network := action.params.get_default('network', 'main')!
+			// h.explorer.load(network)!
 
-			mut filter := StatsFilter{}
+			mut filter := GetStatistics{}
 			if action.params.exists('status') {
 				filter.status = action.params.get('status')!
 			}
 
-			res := h.explorer.counters(filter)!
+			res := h.tfgrid.statistics(filter)!
 			h.logger.info('stats: ${res}')
 		}
 		else {

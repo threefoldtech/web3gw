@@ -1,14 +1,11 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser { Action }
-import threefoldtech.web3gw.explorer { FarmFilter, FarmsRequestParams, Limit }
+import freeflowuniverse.crystallib.baobab.actions { Action }
+import threefoldtech.web3gw.tfgrid { FarmFilter, FindFarms, Limit }
 
 pub fn (mut h TFGridHandler) farms(action Action) ! {
 	match action.name {
 		'get' {
-			network := action.params.get_default('network', 'main')!
-			h.explorer.load(network)!
-
 			mut filter := FarmFilter{}
 			if action.params.exists('free_ips') {
 				filter.free_ips = action.params.get_u64('free_ips')!
@@ -44,19 +41,17 @@ pub fn (mut h TFGridHandler) farms(action Action) ! {
 			page := action.params.get_u64_default('page', 1)!
 			size := action.params.get_u64_default('size', 50)!
 			randomize := action.params.get_default_false('randomize')
-			count := action.params.get_default_false('count')
 
-			req := FarmsRequestParams{
+			req := FindFarms{
 				filters: filter
 				pagination: Limit{
 					page: page
 					size: size
 					randomize: randomize
-					ret_count: count
 				}
 			}
 
-			res := h.explorer.farms(req)!
+			res := h.tfgrid.find_farms(req)!
 			h.logger.info('farms: ${res}')
 		}
 		else {

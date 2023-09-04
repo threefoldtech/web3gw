@@ -1,6 +1,6 @@
 module nostr
 
-import freeflowuniverse.crystallib.actionsparser { Action }
+import freeflowuniverse.crystallib.baobab.actions { Action }
 
 fn (mut n NostrHandler) direct(action Action) ! {
 	match action.name {

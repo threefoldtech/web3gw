@@ -1,21 +1,21 @@
 module threelang
 
 import log
-import freeflowuniverse.crystallib.actionsparser
+import freeflowuniverse.crystallib.baobab.actions
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-import threefoldtech.threebot.tfgrid as tfgrid_client
-import threefoldtech.threebot.tfchain as tfchain_client
-import threefoldtech.threebot.stellar as stellar_client
-import threefoldtech.threebot.eth as eth_client
-import threefoldtech.threebot.btc as btc_client
-import threefoldtech.threebot.threelang.tfgrid { TFGridHandler }
-import threefoldtech.threebot.threelang.web3gw { Web3GWHandler }
-import threefoldtech.threebot.threelang.clients { Clients }
-import threefoldtech.threebot.threelang.stellar { StellarHandler }
+import threefoldtech.web3gw.tfgrid as tfgrid_client
+import threefoldtech.web3gw.tfchain as tfchain_client
+import threefoldtech.web3gw.stellar as stellar_client
+import threefoldtech.web3gw.eth as eth_client
+import threefoldtech.web3gw.btc as btc_client
+import threefoldtech.web3gw.threelang.tfgrid { TFGridHandler }
+import threefoldtech.web3gw.threelang.web3gw { Web3GWHandler }
+import threefoldtech.web3gw.threelang.clients { Clients }
+import threefoldtech.web3gw.threelang.stellar { StellarHandler }
 
 const (
-	tfgrid_book = 'tfgrid'
-	web3gw_book = 'web3gw'
+	tfgrid_book  = 'tfgrid'
+	web3gw_book  = 'web3gw'
 	stellar_book = 'stellar'
 )
 
@@ -37,7 +37,7 @@ pub mut:
 }
 
 pub fn new(args RunnerArgs, debug_log bool) !Runner {
-	mut ap := actionsparser.new(path: args.path, defaultbook: 'aaa')!
+	mut ap := actions.new(path: args.path)!
 
 	mut logger := log.Logger(&log.Log{
 		level: if debug_log { .debug } else { .info }
@@ -66,8 +66,8 @@ pub fn new(args RunnerArgs, debug_log bool) !Runner {
 	return runner
 }
 
-pub fn (mut r Runner) run(mut action_parser actionsparser.ActionsParser) ! {
-	for action in action_parser.actions {
+pub fn (mut r Runner) run(mut acs actions.Actions) ! {
+	for action in acs.actions {
 		match action.book {
 			threelang.tfgrid_book {
 				r.tfgrid_handler.handle_action(action)!

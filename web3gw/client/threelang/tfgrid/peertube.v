@@ -1,10 +1,9 @@
 module tfgrid
 
-import freeflowuniverse.crystallib.actionsparser { Action }
+import freeflowuniverse.crystallib.baobab.actions { Action }
 import rand
 
 fn (mut t TFGridHandler) peertube(action Action) ! {
-	mut peertube_client := t.tfgrid.applications().peertube()
 	match action.name {
 		'create' {
 			name := action.params.get_default('name', rand.string(8).to_lower())!
@@ -16,7 +15,7 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 			db_username := action.params.get_default('db_username', rand.string(8).to_lower())!
 			db_password := action.params.get_default('db_password', rand.string(8).to_lower())!
 
-			deploy_res := peertube_client.deploy(
+			deploy_res := t.tfgrid.deploy_peertube(
 				name: name
 				farm_id: u64(farm_id)
 				capacity: capacity
@@ -31,14 +30,14 @@ fn (mut t TFGridHandler) peertube(action Action) ! {
 		'get' {
 			name := action.params.get('name')!
 
-			get_res := peertube_client.get(name)!
+			get_res := t.tfgrid.get_peertube_deployment(name)!
 
 			t.logger.info('${get_res}')
 		}
 		'delete' {
 			name := action.params.get('name')!
 
-			peertube_client.delete(name) or {
+			t.tfgrid.cancel_peertube_deployment(name) or {
 				return error('failed to delete peertube instance: ${err}')
 			}
 		}
