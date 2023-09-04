@@ -7,6 +7,7 @@ The integration is done through our own fork of the project found [here](https:/
 - Allowing editing of office documents through the web client via OnlyOffice document server integration
 - Adding syntax highlighting in the code editor for Golang, Vlang, Yaml and Markdown.
 - Implementing a HTTP client to the SFTPGO API using Vlang
+- Extending the hooks system functionality by adding the pre-lsdir sync Fs action. This action allows you to execute an http service or an external command before listing the directory content. If the external command completes with a zero exit status or the HTTP notification response code is 200, SFTPGo will allow the operation, otherwise the client will get a permission denied error.
 
 You can start the server by using either one of the following two methods described below:
 
@@ -59,6 +60,7 @@ There is a config file at the root of the repo that can be used, although it mig
 - `httpd.static_files_path`: this points to the absolute path of additional static files needed for the UI, should also be in the root of the fork
 - `data_provider.name`: path for the sqlite DB file that would be created if not already there, required
 - `data_provider.users_base_dir`: absolute path to hold the users data, required
+- `smtp.templates_path`: this should point to the absolute templates path used by SFTPGO to generate the UI. This usually can be found at the root of the sftpgo fork
 
 In addition to the above configuration the following env variables need to be specified:
 
@@ -66,3 +68,32 @@ In addition to the above configuration the following env variables need to be sp
 - `SFTPGO_DEFAULT_ADMIN_PASSWORD`: the admin password for the admin created in initial startup
 - `SFTP_SERVER_ADDR`: The address on which the sftpgo server is reachable to both the user and the OnlyOffice service container, this is needed for the only office document server integration thus the address needs to be exposed to it for example: <http://172.17.0.1:8060>
 - `ONLYOFFICE_SERVER_ADDR`: The address for document server address, this is used to import the necessary javascript module to use the document server API and needs to be reachable by the web client for example: <http://localhost:8016>
+
+## `pre-lsdir` Sync Fs Action
+
+We have provided an example bash script to automate the creation of a demo user account and the setup of predefined event action and rule.
+Additionally, we have added a working V lang server to receive Fs events notifications from sftpgo.
+You can find the instructions on how to use this example here: https://github.com/freeflowuniverse/aydo/tree/development/examples/web-hook
+
+## Additional Features
+
+As mentioned above this project is built on what already exists in SFTPGO plus some additional Features. these features are:
+
+### Editing Documents via OnlyOffice
+
+The user can now edit documents using OnlyOffice and it supports different document extensions like (.docx, .xlsx, etc...)
+
+To edit a document via only office you simply need to click on the edit icon next to the desired file and that's it.
+
+![](../img/edit_doc.png)
+
+after that you will be redirected to OnlyOffice and have full access to its functionality.
+
+![](../img/OnlyOffice.gif)
+
+### Code Editor and Syntax Highlighting
+
+Code editing and syntax highlighting was also added for the following languages (Golang, Vlang, Yaml and Markdown) all you have to do is click on the edit icon next to the desired file and you will be redirected to the code editor.
+
+![](../img/editing_files.gif)
+

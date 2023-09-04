@@ -1,6 +1,10 @@
-# Web 3 Proxy
+# 3bot
 
-The web3 proxy implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
+> :warning: The repository has recently modified its name from web3_proxy to 3bot. Although Github will redirect the fetches, pushes, etc to the new name they do strongly recommend to change the remote:
+>
+> ```git remote set-url origin git@github.com:threefoldtech/3bot.git```
+
+The 3bot implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
 
 Project setup:
 
@@ -39,8 +43,10 @@ Follow the steps [here](server/) to add the client to the json rpc 2.0 server an
 
 To generate the documentation for the project, run `v run doc.vsh`. This builds: 
 - MDBook Documentation in html format from content in manual folder in `docs`. 
-- OpenRPC Documents for the JSON-RPC API's at `docs/openrpc`.
+- OpenRPC Documents for the JSON-RPC API's at `docs/openrpc` from V clients in `lib`.
 - OpenRPC Playground for the JSON-RPC API's at `docs/playground`.
+
+Find out more about how comments in code are used to generate OpenRPC Documents for domains, and how to annotate your code accordingly [here](https://github.com/freeflowuniverse/crystallib/tree/development/openrpc)
 
 To locally generate specific documents and not all of the aforementioned artifacts, comment out the [lines](https://github.com/threefoldtech/web3_proxy/blob/596331a5051d15502681d200fa408ee0983debc0/doc.vsh#LL88-L91) in the doc.vsh script accordingly.
 

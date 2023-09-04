@@ -17,7 +17,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd ../ && git clone -b development https://github.com/freeflowuniverse/crystallib.git
+          cd ../ && git clone -b development_process https://github.com/freeflowuniverse/crystallib.git
           cd crystallib && bash install.sh
           cd ../
       - name: Check out repository code
@@ -26,11 +26,11 @@ jobs:
       - name: Build V Client
         run: |
           bash install.sh
-          for main in $(ls examples/**/*.v); do 
+          for main in $(ls web3gw/examples/**/*.v); do 
             v $main
           done
 
       - name: Build Server
         run: |
-          cd server
+          cd web3gw/server
           go build
