@@ -5,7 +5,7 @@ import (
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 type (

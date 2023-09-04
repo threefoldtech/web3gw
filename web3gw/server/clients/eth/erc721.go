@@ -6,7 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/threefoldtech/web3_proxy/server/clients/eth/erc721"
+	"github.com/threefoldtech/3bot/web3gw/server/clients/eth/erc721"
 )
 
 // GetFungibleBalance returns the balance of the given address for the given fungible token contract

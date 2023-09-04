@@ -18,21 +18,21 @@ Sending the same type of token from one account to another account on the same c
 - examples:
   - Send tft on tfchain from the loaded account
 
-        ```
-        !!web3gw.money.send
-            channel:tfchain
-            to:28
-            amount:100
-        ```
-  - Send tft from the loaded stellar account to tfchian twin
+```js
+!!web3gw.money.send
+    channel:tfchain
+    to:28
+    amount:100
+```
+- Send tft from the loaded stellar account to tfchian twin
 
-        ```
-        !!web3gw.money.send
-            channel:stellar
-            channel_to:tfchain
-            to:28
-            amount:100
-        ```
+```js
+!!web3gw.money.send
+    channel:stellar
+    channel_to:tfchain
+    to:28
+    amount:100
+```
 
 ### Swap tokens
 
@@ -47,12 +47,12 @@ Swapping is converting tokens from one type to another on the same chain.
 - examples:
   - Swap `tft` to `eth` on ethereum chain
 
-        ```
-        !!web3gw.money.swap
-            from:eth
-            to:tft
-            amount:100
-        ```
+```
+!!web3gw.money.swap
+    from:eth
+    to:tft
+    amount:100
+```
 
 ### Get balance
 

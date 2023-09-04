@@ -6,8 +6,8 @@ import (
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/protocols/horizon"
-	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	stellargoclient "github.com/threefoldtech/3bot/web3gw/server/clients/stellar"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 const (

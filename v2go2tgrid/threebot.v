@@ -22,3 +22,6 @@ pub fn (bot Threebot) run() ! {
 	mut jsonrpc_ws_server := rpcwebsocket.new_rpcwsserver(8080, mail_handler, &logger)!
 	jsonrpc_ws_server.run()!
 }
+
+
+> TODO: what is this????

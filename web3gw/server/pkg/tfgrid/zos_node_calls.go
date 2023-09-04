@@ -7,9 +7,9 @@ import (
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/3bot/web3gw/server/clients/tfgrid"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 	client "github.com/threefoldtech/tfgrid-sdk-go/grid-client/node"
-	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
 	"github.com/threefoldtech/zos/pkg/capacity/dmi"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 )

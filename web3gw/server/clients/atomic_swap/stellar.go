@@ -10,8 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/txnbuild"
+	stellargoclient "github.com/threefoldtech/3bot/web3gw/server/clients/stellar"
 	"github.com/threefoldtech/atomicswap/stellar"
-	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
 )
 
 type (

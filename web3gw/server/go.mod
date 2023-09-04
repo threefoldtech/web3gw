@@ -1,4 +1,4 @@
-module github.com/threefoldtech/web3_proxy/server
+module github.com/threefoldtech/3bot/web3gw/server
 
 go 1.20
 

@@ -7,10 +7,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/threefoldtech/3bot/web3gw/server/clients/tfgrid/mocks"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/graphql"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/state"
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
-	"github.com/threefoldtech/web3_proxy/server/clients/tfgrid/mocks"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 )
 

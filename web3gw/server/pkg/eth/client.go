@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
-	goethclient "github.com/threefoldtech/web3_proxy/server/clients/eth"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	goethclient "github.com/threefoldtech/3bot/web3gw/server/clients/eth"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 type (

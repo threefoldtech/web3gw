@@ -9,7 +9,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	btcRpcClient "github.com/btcsuite/btcd/rpcclient"
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 const (

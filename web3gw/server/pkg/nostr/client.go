@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
-	"github.com/threefoldtech/web3_proxy/server/clients/nostr"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	"github.com/threefoldtech/3bot/web3gw/server/clients/nostr"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 const (
