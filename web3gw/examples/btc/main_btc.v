@@ -11,10 +11,10 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user string, password string) ! {
+fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user string, password string, mywallet string) ! {
 	mut btc_client := btc.new(mut client)
 
-	btc_client.load(host: host, user: user, pass: password)!
+	btc_client.load(host: host, user: user, pass: password, wallet: mywallet)!
 
 	amount_blocks := btc_client.get_block_count()!
 	logger.info("Block count: ${amount_blocks}")
@@ -38,10 +38,42 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, host string, user
 	logger.info("Fee estimation: ${fee_estimation}")
 
 	/*
-	result := btc_client.create_wallet(name:"mywallet2", passphrase:"mypassphrase")!
+	result := btc_client.create_wallet(name:"mywallet3", passphrase:"mypassphrase")!
 	logger.info("Result of creating wallet: ${result}")
 	*/
-	
+
+	btc_client.load_wallet("mywallet2")!
+
+	wallet_info := btc_client.get_wallet_info()!
+	logger.info("Wallet info: ${wallet_info}")
+
+	/*
+	accounts := btc_client.list_labels()!
+	logger.info("Accounts in mywallet: ${accounts.keys()}")
+	*/
+
+	balance := btc_client.get_balance()!
+	logger.info("Balance is ${balance}")
+
+	by_address := btc_client.list_received_by_address()!
+	logger.info("Received by address: ${by_address}")
+
+	/*
+	by_label := btc_client.list_received_by_label()!
+	logger.info("Received by label: ${by_label}")	
+	*/
+
+	/*
+	peer_info := btc_client.get_peer_info()!
+	logger.info("Peer info: ${peer_info}")
+	*/
+
+	transactions := btc_client.list_transactions("*")!
+	logger.info("Transactions: ${transactions}")
+
+	btc_client.get_received_by_label("")!
+
+	//btc_client.rename_account(old_account: "", new_account: "")!
 }
 
 fn main() {
@@ -54,6 +86,7 @@ fn main() {
 	password := fp.string('pass', `p`, '', 'The password to use to connect to the bitcoin node.')
 	host := fp.string('host', `h`, '', 'The address of the bitcoin node to connect to.')
 	user := fp.string('user', `u`, '', 'The user to use to connect to the bitcoin node.')
+	wallet := fp.string('wallet', `w`, '', 'The wallet you want to use.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
 	_ := fp.finalize() or {
@@ -73,7 +106,7 @@ fn main() {
 
 	_ := spawn myclient.run()
 
-	execute_rpcs(mut myclient, mut logger, host, user, password) or {
+	execute_rpcs(mut myclient, mut logger, host, user, password, wallet) or {
 		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}

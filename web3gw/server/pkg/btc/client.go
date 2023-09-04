@@ -2,6 +2,7 @@ package btc
 
 import (
 	"context"
+	"errors"
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/btcsuite/btcd/btcjson"
@@ -23,34 +24,33 @@ type (
 	}
 	// state managed by nostr client
 	btcState struct {
-		client *btcRpcClient.Client
+		client             *btcRpcClient.Client
+		connectionSettings Load
 	}
 
 	Load struct {
-		Host string `json:"host"`
-		User string `json:"user"`
-		Pass string `json:"pass"`
+		Host   string `json:"host"`
+		User   string `json:"user"`
+		Pass   string `json:"pass"`
+		Wallet string `json:"wallet"`
 	}
 
-	ImportAddressRescan struct {
+	ImportAddress struct {
 		Address string `json:"address"`
-		Account string `json:"account"`
+		Label   string `json:"label"`
 		Rescan  bool   `json:"rescan"`
+		P2SH    bool   `json:"p2sh"`
 	}
 
-	ImportPrivKeyLabel struct {
-		WIF   string `json:"wif"`
-		Label string `json:"label"`
-	}
-
-	ImportPrivKeyRescan struct {
+	ImportPrivKey struct {
 		WIF    string `json:"wif"`
 		Label  string `json:"label"`
 		Rescan bool   `json:"rescan"`
 	}
 
-	ImportPubKeyRescan struct {
+	ImportPubKey struct {
 		PubKey string `json:"pub_key"`
+		Label  string `json:"label"`
 		Rescan bool   `json:"rescan"`
 	}
 
@@ -71,12 +71,6 @@ type (
 		Mode       btcjson.EstimateSmartFeeMode `json:"mode"`
 	}
 
-	GenerateToAddress struct {
-		NumBlocks int64  `json:"num_blocks"`
-		Address   string `json:"address"`
-		MaxTries  int64  `json:"max_tries"`
-	}
-
 	GetChainTxStatsNBlocksBlockHash struct {
 		AmountOfBlocks int32  `json:"amount_of_blocks"`
 		BlockHashEnd   string `json:"block_hash_end"`
@@ -90,12 +84,22 @@ type (
 		AvoidReuse         bool   `json:"avoid_reuse"`
 	}
 
+	GetNewAddress struct {
+		Label       string `json:"label"`
+		AddressType string `json:"address_type"`
+	}
+
 	Move struct {
 		FromAccount      string         `json:"from_account"`
 		ToAccount        string         `json:"to_account"`
 		Amount           btcutil.Amount `json:"amount"`
 		MinConfirmations int            `json:"min_confirmations"`
 		Comment          string         `json:"comment"`
+	}
+
+	SetLabel struct {
+		Address string `json:"address"`
+		Label   string `json:"label"`
 	}
 )
 
@@ -122,82 +126,45 @@ func NewClient() *Client {
 	return &Client{}
 }
 
-func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
-	log.Debug().Msgf("BTC: connecting to btc node %s", args.Host)
-
-	client, err := btcRpcClient.New(
+func NewBtcRpcClient(args Load) (*btcRpcClient.Client, error) {
+	return btcRpcClient.New(
 		&btcRpcClient.ConnConfig{
-			Host:         args.Host,
+			Host:         args.Host + "/wallet/" + args.Wallet,
 			User:         args.User,
 			Pass:         args.Pass,
 			HTTPPostMode: true,
 			DisableTLS:   true,
 		}, nil)
+}
+
+func (c *Client) Load(ctx context.Context, conState jsonrpc.State, args Load) error {
+	log.Debug().Msgf("BTC: connecting to btc node %s", args.Host)
+
+	client, err := NewBtcRpcClient(args)
 	if err != nil {
 		return err
 	}
+
 	state := State(conState)
 	state.client = client
+	state.connectionSettings = args
 
 	return nil
 }
 
-func (c *Client) ImportAddress(ctx context.Context, conState jsonrpc.State, address string) error {
-	log.Debug().Msgf("BTC: importing address %s", address)
+func (c *Client) ImportAddress(ctx context.Context, conState jsonrpc.State, args ImportAddress) error {
+	log.Debug().Msgf("BTC: importing address %s with label %s (rescan: %t, p2sh: %t)", args.Address, args.Label, args.Rescan, args.P2SH)
 
 	state := State(conState)
 	if state.client == nil {
 		return pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.ImportAddress(address)
+	return state.client.ImportAddressRescan(args.Address, args.Label, args.Rescan)
 }
 
-func (c *Client) ImportAddressRescan(ctx context.Context, conState jsonrpc.State, args ImportAddressRescan) error {
-	log.Debug().Msgf("BTC: importing address rescan %s for account %s", args.Address, args.Account)
-
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ImportAddressRescan(args.Address, args.Account, args.Rescan)
-}
-
-func (c *Client) ImportPrivKey(ctx context.Context, conState jsonrpc.State, wif string) error {
-	log.Debug().Msg("BTC: importing private key")
-
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	privKeyWIF, err := btcutil.DecodeWIF(wif)
-	if err != nil {
-		return err
-	}
-
-	return state.client.ImportPrivKey(privKeyWIF)
-}
-
-func (c *Client) ImportPrivKeyLabel(ctx context.Context, conState jsonrpc.State, args ImportPrivKeyLabel) error {
-	log.Debug().Msgf("BTC: importing private key with label %s", args.Label)
-
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	privKeyWIF, err := btcutil.DecodeWIF(args.WIF)
-	if err != nil {
-		return err
-	}
-
-	return state.client.ImportPrivKeyLabel(privKeyWIF, args.Label)
-}
-
-func (c *Client) ImportPrivKeyRescan(ctx context.Context, conState jsonrpc.State, args ImportPrivKeyRescan) error {
-	log.Debug().Msgf("BTC: importing private key rescan with label %s", args.Label)
+func (c *Client) ImportPrivKeyRescan(ctx context.Context, conState jsonrpc.State, args ImportPrivKey) error {
+	log.Debug().Msgf("BTC: importing private key to label %s (rescan: %t)", args.Label, args.Rescan)
 
 	state := State(conState)
 	if state.client == nil {
@@ -212,19 +179,8 @@ func (c *Client) ImportPrivKeyRescan(ctx context.Context, conState jsonrpc.State
 	return state.client.ImportPrivKeyRescan(privKeyWIF, args.Label, args.Rescan)
 }
 
-func (c *Client) ImportPubKey(ctx context.Context, conState jsonrpc.State, pubKey string) error {
-	log.Debug().Msg("BTC: importing public key")
-
-	state := State(conState)
-	if state.client == nil {
-		return pkg.ErrClientNotConnected{}
-	}
-
-	return state.client.ImportPubKey(pubKey)
-}
-
-func (c *Client) ImportPubKeyRescan(ctx context.Context, conState jsonrpc.State, args ImportPubKeyRescan) error {
-	log.Debug().Msg("BTC: importing public key rescan")
+func (c *Client) ImportPubKey(ctx context.Context, conState jsonrpc.State, args ImportPubKey) error {
+	log.Debug().Msgf("BTC: importing public key (rescan: %t)", args.Rescan)
 
 	state := State(conState)
 	if state.client == nil {
@@ -234,6 +190,19 @@ func (c *Client) ImportPubKeyRescan(ctx context.Context, conState jsonrpc.State,
 	return state.client.ImportPubKeyRescan(args.PubKey, args.Rescan)
 }
 
+// TODO ListAccounts is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
+func (c *Client) ListLabels(ctx context.Context, conState jsonrpc.State) (map[string]btcutil.Amount, error) {
+	log.Debug().Msg("BTC: listing labels")
+
+	state := State(conState)
+	if state.client == nil {
+		return map[string]btcutil.Amount{}, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ListAccounts()
+}
+
+// TODO RenameAccount is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
 func (c *Client) RenameAccount(ctx context.Context, conState jsonrpc.State, args RenameAccount) error {
 	log.Debug().Msgf("BTC: renaming account from %s to %s", args.OldAccount, args.NewAccount)
 
@@ -271,7 +240,7 @@ func (c *Client) SendToAddress(ctx context.Context, conState jsonrpc.State, args
 }
 
 func (c *Client) EstimateSmartFee(ctx context.Context, conState jsonrpc.State, args EstimateSmartFee) (*btcjson.EstimateSmartFeeResult, error) {
-	log.Debug().Msgf("BTC: estimating smart fee for %s blocks with estimation mode %s", args.ConfTarget, args.Mode)
+	log.Debug().Msgf("BTC: estimating smart fee for %d blocks with estimation mode %s", args.ConfTarget, args.Mode)
 
 	state := State(conState)
 	if state.client == nil {
@@ -293,77 +262,24 @@ func hashesToStrings(hashes []*chainhash.Hash) []string {
 	return blockHashes
 }
 
-func (c *Client) GenerateBlocks(ctx context.Context, conState jsonrpc.State, numBlocks uint32) ([]string, error) {
-	log.Debug().Msgf("BTC: generating %d blocks", numBlocks)
+func (c *Client) SetLabel(ctx context.Context, conState jsonrpc.State, args SetLabel) error {
+	log.Debug().Msgf("BTC: setting label on address %s: %s", args.Address, args.Label)
 
 	state := State(conState)
 	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
+		return pkg.ErrClientNotConnected{}
 	}
 
-	hashes, err := state.client.Generate(numBlocks)
+	decodedAddress, err := btcutil.DecodeAddress(args.Address, nil)
 	if err != nil {
-		return []string{}, err
+		return err
 	}
 
-	return hashesToStrings(hashes), err
-}
-
-func (c *Client) GenerateBlocksToAddress(ctx context.Context, conState jsonrpc.State, args GenerateToAddress) ([]string, error) {
-	log.Debug().Msgf("BTC: generating %d blocks for address %s", args.NumBlocks, args.Address)
-
-	state := State(conState)
-	if state.client == nil {
-		return nil, pkg.ErrClientNotConnected{}
-	}
-
-	address, err := btcutil.DecodeAddress(args.Address, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	hashes, err := state.client.GenerateToAddress(args.NumBlocks, address, &args.MaxTries)
-	if err != nil {
-		return nil, err
-	}
-
-	return hashesToStrings(hashes), err
-}
-
-func (c *Client) GetAccount(ctx context.Context, conState jsonrpc.State, address string) (string, error) {
-	log.Debug().Msgf("BTC: getting account name for address %s", address)
-
-	state := State(conState)
-	if state.client == nil {
-		return "", pkg.ErrClientNotConnected{}
-	}
-
-	decodedAddress, err := btcutil.DecodeAddress(address, nil)
-	if err != nil {
-		return "", err
-	}
-
-	return state.client.GetAccount(decodedAddress)
-}
-
-func (c *Client) GetAccountAddress(ctx context.Context, conState jsonrpc.State, account string) (string, error) {
-	log.Debug().Msgf("BTC: getting account address of account %s", account)
-
-	state := State(conState)
-	if state.client == nil {
-		return "", pkg.ErrClientNotConnected{}
-	}
-
-	address, err := state.client.GetAccountAddress(account)
-	if err != nil {
-		return "", err
-	}
-
-	return address.EncodeAddress(), nil
+	return state.client.SetAccount(decodedAddress, args.Label)
 }
 
 func (c *Client) GetAddressInfo(ctx context.Context, conState jsonrpc.State, address string) (*btcjson.GetAddressInfoResult, error) {
-	log.Debug().Msgf("BTC: getting address info of address %s", address)
+	log.Debug().Msgf("BTC: getting address info for %s", address)
 
 	state := State(conState)
 	if state.client == nil {
@@ -373,15 +289,15 @@ func (c *Client) GetAddressInfo(ctx context.Context, conState jsonrpc.State, add
 	return state.client.GetAddressInfo(address)
 }
 
-func (c *Client) GetAddressesByAccount(ctx context.Context, conState jsonrpc.State, account string) ([]string, error) {
-	log.Debug().Msgf("BTC: getting address of account %s", account)
+func (c *Client) GetAddressesByLabel(ctx context.Context, conState jsonrpc.State, label string) ([]string, error) {
+	log.Debug().Msgf("BTC: getting addresses by label %s", label)
 
 	state := State(conState)
 	if state.client == nil {
 		return []string{}, pkg.ErrClientNotConnected{}
 	}
 
-	addresses, err := state.client.GetAddressesByAccount(account)
+	addresses, err := state.client.GetAddressesByAccount(label)
 	if err != nil {
 		return []string{}, err
 	}
@@ -394,15 +310,15 @@ func (c *Client) GetAddressesByAccount(ctx context.Context, conState jsonrpc.Sta
 	return addressesEncoded, nil
 }
 
-func (c *Client) GetBalance(ctx context.Context, conState jsonrpc.State, account string) (btcutil.Amount, error) {
-	log.Debug().Msgf("BTC: getting balance of account %s", account)
+func (c *Client) GetBalance(ctx context.Context, conState jsonrpc.State) (btcutil.Amount, error) {
+	log.Debug().Msgf("BTC: getting balance of wallet")
 
 	state := State(conState)
 	if state.client == nil {
 		return 0, pkg.ErrClientNotConnected{}
 	}
 
-	return state.client.GetBalance(account)
+	return state.client.GetBalance("*")
 }
 
 func (c *Client) GetBlockCount(ctx context.Context, conState jsonrpc.State) (int64, error) {
@@ -443,6 +359,17 @@ func (c *Client) GetBlockStats(ctx context.Context, conState jsonrpc.State, hash
 	return state.client.GetBlockStats(hash, nil)
 }
 
+func (c *Client) GetBlockChainInfo(ctx context.Context, conState jsonrpc.State) (*btcjson.GetBlockChainInfoResult, error) {
+	log.Debug().Msg("BTC: getting blockchain info")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetBlockChainInfo()
+}
+
 func (c *Client) GetBlockVerboseTx(ctx context.Context, conState jsonrpc.State, hash string) (*btcjson.GetBlockVerboseTxResult, error) {
 	log.Debug().Msgf("BTC: getting block verbose tx for block at height %s", hash)
 
@@ -480,6 +407,17 @@ func (c *Client) GetChainTxStats(ctx context.Context, conState jsonrpc.State, ar
 	return state.client.GetChainTxStats()
 }
 
+func (c *Client) GetConnectionCount(ctx context.Context, conState jsonrpc.State) (int64, error) {
+	log.Debug().Msg("BTC: connection count")
+
+	state := State(conState)
+	if state.client == nil {
+		return 0, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetConnectionCount()
+}
+
 func (c *Client) GetDifficulty(ctx context.Context, conState jsonrpc.State) (float64, error) {
 	log.Debug().Msg("BTC: getting difficulty")
 
@@ -502,15 +440,21 @@ func (c *Client) GetMiningInfo(ctx context.Context, conState jsonrpc.State) (*bt
 	return state.client.GetMiningInfo()
 }
 
-func (c *Client) GetNewAddress(ctx context.Context, conState jsonrpc.State, account string) (string, error) {
-	log.Debug().Msgf("BTC: getting new address for account %s", account)
+func (c *Client) GetNewAddress(ctx context.Context, conState jsonrpc.State, args GetNewAddress) (string, error) {
+	log.Debug().Msgf("BTC: getting new address of type %s for label %s", args.AddressType, args.Label)
 
 	state := State(conState)
 	if state.client == nil {
 		return "", pkg.ErrClientNotConnected{}
 	}
 
-	address, err := state.client.GetNewAddress(account)
+	var address btcutil.Address
+	var err error
+	if args.AddressType != "" {
+		address, err = state.client.GetNewAddressType(args.Label, args.AddressType)
+	} else {
+		address, err = state.client.GetNewAddress(args.Label)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -556,6 +500,102 @@ func (c *Client) GetRawTransaction(ctx context.Context, conState jsonrpc.State, 
 	return state.client.GetRawTransaction(txHashDecoded)
 }
 
+// TODO GetReceivedByAccount is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
+func (c *Client) GetReceivedByLabel(ctx context.Context, conState jsonrpc.State, label string) (btcutil.Amount, error) {
+	log.Debug().Msgf("BTC: getting amount received by label %s", label)
+
+	state := State(conState)
+	if state.client == nil {
+		return 0, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetReceivedByAccount(label)
+}
+
+func (c *Client) LoadWallet(ctx context.Context, conState jsonrpc.State, walletName string) error {
+	log.Debug().Msgf("BTC: loading wallet %s", walletName)
+
+	state := State(conState)
+	if state.client == nil {
+		return pkg.ErrClientNotConnected{}
+	}
+
+	_, err := state.client.LoadWallet(walletName)
+	if err != nil && err.Error() != "-35: Wallet \""+walletName+"\" is already loaded." {
+		return err
+	}
+
+	// Set the default wallet for future calls
+	state.connectionSettings.Wallet = walletName
+	client, err := NewBtcRpcClient(state.connectionSettings)
+	if err != nil {
+		return err
+	}
+	state.client = client
+	return nil
+}
+
+func (c *Client) GetWalletInfo(ctx context.Context, conState jsonrpc.State) (*btcjson.GetWalletInfoResult, error) {
+	log.Debug().Msg("BTC: getting wallet info")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.GetWalletInfo()
+}
+
+// TODO ListReceivedByAccount is deprecated: it should be modified once the following issue is done: https://github.com/btcsuite/btcd/issues/1974
+func (c *Client) ListReceivedByLabel(ctx context.Context, conState jsonrpc.State) ([]btcjson.ListReceivedByAccountResult, error) {
+	log.Debug().Msg("BTC: listing received transactions by label")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ListReceivedByAccount()
+}
+
+func (c *Client) ListReceivedByAddress(ctx context.Context, conState jsonrpc.State) ([]btcjson.ListReceivedByAddressResult, error) {
+	log.Debug().Msg("BTC: listing received transactions by address")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ListReceivedByAddress()
+}
+
+func (c *Client) ListSinceBlock(ctx context.Context, conState jsonrpc.State, hash string) (*btcjson.ListSinceBlockResult, error) {
+	log.Debug().Msg("BTC: listing since block")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	blockHash, err := chainhash.NewHashFromStr(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	return state.client.ListSinceBlock(blockHash)
+}
+
+func (c *Client) ListTransactions(ctx context.Context, conState jsonrpc.State, label string) ([]btcjson.ListTransactionsResult, error) {
+	log.Debug().Msg("BTC: listing transactions for label %s")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	return state.client.ListTransactions(label)
+}
+
 func (c *Client) CreateWallet(ctx context.Context, conState jsonrpc.State, args CreateWallet) (*btcjson.CreateWalletResult, error) {
 	log.Debug().Msgf("BTC: creating wallet with name %s (AvoidReuse:%t, CreateBlackWallet:%t, DisablePrivateKeys:%t)", args.Name, args.AvoidReuse, args.CreateBlackWallet, args.DisablePrivateKeys)
 
@@ -563,8 +603,12 @@ func (c *Client) CreateWallet(ctx context.Context, conState jsonrpc.State, args 
 	if state.client == nil {
 		return nil, pkg.ErrClientNotConnected{}
 	}
+	if args.Passphrase == "" {
+		return nil, errors.New("passphrase cannot be empty")
+	}
 
 	options := []btcRpcClient.CreateWalletOpt{}
+	options = append(options, btcRpcClient.WithCreateWalletPassphrase(args.Passphrase))
 	if args.DisablePrivateKeys {
 		options = append(options, btcRpcClient.WithCreateWalletDisablePrivateKeys())
 	}
@@ -574,11 +618,19 @@ func (c *Client) CreateWallet(ctx context.Context, conState jsonrpc.State, args 
 	if args.CreateBlackWallet {
 		options = append(options, btcRpcClient.WithCreateWalletBlank())
 	}
-	if args.Passphrase != "" {
-		options = append(options, btcRpcClient.WithCreateWalletPassphrase(args.Passphrase))
-	}
 
 	return state.client.CreateWallet(args.Name, options...)
+}
+
+func (c *Client) SetTxFee(tx context.Context, conState jsonrpc.State, fee btcutil.Amount) error {
+	log.Debug().Msg("BTC: setting transaction fee")
+
+	state := State(conState)
+	if state.client == nil {
+		return nil
+	}
+
+	return state.client.SetTxFee(fee)
 }
 
 func (c *Client) Move(ctx context.Context, conState jsonrpc.State, args Move) (bool, error) {
@@ -596,5 +648,4 @@ func (c *Client) Move(ctx context.Context, conState jsonrpc.State, args Move) (b
 		return state.client.MoveMinConf(args.FromAccount, args.ToAccount, args.Amount, args.MinConfirmations)
 	}
 	return state.client.Move(args.FromAccount, args.ToAccount, args.Amount)
-
 }

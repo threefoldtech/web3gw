@@ -226,3 +226,91 @@ pub struct TxOut {
 	value     i64
 	pk_script []byte
 }
+<<<<<<< HEAD:lib/btc/types.v
+
+pub struct LoadWalletResult {
+	name string 
+	warning string
+}
+
+pub struct GetWalletInfoResult {
+	walletname            string
+	walletversion         int
+	txcount  int 
+	keypoololdest int
+	keypoolsize int
+	keypoolsize_hd_internal ?int
+	unlocked_until ?int
+	paytxfee f64
+	hdseedid string
+	private_keys_enabled bool
+	avoid_reuse bool
+}
+
+// CreateWalletResult models the result of the createwallet command.
+pub struct CreateWalletResult {
+	name    string
+	warning string
+}
+
+pub struct GetBlockChainInfo {
+	chain string
+	blocks int
+	headers int
+	bestblockhash string
+	difficulty f64
+	mediantime i64
+	verificationprogress f64
+	initialblockdownload bool
+	pruned bool
+	pruneheight int
+	chainwork string
+	size_on_disk i64
+}
+
+pub struct ListReceivedByLabelResult {
+	account string
+	amount  f64
+	confirmations u64
+}
+
+pub struct ListReceivedByAddressResult {
+	account string
+	address string
+	amount f64
+	confirmations u64
+	txids []string
+	involveswatchonly bool [json: 'involvesWatchonly']
+}
+
+pub struct ListSinceBlockResult {
+	transactions []ListTransactionsResult
+	lastblock string
+}
+
+pub struct ListTransactionsResult{
+	abandoned bool
+	account string
+	address string
+	amount f64
+	bip125_replaceable string [json: 'bip125-replaceable']
+	blockhash string
+	blockheight int
+	blockindex i64
+	blocktime i64
+	category string
+	confirmations i64
+	fee f64
+	generated bool
+	involveswatchonly bool
+	label string
+	time i64
+	timereceived i64
+	trusted bool
+	txid string
+	vout u32
+	walletconflicts []string
+	otheraccount string
+}
+=======
+>>>>>>> development_integration:web3gw/client/btc/model.v
