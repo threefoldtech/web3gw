@@ -1,15 +1,12 @@
 module main
 
 import freeflowuniverse.crystallib.rpcwebsocket { RpcWsClient }
-
 import threefoldtech.web3gw.eth
-import threefoldtech.web3gw.explorer
+import threefoldtech.web3gw.tfgrid
 import threefoldtech.web3gw.stellar
 import threefoldtech.web3gw.tfchain
-import threefoldtech.web3gw.tfgrid
 import threefoldtech.web3gw.nostr
-//ADD NEW CLIENTS HERE
-
+// ADD NEW CLIENTS HERE
 import flag
 import log
 import os
@@ -19,14 +16,12 @@ const (
 	default_server_address = 'ws://127.0.0.1:8080'
 )
 
-
 fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, mnemonic string) ! {
 	// ADD YOUR CALLS HERE
 }
 
-
 fn main() {
-	// This is some code that allows us to quickly create a commmand line tool with arguments. 
+	// This is some code that allows us to quickly create a commmand line tool with arguments.
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application('Welcome to the web3_proxy client. The web3_proxy client allows you to execute all remote procedure calls that the web3_proxy server can handle.')
 	fp.limit_free_args(0, 0)!
@@ -51,7 +46,7 @@ fn main() {
 	}
 	_ := spawn myclient.run()
 	execute_rpcs(mut myclient, mut logger, mnemonic) or {
-		logger.error("Failed executing calls: $err")
+		logger.error('Failed executing calls: ${err}')
 		exit(1)
 	}
 }
