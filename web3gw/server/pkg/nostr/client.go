@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
-	"github.com/threefoldtech/web3_proxy/server/clients/nostr"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	"github.com/threefoldtech/3bot/web3gw/server/clients/nostr"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 const (
@@ -73,6 +73,12 @@ type (
 	MetadataInput struct {
 		Tags     []string       `json:"tags"`
 		Metadata nostr.Metadata `json:"metadata"`
+	}
+
+	// GetSubscriptionEventsInput specifies subscription events retrieval information
+	GetSubscriptionEventsInput struct {
+		ID    string `json:"id"`
+		Count uint32 `json:"count"`
 	}
 )
 
@@ -263,6 +269,18 @@ func (c *Client) GetEvents(ctx context.Context, conState jsonrpc.State) ([]nostr
 	}
 
 	evs := state.Client.GetEvents()
+
+	return evs, nil
+}
+
+// GetSubscriptionEvents returns all events for a subscription with the specified id
+func (c *Client) GetSubscriptionEvents(ctx context.Context, conState jsonrpc.State, args GetSubscriptionEventsInput) ([]nostr.NostrEvent, error) {
+	state := State(conState)
+	if state.Client == nil {
+		return nil, pkg.ErrClientNotConnected{}
+	}
+
+	evs := state.Client.GetSubscriptionEventsWithCount(args.ID, args.Count)
 
 	return evs, nil
 }

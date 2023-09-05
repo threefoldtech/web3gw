@@ -18,7 +18,7 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, secret string, et
 	address := eth_client.address()!
 	logger.info('address: ${address}\n')
 
-	mut eth_balance := eth_client.balance(address)!
+	mut eth_balance := eth_client.balance(account: address)!
 	logger.info('eth balance: ${eth_balance}')
 }
 

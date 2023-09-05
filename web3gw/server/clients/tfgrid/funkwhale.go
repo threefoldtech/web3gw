@@ -168,7 +168,7 @@ func (c *Client) Deletefunkwhale(ctx context.Context, name string) error {
 }
 
 func (c *Client) findfunkwhaleGWNode(farmID uint32) (types.Node, error) {
-	filter := BuildGridProxyFilters(FilterOptions{
+	filter := BuildGridProxyNodeFilters(NodeFilterOptions{
 		FarmID:       farmID,
 		PublicConfig: true,
 	}, uint64(c.TwinID))

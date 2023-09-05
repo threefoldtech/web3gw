@@ -31,44 +31,44 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 	tfchain_client.load(network: 'main', mnemonic: args.tfchain_mnemonic)!
 	tfgrid_client.load(network: 'main', mnemonic: args.tfchain_mnemonic)!
 
-	stellar_account_secret := eth_client.create_and_activate_stellar_account('public')!
+	stellar_account_secret := eth_client.create_stellar_account('public')!
 	stellar_client.load(network: 'public', secret: stellar_account_secret)!
 	stellar_address := stellar_client.address()!
 	logger.info('Created stellar account ${stellar_address}')
 
 	address := eth_client.address()!
 
-	mut eth_balance := eth_client.balance(address)!
+	mut eth_balance := eth_client.balance(account: address)!
 	logger.info('eth balance: ${eth_balance}')
 
-	mut eth_tft_balance := eth_client.tft_balance()!
+	mut eth_tft_balance := eth_client.balance(account: address, asset: 'tft')!
 	logger.info('eth tft balance: ${eth_tft_balance}')
 
 	eth_to_swap := '0.0001'
 
-	quote := eth_client.quote_eth_for_tft(eth_to_swap)!
+	quote := eth_client.quote(amount: eth_to_swap)!
 	logger.info('should receive ${quote} tft after swap')
 
-	tx := eth_client.swap_eth_for_tft(eth_to_swap)!
+	tx := eth_client.swap(amount: eth_to_swap)!
 	logger.info('swapped eth for tft: tx: ${tx}')
 
-	eth_balance = eth_client.balance(address)!
+	eth_balance = eth_client.balance(account: address)!
 	logger.info('eth balance: ${eth_balance}')
 
-	eth_tft_balance = eth_client.tft_balance()!
+	eth_tft_balance = eth_client.balance(account: address, asset: 'tft')!
 	logger.info('eth tft balance: ${eth_tft_balance}')
 
 	hash_bridge_to_stellar := eth_client.bridge_to_stellar(
 		destination: stellar_address
 		amount: quote
 	)!
-	stellar_client.await_transaction_on_eth_bridge(hash_bridge_to_stellar)!
+	stellar_client.await_bridged_from_ethereum(memo: hash_bridge_to_stellar)!
 	logger.info('bridge to stellar done')
 
-	eth_tft_balance = eth_client.tft_balance()!
+	eth_tft_balance = eth_client.balance(account: address, asset: 'tft')!
 	logger.info('eth tft balance: ${eth_tft_balance}')
 
-	mut stellar_balance := stellar_client.balance(stellar_address)!
+	mut stellar_balance := stellar_client.balance(address: stellar_address)!
 	logger.info('stellar balance: ${stellar_balance}')
 
 	tfchain_address := tfchain_client.address()!
@@ -81,38 +81,30 @@ fn execute_rpcs(mut client RpcWsClient, mut logger log.Logger, args Arguments) !
 		amount: stellar_balance
 		twin_id: tfchain_twinid
 	)!
-	tfchain_client.await_transaction_on_tfchain_bridge(hash_bridge_to_tfchain)!
+	tfchain_client.await_bridged_from_stellar(hash_bridge_to_tfchain)!
 	logger.info('bridge to tfchain done')
 
-	stellar_balance = stellar_client.balance(stellar_address)!
+	stellar_balance = stellar_client.balance(address: stellar_address)!
 	logger.info('stellar balance: ${stellar_balance}')
 
 	tfchain_balance = tfchain_client.balance(tfchain_address)!
 	logger.info('tft balance: ${tfchain_balance}')
 
-	machines_deployment := tfgrid_client.machines_deploy(tfgrid.MachinesModel{
-		name: 'mydeployment'
-		network: tfgrid.Network{
-			add_wireguard_access: false
+	machines_deployment := tfgrid_client.deploy_vm(tfgrid.DeployVM{
+		add_wireguard_access: false
+		name: 'vm1'
+		farm_id: 1
+		cpu: 2
+		memory: 2048
+		rootfs_size: 1024
+		public_ip6: true
+		env_vars: {
+			'SSH_KEY': args.ssh_key
 		}
-		machines: [
-			tfgrid.Machine{
-				name: 'vm1'
-				farm_id: 1
-				cpu: 2
-				memory: 2048
-				rootfs_size: 1024
-				public_ip6: true
-				env_vars: {
-					'SSH_KEY': args.ssh_key
-				}
-				disks: [tfgrid.Disk{
-					size: 10
-					mountpoint: '/mnt/disk1'
-				}]
-			},
-		]
-		metadata: ''
+		disks: [tfgrid.Disk{
+			size: 10
+			mountpoint: '/mnt/disk1'
+		}]
 		description: 'My deployment using ethereum'
 	})!
 	logger.info('machines deployment: ${machines_deployment}')

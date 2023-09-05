@@ -171,7 +171,7 @@ func (c *Client) DeletePeertube(ctx context.Context, name string) error {
 }
 
 func (c *Client) findPeertubeGWNode(farmID uint32) (types.Node, error) {
-	filter := BuildGridProxyFilters(FilterOptions{
+	filter := BuildGridProxyNodeFilters(NodeFilterOptions{
 		FarmID:       farmID,
 		PublicConfig: true,
 	}, uint64(c.TwinID))

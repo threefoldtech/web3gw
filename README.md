@@ -1,11 +1,15 @@
 # 3bot
 
+> :warning: The repository has recently modified its name from web3_proxy to 3bot. Although Github will redirect the fetches, pushes, etc to the new name they do strongly recommend to change the remote:
+>
+> ```git remote set-url origin git@github.com:threefoldtech/3bot.git```
+
 The 3bot implements a json rpc 2.0 server which opens up remote procedure calls for many clients such as tfgrid, tfchain, stellar, bitcoin, etc. Each directory in [here](server/pkg/) is a client that the web3 proxy supports.
 
 Project setup:
 
 - [Server](server/): the implementation for the json rpc 2.0 server
-- [Client](client/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
+- [Lib](lib/): the V library that implements the client for the json rpc 2.0 server, each of the server's methods can be called from that library
 - [Examples](examples): contains some examples of V scripts for each client that the json rpc 2.0 server supports, these scripts show you how you can use the V library
 
 ## How to run the web3 proxy server (json rpc 2.0 server)

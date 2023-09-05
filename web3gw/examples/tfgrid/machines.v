@@ -13,80 +13,73 @@ const (
 fn run_machines_ops(mut client tfgrid.TFGridClient, mut logger log.Logger) ! {
 	model_name := 'testMachinesOps'
 
-	res := client.machines_deploy(tfgrid.MachinesModel{
+	res := client.deploy_vm(tfgrid.DeployVM{
 		name: model_name
-		network: tfgrid.Network{
-			add_wireguard_access: false
+		add_wireguard_access: false
+		cpu: 2
+		memory: 2048
+		rootfs_size: 1024
+		env_vars: {
+			'SSH_KEY': 'ssh-rsa ...'
 		}
-		machines: [
-			tfgrid.Machine{
-				name: 'vm1'
-				cpu: 2
-				memory: 2048
-				rootfs_size: 1024
-				env_vars: {
-					'SSH_KEY': 'ssh-rsa ...'
-				}
-				disks: [tfgrid.Disk{
-					size: 10
-					mountpoint: '/mnt/disk1'
-				}]
-			},
-		]
-		metadata: 'metadata1'
+		disks: [tfgrid.Disk{
+			size: 10
+			mountpoint: '/mnt/disk1'
+		}]
 		description: 'description'
 	})!
 	logger.info('${res}')
 
 	defer {
-		client.machines_delete(model_name) or {
+		client.cancel_vm_deployment(model_name) or {
 			logger.error('failed while deleting machines: ${err}')
 		}
 	}
 
-	add_res := client.machines_add(tfgrid.AddMachine{
-		model_name: model_name
-		machine: tfgrid.Machine{
-			name: 'vm3'
-			cpu: 2
-			memory: 2048
-			rootfs_size: 1024
-			env_vars: {
-				'SSH_KEY': 'ssh-rsa ...'
-			}
-			disks: [tfgrid.Disk{
-				size: 10
-				mountpoint: '/mnt/disk1'
-			}]
-		}
-	})!
-	logger.info('${add_res}')
+	//@TODO: is this operation still supported?
+	// add_res := client.machines_add(tfgrid.AddMachine{
+	// 	model_name: model_name
+	// 	machine: tfgrid.Machine{
+	// 		name: 'vm3'
+	// 		cpu: 2
+	// 		memory: 2048
+	// 		rootfs_size: 1024
+	// 		env_vars: {
+	// 			'SSH_KEY': 'ssh-rsa ...'
+	// 		}
+	// 		disks: [tfgrid.Disk{
+	// 			size: 10
+	// 			mountpoint: '/mnt/disk1'
+	// 		}]
+	// 	}
+	// })!
+	// logger.info('${add_res}')
 
-	add_res2 := client.machines_add(tfgrid.AddMachine{
-		model_name: model_name
-		machine: tfgrid.Machine{
-			name: 'vm10'
-			cpu: 2
-			memory: 2048
-			rootfs_size: 1024
-			env_vars: {
-				'SSH_KEY': 'ssh-rsa ...'
-			}
-			disks: [tfgrid.Disk{
-				size: 10
-				mountpoint: '/mnt/disk1'
-			}]
-		}
-	})!
-	logger.info('${add_res2}')
+	// add_res2 := client.machines_add(tfgrid.AddMachine{
+	// 	model_name: model_name
+	// 	machine: tfgrid.Machine{
+	// 		name: 'vm10'
+	// 		cpu: 2
+	// 		memory: 2048
+	// 		rootfs_size: 1024
+	// 		env_vars: {
+	// 			'SSH_KEY': 'ssh-rsa ...'
+	// 		}
+	// 		disks: [tfgrid.Disk{
+	// 			size: 10
+	// 			mountpoint: '/mnt/disk1'
+	// 		}]
+	// 	}
+	// })!
+	// logger.info('${add_res2}')
 
-	remove_res := client.machines_remove(tfgrid.RemoveMachine{
-		model_name: model_name
-		machine_name: 'vm3'
-	})!
-	logger.info('${remove_res}')
+	// remove_res := client.machines_remove(tfgrid.RemoveMachine{
+	// 	model_name: model_name
+	// 	machine_name: 'vm3'
+	// })!
+	// logger.info('${remove_res}')
 
-	res_3 := client.machines_get(model_name)!
+	res_3 := client.get_vm_deployment(model_name)!
 	logger.info('${res_3}')
 }
 
@@ -121,7 +114,7 @@ fn main() {
 
 	mut tfgrid_client := tfgrid.new(mut myclient)
 
-	tfgrid_client.load(tfgrid.Credentials{
+	tfgrid_client.load(tfgrid.Load{
 		mnemonic: mnemonic
 		network: network
 	})!

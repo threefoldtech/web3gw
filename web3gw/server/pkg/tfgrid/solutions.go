@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
-	tfgridBase "github.com/threefoldtech/web3_proxy/server/clients/tfgrid"
-	"github.com/threefoldtech/web3_proxy/server/pkg"
+	tfgridBase "github.com/threefoldtech/3bot/web3gw/server/clients/tfgrid"
+	"github.com/threefoldtech/3bot/web3gw/server/pkg"
 )
 
 func (c *Client) DeployDiscourse(ctx context.Context, conState jsonrpc.State, discourse tfgridBase.Discourse) (tfgridBase.DiscourseResult, error) {

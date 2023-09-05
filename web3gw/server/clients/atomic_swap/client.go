@@ -10,9 +10,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	goethclient "github.com/threefoldtech/web3_proxy/server/clients/eth"
-	"github.com/threefoldtech/web3_proxy/server/clients/nostr"
-	stellargoclient "github.com/threefoldtech/web3_proxy/server/clients/stellar"
+	goethclient "github.com/threefoldtech/3bot/web3gw/server/clients/eth"
+	"github.com/threefoldtech/3bot/web3gw/server/clients/nostr"
+	stellargoclient "github.com/threefoldtech/3bot/web3gw/server/clients/stellar"
 )
 
 type (
