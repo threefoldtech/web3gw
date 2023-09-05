@@ -18,8 +18,8 @@ pub struct QuantumSafeFSConfig {
 }
 
 pub struct Encryption {
-	algorithm string
-	key       []u8 // TODO: how to create challenge
+	algorithm string //format?
+	key       []u8 // TODO: how to create challenge, document
 }
 
 pub struct QuantumSafeMeta {
@@ -32,13 +32,13 @@ pub struct ZDBGroup {
 }
 
 pub struct ZDBBackend {
-	address   string
+	address   string //format?
 	namespace string
 	password  string
 }
 
 pub struct QuantumCompression {
-	algorithm string
+	algorithm string //format?
 }
 
 pub struct QuantumSafeConfig {
