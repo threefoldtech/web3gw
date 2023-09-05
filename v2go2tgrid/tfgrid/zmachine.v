@@ -6,7 +6,7 @@ pub struct Zmachine {
 pub mut:
 	flist            string // if full url means custom flist meant for containers, if just name should be an official vm
 	network          ZmachineNetwork
-	size             u8
+	size             u8   //TODO: what does it mean, u8?
 	compute_capacity ComputeCapacity
 	mounts           []Mount
 	entrypoint       string // how to invoke that in a vm?
@@ -17,15 +17,15 @@ pub mut:
 
 pub struct ZmachineNetwork {
 pub mut:
-	public_ip  string
+	public_ip  string //name of public ip address
 	interfaces []ZNetworkInterface
 	planetary  bool
 }
 
 pub struct ZNetworkInterface {
 pub mut:
-	network string
-	ip      string
+	network string  //TODO: what is format
+	ip      string  //TODO: what is format
 }
 
 pub fn (mut n ZmachineNetwork) challenge() string {
@@ -43,7 +43,7 @@ pub fn (mut n ZmachineNetwork) challenge() string {
 pub struct Mount {
 pub mut:
 	name       string
-	mountpoint string
+	mountpoint string //TODO: what is format
 }
 
 pub fn (mut m Mount) challenge() string {
