@@ -3,14 +3,14 @@ module zos
 import json
 
 pub struct ZLogs {
-	zmachine string
-	output   string
+	zmachine string //TODO: format of string
+	output   string //TODO: format of string
 }
 
 pub fn (z ZLogs) challenge() string {
 	mut output := ''
-	output += z.zmachine
-	output += z.output
+	output += z.zmachine 
+	output += z.output  
 
 	return output
 }
