@@ -4,9 +4,9 @@ import json
 
 pub struct GatewayNameProxy {
 	tls_passthrough bool
-	backends        []string
-	network         ?string
-	name            string
+	backends        []string //format?
+	network         ?string  //format?
+	name            string //format?
 }
 
 pub fn (g GatewayNameProxy) challenge() string {
