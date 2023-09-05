@@ -1,0 +1,28 @@
+on:
+  push:
+    paths:
+      - '3bot/vgrid/**'
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt install -y libgc-dev
+  
+      - name: Setup Vlang
+        uses: vlang/setup-v@v1.3
+        with:
+          check-latest: true
+  
+      - name: Install v modules
+        run: |
+          cd ../ && git clone -b development https://github.com/freeflowuniverse/crystallib.git
+          cd crystallib && bash install.sh
+          cd ../
+      
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      
+      - name: Run vGrid Client Tests
+        run: cd 3bot/vgrid && v -stats test ./gridproxy/

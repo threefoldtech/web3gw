@@ -6,6 +6,7 @@
   - [Sftpgo](server/sftpgo.md)
 - [Playground](playground/playground.md)
 - [RPC](rpc/rpc.md)
+- [VGrid](vgrid/vgrid.md)
 - [v clients](v-clients/vclients.md)
   - [Ethereum](v-clients/ethereum/ethereum.md)
   - [Stellar](v-clients/stellar/stellar.md)
