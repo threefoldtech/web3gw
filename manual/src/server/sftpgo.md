@@ -67,3 +67,25 @@ In addition to the above configuration the following env variables need to be sp
 - `SFTPGO_DEFAULT_ADMIN_PASSWORD`: the admin password for the admin created in initial startup
 - `SFTP_SERVER_ADDR`: The address on which the sftpgo server is reachable to both the user and the OnlyOffice service container, this is needed for the only office document server integration thus the address needs to be exposed to it for example: <http://172.17.0.1:8060>
 - `ONLYOFFICE_SERVER_ADDR`: The address for document server address, this is used to import the necessary javascript module to use the document server API and needs to be reachable by the web client for example: <http://localhost:8016>
+
+## Additional Features
+
+As mentioned above this project is built on what already exists in SFTPGO plus some additional Features. these features are:
+
+### Editing Documents via OnlyOffice
+
+The user can now edit documents using OnlyOffice and it supports different document extensions like (.docx, .xlsx, etc...)
+
+To edit a document via only office you simply need to click on the edit icon next to the desired file and that's it.
+
+![](../img/edit_doc.png)
+
+after that you will be redirected to OnlyOffice and have full access to its functionality.
+
+![](../img/OnlyOffice.gif)
+
+### Code Editor and Syntax Highlighting
+
+Code editing and syntax highlighting was also added for the following languages (Golang, Vlang, Yaml and Markdown) all you have to do is click on the edit icon next to the desired file and you will be redirected to the code editor.
+
+![](../img/editing_files.gif)
