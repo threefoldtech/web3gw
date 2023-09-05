@@ -11,11 +11,11 @@ pub mut:
 	// is a class C of a chosen class B
 	// form: e.g. 192.168.16.0/24
 	// needs to be a private subnet
-	subnet   string
-	ip_range string
+	subnet   string //TODO: what is format
+	ip_range string //TODO: what is format, what is difference with subnet
 	// wireguard private key, curve25519
-	// TODO: is this in libsodium
-	wireguard_private_key string
+	// TODO: is this in libsodium 
+	wireguard_private_key string //TODO: what is format
 	//>1024?
 	wireguard_listen_port u16
 	peers                 []Peer
@@ -38,17 +38,18 @@ pub fn (mut n Znet) challenge() string {
 pub struct Peer {
 pub mut:
 	// is another class C in same class B as above
-	subnet string
+	subnet string //TODO: what is format
 	// wireguard public key, curve25519
-	wireguard_public_key string
-	allowed_ips          []string
+	wireguard_public_key string   //TODO: what is format
+	//TODO: give example ipv4 and ipv6 for allowed_ips
+	allowed_ips          []string /is ipv4 or ipv6 address from a wireguard client who connects, with netmark
 	// ipv4 or ipv6
 	// can be empty, one of the 2 need to be filled in though
-	endpoint string
+	endpoint string //TODO: what is format
 }
 
 // TODO: need API endpoint on ZOS to find open ports
-// TODO: reservation for 1 h, after will be released again
+// TODO: reservation for 1 h, after will be released again, ??? what does this mean?
 
 pub fn (mut p Peer) challenge() string {
 	mut out := ''
