@@ -1,4 +1,4 @@
-module zos
+module tfgrid
 
 pub struct QuantumSafeFS {
 	cache  u64
@@ -47,6 +47,6 @@ pub struct QuantumSafeConfig {
 	backends   []ZDBBackend
 }
 
-pub fn(qsfs QuantumSafeFS) challenge() string{
+pub fn (qsfs QuantumSafeFS) challenge() string {
 	return ''
 }

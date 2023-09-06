@@ -1,4 +1,4 @@
-module zos
+module tfgrid
 
 import json
 

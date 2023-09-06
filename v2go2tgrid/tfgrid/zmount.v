@@ -1,6 +1,6 @@
 // ssd mounts under zmachine
 
-module zos
+module tfgrid
 
 import json
 

@@ -259,6 +259,98 @@ func main() {
 				},
 				Action: substrateDecorator(getUserTwin),
 			},
+			{
+				Name:  "rmb-dl-deploy",
+				Usage: "call rmb func",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "substrate",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "substrate URL",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "relay",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "relay URL",
+						Required: true,
+					},
+					cli.UintFlag{
+						Name:     "dst",
+						Value:    0,
+						Usage:    "destination",
+						Required: true,
+					},
+
+					cli.StringFlag{
+						Name:     "data",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "Data to be sent",
+						Required: true,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					mnemonics := c.String("mnemonics")
+					substrate_url := c.String("substrate")
+					relay := c.String("relay")
+					dst := uint32(c.Uint("dst"))
+					data := c.String("data")
+					return deploymentDeploy(mnemonics, substrate_url, relay, dst, data)
+
+				},
+			},
+			{
+				Name:  "rmb-dl-get",
+				Usage: "call rmb func",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "substrate",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "substrate URL",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "relay",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "relay URL",
+						Required: true,
+					},
+					cli.UintFlag{
+						Name:     "dst",
+						Value:    0,
+						Usage:    "destination",
+						Required: true,
+					},
+
+					cli.StringFlag{
+						Name:     "data",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "Data to be sent",
+						Required: true,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					mnemonics := c.String("mnemonics")
+					substrate_url := c.String("substrate")
+					relay := c.String("relay")
+					dst := uint32(c.Uint("dst"))
+					data := c.String("data")
+					return deploymentGet(mnemonics, substrate_url, relay, dst, data)
+
+				},
+			},
 		},
 	}
 

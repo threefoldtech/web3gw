@@ -1,4 +1,4 @@
-module zos
+module tfgrid
 
 import freeflowuniverse.crystallib.threefold.rmb
 import json

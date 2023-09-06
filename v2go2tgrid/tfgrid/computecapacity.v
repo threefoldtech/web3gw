@@ -1,4 +1,4 @@
-module zos
+module tfgrid
 
 pub struct ComputeCapacity {
 pub mut:
@@ -19,4 +19,3 @@ pub fn (mut c ComputeCapacity) challenge() string {
 	out += '${c.memory}'
 	return out
 }
-																																			

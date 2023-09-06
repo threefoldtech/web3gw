@@ -1,4 +1,4 @@
-module zos
+module tfgrid
 
 import json
 
@@ -32,39 +32,39 @@ type ResultState = string
 
 pub fn challenge(data string, type_ string) !string {
 	match type_ {
-		zos.workload_types.zmount {
+		tfgrid.workload_types.zmount {
 			mut w := json.decode(Zmount, data)!
 			return w.challenge()
 		}
-		zos.workload_types.network {
+		tfgrid.workload_types.network {
 			mut w := json.decode(Znet, data)!
 			return w.challenge()
 		}
-		zos.workload_types.zdb {
+		tfgrid.workload_types.zdb {
 			mut w := json.decode(Zdb, data)!
 			return w.challenge()
 		}
-		zos.workload_types.zmachine {
+		tfgrid.workload_types.zmachine {
 			mut w := json.decode(Zmachine, data)!
 			return w.challenge()
 		}
-		zos.workload_types.qsfs {
+		tfgrid.workload_types.qsfs {
 			mut w := json.decode(QuantumSafeFS, data)!
 			return w.challenge()
 		}
-		zos.workload_types.public_ip {
+		tfgrid.workload_types.public_ip {
 			mut w := json.decode(PublicIP, data)!
 			return w.challenge()
 		}
-		zos.workload_types.gateway_name {
+		tfgrid.workload_types.gateway_name {
 			mut w := json.decode(GatewayNameProxy, data)!
 			return w.challenge()
 		}
-		zos.workload_types.gateway_fqdn {
+		tfgrid.workload_types.gateway_fqdn {
 			mut w := json.decode(GatewayFQDNProxy, data)!
 			return w.challenge()
 		}
-		zos.workload_types.zlogs {
+		tfgrid.workload_types.zlogs {
 			mut w := json.decode(ZLogs, data)!
 			return w.challenge()
 		}
