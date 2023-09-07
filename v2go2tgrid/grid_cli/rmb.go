@@ -24,7 +24,7 @@ func deploymentChanges(client *direct.DirectClient, dst uint32, contractID uint6
 	if err != nil {
 		return nil, fmt.Errorf("failed to get deployment changes after deploy %w", err)
 	}
-	fmt.Println(changes)
+	// fmt.Println(changes)
 	return changes, nil
 }
 

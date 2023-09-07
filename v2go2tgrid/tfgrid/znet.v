@@ -42,7 +42,7 @@ pub mut:
 	// wireguard public key, curve25519
 	wireguard_public_key string   //TODO: what is format
 	//TODO: give example ipv4 and ipv6 for allowed_ips
-	allowed_ips          []string /is ipv4 or ipv6 address from a wireguard client who connects, with netmark
+	allowed_ips          []string //is ipv4 or ipv6 address from a wireguard client who connects, with netmark
 	// ipv4 or ipv6
 	// can be empty, one of the 2 need to be filled in though
 	endpoint string //TODO: what is format

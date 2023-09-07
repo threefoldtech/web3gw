@@ -9,9 +9,9 @@ pub:
 	mnemonics     string
 	substrate_url string
 	twin_id       u32
-	relay_url string
-// pub mut:
-// 	rmb_cl rmb.RMBClient
+	relay_url     string
+	// pub mut:
+	// 	rmb_cl rmb.RMBClient
 }
 
 pub enum ChainNetwork {
@@ -27,13 +27,13 @@ const substrate_url = {
 	ChainNetwork.test: 'wss://tfchain.test.grid.tf/ws'
 	ChainNetwork.main: 'wss://tfchain.grid.tf/ws'
 }
+
 const relay_url = {
 	ChainNetwork.dev:  'wss://relay.dev.grid.tf'
 	ChainNetwork.qa:   'wss://relay.qa.grid.tf'
 	ChainNetwork.test: 'wss://relay.test.grid.tf'
 	ChainNetwork.main: 'wss://relay.grid.tf'
 }
-
 
 pub fn new_deployer(mnemonics string, chain_network ChainNetwork) !Deployer {
 	twin_id := get_user_twin(mnemonics, tfgrid.substrate_url[chain_network])!
@@ -53,14 +53,14 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solu
 	public_ips := dl.count_public_ips()
 
 	contract_id := d.create_node_contract(node_id, body, hash_hex, public_ips, solution_provider)!
+	println('ContractID: ${contract_id}')
 	dl.contract_id = contract_id
 	signature := d.sign_deployment(hash_hex)!
 	dl.add_signature(d.twin_id, signature)
 	payload := dl.json_encode()
 
 	node_twin_id := d.get_node_twin(node_id)!
-	res := d.rmb_deployment_deploy(node_twin_id, payload)!
-	println(json.decode([]Workload, res)!)
+	d.rmb_deployment_deploy(node_twin_id, payload)!
 	return contract_id
 }
 
@@ -69,13 +69,12 @@ pub fn (mut d Deployer) get_deployment(contract_id u64, node_id u32) !Deployment
 	payload := {
 		'contract_id': contract_id
 	}
-	res := d.rmb_deployment_get( twin_id, json.encode(payload))!
+	res := d.rmb_deployment_get(twin_id, json.encode(payload))!
 	return json.decode(Deployment, res)
 }
 
-pub fn (mut d Deployer) rmb_deployment_deploy(dst u32,  data string) !string {
-	println("grid-cli rmb-dl-deploy --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data \'${data}\'")
-	res := os.execute("grid-cli rmb-dl-deploy --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data \'${data}\'")
+pub fn (mut d Deployer) rmb_deployment_deploy(dst u32, data string) !string {
+	res := os.execute("grid-cli rmb-dl-deploy --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data '${data}'")
 	if res.exit_code != 0 {
 		return error(res.output)
 	}
@@ -83,8 +82,8 @@ pub fn (mut d Deployer) rmb_deployment_deploy(dst u32,  data string) !string {
 	return res.output
 }
 
-pub fn (mut d Deployer) rmb_deployment_get(dst u32,  data string) !string {
-	res := os.execute("grid-cli rmb-dl-get --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data \'${data}\'")
+pub fn (mut d Deployer) rmb_deployment_get(dst u32, data string) !string {
+	res := os.execute("grid-cli rmb-dl-get --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data '${data}'")
 	if res.exit_code != 0 {
 		return error(res.output)
 	}
@@ -109,7 +108,6 @@ pub fn (mut d Deployer) create_node_contract(node_id u32, body string, hash stri
 
 	return strconv.parse_uint(res.output, 10, 64)!
 }
-
 
 pub fn (mut d Deployer) create_name_contract(name string) !u64 {
 	res := os.execute("grid-cli new-name-cn --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --name ${name}")

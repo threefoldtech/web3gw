@@ -3,18 +3,19 @@ module main
 import json
 import threefoldtech.tfgrid
 import log
+import os
+import time
 
 fn main() {
 	mut logger := log.Logger(&log.Log{
 		level: .debug
 	})
-
-	mnemonics := '<MNEMONICS>'
+	mnemonics := os.getenv('MNEMONICS')
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
 	mut deployer := tfgrid.new_deployer(mnemonics, chain_network)!
 
-	node_id := u32(17)
-
+	node_id := u32(27)
+	network_name := 'network1'
 	mut network := tfgrid.Znet{
 		ip_range: '10.1.0.0/16'
 		subnet: '10.1.1.0/24'
@@ -28,7 +29,7 @@ fn main() {
 			},
 		]
 	}
-	mut znet_workload := network.to_workload(name: 'network', description: 'test_network')
+	mut znet_workload := network.to_workload(name: network_name, description: 'test_network1')
 
 	zmachine := tfgrid.Zmachine{
 		flist: 'https://hub.grid.tf/tf-official-apps/threefoldtech-ubuntu-22.04.flist'
@@ -36,7 +37,7 @@ fn main() {
 			public_ip: ''
 			interfaces: [
 				tfgrid.ZNetworkInterface{
-					network: 'network'
+					network: network_name
 					ip: '10.1.1.3'
 				},
 			]
@@ -74,7 +75,7 @@ fn main() {
 		exit(1)
 	}
 	logger.info('deployment contract id: ${contract_id}')
-
+	time.sleep(2 * time.second) // TODO: create wait function to wait for deployment creation
 	dl := deployer.get_deployment(contract_id, node_id) or {
 		logger.error('failed to get deployment data: ${err}')
 		exit(1)
