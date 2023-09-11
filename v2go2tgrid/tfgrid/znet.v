@@ -9,10 +9,14 @@ pub mut:
 	// unique nr for each network chosen, this identified private networks as connected to a container or vm or ...
 	// corresponds to the 2nd number of a class B ipv4 address
 	// is a class C of a chosen class B
-	// form: e.g. 192.168.16.0/24
-	// needs to be a private subnet
-	subnet   string //TODO: what is format
-	ip_range string //TODO: what is format, what is difference with subnet
+	
+	// IPV4 subnet for this network resource
+	// this must be a valid subnet of the entire network ip range.
+	// for example 10.1.1.0/24
+	subnet   string  
+	// IP range of the network, must be an IPv4 /16
+	// for example a 10.1.0.0/16
+	ip_range string 
 	// wireguard private key, curve25519
 	// TODO: is this in libsodium 
 	wireguard_private_key string //TODO: what is format
@@ -37,15 +41,21 @@ pub fn (mut n Znet) challenge() string {
 // is a remote wireguard client which can connect to this node
 pub struct Peer {
 pub mut:
-	// is another class C in same class B as above
-	subnet string //TODO: what is format
-	// wireguard public key, curve25519
-	wireguard_public_key string   //TODO: what is format
-	//TODO: give example ipv4 and ipv6 for allowed_ips
-	allowed_ips          []string //is ipv4 or ipv6 address from a wireguard client who connects, with netmark
-	// ipv4 or ipv6
+	// IPV4 subnet of the network resource of the peer
+	subnet string 
+
+	// WGPublicKey of the peer (driven from its private key)
+	wireguard_public_key string   
+
+	//is ipv4 or ipv6 address from a wireguard client who connects
+	//this should be the node's subnet and the wireguard routing ip that should start with `100.64`
+	//then the 2nd and 3rd part of the node's subnet
+	//e.g. ["10.20.2.0/24", "100.64.20.2/32"]
+	allowed_ips          []string 
+	// Entrypoint of the peer; ipv4 or ipv6,
 	// can be empty, one of the 2 need to be filled in though
-	endpoint string //TODO: what is format
+	//e.g. [2a10:b600:0:9:225:90ff:fe82:7130]:7777
+	endpoint string 
 }
 
 // TODO: need API endpoint on ZOS to find open ports
@@ -74,3 +84,5 @@ pub fn (z Znet) to_workload(args WorkloadArgs) Workload {
 		result: args.result or { WorkloadResult{} }
 	}
 }
+
+pub fn

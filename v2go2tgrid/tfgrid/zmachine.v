@@ -6,7 +6,7 @@ pub struct Zmachine {
 pub mut:
 	flist            string // if full url means custom flist meant for containers, if just name should be an official vm
 	network          ZmachineNetwork
-	size             u8   //TODO: what does it mean, u8?
+	size             u64 // size of the rootfs disk in bytes
 	compute_capacity ComputeCapacity
 	mounts           []Mount
 	entrypoint       string // how to invoke that in a vm?
@@ -24,8 +24,8 @@ pub mut:
 
 pub struct ZNetworkInterface {
 pub mut:
-	network string  //TODO: what is format
-	ip      string  //TODO: what is format
+	network string  // Network name (znet name) to join
+	ip      string  // IP of the zmachine on this network must be a valid Ip in the selected network
 }
 
 pub fn (mut n ZmachineNetwork) challenge() string {
@@ -43,7 +43,7 @@ pub fn (mut n ZmachineNetwork) challenge() string {
 pub struct Mount {
 pub mut:
 	name       string
-	mountpoint string //TODO: what is format
+	mountpoint string // the path to mount the disk into e.g. '/disk1' 
 }
 
 pub fn (mut m Mount) challenge() string {

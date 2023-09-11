@@ -3,8 +3,10 @@ module tfgrid
 import json
 
 pub struct ZLogs {
-	zmachine string //TODO: format of string
-	output   string //TODO: format of string
+	// zmachine to stream logs of
+	zmachine string
+	// the `target` location to stream the logs to, it must be a redis or web-socket url
+	output   string 
 }
 
 pub fn (z ZLogs) challenge() string {
