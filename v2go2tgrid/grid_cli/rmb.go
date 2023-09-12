@@ -104,3 +104,32 @@ func deploymentGet(mnemonics string, substrate_url string, relay_url string, dst
 
 	return nil
 }
+
+func nodeTakenPorts(mnemonics string, substrate_url string, relay_url string, nodeTwin uint32) error {
+	subManager := substrate.NewManager(substrate_url)
+	sub, err := subManager.Substrate()
+	if err != nil {
+		return fmt.Errorf("failed to connect to substrate: %w", err)
+	}
+	defer sub.Close()
+	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
+	if err != nil {
+		return fmt.Errorf("failed to create direct client: %w", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	var takenPorts []uint16
+
+	if err := client.Call(ctx, nodeTwin, "zos.network.list_wg_ports", nil, &takenPorts); err != nil {
+		return fmt.Errorf("failed to get deployment %w", err)
+	}
+	json, err := json.Marshal(takenPorts)
+	if err != nil {
+		return fmt.Errorf("failed to marshal deployment %w", err)
+	}
+
+	fmt.Println(string(json))
+
+	return nil
+}
