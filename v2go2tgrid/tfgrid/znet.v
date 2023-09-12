@@ -54,6 +54,16 @@ pub mut:
 	endpoint string
 }
 
+pub struct PublicConfig {
+pub:
+	type_  string // Type define if we need to use the Vlan field or the MacVlan
+	ipv4   string
+	ipv6   string
+	gw4    string
+	gw6    string
+	domain string // Domain is the node domain name e.g. gent01.devnet.grid.tf
+}
+
 pub fn (mut p Peer) challenge() string {
 	mut out := ''
 	out += p.wireguard_public_key
