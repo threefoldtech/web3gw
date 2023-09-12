@@ -41,11 +41,11 @@ pub fn (mut n Znet) challenge() string {
 // is a remote wireguard client which can connect to this node
 pub struct Peer {
 pub mut:
-	// IPV4 subnet of the network resource of the peer
-	subnet string 
+	
+	subnet string // IPV4 subnet of the network resource of the peer
 
-	// WGPublicKey of the peer (driven from its private key)
-	wireguard_public_key string   
+	
+	wireguard_public_key string    // WGPublicKey of the peer (driven from its private key)
 
 	//is ipv4 or ipv6 address from a wireguard client who connects
 	//this should be the node's subnet and the wireguard routing ip that should start with `100.64`
@@ -58,8 +58,7 @@ pub mut:
 	endpoint string 
 }
 
-// TODO: need API endpoint on ZOS to find open ports
-// TODO: reservation for 1 h, after will be released again, ??? what does this mean?
+
 
 pub fn (mut p Peer) challenge() string {
 	mut out := ''
@@ -84,5 +83,3 @@ pub fn (z Znet) to_workload(args WorkloadArgs) Workload {
 		result: args.result or { WorkloadResult{} }
 	}
 }
-
-pub fn
