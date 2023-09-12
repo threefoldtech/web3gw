@@ -12,7 +12,7 @@ fn test_deploy_deployment() {
 	}
 	node_id := u32(14)
 	twin_id := u32(49)
-	node_twin_id := u32(22) // TODO: need to get this from chain
+	node_twin_id := u32(22) 
 
 	mut network := Znet{
 		ip_range: '10.1.0.0/16'
