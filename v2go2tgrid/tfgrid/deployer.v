@@ -197,3 +197,13 @@ pub fn get_user_twin(mnemonics string, substrate_url string) !u32 {
 
 	return u32(strconv.parse_uint(res.output, 10, 32)!)
 }
+
+pub fn(mut d Deployer) get_taken_ports(node_id u32) !string {
+	node_twin :=  d.get_node_twin(node_id)!
+	res := os.execute("grid-cli rmb-taken-ports --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${node_twin} ")
+	if res.exit_code != 0 {
+		return error(res.output)
+	}
+
+	return res.output
+}
