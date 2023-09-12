@@ -98,7 +98,7 @@ pub mut:
 
 pub struct Workload {
 pub mut:
-	version int
+	version u32
 	// unique name per Deployment
 	name  string
 	type_ WorkloadType [json: 'type']
@@ -151,7 +151,7 @@ type WorkloadDataResult = GatewayProxyResult
 
 [params]
 pub struct WorkloadArgs {
-	version     ?int
+	version     ?u32
 	name        string
 	description ?string
 	metadata    ?string

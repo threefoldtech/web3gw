@@ -3,6 +3,7 @@ module tfgrid
 import os
 import strconv
 import json
+import time
 
 pub struct Deployer {
 pub:
@@ -10,8 +11,6 @@ pub:
 	substrate_url string
 	twin_id       u32
 	relay_url     string
-	// pub mut:
-	// 	rmb_cl rmb.RMBClient
 }
 
 pub enum ChainNetwork {
@@ -37,14 +36,12 @@ const relay_url = {
 
 pub fn new_deployer(mnemonics string, chain_network ChainNetwork) !Deployer {
 	twin_id := get_user_twin(mnemonics, tfgrid.substrate_url[chain_network])!
-	// mut client := rmb.new(nettype: rmb.TFNetType.dev, tfchain_mnemonic: mnemonics)!
 
 	return Deployer{
 		mnemonics: mnemonics
 		substrate_url: tfgrid.substrate_url[chain_network]
 		twin_id: twin_id
 		relay_url: tfgrid.relay_url[chain_network]
-		// rmb_cl: client
 	}
 }
 
@@ -61,7 +58,42 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solu
 
 	node_twin_id := d.get_node_twin(node_id)!
 	d.rmb_deployment_deploy(node_twin_id, payload)!
+	workload_versions := d.assign_versions(dl)
+	d.wait_deployment(node_id, contract_id, workload_versions)!
 	return contract_id
+}
+
+pub fn (mut d Deployer) assign_versions(dl Deployment) map[string]u32 {
+	mut workload_versions := map[string]u32{}
+	for wl in dl.workloads {
+		workload_versions[wl.name] = wl.version
+	}
+	return workload_versions
+}
+
+pub fn (mut d Deployer) wait_deployment(node_id u32, contract_id u64, workload_versions map[string]u32) ! {
+	start := time.now()
+	num_workloads := workload_versions.len
+	for {
+		mut state_ok := 0
+		changes := d.deployment_changes(node_id, contract_id)!
+		println('got ${changes.len} workloads')
+		for wl in changes {
+			println('Workload: ${wl.name}, State: ${wl.result.state}, version: ${wl.version}')
+			if wl.version == workload_versions[wl.name] && wl.result.state == result_states.ok {
+				state_ok++
+			}
+		}
+		if state_ok == num_workloads {
+			return
+		}
+		if (time.now() - start).minutes() > 5 {
+			return error('failed to deploy deployment: contractID: ${contract_id}, some workloads are not ready after wating 5 minutes')
+		} else {
+			println('Waiting for deployment to become ready')
+			time.sleep(1 * time.second)
+		}
+	}
 }
 
 pub fn (mut d Deployer) get_deployment(contract_id u64, node_id u32) !Deployment {
@@ -75,6 +107,22 @@ pub fn (mut d Deployer) get_deployment(contract_id u64, node_id u32) !Deployment
 
 pub fn (mut d Deployer) rmb_deployment_deploy(dst u32, data string) !string {
 	res := os.execute("grid-cli rmb-dl-deploy --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data '${data}'")
+	if res.exit_code != 0 {
+		return error(res.output)
+	}
+
+	return res.output
+}
+
+pub fn (mut d Deployer) deployment_changes(node_id u32, contract_id u64) ![]Workload {
+	twin_id := d.get_node_twin(node_id)!
+
+	res := d.rmb_deployment_changes(twin_id, contract_id)!
+	return json.decode([]Workload, res)
+}
+
+pub fn (mut d Deployer) rmb_deployment_changes(dst u32, contract_id u64) !string {
+	res := os.execute("grid-cli rmb-dl-changes --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --contract_id '${contract_id}'")
 	if res.exit_code != 0 {
 		return error(res.output)
 	}
