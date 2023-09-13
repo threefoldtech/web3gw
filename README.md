@@ -48,16 +48,16 @@ To generate the documentation for the project, run `v run doc.vsh`. This builds:
 
 Find out more about how comments in code are used to generate OpenRPC Documents for domains, and how to annotate your code accordingly [here](https://github.com/freeflowuniverse/crystallib/tree/development/openrpc)
 
-To locally generate specific documents and not all of the aforementioned artifacts, comment out the [lines](https://github.com/threefoldtech/web3_proxy/blob/596331a5051d15502681d200fa408ee0983debc0/doc.vsh#LL88-L91) in the doc.vsh script accordingly.
+To locally generate specific documents and not all of the aforementioned artifacts, comment out the [lines](https://github.com/threefoldtech/3bot/blob/596331a5051d15502681d200fa408ee0983debc0/doc.vsh#LL88-L91) in the doc.vsh script accordingly.
 
-Note that running this command overwrites prebuilt content in docs if any, and is not necessary beyond testing locally as the script is run in CI workflow upon pushing / merging changes to the development branch. The docs are generated automatically and are made available on Github Pages at the [projects page](https://threefoldtech.github.io/web3_proxy)
+Note that running this command overwrites prebuilt content in docs if any, and is not necessary beyond testing locally as the script is run in CI workflow upon pushing / merging changes to the development branch. The docs are generated automatically and are made available on Github Pages at the [projects page](https://threefoldtech.github.io/3bot)
 
 Links to generated documents:
-- [Manual](https://threefoldtech.github.io/web3_proxy)
-- [OpenRPC Document](https://threefoldtech.github.io/web3_proxy/openrpc/openrpc.json) for all clients
-- OpenRPC Document for each client: https://threefoldtech.github.io/web3_proxy/openrpc/<client_name>/openrpc.json
-- [OpenRPC Playground](https://threefoldtech.github.io/web3_proxy/playground/)
+- [Manual](https://threefoldtech.github.io/3bot)
+- [OpenRPC Document](https://threefoldtech.github.io/3bot/openrpc/openrpc.json) for all clients
+- OpenRPC Document for each client: https://threefoldtech.github.io/3bot/openrpc/<client_name>/openrpc.json
+- [OpenRPC Playground](https://threefoldtech.github.io/3bot/playground/)
 
 **While /docs is already in .gitignore, please avoid pushing generated docs.**
 
-See [manual](/manual/readmd.md) for more info on using mdbooks for documentation.
+See [manual](/3script/manual/readmd.md) for more info on using mdbooks for documentation.
