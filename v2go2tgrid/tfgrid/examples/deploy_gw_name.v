@@ -8,7 +8,10 @@ fn main() {
 		level: .debug
 	})
 
-	mnemonics := '<YOUR MNEMONICS>'
+	mnemonics := tfgrid.get_mnemonics() or {
+		logger.error(err.str())
+		exit(1)
+	}
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
 	mut deployer := tfgrid.new_deployer(mnemonics, chain_network)!
 
