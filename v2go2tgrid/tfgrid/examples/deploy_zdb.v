@@ -2,13 +2,17 @@ module main
 
 import log
 import threefoldtech.tfgrid
+import os
 
 fn main() {
 	mut logger := log.Logger(&log.Log{
 		level: .debug
 	})
 
-	mnemonics := 'route visual hundred rabbit wet crunch ice castle milk model inherit outside'
+	mnemonics := tfgrid.get_mnemonics() or {
+		logger.error(err.str())
+		exit(1)
+	}
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
 	mut deployer := tfgrid.new_deployer(mnemonics, chain_network)!
 
