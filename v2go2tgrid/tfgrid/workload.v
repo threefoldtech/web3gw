@@ -94,6 +94,7 @@ pub mut:
 	state   ResultState
 	error   string
 	data    string      [raw] // also json.RawMessage
+	message string
 }
 
 pub struct Workload {
