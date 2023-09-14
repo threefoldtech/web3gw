@@ -68,7 +68,12 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solu
 	node_twin_id := d.get_node_twin(node_id)!
 	d.rmb_deployment_deploy(node_twin_id, payload)!
 	workload_versions := d.assign_versions(dl)
-	d.wait_deployment(node_id, contract_id, workload_versions)!
+	d.wait_deployment(node_id, contract_id, workload_versions) or { 
+		println("Rolling back...")
+		println("deleting contract id: ${contract_id}")
+		d.cancel_contract(contract_id) or { return err }
+		return err
+	 }
 	return contract_id
 }
 
