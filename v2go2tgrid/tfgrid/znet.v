@@ -1,7 +1,7 @@
 module tfgrid
 
 import json
-
+import rand
 // wg network reservation (znet)
 
 pub struct Znet {
@@ -52,6 +52,16 @@ pub mut:
 	endpoint string
 }
 
+pub struct PublicConfig {
+pub:
+	type_  string // Type define if we need to use the Vlan field or the MacVlan
+	ipv4   string
+	ipv6   string
+	gw4    string
+	gw6    string
+	domain string // Domain is the node domain name e.g. gent01.devnet.grid.tf
+}
+
 pub fn (mut p Peer) challenge() string {
 	mut out := ''
 	out += p.wireguard_public_key
@@ -75,3 +85,14 @@ pub fn (z Znet) to_workload(args WorkloadArgs) Workload {
 		result: args.result or { WorkloadResult{} }
 	}
 }
+
+pub fn rand_port(takenPorts []u16) !u16 {
+	mut port := u16(rand.u32n(u32(6000))! + 2000) 
+
+	for takenPorts.any(it == port){
+		port = u16(rand.u32n(u32(6000))!+2000) 
+	}
+	return port
+}
+
+
