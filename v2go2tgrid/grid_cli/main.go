@@ -435,6 +435,45 @@ func main() {
 
 				},
 			},
+			{
+				Name: "rmb-node-pubConfig",
+				Usage: "Get node public configuration",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "substrate",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "substrate URL",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "relay",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "relay URL",
+						Required: true,
+					},
+					cli.UintFlag{
+						Name:     "dst",
+						Value:    0,
+						Usage:    "destination node",
+						Required: true,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					mnemonics := c.String("mnemonics")
+					substrate_url := c.String("substrate")
+					relay := c.String("relay")
+					dst := uint32(c.Uint("dst"))
+					return getNodePublicConfig(mnemonics, substrate_url, relay, dst)
+
+				},
+
+			},
 		},
 	}
 
@@ -553,3 +592,4 @@ func getUserTwin(ctx *cli.Context, sub *substrate.Substrate, identity substrate.
 
 	return twin, nil
 }
+
