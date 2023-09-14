@@ -91,6 +91,9 @@ pub fn (mut d Deployer) wait_deployment(node_id u32, contract_id u64, workload_v
 			println('Workload: ${wl.name}, State: ${wl.result.state}, version: ${wl.version}')
 			if wl.version == workload_versions[wl.name] && wl.result.state == result_states.ok {
 				state_ok++
+			} else if wl.version == workload_versions[wl.name] && wl.result.state == result_states.error {
+				return error("failed to deploy deployment due error: ${wl.result.message}")
+				
 			}
 		}
 		if state_ok == num_workloads {
@@ -115,7 +118,7 @@ pub fn (mut d Deployer) get_deployment(contract_id u64, node_id u32) !Deployment
 }
 
 pub fn (mut d Deployer) rmb_deployment_deploy(dst u32, data string) !string {
-	res := os.execute("grid-cli rmb-dl-deploy --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data '${data}'")
+		res := os.execute("grid-cli rmb-dl-deploy --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${dst} --data '${data}'")
 	if res.exit_code != 0 {
 		return error(res.output)
 	}
