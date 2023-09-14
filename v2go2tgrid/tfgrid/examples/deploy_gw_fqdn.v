@@ -18,11 +18,17 @@ fn main() {
 	gw := tfgrid.GatewayFQDNProxy{
 		tls_passthrough: false
 		backends: ['http://1.1.1.1:9000']
-		fqdn: 'hamada3.3x0.me'
+		fqdn: 'domaind.gridtesting.xyz'
 	}
 	wl := gw.to_workload(name: 'mywlname')
 	node_id := u32(11)
-	
+	logger.info('trying to get node ${node_id} public configuration')
+	deployer.get_node_pub_config(node_id) or {
+		logger.error(err.str())
+		logger.error('please select another node')
+		exit(1)
+	}
+	logger.info('preparing the deployment..')
 	signature_requirement := tfgrid.SignatureRequirement{
 		weight_required: 1
 		requests: [
@@ -38,8 +44,9 @@ fn main() {
 		signature_requirement: signature_requirement
 	)
 
-
-
-	node_contract_id := deployer.deploy(11, mut deployment, '', 0)!
+	node_contract_id := deployer.deploy(node_id, mut deployment, '', 0) or {
+		logger.error(err.str())
+		exit(1)
+	}
 	logger.info('node contract created with id ${node_contract_id}')
 }
