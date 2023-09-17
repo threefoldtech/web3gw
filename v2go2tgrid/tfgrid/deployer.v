@@ -64,7 +64,7 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solu
 
 	contract_id := d.create_node_contract(node_id, body, hash_hex, public_ips, solution_provider)!
 	d.logger.info('ContractID: ${contract_id}')
-	dl.contract_id = contract_id
+		dl.contract_id = contract_id
 	signature := d.sign_deployment(hash_hex)!
 	dl.add_signature(d.twin_id, signature)
 	payload := dl.json_encode()
@@ -168,7 +168,7 @@ pub fn (mut d Deployer) get_node_twin(node_id u64) !u32 {
 }
 
 pub fn (mut d Deployer) create_node_contract(node_id u32, body string, hash string, public_ips u32, solution_provider u64) !u64 {
-	res := os.execute("grid-cli new-node-cn --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --node_id ${node_id} --hash \"${hash}\" --public_ips ${public_ips} --solution_provider ${solution_provider}")
+	res := os.execute("grid-cli new-node-cn --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --node_id ${node_id} --hash \"${hash}\" --public_ips ${public_ips} --body ${body} --solution_provider ${solution_provider}")
 	if res.exit_code != 0 {
 		return error(res.output)
 	}

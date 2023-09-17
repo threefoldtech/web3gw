@@ -72,7 +72,7 @@ fn main() {
 	)
 	deployment.add_metadata('vm', 'SimpleVM')
 
-	contract_id := deployer.deploy(node_id, mut deployment, '', 0) or {
+	contract_id := deployer.deploy(node_id, mut deployment, deployment.metadata, 0) or {
 		logger.error('failed to deploy deployment: ${err}')
 		exit(1)
 	}
