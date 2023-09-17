@@ -9,6 +9,7 @@ pub struct GraphQl {
 }
 
 pub struct Contract {
+pub:
 	contract_id     string [json: contractID]
 	deployment_data string [json: deploymentData]
 	state           string
@@ -16,6 +17,7 @@ pub struct Contract {
 }
 
 pub struct Contracts {
+pub:
 	name_contracts []Contract [json: nameContracts]
 	node_contracts []Contract [json: nodeContracts]
 	rent_contracts []Contract [json: rentContracts]
@@ -86,7 +88,6 @@ fn (g GraphQl) query(body string, variables map[string]u32) !map[string]json2.An
 	}
 	json_body := json.encode(request_body)
 	resp := http.post_json(g.url, json_body)!
-	println(' ${resp.body}')
 
 	query_data := json2.raw_decode(resp.body)!
 	data_map := query_data.as_map()
