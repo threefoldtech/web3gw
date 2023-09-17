@@ -4,6 +4,7 @@ import os
 import strconv
 import json
 import time
+import log
 
 pub struct Deployer {
 pub:
@@ -11,6 +12,8 @@ pub:
 	substrate_url string
 	twin_id       u32
 	relay_url     string
+pub mut:
+	logger log.Log
 }
 
 pub enum ChainNetwork {
@@ -43,7 +46,7 @@ pub fn get_mnemonics() !string {
 	return mnemonics
 }
 
-pub fn new_deployer(mnemonics string, chain_network ChainNetwork) !Deployer {
+pub fn new_deployer(mnemonics string, chain_network ChainNetwork, mut logger log.Log) !Deployer {
 	twin_id := get_user_twin(mnemonics, tfgrid.substrate_url[chain_network])!
 
 	return Deployer{
@@ -51,6 +54,7 @@ pub fn new_deployer(mnemonics string, chain_network ChainNetwork) !Deployer {
 		substrate_url: tfgrid.substrate_url[chain_network]
 		twin_id: twin_id
 		relay_url: tfgrid.relay_url[chain_network]
+		logger: logger
 	}
 }
 
@@ -59,7 +63,7 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solu
 	public_ips := dl.count_public_ips()
 
 	contract_id := d.create_node_contract(node_id, body, hash_hex, public_ips, solution_provider)!
-	println('ContractID: ${contract_id}')
+	d.logger.info('ContractID: ${contract_id}')
 	dl.contract_id = contract_id
 	signature := d.sign_deployment(hash_hex)!
 	dl.add_signature(d.twin_id, signature)
@@ -69,8 +73,8 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl Deployment, body string, solu
 	d.rmb_deployment_deploy(node_twin_id, payload)!
 	workload_versions := d.assign_versions(dl)
 	d.wait_deployment(node_id, contract_id, workload_versions) or { 
-		println("Rolling back...")
-		println("deleting contract id: ${contract_id}")
+		d.logger.info("Rolling back...")
+		d.logger.info("deleting contract id: ${contract_id}")
 		d.cancel_contract(contract_id) or { return err }
 		return err
 	 }
@@ -105,7 +109,7 @@ pub fn (mut d Deployer) wait_deployment(node_id u32, contract_id u64, workload_v
 		if (time.now() - start).minutes() > 5 {
 			return error('failed to deploy deployment: contractID: ${contract_id}, some workloads are not ready after wating 5 minutes')
 		} else {
-			println('Waiting for deployment to become ready')
+			d.logger.info('Waiting for deployment to become ready')
 			time.sleep(1 * time.second)
 		}
 	}

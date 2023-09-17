@@ -4,16 +4,16 @@ import log
 import threefoldtech.tfgrid
 
 fn main() {
-	mut logger := log.Logger(&log.Log{
+	mut logger := log.Log{
 		level: .debug
-	})
+	}
 
 	mnemonics := tfgrid.get_mnemonics() or {
 		logger.error(err.str())
 		exit(1)
 	}
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
-	mut deployer := tfgrid.new_deployer(mnemonics, chain_network)!
+	mut deployer := tfgrid.new_deployer(mnemonics, chain_network, mut logger)!
 
 	gw := tfgrid.GatewayFQDNProxy{
 		tls_passthrough: false

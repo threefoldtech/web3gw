@@ -7,12 +7,12 @@ import os
 import time
 
 fn main() {
-	mut logger := log.Logger(&log.Log{
+	mut logger := log.Log{
 		level: .debug
-	})
+	}
 	mnemonics := os.getenv('MNEMONICS')
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
-	mut deployer := tfgrid.new_deployer(mnemonics, chain_network)!
+	mut deployer := tfgrid.new_deployer(mnemonics, chain_network, mut logger)!
 
 	node_id := u32(27)
 	network_name := 'network1'
