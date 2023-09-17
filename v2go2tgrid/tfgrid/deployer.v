@@ -91,9 +91,7 @@ pub fn (mut d Deployer) wait_deployment(node_id u32, contract_id u64, workload_v
 	for {
 		mut state_ok := 0
 		changes := d.deployment_changes(node_id, contract_id)!
-		println('got ${changes.len} workloads')
 		for wl in changes {
-			println('Workload: ${wl.name}, State: ${wl.result.state}, version: ${wl.version}')
 			if wl.version == workload_versions[wl.name] && wl.result.state == result_states.ok {
 				state_ok++
 			} else if wl.version == workload_versions[wl.name] && wl.result.state == result_states.error {

@@ -91,10 +91,12 @@ pub struct DeploymentArgs {
 }
 
 pub fn (mut deployment Deployment) challenge() string {
+	// we need to scape `"` with `\"`char when sending the payload to be a valid json but when calculating the challenge we should remove `\` so we don't get invlaid signature
+	metadata := deployment.metadata.replace('\\"', '"')
 	mut out := []string{}
 	out << '${deployment.version}'
 	out << '${deployment.twin_id}'
-	out << '${deployment.metadata}'
+	out << '${metadata}'
 	out << '${deployment.description}'
 	out << '${deployment.expiration}'
 	for mut workload in deployment.workloads {
@@ -157,4 +159,27 @@ pub fn new_deployment(args DeploymentArgs) Deployment {
 		workloads: args.workloads
 		signature_requirement: args.signature_requirement
 	}
+}
+
+struct DeploymentData {
+	type_        string
+	name         string
+	project_name string
+}
+
+pub fn (mut data DeploymentData) json_encode() string {
+	return "{\\\"type\\\":\\\"${data.type_}\\\",\\\"name\\\":\\\"${data.name}\\\",\\\"projectName\\\":\\\"${data.project_name}\\\"}"
+}
+
+pub fn (mut dl Deployment) add_metadata(type_ string, project_name string) {
+	mut data := DeploymentData{
+		type_: type_
+		name: project_name
+		project_name: project_name
+	}
+	dl.metadata = data.json_encode()
+}
+
+pub fn (mut d Deployment) parse_metadata() !DeploymentData {
+	return json.decode(DeploymentData, d.metadata)!
 }

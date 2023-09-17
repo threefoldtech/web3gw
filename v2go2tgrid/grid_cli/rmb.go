@@ -62,7 +62,7 @@ func deploymentDeploy(mnemonics string, substrate_url string, relay_url string, 
 	var dl gridtypes.Deployment
 	err = json.Unmarshal([]byte(data), &dl)
 	if err != nil {
-		return fmt.Errorf("failed to marshal deployment %w", err)
+		return fmt.Errorf("failed to unmarshal deployment %w", err)
 	}
 
 	if err := client.Call(ctx, dst, "zos.deployment.deploy", dl, nil); err != nil {

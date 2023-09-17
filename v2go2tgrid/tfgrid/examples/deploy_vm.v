@@ -66,9 +66,11 @@ fn main() {
 
 	mut deployment := tfgrid.new_deployment(
 		twin_id: deployer.twin_id
+		description: 'test deployment'
 		workloads: [znet_workload, zmachine_workload]
 		signature_requirement: signature_requirement
 	)
+	deployment.add_metadata('vm', 'SimpleVM')
 
 	contract_id := deployer.deploy(node_id, mut deployment, '', 0) or {
 		logger.error('failed to deploy deployment: ${err}')
