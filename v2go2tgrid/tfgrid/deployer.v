@@ -238,7 +238,7 @@ pub fn(mut d Deployer) get_node_pub_config(node_id u32) !PublicConfig {
 	node_twin :=  d.get_node_twin(node_id)!
 	res := os.execute("grid-cli rmb-node-pubConfig --substrate ${d.substrate_url} --mnemonics \"${d.mnemonics}\" --relay ${d.relay_url} --dst ${node_twin} ")
 	if res.exit_code != 0 {
-		return error(res.output)
+		return error(res.output.trim_space())
 	}
 
 	public_config := json.decode(PublicConfig,res.output) or {

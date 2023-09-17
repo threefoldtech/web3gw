@@ -24,8 +24,7 @@ fn main() {
 	node_id := u32(11)
 	logger.info('trying to get node ${node_id} public configuration')
 	deployer.get_node_pub_config(node_id) or {
-		logger.error(err.str())
-		logger.error('please select another node')
+		logger.error('please select another node: ${err}')
 		exit(1)
 	}
 	logger.info('preparing the deployment..')
