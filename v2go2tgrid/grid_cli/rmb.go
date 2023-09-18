@@ -89,7 +89,7 @@ func deploymentGet(mnemonics string, substrate_url string, relay_url string, dst
 	var args rmbCmdArgs
 	err = json.Unmarshal([]byte(data), &args)
 	if err != nil {
-		return fmt.Errorf("failed to marshal data to get deployment %w", err)
+		return fmt.Errorf("failed to unmarshal data to get deployment %w", err)
 	}
 	var dl gridtypes.Deployment
 
