@@ -162,9 +162,9 @@ pub fn new_deployment(args DeploymentArgs) Deployment {
 }
 
 struct DeploymentData {
-	type_        string
-	name         string
-	project_name string
+	type_        string [json: 'type']
+	name         string 
+	project_name string [json: 'projectName']
 }
 
 pub fn (mut data DeploymentData) json_encode() string {
