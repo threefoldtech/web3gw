@@ -1,4 +1,4 @@
-module tfgrid
+module models
 
 import crypto.md5
 import json
@@ -138,7 +138,7 @@ pub fn (mut d Deployment) json_encode() string {
 	return '{"version":${d.version},"twin_id":${d.twin_id},"contract_id":${d.contract_id},"expiration":${d.expiration},"metadata":"${d.metadata}","description":"${d.description}","workloads":${workloads},"signature_requirement":${json.encode(d.signature_requirement)}}'
 }
 
-fn (dl Deployment) count_public_ips() u8 {
+pub fn (dl Deployment) count_public_ips() u8 {
 	mut count := u8(0)
 	for wl in dl.workloads {
 		if wl.type_ == workload_types.public_ip {
@@ -161,9 +161,10 @@ pub fn new_deployment(args DeploymentArgs) Deployment {
 	}
 }
 
-struct DeploymentData {
+pub struct DeploymentData {
+pub:
 	type_        string [json: 'type']
-	name         string 
+	name         string
 	project_name string [json: 'projectName']
 }
 

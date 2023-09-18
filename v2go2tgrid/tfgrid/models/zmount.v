@@ -1,6 +1,6 @@
 // ssd mounts under zmachine
 
-module tfgrid
+module models
 
 import json
 

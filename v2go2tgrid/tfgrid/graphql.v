@@ -4,6 +4,7 @@ import net.http
 import json
 import x.json2
 import log
+import models
 
 pub struct GraphQl {
 	url string
@@ -107,16 +108,16 @@ fn (g GraphQl) query(body string, variables map[string]u32) !map[string]json2.An
 
 pub fn (mut g GraphQl) get_contract_by_project_name(mut deployer Deployer, project_name string) !Contracts {
 	mut contracts := Contracts{}
-	
+
 	g.logger.debug('Getting user twin')
 	twin_id := get_user_twin(deployer.mnemonics, deployer.substrate_url)!
 	g.logger.debug('Getting twin ${twin_id} contracts...')
-	
+
 	contract_list := g.list_twin_contracts(twin_id, ['Created', 'GracePeriod'])!
-	
+
 	g.logger.debug('filtering contract with project name: ${project_name}')
 	for contract in contract_list.node_contracts {
-		data := json.decode(DeploymentData, contract.deployment_data)!
+		data := json.decode(models.DeploymentData, contract.deployment_data)!
 		if data.project_name == project_name {
 			contracts.node_contracts << contract
 		}
@@ -127,14 +128,14 @@ pub fn (mut g GraphQl) get_contract_by_project_name(mut deployer Deployer, proje
 	return contracts
 }
 
-fn name_gw_in_node_contract(mut deployer Deployer, node_contracts []Contract) ![]Workload {
-	mut gw_workloads := []Workload{}
+fn name_gw_in_node_contract(mut deployer Deployer, node_contracts []Contract) ![]models.Workload {
+	mut gw_workloads := []models.Workload{}
 	for contract in node_contracts {
 		dl := deployer.get_deployment(contract.contract_id.u64(), contract.node_id) or {
 			return error("Couldn't get deployment workloads: ${err}")
 		}
 		for wl in dl.workloads {
-			if wl.type_ == workload_types.gateway_name {
+			if wl.type_ == models.workload_types.gateway_name {
 				gw_workloads << wl
 			}
 		}
@@ -142,7 +143,7 @@ fn name_gw_in_node_contract(mut deployer Deployer, node_contracts []Contract) ![
 	return gw_workloads
 }
 
-fn filter_name_contract(name_contract []Contract, gw_workload []Workload) ![]Contract {
+fn filter_name_contract(name_contract []Contract, gw_workload []models.Workload) ![]Contract {
 	mut contracts := []Contract{}
 	for contract in name_contract {
 		for wl in gw_workload {

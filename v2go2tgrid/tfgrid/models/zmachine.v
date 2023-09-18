@@ -1,4 +1,4 @@
-module tfgrid
+module models
 
 import json
 
@@ -17,15 +17,15 @@ pub mut:
 
 pub struct ZmachineNetwork {
 pub mut:
-	public_ip  string //name of public ip address
+	public_ip  string // name of public ip address
 	interfaces []ZNetworkInterface
 	planetary  bool
 }
 
 pub struct ZNetworkInterface {
 pub mut:
-	network string  // Network name (znet name) to join
-	ip      string  // IP of the zmachine on this network must be a valid Ip in the selected network
+	network string // Network name (znet name) to join
+	ip      string // IP of the zmachine on this network must be a valid Ip in the selected network
 }
 
 pub fn (mut n ZmachineNetwork) challenge() string {
@@ -43,7 +43,7 @@ pub fn (mut n ZmachineNetwork) challenge() string {
 pub struct Mount {
 pub mut:
 	name       string
-	mountpoint string // the path to mount the disk into e.g. '/disk1' 
+	mountpoint string // the path to mount the disk into e.g. '/disk1'
 }
 
 pub fn (mut m Mount) challenge() string {

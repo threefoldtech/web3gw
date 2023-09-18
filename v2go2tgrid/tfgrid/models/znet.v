@@ -1,4 +1,4 @@
-module tfgrid
+module models
 
 import json
 import rand
@@ -87,12 +87,10 @@ pub fn (z Znet) to_workload(args WorkloadArgs) Workload {
 }
 
 pub fn rand_port(takenPorts []u16) !u16 {
-	mut port := u16(rand.u32n(u32(6000))! + 2000) 
+	mut port := u16(rand.u32n(u32(6000))! + 2000)
 
-	for takenPorts.any(it == port){
-		port = u16(rand.u32n(u32(6000))!+2000) 
+	for takenPorts.any(it == port) {
+		port = u16(rand.u32n(u32(6000))! + 2000)
 	}
 	return port
 }
-
-

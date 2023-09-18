@@ -1,4 +1,4 @@
-module tfgrid
+module models
 
 pub struct QuantumSafeFS {
 	cache  u64
@@ -18,8 +18,8 @@ pub struct QuantumSafeFSConfig {
 }
 
 pub struct Encryption {
-	algorithm string //format?
-	key       []u8 // TODO: how to create challenge, document
+	algorithm string // format?
+	key       []u8   // TODO: how to create challenge, document
 }
 
 pub struct QuantumSafeMeta {
@@ -32,13 +32,13 @@ pub struct ZDBGroup {
 }
 
 pub struct ZDBBackend {
-	address   string //format?
+	address   string // format?
 	namespace string
 	password  string
 }
 
 pub struct QuantumCompression {
-	algorithm string //format?
+	algorithm string // format?
 }
 
 pub struct QuantumSafeConfig {

@@ -1,4 +1,4 @@
-module tfgrid
+module models
 
 pub struct ComputeCapacity {
 pub mut:
