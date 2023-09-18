@@ -4,7 +4,6 @@ import json
 import threefoldtech.tfgrid
 import log
 import os
-import time
 
 fn main() {
 	mut logger := log.Log{
@@ -13,14 +12,15 @@ fn main() {
 	mnemonics := os.getenv('MNEMONICS')
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
 	mut deployer := tfgrid.new_deployer(mnemonics, chain_network, mut logger)!
-
+	
 	node_id := u32(27)
 	network_name := 'network1'
+	wg_port := deployer.assign_wg_port(node_id)!
 	mut network := tfgrid.Znet{
 		ip_range: '10.1.0.0/16'
 		subnet: '10.1.1.0/24'
 		wireguard_private_key: 'GDU+cjKrHNJS9fodzjFDzNFl5su3kJXTZ3ipPgUjOUE='
-		wireguard_listen_port: 8080
+		wireguard_listen_port: wg_port
 		peers: [
 			tfgrid.Peer{
 				subnet: '10.1.2.0/24'
@@ -72,15 +72,14 @@ fn main() {
 	)
 	deployment.add_metadata('vm', 'SimpleVM')
 
-	contract_id := deployer.deploy(node_id, mut deployment, deployment.metadata, 0) or {
-		logger.error('failed to deploy deployment: ${err}')
-		exit(1)
-	}
+	contract_id := deployer.deploy(node_id, mut deployment, deployment.metadata, 0) or { 
+	logger.error('failed to deploy deployment: ${err}')
+	exit(1)
+  }
 	logger.info('deployment contract id: ${contract_id}')
-	time.sleep(2 * time.second) // TODO: create wait function to wait for deployment creation
 	dl := deployer.get_deployment(contract_id, node_id) or {
-		logger.error('failed to get deployment data: ${err}')
-		exit(1)
+	logger.error('failed to get deployment data: ${err}')
+	exit(1)
 	}
 
 	machine_res := get_machine_result(dl)!
