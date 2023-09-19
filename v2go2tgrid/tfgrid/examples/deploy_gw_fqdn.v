@@ -2,7 +2,7 @@ module main
 
 import log
 import threefoldtech.tfgrid
-
+import threefoldtech.tfgrid.models
 fn main() {
 	mut logger := log.Log{
 		level: .debug
@@ -15,7 +15,7 @@ fn main() {
 	chain_network := tfgrid.ChainNetwork.dev // User your desired network
 	mut deployer := tfgrid.new_deployer(mnemonics, chain_network, mut logger)!
 
-	gw := tfgrid.GatewayFQDNProxy{
+	gw := models.GatewayFQDNProxy{
 		tls_passthrough: false
 		backends: ['http://1.1.1.1:9000']
 		fqdn: 'domaind.gridtesting.xyz'
@@ -28,16 +28,16 @@ fn main() {
 		exit(1)
 	}
 	logger.info('preparing the deployment..')
-	signature_requirement := tfgrid.SignatureRequirement{
+	signature_requirement := models.SignatureRequirement{
 		weight_required: 1
 		requests: [
-			tfgrid.SignatureRequest{
+			models.SignatureRequest{
 				twin_id: deployer.twin_id
 				weight: 1
 			},
 		]
 	}
-	mut deployment := tfgrid.new_deployment(
+	mut deployment := models.new_deployment(
 		twin_id: deployer.twin_id
 		workloads: [wl]
 		signature_requirement: signature_requirement
