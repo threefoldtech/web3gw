@@ -50,7 +50,6 @@ func rmbDecorator(action func(c *cli.Context, client *direct.DirectClient) (inte
 	}
 }
 
-// (mnemonics string, substrate_url string, relay_url string, dst uint32, contractID uint64) error
 func deploymentChanges(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
 	dst := uint32(c.Uint("dst"))
 	contractID := c.Uint64("contract_id")
@@ -132,35 +131,6 @@ func nodeTakenPorts(c *cli.Context, client *direct.DirectClient) (interface{}, e
 
 	return string(json), nil
 }
-
-// func nodeTakenPorts(mnemonics string, substrate_url string, relay_url string, dst uint32) error {
-// 	subManager := substrate.NewManager(substrate_url)
-// 	sub, err := subManager.Substrate()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to connect to substrate: %w", err)
-// 	}
-// 	defer sub.Close()
-// 	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to create direct client: %w", err)
-// 	}
-// 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-// 	defer cancel()
-
-// 	var takenPorts []uint16
-
-// 	if err := client.Call(ctx, dst, "zos.network.list_wg_ports", nil, &takenPorts); err != nil {
-// 		return fmt.Errorf("failed to get node taken ports %w", err)
-// 	}
-// 	json, err := json.Marshal(takenPorts)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to marshal taken ports %w", err)
-// 	}
-
-// 	fmt.Println(string(json))
-
-// 	return nil
-// }
 
 func getNodePublicConfig(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
 	dst := uint32(c.Uint("dst"))
