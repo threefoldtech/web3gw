@@ -50,62 +50,44 @@ func rmbDecorator(action func(c *cli.Context, client *direct.DirectClient) (inte
 	}
 }
 
-func deploymentChanges(mnemonics string, substrate_url string, relay_url string, dst uint32, contractID uint64) error {
-	subManager := substrate.NewManager(substrate_url)
-	sub, err := subManager.Substrate()
-	if err != nil {
-		return fmt.Errorf("failed to connect to substrate: %w", err)
-	}
-
-	defer sub.Close()
-	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
-	if err != nil {
-		return fmt.Errorf("failed to create direct client: %w", err)
-	}
+// (mnemonics string, substrate_url string, relay_url string, dst uint32, contractID uint64) error
+func deploymentChanges(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
+	dst := uint32(c.Uint("dst"))
+	contractID := c.Uint64("contract_id")
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	var changes []gridtypes.Workload
 	args := rmbCmdArgs{
 		"contract_id": contractID,
 	}
-	err = client.Call(ctx, dst, "zos.deployment.changes", args, &changes)
+	err := client.Call(ctx, dst, "zos.deployment.changes", args, &changes)
 	if err != nil {
-		return fmt.Errorf("failed to get deployment changes after deploy: %w, contractID: %d", err, contractID)
+		return nil, fmt.Errorf("failed to get deployment changes after deploy: %w, contractID: %d", err, contractID)
 	}
 	res, err := json.Marshal(changes)
 	if err != nil {
-		return fmt.Errorf("failed to marshal deployment changes%w", err)
+		return nil, fmt.Errorf("failed to marshal deployment changes%w", err)
 	}
-	fmt.Println(string(res))
-	return nil
+	return string(res), nil
 }
 
-func deploymentDeploy(mnemonics string, substrate_url string, relay_url string, dst uint32, data string) error {
-	subManager := substrate.NewManager(substrate_url)
-	sub, err := subManager.Substrate()
-	if err != nil {
-		return fmt.Errorf("failed to connect to substrate: %w", err)
-	}
-
-	defer sub.Close()
-	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
-	if err != nil {
-		return fmt.Errorf("failed to create direct client: %w", err)
-	}
+func deploymentDeploy(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
+	dst := uint32(c.Uint("dst"))
+	data := c.String("data")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	var dl gridtypes.Deployment
-	err = json.Unmarshal([]byte(data), &dl)
+	err := json.Unmarshal([]byte(data), &dl)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal deployment %w", err)
+		return nil, fmt.Errorf("failed to unmarshal deployment %w", err)
 	}
 
 	if err := client.Call(ctx, dst, "zos.deployment.deploy", dl, nil); err != nil {
-		return fmt.Errorf("failed to deploy deployment %w", err)
+		return nil, fmt.Errorf("failed to deploy deployment %w", err)
 	}
 
-	return nil
+	return string("done"), nil
 }
 
 func deploymentGet(c *cli.Context, client *direct.DirectClient) (interface{}, error) {

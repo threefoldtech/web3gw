@@ -265,15 +265,7 @@ func main() {
 						Required: true,
 					},
 				},
-				Action: func(c *cli.Context) error {
-					mnemonics := c.String("mnemonics")
-					substrate_url := c.String("substrate")
-					relay := c.String("relay")
-					dst := uint32(c.Uint("dst"))
-					data := c.String("data")
-					return deploymentDeploy(mnemonics, substrate_url, relay, dst, data)
-
-				},
+				Action: rmbDecorator(deploymentDeploy),
 			},
 			{
 				Name:  "rmb-dl-get",
@@ -349,15 +341,7 @@ func main() {
 						Required: true,
 					},
 				},
-				Action: func(c *cli.Context) error {
-					mnemonics := c.String("mnemonics")
-					substrate_url := c.String("substrate")
-					relay := c.String("relay")
-					dst := uint32(c.Uint("dst"))
-					contract_id := uint64(c.Uint("contract_id"))
-					return deploymentChanges(mnemonics, substrate_url, relay, dst, contract_id)
-
-				},
+				Action: rmbDecorator(deploymentChanges),
 			},
 			{
 				Name:  "rmb-taken-ports",
