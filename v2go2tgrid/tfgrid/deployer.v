@@ -57,13 +57,7 @@ pub fn new_deployer(mnemonics string, chain_network ChainNetwork, mut logger log
 	}
 }
 
-pub fn (mut d Deployer) deploy(node_id u32, mut dl models.Deployment, body string, solution_provider u64) !u64 {
-	hash_hex := dl.challenge_hash().hex()
-	public_ips := dl.count_public_ips()
-
-	contract_id := d.create_node_contract(node_id, body, hash_hex, public_ips, solution_provider)!
-	d.logger.info('ContractID: ${contract_id}')
-	dl.contract_id = contract_id
+fn (mut d Deployer) handel_deploy(node_id u32, mut dl models.Deployment, body string, solution_provider u64, hash_hex string) !u64 {
 	signature := d.sign_deployment(hash_hex)!
 	dl.add_signature(d.twin_id, signature)
 	payload := dl.json_encode()
@@ -71,13 +65,24 @@ pub fn (mut d Deployer) deploy(node_id u32, mut dl models.Deployment, body strin
 	node_twin_id := get_node_twin(node_id, d.substrate_url)!
 	d.rmb_deployment_deploy(node_twin_id, payload)!
 	workload_versions := d.assign_versions(dl)
-	d.wait_deployment(node_id, contract_id, workload_versions) or {
+	d.wait_deployment(node_id, dl.contract_id, workload_versions)!
+	return dl.contract_id
+}
+
+pub fn (mut d Deployer) deploy(node_id u32, mut dl models.Deployment, body string, solution_provider u64) !u64 {
+	public_ips := dl.count_public_ips()
+	hash_hex := dl.challenge_hash().hex()
+
+	contract_id := d.create_node_contract(node_id, body, hash_hex, public_ips, solution_provider)!
+	d.logger.info('ContractID: ${contract_id}')
+	dl.contract_id = contract_id
+
+	return d.handel_deploy(node_id, mut dl, body, solution_provider, hash_hex) or {
 		d.logger.info('Rolling back...')
 		d.logger.info('deleting contract id: ${contract_id}')
-		d.cancel_contract(contract_id) or { return err }
+		d.cancel_contract(contract_id)!
 		return err
 	}
-	return contract_id
 }
 
 pub fn (mut d Deployer) assign_versions(dl models.Deployment) map[string]u32 {
