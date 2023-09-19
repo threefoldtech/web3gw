@@ -86,7 +86,7 @@ func deploymentDeploy(c *cli.Context, client *direct.DirectClient) (interface{},
 		return nil, fmt.Errorf("failed to deploy deployment %w", err)
 	}
 
-	return string("done"), nil
+	return nil, nil
 }
 
 func deploymentGet(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
