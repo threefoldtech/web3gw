@@ -137,10 +137,9 @@ pub fn (mut d Deployer) deployment_changes(node_id u32, contract_id u64) ![]mode
 }
 
 pub fn (mut d Deployer) sign_deployment(hash string) !string {
-	res := os.execute("grid-cli sign --mnemonics \"${d.mnemonics}\" --hash ${hash}")
+	res := os.execute("grid-cli sign  --substrate \"${d.substrate_url}\" --mnemonics \"${d.mnemonics}\"  --hash \"${hash}\"")
 	if res.exit_code != 0 {
 		return error(res.output)
 	}
-
 	return res.output
 }

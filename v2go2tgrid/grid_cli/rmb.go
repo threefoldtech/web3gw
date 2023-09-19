@@ -10,9 +10,45 @@ import (
 	"github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go/direct"
 	"github.com/threefoldtech/zos/pkg"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
+	"github.com/urfave/cli"
 )
 
 type rmbCmdArgs map[string]interface{}
+
+func rmbDecorator(action func(c *cli.Context, client *direct.DirectClient) (interface{}, error)) cli.ActionFunc {
+	return func(c *cli.Context) error {
+		substrate_url := c.String("substrate")
+		mnemonics := c.String("mnemonics")
+		relay_url := c.String("relay")
+
+		subManager := substrate.NewManager(substrate_url)
+		sub, err := subManager.Substrate()
+		if err != nil {
+			return fmt.Errorf("failed to connect to substrate: %w", err)
+		}
+		defer sub.Close()
+		client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
+
+		if err != nil {
+			return fmt.Errorf("failed to create direct client: %w", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		err = client.Ping(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to ping indecorator %w", err)
+		}
+		res, err := action(c, client)
+
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%v", res)
+		return nil
+
+	}
+}
 
 func deploymentChanges(mnemonics string, substrate_url string, relay_url string, dst uint32, contractID uint64) error {
 	subManager := substrate.NewManager(substrate_url)
@@ -72,92 +108,92 @@ func deploymentDeploy(mnemonics string, substrate_url string, relay_url string, 
 	return nil
 }
 
-func deploymentGet(mnemonics string, substrate_url string, relay_url string, dst uint32, data string) error {
-	subManager := substrate.NewManager(substrate_url)
-	sub, err := subManager.Substrate()
-	if err != nil {
-		return fmt.Errorf("failed to connect to substrate: %w", err)
-	}
+func deploymentGet(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
+	dst := uint32(c.Uint("dst"))
+	data := c.String("data")
 
-	defer sub.Close()
-	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
-	if err != nil {
-		return fmt.Errorf("failed to create direct client: %w", err)
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
 	var args rmbCmdArgs
-	err = json.Unmarshal([]byte(data), &args)
+	err := json.Unmarshal([]byte(data), &args)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal data to get deployment %w", err)
+		return nil, fmt.Errorf("failed to unmarshal data to get deployment %w", err)
 	}
 	var dl gridtypes.Deployment
 
 	if err := client.Call(ctx, dst, "zos.deployment.get", args, &dl); err != nil {
-		return fmt.Errorf("failed to get deployment %w", err)
+		return nil, fmt.Errorf("failed to get deployment %w", err)
 	}
 	json, err := json.Marshal(dl)
 	if err != nil {
-		return fmt.Errorf("failed to marshal deployment %w", err)
+		return nil, fmt.Errorf("failed to marshal deployment %w", err)
 	}
 
-	fmt.Println(string(json))
-
-	return nil
+	return string(json), nil
 }
 
-func nodeTakenPorts(mnemonics string, substrate_url string, relay_url string, nodeTwin uint32) error {
-	subManager := substrate.NewManager(substrate_url)
-	sub, err := subManager.Substrate()
-	if err != nil {
-		return fmt.Errorf("failed to connect to substrate: %w", err)
-	}
-	defer sub.Close()
-	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
-	if err != nil {
-		return fmt.Errorf("failed to create direct client: %w", err)
-	}
+func nodeTakenPorts(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
+	dst := uint32(c.Uint("dst"))
+	var takenPorts []uint16
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	var takenPorts []uint16
-
-	if err := client.Call(ctx, nodeTwin, "zos.network.list_wg_ports", nil, &takenPorts); err != nil {
-		return fmt.Errorf("failed to get node taken ports %w", err)
+	if err := client.Call(ctx, dst, "zos.network.list_wg_ports", nil, &takenPorts); err != nil {
+		return nil, fmt.Errorf("failed to get node taken ports %w", err)
 	}
 	json, err := json.Marshal(takenPorts)
 	if err != nil {
-		return fmt.Errorf("failed to marshal taken ports %w", err)
+		return nil, fmt.Errorf("failed to marshal taken ports %w", err)
 	}
 
-	fmt.Println(string(json))
-
-	return nil
+	return string(json), nil
 }
 
-func getNodePublicConfig(mnemonics string, substrate_url string, relay_url string, nodeTwin uint32) error {
-	substrate := substrate.NewManager(substrate_url)
-	sub, err := substrate.Substrate()
-	if err != nil {
-		return fmt.Errorf("failed to create direct client: %w", err)
-	}
-	defer sub.Close()
-	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
-	if err != nil {
-		return fmt.Errorf("failed to create direct client: %w", err)
-	}
+// func nodeTakenPorts(mnemonics string, substrate_url string, relay_url string, dst uint32) error {
+// 	subManager := substrate.NewManager(substrate_url)
+// 	sub, err := subManager.Substrate()
+// 	if err != nil {
+// 		return fmt.Errorf("failed to connect to substrate: %w", err)
+// 	}
+// 	defer sub.Close()
+// 	client, err := direct.NewClient(context.Background(), direct.KeyTypeSr25519, mnemonics, relay_url, "tfgrid-vclient", sub, true)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to create direct client: %w", err)
+// 	}
+// 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+// 	defer cancel()
+
+// 	var takenPorts []uint16
+
+// 	if err := client.Call(ctx, dst, "zos.network.list_wg_ports", nil, &takenPorts); err != nil {
+// 		return fmt.Errorf("failed to get node taken ports %w", err)
+// 	}
+// 	json, err := json.Marshal(takenPorts)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to marshal taken ports %w", err)
+// 	}
+
+// 	fmt.Println(string(json))
+
+// 	return nil
+// }
+
+func getNodePublicConfig(c *cli.Context, client *direct.DirectClient) (interface{}, error) {
+	dst := uint32(c.Uint("dst"))
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	var pubConfig pkg.PublicConfig
 
-	if err := client.Call(ctx, nodeTwin, "zos.network.public_config_get", nil, &pubConfig); err != nil {
-		return fmt.Errorf("failed to get node public configuration: %w", err)
+	if err := client.Call(ctx, dst, "zos.network.public_config_get", nil, &pubConfig); err != nil {
+		return nil, fmt.Errorf("failed to get node public configuration: %w", err)
 	}
 	json, err := json.Marshal(pubConfig)
 	if err != nil {
-		return fmt.Errorf("failed to marshal public configuration: %w", err)
+		return nil, fmt.Errorf("failed to marshal public configuration: %w", err)
 	}
 	fmt.Println(string(json))
-	return nil
+	return string(json), nil
 }
