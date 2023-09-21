@@ -405,6 +405,79 @@ func main() {
 				},
 				Action: rmbDecorator(getNodePublicConfig),
 			},
+			{
+				Name:  "deploy-single",
+				Usage: "Get node public configuration",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "env",
+						Value:    "main",
+						Usage:    "network env",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "network_name",
+						Value:    "",
+						Usage:    "network name",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "vm_name",
+						Value:    "",
+						Usage:    "vm name",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "flist",
+						Value:    "",
+						Usage:    "vm flist",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "entrypoint",
+						Value:    "",
+						Usage:    "vm entrypoint",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "sshkey",
+						Value:    "",
+						Usage:    "ssh public key",
+						Required: true,
+					},
+					cli.UintFlag{
+						Name:     "node",
+						Value:    0,
+						Usage:    "node id",
+						Required: true,
+					},
+					cli.IntFlag{
+						Name:     "rootfs",
+						Value:    0,
+						Usage:    "root file system disk size",
+						Required: true,
+					},
+					cli.IntFlag{
+						Name:     "cpu",
+						Value:    0,
+						Usage:    "number of cpu",
+						Required: true,
+					},
+					cli.IntFlag{
+						Name:     "memory",
+						Value:    0,
+						Usage:    "memory size",
+						Required: true,
+					},
+				},
+				Action: deployNetwork(),
+			},
 		},
 	}
 
