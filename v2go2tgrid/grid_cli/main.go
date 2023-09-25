@@ -405,6 +405,43 @@ func main() {
 				},
 				Action: rmbDecorator(getNodePublicConfig),
 			},
+			{
+				Name:  "deploy-single",
+				Usage: "Get node public configuration",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "env",
+						Value:    "main",
+						Usage:    "network env",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "data",
+						Value:    "",
+						Usage:    "vm data",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "solution_type",
+						Value:    "",
+						Usage:    "solution type",
+						Required: true,
+					},
+					cli.UintFlag{
+						Name:     "node",
+						Value:    0,
+						Usage:    "node id",
+						Required: true,
+					},
+				},
+				Action: deployVM(),
+			},
 		},
 	}
 

@@ -12,6 +12,7 @@ pub:
 	substrate_url string
 	twin_id       u32
 	relay_url     string
+	env string
 pub mut:
 	logger log.Log
 }
@@ -28,6 +29,13 @@ const substrate_url = {
 	ChainNetwork.qa:   'wss://tfchain.qa.grid.tf/ws'
 	ChainNetwork.test: 'wss://tfchain.test.grid.tf/ws'
 	ChainNetwork.main: 'wss://tfchain.grid.tf/ws'
+}
+
+const envs = {
+	ChainNetwork.dev:  'dev'
+	ChainNetwork.qa:   'qa'
+	ChainNetwork.test: 'test'
+	ChainNetwork.main: 'main'
 }
 
 const relay_url = {
@@ -53,6 +61,7 @@ pub fn new_deployer(mnemonics string, chain_network ChainNetwork, mut logger log
 		substrate_url: tfgrid.substrate_url[chain_network]
 		twin_id: twin_id
 		relay_url: tfgrid.relay_url[chain_network]
+		env: tfgrid.envs[chain_network]
 		logger: logger
 	}
 }
@@ -141,5 +150,11 @@ pub fn (mut d Deployer) sign_deployment(hash string) !string {
 	if res.exit_code != 0 {
 		return error(res.output)
 	}
+	return res.output
+}
+
+pub fn (mut d Deployer) deploy_single_vm(node_id u32, solution_type string, vm models.VM) !string{
+	data := vm.json_encode()
+	res := os.execute("grid-cli deploy-single --mnemonics \"${d.mnemonics}\" --env ${d.env} --solution_type \"${solution_type}\" --node ${node_id} --data '${data}'")
 	return res.output
 }
