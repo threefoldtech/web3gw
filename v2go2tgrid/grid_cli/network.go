@@ -14,7 +14,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func deployNetwork() cli.ActionFunc {
+func deployVM() cli.ActionFunc {
 	return func(ctx *cli.Context) error {
 
 		mnemonics := ctx.String("mnemonics")
@@ -29,33 +29,20 @@ func deployNetwork() cli.ActionFunc {
 			return err
 		}
 
-		networkName := ctx.String("network_name")
-		vm_name := ctx.String("vm_name")
-		entrypoint := ctx.String("entryPoint")
-		flist := ctx.String("flist")
-		sshKey := ctx.String("sshKey")
-		node := uint32(ctx.Uint("node"))
-		rootfs := ctx.Int("rootfs")
-		cpu := ctx.Int("cpu")
-		memory := ctx.Int("memory")
-
-		vm := workloads.VM{
-			Name:    vm_name,
-			EnvVars: map[string]string{"SSH_KEY": string(sshKey)},
-			CPU:     cpu,
-			Memory:  memory * 1024,
-
-			RootfsSize: rootfs * 1024,
-			Flist:      flist,
-			Entrypoint: entrypoint,
+		data := ctx.String("data")
+		solutionType := ctx.String("solution_type")
+		node := uint32(ctx.Int("node"))
+		var vm workloads.VM
+		err = json.Unmarshal([]byte(data), &vm)
+		if err != nil {
+			return errors.Wrapf(err, "failed to unmarshal vm data %s ", data)
 		}
-
-		network := buildNetwork(networkName, vm.Name, []uint32{node})
+		networkName := fmt.Sprintf("%s_network", vm.Name)
+		network := buildNetwork(networkName, solutionType, []uint32{node})
 
 		mounts := []workloads.Disk{}
-
 		vm.NetworkName = networkName
-		dl := workloads.NewDeployment(vm.Name, node, vm.Name, nil, networkName, mounts, nil, []workloads.VM{vm}, nil)
+		dl := workloads.NewDeployment(vm.Name, node, solutionType, nil, networkName, mounts, nil, []workloads.VM{vm}, nil)
 
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
@@ -80,7 +67,7 @@ func deployNetwork() cli.ActionFunc {
 		return nil
 	}
 }
-func buildNetwork(name, projectName string, nodes []uint32) workloads.ZNet {
+func buildNetwork(name, solutionType string, nodes []uint32) workloads.ZNet {
 	return workloads.ZNet{
 		Name:  name,
 		Nodes: nodes,
@@ -88,6 +75,6 @@ func buildNetwork(name, projectName string, nodes []uint32) workloads.ZNet {
 			IP:   net.IPv4(10, 20, 0, 0),
 			Mask: net.CIDRMask(16, 32),
 		}),
-		SolutionType: projectName,
+		SolutionType: solutionType,
 	}
 }

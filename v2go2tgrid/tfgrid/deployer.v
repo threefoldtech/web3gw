@@ -12,6 +12,7 @@ pub:
 	substrate_url string
 	twin_id       u32
 	relay_url     string
+	env string
 pub mut:
 	logger log.Log
 }
@@ -28,6 +29,13 @@ const substrate_url = {
 	ChainNetwork.qa:   'wss://tfchain.qa.grid.tf/ws'
 	ChainNetwork.test: 'wss://tfchain.test.grid.tf/ws'
 	ChainNetwork.main: 'wss://tfchain.grid.tf/ws'
+}
+
+const envs = {
+	ChainNetwork.dev:  'dev'
+	ChainNetwork.qa:   'qa'
+	ChainNetwork.test: 'test'
+	ChainNetwork.main: 'main'
 }
 
 const relay_url = {
@@ -53,6 +61,7 @@ pub fn new_deployer(mnemonics string, chain_network ChainNetwork, mut logger log
 		substrate_url: tfgrid.substrate_url[chain_network]
 		twin_id: twin_id
 		relay_url: tfgrid.relay_url[chain_network]
+		env: tfgrid.envs[chain_network]
 		logger: logger
 	}
 }
@@ -144,17 +153,8 @@ pub fn (mut d Deployer) sign_deployment(hash string) !string {
 	return res.output
 }
 
-pub fn (mut d Deployer) deploy_single_vm() !string {
-	network_name := 'nettest2'
-	name := 'vm1'
-	flist := 'https://hub.grid.tf/tf-official-apps/base:latest.flist'
-	cpu := 2
-	memory := 10
-	rootfs := 4
-	entrypoint := '/sbin/zinit init'
-	node := 11
-	sshkey := 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKkaopr/tRilmLprntgqAO6JxnhzhrrB02KeUsNys9qj/G4RtXK4hKZo3yj42Kuoub53TxoW/BfZSRUbY0VNUgZSsifCyDE4g1UXi83ic+uepPb1VIfzlFdtZPUo/dEtjfS5FM7GVAPZCDik08w2+uXeZiAKavLTDQFh2cuIqE5QnQ44enODTMkSDPVJSKJ6NSoNcrY2I++AtcxgNFzy/7YWoT/bA19CliGqxBMSQ/GjOEAF3iQjUPc5LYcqCYAc0Y6WPt2l8uEVvhJAtsLelGApt8v/Nq/OBEKJpUQB2cfkyKlwLLphKFtQ8gcKjrbpE47lVsfbW68uqCw/5avA71HlS6AXxMeda8GZ99UqDTOLoUbd+EEo17hiHs6Nvle8DHNfWdGT2wx+DhzZeCO719UadmQxFLYDd75dDH5gLkMxr9JXPWDqdxvsyMZilxZPk3UQbK811obYSMrc9L+u8vwLs0weUBxnygutnU0eF9cRQxFgx3zOOfwI1ugI9SgSU= omarkassem099@gmail.com'
-
-	res := os.execute("grid-cli deploy-single --mnemonics \"${d.mnemonics}\" --env dev  --network_name \"${network_name}\" --vm_name \"${name}\" --flist \"${flist}\" --cpu \"${cpu}\" --memory \"${memory}\" --node \"${node}\" --entrypoint \"${entrypoint}\" --sshkey \"${sshkey}\" --rootfs \"${rootfs}\"")
+pub fn (mut d Deployer) deploy_single_vm(node_id u32, solution_type string, vm models.VM) !string{
+	data := vm.json_encode()
+	res := os.execute("grid-cli deploy-single --mnemonics \"${d.mnemonics}\" --env ${d.env} --solution_type \"${solution_type}\" --node ${node_id} --data '${data}'")
 	return res.output
 }
