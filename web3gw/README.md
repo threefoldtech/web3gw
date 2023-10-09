@@ -4,8 +4,11 @@
 
 ### Build and Run
 
+Inside the 3bot directory, run:
+
 ```sh
-go build . && ./server --debug
+cd web3gw
+./build.sh &&  ~/go/bin/web3gw-server --debug 
 ```
 
 The server will now listen on `ws://localhost:8080`
