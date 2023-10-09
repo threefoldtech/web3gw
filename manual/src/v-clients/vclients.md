@@ -1,4 +1,4 @@
-# web3 proxy clients for v
+# web3gw clients for v
 
 ## RPC websocket client
 

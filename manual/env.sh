@@ -1,1 +1,1 @@
-export NAME='web3_proxy'
+export NAME='web3gw'

@@ -1,6 +1,6 @@
 
 # TFgrid
-TFgrid is one of the clients that web3 proxy opens up. Below you can find the remote procedure calls it can handle. We use the json rpc 2.0 protocol. All possible json rpc request are shown below with the corresponding response that the web3 proxy will send back.
+TFgrid is one of the clients that web3gw opens up. Below you can find the remote procedure calls it can handle. We use the json rpc 2.0 protocol. All possible json rpc request are shown below with the corresponding response that the web3gw will send back.
 
 ## Remote Procedure Calls
 In this section you'll find the json rpc requests and responses of all the remote procedure calls. The fields params can contain text formated as <MODEL_*>. These represent json objects that are defined further down the document in section [Models](#models). 

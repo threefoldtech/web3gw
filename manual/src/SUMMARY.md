@@ -1,4 +1,4 @@
-# [**Web3 Proxy**](README.md)
+# [**web3gw**](README.md)
 
 - [Server](server/server.md)
   - [Functionality](server/functionality/functionality.md)

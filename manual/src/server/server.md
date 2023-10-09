@@ -1,8 +1,8 @@
 # Server
 
-The server is the main component of the web3 proxy. It is responsible for the following:
+The server is the main component of the web3gw. It is responsible for the following:
 
-- Serving the web3 proxy API
+- Serving the web3gw API
 - Providing a websocket connection to the client
 
 ## Running the server
@@ -22,7 +22,7 @@ go build && ./server --debug
 
 ## Lib
 
-The lib folder contains all the client code for the web3 proxy. It is used by the server to communicate with the client.
+The lib folder contains all the client code for the web3gw. It is used by the server to communicate with the client.
 
 ## Examples
 

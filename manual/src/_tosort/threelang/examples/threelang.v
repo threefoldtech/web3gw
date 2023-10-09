@@ -16,7 +16,7 @@ fn main() {
 	fp.skip_executable()
 
 	config_file_path := fp.string('file', `f`, '', 'The path to the markdown file containing threelang.')
-	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3_proxy server to connect to.')
+	address := fp.string('address', `a`, '${default_server_address}', 'The address of the web3gw server to connect to.')
 	debug_log := fp.bool('debug', 0, false, 'By setting this flag the client will print debug logs too.')
 
 	_ := fp.finalize() or {

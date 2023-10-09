@@ -1,4 +1,4 @@
-# Web3 Proxy Manual
+# web3gw Manual
 
 ## Prerequisites: Install MdBook
 

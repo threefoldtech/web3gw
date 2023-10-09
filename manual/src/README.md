@@ -1,8 +1,10 @@
-# web3_proxy manual
+# web3gw manual
 
 > TODO: there is quite some manual info which needs to be moved to crystallib manual
 
 Coming soon...
+
+> TODO: are the playgrounds for openrpc working?
 
 Playgrounds:
 - [All clients](playground/?schemaUrl=../openrpc/openrpc.json)
