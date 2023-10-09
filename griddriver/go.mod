@@ -1,6 +1,8 @@
 module github.com/threefoldtech/3bot/grid-cli
 
-go 1.20
+go 1.21
+
+toolchain go1.21.0
 
 require (
 	github.com/pkg/errors v0.9.1
@@ -39,7 +41,7 @@ require (
 require (
 	github.com/ChainSafe/go-schnorrkel v1.1.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.1.0 // indirect
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
@@ -59,7 +61,7 @@ require (
 	github.com/rs/cors v1.10.1 // indirect
 	github.com/rs/zerolog v1.31.0
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/vedhavyas/go-subkey v1.0.4 // indirect
+	github.com/vedhavyas/go-subkey v1.0.3 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
