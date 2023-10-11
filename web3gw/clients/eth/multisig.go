@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/threefoldtech/3bot/web3gw/server/clients/eth/erc20"
-	"github.com/threefoldtech/3bot/web3gw/server/clients/eth/gnosis"
+	"github.com/threefoldtech/web3gw/web3gw/server/clients/eth/erc20"
+	"github.com/threefoldtech/web3gw/web3gw/server/clients/eth/gnosis"
 )
 
 func (c *Client) GetMultisigVersion(contractAddress string) (string, error) {

@@ -4,7 +4,7 @@
 
 ### Build and Run
 
-Inside the 3bot directory, run:
+Inside the web3gw directory, run:
 
 ```sh
 cd web3gw

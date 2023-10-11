@@ -1,4 +1,4 @@
-module github.com/threefoldtech/3bot/web3gw/server
+module github.com/threefoldtech/web3gw/web3gw/server
 
 go 1.21
 

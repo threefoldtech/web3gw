@@ -10,7 +10,7 @@
   - how to install:
 
     ```bash
-        cd 3bot/grid_cli
+        cd web3gw/grid_cli
         go build -o grid-cli
         sudo mv grid-cli /usr/bin/
     ```
@@ -121,4 +121,4 @@
         }
     ```
 
-For more examples, go to [examples](../../../../3bot/zos/examples/)
+For more examples, go to [examples](../../../../web3gw/zos/examples/)

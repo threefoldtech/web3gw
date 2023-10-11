@@ -1,4 +1,4 @@
-module github.com/threefoldtech/3bot/grid-cli
+module github.com/threefoldtech/web3gw/grid-cli
 
 go 1.21
 

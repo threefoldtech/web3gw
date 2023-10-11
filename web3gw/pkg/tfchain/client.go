@@ -13,9 +13,9 @@ import (
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/cosmos/go-bip39"
-	"github.com/threefoldtech/3bot/web3gw/server/pkg"
-	"github.com/threefoldtech/3bot/web3gw/server/pkg/state"
 	substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
+	"github.com/threefoldtech/web3gw/web3gw/server/pkg"
+	"github.com/threefoldtech/web3gw/web3gw/server/pkg/state"
 )
 
 const (

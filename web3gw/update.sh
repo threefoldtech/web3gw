@@ -1,4 +1,4 @@
-cd ~/code/github/threefoldtech/3bot/web3gw
+cd ~/code/github/threefoldtech/web3gw/web3gw
 go get -u ./...
 go mod tidy
 

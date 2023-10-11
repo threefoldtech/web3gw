@@ -1,4 +1,5 @@
 # GridProxy API client
+
 Easily access Threefold grid APIs from vlang. gridproxy is v module include the API client along with API-specific information such as the root URL for the different networks available in the threefold grid. They also include classes that represent entities in the context of the API in sub-module `model`, and that are useful for making conversions between JSON objects and V objects. and some types with helper methods to convert the machine-friendly units returned by the API to more human-friendly units.
 
 ## client usage
@@ -6,11 +7,13 @@ Easily access Threefold grid APIs from vlang. gridproxy is v module include the 
 If you want to use the client, you need to import it in your code.
 
 * import the client:
+
   ```v
   import threefoldtech.vgrid.gridproxy
   ```
 
 * create a client:
+
   ```v
   // create a client for the testnet, with API cache disabled
   // you can pass true as second arg to enable cache
@@ -18,6 +21,7 @@ If you want to use the client, you need to import it in your code.
   ```
 
 * use the client to interact with the gridproxy API:
+
   ```v
   // get farm list
   farms := gp_client.get_farms()! // you should handle any possible errors in your code
@@ -36,9 +40,11 @@ If you want to use the client, you need to import it in your code.
   // get twins
   twins := gp_client.get_twins()!
   ```
-  for all available methods on the client, see [GridProxy API client modules doc][GridProxy API client modules doc](../../../3bot/vgrid/gridproxy/docs/)
+
+  for all available methods on the client, see [GridProxy API client modules doc][GridProxy API client modules doc](../../../web3gw/vgrid/gridproxy/docs/)
 
 * filtering:
+
   ```v
   // getting only dedicated farms
   farms_dedicated := gp_client.get_farms(dedicated: true)!
@@ -57,9 +63,10 @@ If you want to use the client, you need to import it in your code.
   }
   ```
 
-  for all available filters, see [GridProxy API client modules doc][GridProxy API client modules doc](../../../3bot/vgrid/gridproxy/docs/)
+  for all available filters, see [GridProxy API client modules doc][GridProxy API client modules doc](../../../web3gw/vgrid/gridproxy/docs/)
 
 * helper methods:
+
   ```v
   node := nodes[0]
   node.updated_at // 1655940222
@@ -81,10 +88,12 @@ If you want to use the client, you need to import it in your code.
   node.total_resources.mru.to_gigabytes() // 202.80303616
   // the helper methods available for the billing to help you convert the TFT units as well
   ```
-  for all available helper methods, see [GridProxy API client modules doc](../../../3bot/vgrid/gridproxy/docs/)
+
+  for all available helper methods, see [GridProxy API client modules doc](../../../web3gw/vgrid/gridproxy/docs/)
 
   TODO:
   * Documented the client iterators and higher-level methods
 
 ## Client Examples
-there are scripts available to serve as examples in the [examples](../../../3bot/vgrid/examples/) directory. [Docs](../../../3bot/vgrid/examples/)
+
+there are scripts available to serve as examples in the [examples](../../../web3gw/vgrid/examples/) directory. [Docs](../../../web3gw/vgrid/examples/)

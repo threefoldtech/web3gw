@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/3bot/web3gw/server/clients/eth/erc20"
+	"github.com/threefoldtech/web3gw/web3gw/server/clients/eth/erc20"
 )
 
 func (c *Client) GetTokenBalance(contractAddress string) (string, error) {

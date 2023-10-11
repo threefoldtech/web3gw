@@ -16,7 +16,7 @@ import (
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/keypair"
 	"github.com/threefoldfoundation/tft/accountactivation/eth/contract"
-	stellargoclient "github.com/threefoldtech/3bot/web3gw/server/clients/stellar"
+	stellargoclient "github.com/threefoldtech/web3gw/web3gw/server/clients/stellar"
 )
 
 const (

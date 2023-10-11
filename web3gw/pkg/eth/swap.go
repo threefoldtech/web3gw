@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/LeeSmet/go-jsonrpc"
-	"github.com/threefoldtech/3bot/web3gw/server/pkg"
+	"github.com/threefoldtech/web3gw/web3gw/server/pkg"
 )
 
 func (c *Client) QuoteEthForTft(ctx context.Context, conState jsonrpc.State, amountIn string) (string, error) {

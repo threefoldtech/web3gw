@@ -5,10 +5,10 @@ import (
 
 	"github.com/LeeSmet/go-jsonrpc"
 	"github.com/pkg/errors"
-	atomicswap "github.com/threefoldtech/3bot/web3gw/server/clients/atomic_swap"
-	"github.com/threefoldtech/3bot/web3gw/server/pkg/eth"
-	nostrpkg "github.com/threefoldtech/3bot/web3gw/server/pkg/nostr"
-	"github.com/threefoldtech/3bot/web3gw/server/pkg/stellar"
+	atomicswap "github.com/threefoldtech/web3gw/web3gw/server/clients/atomic_swap"
+	"github.com/threefoldtech/web3gw/web3gw/server/pkg/eth"
+	nostrpkg "github.com/threefoldtech/web3gw/web3gw/server/pkg/nostr"
+	"github.com/threefoldtech/web3gw/web3gw/server/pkg/stellar"
 )
 
 type (

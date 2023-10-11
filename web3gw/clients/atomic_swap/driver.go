@@ -9,10 +9,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
-	goethclient "github.com/threefoldtech/3bot/web3gw/server/clients/eth"
-	"github.com/threefoldtech/3bot/web3gw/server/clients/nostr"
-	stellargoclient "github.com/threefoldtech/3bot/web3gw/server/clients/stellar"
 	"github.com/threefoldtech/atomicswap/eth"
+	goethclient "github.com/threefoldtech/web3gw/web3gw/server/clients/eth"
+	"github.com/threefoldtech/web3gw/web3gw/server/clients/nostr"
+	stellargoclient "github.com/threefoldtech/web3gw/web3gw/server/clients/stellar"
 )
 
 type (
