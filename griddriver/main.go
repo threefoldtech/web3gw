@@ -442,6 +442,47 @@ func main() {
 				},
 				Action: deployVM(),
 			},
+			{
+				Name:  "rmb",
+				Usage: "Make RMB call",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:     "substrate",
+						Value:    "wss://tfchain.grid.tf/ws",
+						Usage:    "substrate URL",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "mnemonics",
+						Value:    "",
+						Usage:    "user mnemonics",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "relay",
+						Value:    "wss://relay.grid.tf/ws",
+						Usage:    "relay URL",
+						Required: true,
+					},
+					cli.UintFlag{
+						Name:     "dst",
+						Value:    0,
+						Usage:    "destination node",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:     "cmd",
+						Usage:    "rmb command",
+						Required: true,
+					},
+					cli.StringFlag{
+						Name:  "payload",
+						Value: "",
+						Usage: "command payload",
+					},
+				},
+				Action: rmbDecorator(rmbCall),
+			},
 		},
 	}
 

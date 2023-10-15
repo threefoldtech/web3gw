@@ -44,6 +44,32 @@ func rmbDecorator(action func(c *cli.Context, client *direct.RpcCLient) (interfa
 	}
 }
 
+func rmbCall(c *cli.Context, client *direct.RpcCLient) (interface{}, error) {
+	dst := uint32(c.Uint("dst"))
+	cmd := c.String("cmd")
+	payload := c.String("payload")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	var pl interface{}
+	if err := json.Unmarshal([]byte(payload), &pl); err != nil {
+		return nil, err
+	}
+
+	var res interface{}
+	if err := client.Call(ctx, dst, cmd, pl, &res); err != nil {
+		return nil, err
+	}
+
+	b, err := json.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(b), nil
+}
+
 func deploymentChanges(c *cli.Context, client *direct.RpcCLient) (interface{}, error) {
 	dst := uint32(c.Uint("dst"))
 	contractID := c.Uint64("contract_id")
