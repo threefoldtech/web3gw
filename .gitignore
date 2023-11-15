@@ -6,3 +6,4 @@ manual/book
 openrpc.json
 *dSYM/
 griddriver/grid-cli
+server
