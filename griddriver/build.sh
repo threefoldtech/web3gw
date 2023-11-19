@@ -6,7 +6,7 @@ set -ex
 current_version=$(go version | awk '{print $3}' | sed 's/go//')
 
 # Define the minimum required version
-min_version="1.21.3"
+min_version="1.21.1"
 
 # Function to compare versions
 version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }

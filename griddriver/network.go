@@ -12,6 +12,7 @@ import (
 	"github.com/threefoldtech/tfgrid-sdk-go/grid-client/workloads"
 	"github.com/threefoldtech/zos/pkg/gridtypes"
 	"github.com/urfave/cli"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 func deployVM() cli.ActionFunc {
@@ -77,4 +78,15 @@ func buildNetwork(name, solutionType string, nodes []uint32) workloads.ZNet {
 		}),
 		SolutionType: solutionType,
 	}
+}
+
+func generateWgPrivKey() error {
+	key, err := wgtypes.GeneratePrivateKey()
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to generate wireguard secret key")
+	}
+	fmt.Printf("%s %s", key.String(), key.PublicKey().String())
+	return nil
+
 }

@@ -443,6 +443,14 @@ func main() {
 				Action: deployVM(),
 			},
 			{
+				Name:  "generate-wg-key",
+				Usage: "Generates wireguard private key",
+				Flags: []cli.Flag{},
+				Action: func(c *cli.Context) error {
+					return generateWgPrivKey()
+				},
+			},
+			{
 				Name:  "rmb",
 				Usage: "Make RMB call",
 				Flags: []cli.Flag{
