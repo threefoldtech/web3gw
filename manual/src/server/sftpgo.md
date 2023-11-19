@@ -18,7 +18,7 @@ You can start the server by using either one of the following two methods descri
 
 This requires a linux machine as a host.
 
-To have everything up and running, you can use `docker-compose` to start the necessary comopenents:
+To have everything up and running, you can use `docker-compose` to start the necessary components:
 
 - web proxy with sftpgo
 - document server
