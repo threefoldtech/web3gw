@@ -27,7 +27,7 @@ The json rpc 2.0 server should now be up and running and should allow you to cal
 
 ## Installing the V library
 
-If you wish to use the V library to contact the server you first have to install the V libary. Please execute the command shown below. The V library has a dependency on [crystallib](https://github.com/freeflowuniverse/crystallib). The bash scrips show below will do that for you unless you install it first. Installing it first allows you to be able to use different branches from crystallib as runtime code.
+If you wish to use the V library to contact the server you first have to install the V library. Please execute the command shown below. The V library has a dependency on [crystallib](https://github.com/freeflowuniverse/crystallib). The bash scripts shown below will do that for you unless you install it first. Installing it first allows you to be able to use different branches from crystallib as runtime code.
 
 ```sh
 ./install.sh
