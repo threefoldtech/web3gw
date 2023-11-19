@@ -201,21 +201,21 @@ func (c *Client) Counters(filters proxyTypes.StatsFilter) (proxyTypes.Counters, 
 ```
 
 ### DeployDiscourse
-- Deploy vm that has discource on it
+- Deploy vm that has discourse on it
 
 ```
 func (c *Client) DeployDiscourse(args tfgridBase.DeployDiscourse) (tfgridBase.DiscourceDeployment, error)
 ```
 
 ### GetDiscourceDeployment
-- Retrieve information about the discource deployment (ip, etc)
+- Retrieve information about the discourse deployment (ip, etc)
 
 ```
 func (c *Client) GetDiscourceDeployment(name string) (tfgridBase.DiscourceDeployment, error)
 ```
 
 ### CancelDiscourceDeployment
-- Cancel the discource deployment
+- Cancel the discourse deployment
 
 ```
 func (c *Client) CancelDiscourceDeployment(name string) error
@@ -257,7 +257,7 @@ func (c *Client) GetPeertubeDeployment(name string) (tfgridBase.PeertubeDeployme
 ```
 
 ### CancelPeertubeDeployment
-- Cancel the discource deployment
+- Cancel the discourse deployment
 
 
 ```
@@ -279,7 +279,7 @@ func (c *Client) GetPresearchDeployment(name string) (tfgridBase.PresearchDeploy
 ```
 
 ### CancelPresearchDeployment
-- Cancel the discource deployment
+- Cancel the discourse deployment
 
 ```
 func (c *Client) CancelPresearchDeployment(name string) error
@@ -299,7 +299,7 @@ func (c *Client) GetTaigaDeployment(taigaName string) (tfgridBase.TaigaResult, e
 ```
 
 ### CancelTaigaDeployment
-- Cancel the discource deployment
+- Cancel the discourse deployment
 
 ```
 func (c *Client) CancelTaigaDeployment(name string) error 
@@ -433,11 +433,11 @@ func (c *Client) Height() (uint64, error)
 ```
 
 ### Transfer
-- Transer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
+- Transfer an amount of Eth from the loaded account to the destination. The transaction ID is returned.
 
 ```
 Transfer struct {
-	Amount      string `json:"amount"` // how much should be transfered
+	Amount      string `json:"amount"` // how much should be transferred
 	Destination string `json:"destination"` // the eth public address of the destination account 
     Asset       string `json:"asset"` // the asset to transfer to the destination account, default will be eth
 }
@@ -463,7 +463,7 @@ func (c *Client) Swap(args Swap) (string, error)
 
 ```
 TftTransfer struct {
-	Amount      string `json:"amount"` // how much should be transfered
+	Amount      string `json:"amount"` // how much should be transferred
 	Destination string `json:"destination"` // the eth public address of the destination account 
 }
 func (c *Client) BridgeToStellar(args TftTransfer) (string, error)
@@ -788,7 +788,7 @@ func (c *Client) CreateChannelMessage(input CreateChannelMessageInput) (string, 
 ```
 
 ### SubscribeChannelMessage
-- subscribes to a channel messages or message replies, depending on the the id provided
+- subscribes to a channel messages or message replies, depending on the id provided
 
 ```
 func (c *Client) SubscribeChannelMessage(input SubscribeChannelMessageInput) (string, error)
